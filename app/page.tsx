@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const metrics = [
-  { label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
-  { label: "Core inflation", value: "2.0%", detail: "Underlying pressure", period: "May 2026", tone: "teal" },
-  { label: "Overnight Policy Rate", value: "2.75%", detail: "BNM policy setting", period: "Jul 2026", tone: "navy" },
-  { label: "Unemployment", value: "3.0%", detail: "Share of labour force", period: "May 2026", tone: "teal" },
-  { label: "USD / MYR", value: "RM 4.04", detail: "Monthly average", period: "May 2026", tone: "navy" },
-  { label: "10-year MGS", value: "3.63%", detail: "Government bond yield", period: "Jul 2026", tone: "rust" },
+  { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
+  { id: "core", label: "Core inflation", value: "2.0%", detail: "Underlying pressure", period: "May 2026", tone: "teal" },
+  { id: "opr", label: "Overnight Policy Rate", value: "2.75%", detail: "BNM policy setting", period: "Jul 2026", tone: "navy" },
+  { id: "unemployment", label: "Unemployment", value: "3.0%", detail: "Share of labour force", period: "May 2026", tone: "teal" },
+  { id: "fx", label: "USD / MYR", value: "RM 4.04", detail: "Monthly average", period: "May 2026", tone: "navy" },
+  { id: "mgs", label: "10-year MGS", value: "3.63%", detail: "Government bond yield", period: "Jul 2026", tone: "rust" },
 ];
 
 const history = [1.8, 1.8, 1.9, 1.8, 1.7, 1.7, 1.5, 1.4, 1.4, 1.2, 1.1, 1.2, 1.3, 1.5, 1.3, 1.4, 1.6, 1.6, 1.4, 1.7, 1.9, 2.0];
@@ -62,19 +62,392 @@ function Header() {
   );
 }
 
-function MetricCard({ metric }: { metric: (typeof metrics)[number] }) {
+type Metric = (typeof metrics)[number];
+type RangeKey = "1Y" | "3Y" | "5Y" | "10Y" | "ALL" | "CUSTOM";
+type DataPoint = { date: string; value: number };
+type IndicatorData = {
+  id: Metric["id"];
+  title: string;
+  unit: string;
+  decimals: number;
+  source: string;
+  sourceUrl: string;
+  frequency: string;
+  points: DataPoint[];
+};
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("en-MY", { month: "short", year: "numeric" })
+    .format(new Date(`${date}T00:00:00`));
+}
+
+function formatValue(value: number, data: IndicatorData) {
+  return data.unit === "RM"
+    ? `RM ${value.toFixed(data.decimals)}`
+    : `${value.toFixed(data.decimals)}${data.unit}`;
+}
+
+function buildAnalysis(data: IndicatorData, points: DataPoint[]) {
+  if (points.length < 2) return null;
+  const values = points.map((point) => point.value);
+  const first = points[0];
+  const last = points[points.length - 1];
+  const change = last.value - first.value;
+  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const high = points.reduce((best, point) => point.value > best.value ? point : best);
+  const low = points.reduce((best, point) => point.value < best.value ? point : best);
+  const monthlyChanges = values.slice(1).map((value, index) => value - values[index]);
+  const changeAverage = monthlyChanges.reduce((sum, value) => sum + value, 0) / monthlyChanges.length;
+  const volatility = Math.sqrt(
+    monthlyChanges.reduce((sum, value) => sum + (value - changeAverage) ** 2, 0)
+    / monthlyChanges.length,
+  );
+  const threshold = data.id === "fx" ? 0.03 : 0.1;
+  const direction = Math.abs(change) < threshold ? "broadly stable" : change > 0 ? "higher" : "lower";
+  const absoluteChange = Math.abs(change);
+  const changeText = data.id === "fx"
+    ? `RM ${absoluteChange.toFixed(2)}`
+    : `${absoluteChange.toFixed(data.decimals)} percentage points`;
+
+  const meanings: Record<Metric["id"], string> = {
+    headline: change > threshold
+      ? "Price pressure increased over this window. Persistent increases can reduce household purchasing power and influence expectations for interest rates."
+      : change < -threshold
+        ? "Headline price pressure eased over this window. This can improve purchasing-power conditions, although individual household inflation may differ."
+        : "Headline inflation was comparatively stable. The mix of food, energy and administered prices still matters even when the overall rate changes little.",
+    core: change > threshold
+      ? "Underlying inflation strengthened, suggesting price pressure became broader or more persistent beyond volatile items."
+      : change < -threshold
+        ? "Underlying inflation softened, suggesting broader price pressure became less persistent."
+        : "Underlying inflation remained relatively steady, pointing to limited change in broad-based price momentum.",
+    opr: change > threshold
+      ? "The policy setting became tighter. Higher policy rates generally restrain demand and feed into deposit and lending rates with a delay."
+      : change < -threshold
+        ? "The policy setting became more accommodative. Lower rates can support demand, while the effect depends on credit conditions and confidence."
+        : "The policy rate was stable across the selected endpoints. Unchanged rates do not necessarily mean the policy stance was unchanged in real terms.",
+    unemployment: change > threshold
+      ? "Labour-market conditions softened as unemployment rose. The size and persistence of the change matter more than a single monthly movement."
+      : change < -threshold
+        ? "Labour-market conditions improved as unemployment declined, which may support household income and consumption."
+        : "The unemployment rate was broadly stable, suggesting little net change in labour-market slack across the selected endpoints.",
+    fx: change > threshold
+      ? "A higher USD/MYR rate means the ringgit weakened against the US dollar. This can raise imported costs but may support ringgit-denominated export receipts."
+      : change < -threshold
+        ? "A lower USD/MYR rate means the ringgit strengthened against the US dollar, reducing some imported-cost pressure."
+        : "The ringgit was broadly stable against the US dollar across the selected endpoints, although volatility may have occurred within the period.",
+    mgs: change > threshold
+      ? "The 10-year government yield increased, implying tighter long-term financing conditions and lower prices for comparable existing bonds."
+      : change < -threshold
+        ? "The 10-year government yield declined, easing long-term benchmark financing conditions and supporting comparable existing bond prices."
+        : "The 10-year government yield was broadly stable, suggesting limited net change in the long-term benchmark rate.",
+  };
+
+  return {
+    first,
+    last,
+    change,
+    changeText,
+    direction,
+    average,
+    high,
+    low,
+    volatility,
+    meaning: meanings[data.id],
+  };
+}
+
+function TimeSeriesChart({ data, points }: { data: IndicatorData; points: DataPoint[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || points.length < 2) return;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const draw = () => {
+      const width = Math.max(container.clientWidth, 420);
+      const height = 330;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      context.scale(ratio, ratio);
+      context.clearRect(0, 0, width, height);
+
+      const padding = { top: 28, right: 22, bottom: 44, left: 58 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const values = points.map((point) => point.value);
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      const spread = Math.max(max - min, data.id === "fx" ? 0.15 : 0.5);
+      min -= spread * 0.14;
+      max += spread * 0.14;
+      const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
+      const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
+
+      context.font = "11px DM Sans, sans-serif";
+      context.fillStyle = "#7b837f";
+      context.strokeStyle = "#e1dbd0";
+      context.lineWidth = 1;
+      for (let index = 0; index < 5; index += 1) {
+        const value = max - index / 4 * (max - min);
+        const yPosition = padding.top + index / 4 * chartHeight;
+        context.beginPath();
+        context.moveTo(padding.left, yPosition);
+        context.lineTo(width - padding.right, yPosition);
+        context.stroke();
+        context.fillText(
+          data.unit === "RM" ? value.toFixed(2) : `${value.toFixed(data.decimals)}%`,
+          4,
+          yPosition + 4,
+        );
+      }
+
+      const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      gradient.addColorStop(0, "rgba(223,91,54,.24)");
+      gradient.addColorStop(1, "rgba(223,91,54,0)");
+      context.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) context.moveTo(x(index), y(point.value));
+        else context.lineTo(x(index), y(point.value));
+      });
+      context.lineTo(x(points.length - 1), height - padding.bottom);
+      context.lineTo(x(0), height - padding.bottom);
+      context.closePath();
+      context.fillStyle = gradient;
+      context.fill();
+
+      context.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) context.moveTo(x(index), y(point.value));
+        else context.lineTo(x(index), y(point.value));
+      });
+      context.strokeStyle = "#df5b36";
+      context.lineWidth = 3;
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      context.stroke();
+
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
+        context.fillStyle = "#68716d";
+        const label = formatDate(points[index].date);
+        const measured = context.measureText(label).width;
+        const labelX = index === 0 ? x(index) : index === points.length - 1 ? x(index) - measured : x(index) - measured / 2;
+        context.fillText(label, labelX, height - 15);
+      });
+
+      const last = points[points.length - 1];
+      context.beginPath();
+      context.arc(x(points.length - 1), y(last.value), 5, 0, Math.PI * 2);
+      context.fillStyle = "#df5b36";
+      context.fill();
+      context.strokeStyle = "#fffdf7";
+      context.lineWidth = 3;
+      context.stroke();
+    };
+
+    draw();
+    const observer = new ResizeObserver(draw);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [data, points]);
+
   return (
-    <article className={`metric-card ${metric.tone}`}>
+    <div className="detail-chart-wrap">
+      <canvas
+        ref={canvasRef}
+        role="img"
+        aria-label={`${data.title} chart with ${points.length} observations from ${formatDate(points[0].date)} to ${formatDate(points[points.length - 1].date)}`}
+      />
+    </div>
+  );
+}
+
+function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: Metric) => void }) {
+  return (
+    <button
+      className={`metric-card ${metric.tone}`}
+      onClick={() => onSelect(metric)}
+      aria-label={`Open historical data for ${metric.label}`}
+    >
       <div className="metric-topline"><span>{metric.label}</span><i /></div>
       <strong>{metric.value}</strong>
       <p>{metric.detail}</p>
       <small>Release period · {metric.period}</small>
-    </article>
+      <span className="metric-open">View history <b>↗</b></span>
+    </button>
+  );
+}
+
+function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => void }) {
+  const [data, setData] = useState<IndicatorData | null>(null);
+  const [error, setError] = useState("");
+  const [range, setRange] = useState<RangeKey>("5Y");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+  const [showTable, setShowTable] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.add("modal-open");
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeWithEscape);
+    return () => {
+      document.body.classList.remove("modal-open");
+      window.removeEventListener("keydown", closeWithEscape);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    let active = true;
+    setData(null);
+    setError("");
+    fetch(`/api/indicator?id=${metric.id}`)
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Unable to load data");
+        return payload as IndicatorData;
+      })
+      .then((payload) => {
+        if (!active) return;
+        setData(payload);
+        setCustomStart(payload.points[0]?.date ?? "");
+        setCustomEnd(payload.points[payload.points.length - 1]?.date ?? "");
+      })
+      .catch((reason: Error) => active && setError(reason.message));
+    return () => { active = false; };
+  }, [metric]);
+
+  const filtered = useMemo(() => {
+    if (!data?.points.length) return [];
+    const end = new Date(`${data.points[data.points.length - 1].date}T00:00:00`);
+    let start: Date | null = null;
+    if (range !== "ALL" && range !== "CUSTOM") {
+      start = new Date(end);
+      start.setFullYear(start.getFullYear() - Number(range.replace("Y", "")));
+    }
+    return data.points.filter((point) => {
+      const date = new Date(`${point.date}T00:00:00`);
+      if (range === "CUSTOM") {
+        return (!customStart || point.date >= customStart)
+          && (!customEnd || point.date <= customEnd);
+      }
+      return !start || date >= start;
+    });
+  }, [data, range, customStart, customEnd]);
+
+  const analysis = data ? buildAnalysis(data, filtered) : null;
+
+  return (
+    <div className="detail-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+        <header className="detail-header">
+          <div>
+            <span className="detail-kicker">Interactive indicator explorer</span>
+            <h2 id="detail-title">{data?.title ?? metric.label}</h2>
+            <p>{data ? `${data.frequency} · ${data.points.length} observations available` : "Loading the official historical series…"}</p>
+          </div>
+          <button className="detail-close" onClick={onClose} aria-label="Close indicator details">×</button>
+        </header>
+
+        {error && <div className="detail-error">{error}</div>}
+        {!data && !error && <div className="detail-loading"><i /><span>Retrieving and validating the official series…</span></div>}
+
+        {data && (
+          <>
+            <div className="range-toolbar" aria-label="Select time frame">
+              <span>Time frame</span>
+              <div>
+                {(["1Y", "3Y", "5Y", "10Y", "ALL"] as RangeKey[]).map((option) => (
+                  <button
+                    key={option}
+                    className={range === option ? "active" : ""}
+                    onClick={() => setRange(option)}
+                  >
+                    {option === "ALL" ? "All" : option}
+                  </button>
+                ))}
+                <button className={range === "CUSTOM" ? "active" : ""} onClick={() => setRange("CUSTOM")}>Custom</button>
+              </div>
+            </div>
+
+            {range === "CUSTOM" && (
+              <div className="custom-range">
+                <label>From<input type="date" value={customStart} min={data.points[0]?.date} max={customEnd} onChange={(event) => setCustomStart(event.target.value)} /></label>
+                <label>To<input type="date" value={customEnd} min={customStart} max={data.points[data.points.length - 1]?.date} onChange={(event) => setCustomEnd(event.target.value)} /></label>
+              </div>
+            )}
+
+            {filtered.length >= 2 && analysis ? (
+              <>
+                <TimeSeriesChart data={data} points={filtered} />
+                <div className="detail-stats">
+                  <article><span>Latest</span><strong>{formatValue(analysis.last.value, data)}</strong><small>{formatDate(analysis.last.date)}</small></article>
+                  <article><span>Period change</span><strong className={analysis.change > 0 ? "up" : analysis.change < 0 ? "down" : ""}>{analysis.change > 0 ? "+" : analysis.change < 0 ? "−" : ""}{analysis.changeText}</strong><small>From {formatDate(analysis.first.date)}</small></article>
+                  <article><span>Period average</span><strong>{formatValue(analysis.average, data)}</strong><small>{filtered.length} observations</small></article>
+                  <article><span>Range</span><strong>{formatValue(analysis.low.value, data)} – {formatValue(analysis.high.value, data)}</strong><small>Low to high</small></article>
+                </div>
+                <div className="detail-analysis">
+                  <div>
+                    <span>Period analysis</span>
+                    <h3>{data.title} ended the selected period {analysis.direction}.</h3>
+                  </div>
+                  <p>
+                    It moved from {formatValue(analysis.first.value, data)} in {formatDate(analysis.first.date)}
+                    {" "}to {formatValue(analysis.last.value, data)} in {formatDate(analysis.last.date)}.
+                    {" "}{analysis.meaning}
+                  </p>
+                  <small>Monthly-change volatility: {analysis.volatility.toFixed(data.decimals + 1)} {data.unit === "RM" ? "ringgit" : "percentage points"}. This is descriptive analysis, not a causal estimate or forecast.</small>
+                </div>
+              </>
+            ) : (
+              <div className="detail-error">Choose a wider date range containing at least two observations.</div>
+            )}
+
+            <div className="detail-footer">
+              <div>
+                <span>Source</span>
+                <a href={data.sourceUrl} target="_blank" rel="noreferrer">{data.source} ↗</a>
+              </div>
+              <button onClick={() => setShowTable(!showTable)}>{showTable ? "Hide data table" : `Show all ${filtered.length} data points`}</button>
+            </div>
+
+            {showTable && (
+              <div className="data-table-wrap">
+                <table>
+                  <thead><tr><th>Period</th><th>{data.title}</th><th>Change from previous</th></tr></thead>
+                  <tbody>
+                    {[...filtered].reverse().map((point, index, reversed) => {
+                      const previous = reversed[index + 1];
+                      const change = previous ? point.value - previous.value : null;
+                      return (
+                        <tr key={point.date}>
+                          <td>{formatDate(point.date)}</td>
+                          <td>{formatValue(point.value, data)}</td>
+                          <td>{change === null ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(data.decimals)}`}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    </div>
   );
 }
 
 export default function Home() {
   const [reviewMode, setReviewMode] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
 
   return (
     <main id="top">
@@ -124,7 +497,7 @@ export default function Home() {
           <div><span className="section-number">01 / Snapshot</span><h2>The economy at a glance</h2></div>
           <p>Six indicators frame the current inflation story. Each card keeps its own release period visible.</p>
         </div>
-        <div className="metrics-grid">{metrics.map((metric) => <MetricCard key={metric.label} metric={metric} />)}</div>
+        <div className="metrics-grid">{metrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h3>The recent path</h3></div><div className="legend"><i /> Year-on-year change</div></div>
           <div className="bar-chart" aria-label="Headline inflation from August 2024 to May 2026">
@@ -218,6 +591,7 @@ export default function Home() {
         <p>Applied statistics × financial economics · Educational analysis, not investment advice.</p>
         <div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div>
       </footer>
+      {selectedMetric && <IndicatorDetail metric={selectedMetric} onClose={() => setSelectedMetric(null)} />}
     </main>
   );
 }
