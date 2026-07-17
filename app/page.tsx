@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DashboardPayload } from "@/app/lib/dashboard";
+import type { DashboardPayload, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
@@ -56,6 +56,7 @@ function Header() {
         <a href="#snapshot">Snapshot</a>
         <a href="#forecast">Forecast</a>
         <a href="#drivers">Drivers</a>
+        <a href="#structural">Structural shifts</a>
         <a href="#method">Method</a>
       </nav>
       <a className="source-link" href="https://data.gov.my/" target="_blank" rel="noreferrer">Official sources ↗</a>
@@ -76,6 +77,7 @@ type IndicatorData = {
   sourceUrl: string;
   frequency: string;
   points: DataPoint[];
+  structuralBreaks?: StructuralIndicator;
 };
 
 function formatDate(date: string) {
@@ -409,6 +411,13 @@ function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => v
                   </p>
                   <small>Monthly-change volatility: {analysis.volatility.toFixed(data.decimals + 1)} {data.unit === "RM" ? "ringgit" : "percentage points"}. This is descriptive analysis, not a causal estimate or forecast.</small>
                 </div>
+                {data.structuralBreaks && (
+                  <div className="detail-structural">
+                    <div><span>Structural shift screen</span><strong>{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length} supported break{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length === 1 ? "" : "s"}</strong></div>
+                    <p>{data.structuralBreaks.narrative}</p>
+                    <a href="#structural" onClick={onClose}>Open full diagnostics ↓</a>
+                  </div>
+                )}
               </>
             ) : (
               <div className="detail-error">Choose a wider date range containing at least two observations.</div>
@@ -446,6 +455,181 @@ function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => v
         )}
       </section>
     </div>
+  );
+}
+
+const structuralLabels: Record<MetricId, string> = {
+  headline: "Headline inflation", core: "Core inflation", opr: "OPR",
+  unemployment: "Unemployment", fx: "USD / MYR", mgs: "10-year MGS",
+};
+
+function formatP(value: number | null) {
+  if (value == null) return "—";
+  if (value < 0.0001) return "<0.0001";
+  return value.toFixed(4);
+}
+
+function StructuralChart({ data, points, candidates }: { data: IndicatorData; points: DataPoint[]; candidates: StructuralCandidate[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = canvas?.parentElement;
+    if (!canvas || !container || points.length < 2) return;
+    const draw = () => {
+      const width = Math.max(container.clientWidth, 420);
+      const height = 390;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      context.scale(ratio, ratio);
+      context.clearRect(0, 0, width, height);
+      const padding = { top: 54, right: 24, bottom: 46, left: 62 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const times = points.map((point) => new Date(`${point.date}T00:00:00`).getTime());
+      const firstTime = times[0], lastTime = times[times.length - 1];
+      const xTime = (time: number) => padding.left + (time - firstTime) / Math.max(1, lastTime - firstTime) * chartWidth;
+      const values = points.map((point) => point.value);
+      let min = Math.min(...values), max = Math.max(...values);
+      const spread = Math.max(max - min, data.id === "fx" ? .15 : .5);
+      min -= spread * .12; max += spread * .12;
+      const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
+
+      const visibleBreaks = candidates.filter((candidate) => {
+        const time = new Date(`${candidate.breakPeriod}T00:00:00`).getTime();
+        return time >= firstTime && time <= lastTime;
+      });
+      const regimeEdges = [firstTime, ...visibleBreaks.map((candidate) => new Date(`${candidate.breakPeriod}T00:00:00`).getTime()), lastTime];
+      for (let index = 0; index < regimeEdges.length - 1; index += 1) {
+        context.fillStyle = index % 2 === 0 ? "rgba(28,107,97,.035)" : "rgba(223,91,54,.045)";
+        context.fillRect(xTime(regimeEdges[index]), padding.top, xTime(regimeEdges[index + 1]) - xTime(regimeEdges[index]), chartHeight);
+      }
+      context.font = "11px DM Sans, sans-serif";
+      for (let index = 0; index < 5; index += 1) {
+        const value = max - index / 4 * (max - min);
+        const yPosition = padding.top + index / 4 * chartHeight;
+        context.strokeStyle = "#e1dbd0"; context.lineWidth = 1;
+        context.beginPath(); context.moveTo(padding.left, yPosition); context.lineTo(width - padding.right, yPosition); context.stroke();
+        context.fillStyle = "#737c78";
+        context.fillText(data.unit === "RM" ? value.toFixed(2) : `${value.toFixed(data.decimals)}%`, 5, yPosition + 4);
+      }
+      context.beginPath();
+      points.forEach((point, index) => {
+        const x = xTime(times[index]);
+        if (index === 0) context.moveTo(x, y(point.value)); else context.lineTo(x, y(point.value));
+      });
+      context.strokeStyle = "#213d4a"; context.lineWidth = 2.5; context.lineJoin = "round"; context.stroke();
+
+      visibleBreaks.forEach((candidate, index) => {
+        const x = xTime(new Date(`${candidate.breakPeriod}T00:00:00`).getTime());
+        context.setLineDash([6, 5]);
+        context.strokeStyle = candidate.status === "supported" ? "#df5b36" : candidate.status === "possible" ? "#b78332" : "#8b928f";
+        context.lineWidth = 2; context.beginPath(); context.moveTo(x, padding.top); context.lineTo(x, height - padding.bottom); context.stroke(); context.setLineDash([]);
+        context.fillStyle = context.strokeStyle;
+        context.font = "700 10px DM Sans, sans-serif";
+        const label = new Intl.DateTimeFormat("en-MY", { month: "short", year: "numeric" }).format(new Date(`${candidate.breakPeriod}T00:00:00`));
+        const offset = index % 2 === 0 ? 18 : 33;
+        context.fillText(label, Math.min(x + 5, width - 78), offset);
+        if (candidate.nearbyEvents.length) {
+          context.beginPath(); context.arc(x, padding.top + 8, 4, 0, Math.PI * 2); context.fill();
+        }
+      });
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
+        const label = formatDate(points[index].date);
+        context.font = "11px DM Sans, sans-serif"; context.fillStyle = "#68716d";
+        const measured = context.measureText(label).width;
+        const x = xTime(times[index]);
+        context.fillText(label, index === 0 ? x : index === points.length - 1 ? x - measured : x - measured / 2, height - 15);
+      });
+    };
+    draw();
+    const observer = new ResizeObserver(draw); observer.observe(container);
+    return () => observer.disconnect();
+  }, [data, points, candidates]);
+  return <div className="structural-chart"><canvas ref={canvasRef} role="img" aria-label={`${data.title} structural-break chart with ${candidates.length} candidate breaks`} /><div className="structural-legend"><span><i className="supported" />Supported</span><span><i className="possible" />Possible</span><span><b />Nearby official event</span></div></div>;
+}
+
+function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const [selected, setSelected] = useState<MetricId>("core");
+  const [range, setRange] = useState<"10Y" | "25Y" | "ALL">("ALL");
+  const structural = dashboard?.structuralBreaks;
+  const analysis = structural?.indicators[selected];
+  const sourceSeries = dashboard?.series[selected];
+  const series: IndicatorData | undefined = sourceSeries ? {
+    id: selected, title: sourceSeries.title, unit: sourceSeries.unit, decimals: sourceSeries.decimals,
+    source: sourceSeries.source, sourceUrl: sourceSeries.source_url, frequency: sourceSeries.frequency, points: sourceSeries.points,
+  } : undefined;
+  const points = useMemo(() => {
+    if (!series) return [];
+    if (range === "ALL") return series.points;
+    const end = new Date(`${series.points.at(-1)?.date}T00:00:00`);
+    const start = new Date(end); start.setFullYear(start.getFullYear() - Number(range.replace("Y", "")));
+    return series.points.filter((point) => new Date(`${point.date}T00:00:00`) >= start);
+  }, [series, range]);
+  const candidates = analysis?.candidates ?? [];
+  const featured = [...candidates].reverse().find((candidate) => candidate.status === "supported") ?? candidates.at(-1);
+  const calculationTime = structural ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(structural.calculatedAt)) : "pending";
+
+  return (
+    <section className="section structural-section" id="structural">
+      <div className="shell">
+        <div className="section-heading">
+          <div><span className="section-number">04 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
+        </div>
+        {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
+          <div className="structural-toolbar">
+            <div className="indicator-tabs" role="tablist" aria-label="Select structural indicator">
+              {(Object.keys(structuralLabels) as MetricId[]).map((id) => <button key={id} role="tab" aria-selected={selected === id} className={selected === id ? "active" : ""} onClick={() => setSelected(id)}>{structuralLabels[id]}</button>)}
+            </div>
+            <div className="structural-range" aria-label="Structural chart time frame">{(["10Y", "25Y", "ALL"] as const).map((option) => <button key={option} className={range === option ? "active" : ""} onClick={() => setRange(option)}>{option === "ALL" ? "All history" : option}</button>)}</div>
+          </div>
+
+          <div className="structural-summary">
+            <div className="structural-finding">
+              <div className="finding-top"><span className={`evidence-badge ${featured?.status ?? "none"}`}>{featured?.statusLabel ?? "No break selected"}</span><small>{analysis.screening.selectedBreaks} BIC candidate{analysis.screening.selectedBreaks === 1 ? "" : "s"}</small></div>
+              <h3>{featured ? `${structuralLabels[selected]} changed near ${formatDate(featured.breakPeriod)}.` : `${structuralLabels[selected]} is best described by one stable regime.`}</h3>
+              <p>{analysis.narrative}</p>
+              <div className="finding-meta"><span>Monthly sample: {formatDate(analysis.sample.start)}–{formatDate(analysis.sample.end)}</span><span>{analysis.sample.observations} observations</span><span>Calculated {calculationTime}</span></div>
+            </div>
+            <div className="evidence-cards">
+              <article><span>Chow, Holm p</span><strong>{featured ? formatP(featured.chow.pHolm) : "—"}</strong><small>5% adjusted threshold</small></article>
+              <article><span>HAC Wald p</span><strong>{featured ? formatP(featured.hacWald.pValue) : "—"}</strong><small>Newey–West robustness</small></article>
+              <article><span>Mean shift</span><strong>{featured ? `${featured.regimeComparison.absoluteChange > 0 ? "+" : ""}${featured.regimeComparison.absoluteChange.toFixed(series.decimals)}` : "—"}</strong><small>{series.unit === "RM" ? "ringgit" : "percentage points"}</small></article>
+              <article><span>CUSUM p</span><strong>{formatP(analysis.diagnostics.cusumPValue)}</strong><small>Full-sample stability</small></article>
+            </div>
+          </div>
+
+          {points.length > 1 && <StructuralChart data={series} points={points} candidates={candidates} />}
+
+          {featured && <div className="regime-comparison">
+            <article><span>Before regime</span><strong>{formatValue(featured.regimeComparison.preMean, series)}</strong><small>{formatDate(featured.adjacentSample.preStart)}–{formatDate(featured.adjacentSample.preEnd)} · trend {featured.regimeComparison.preAnnualTrend > 0 ? "+" : ""}{featured.regimeComparison.preAnnualTrend.toFixed(series.decimals + 1)}/year</small></article>
+            <div className="regime-arrow">→</div>
+            <article><span>After regime</span><strong>{formatValue(featured.regimeComparison.postMean, series)}</strong><small>{formatDate(featured.adjacentSample.postStart)}–{formatDate(featured.adjacentSample.postEnd)} · trend {featured.regimeComparison.postAnnualTrend > 0 ? "+" : ""}{featured.regimeComparison.postAnnualTrend.toFixed(series.decimals + 1)}/year</small></article>
+            <article className="effect-card"><span>Standardised effect</span><strong>{featured.regimeComparison.standardisedMeanChange?.toFixed(2) ?? "—"}</strong><small>Hedges g; magnitude, not causality</small></article>
+          </div>}
+
+          {analysis.warnings.map((warning) => <div className="structural-warning" key={warning}><b>Evidence note</b><span>{warning}</span></div>)}
+
+          <div className="break-table-wrap">
+            <div className="break-table-heading"><div><span>Candidate diagnostics</span><h3>Every screened boundary</h3></div><div className="download-links"><a href="/api/structural-breaks?format=csv">Download CSV</a><a href="/api/structural-breaks?format=json">Download JSON</a></div></div>
+            {candidates.length ? <table><thead><tr><th>Break</th><th>Evidence</th><th>Chow F (df)</th><th>Raw p</th><th>Holm p</th><th>HAC p</th><th>Mean shift</th></tr></thead><tbody>{candidates.map((candidate) => <tr key={candidate.breakPeriod}><td><strong>{formatDate(candidate.breakPeriod)}</strong><small>{candidate.nearbyEvents.length ? `${candidate.nearbyEvents.length} nearby event${candidate.nearbyEvents.length > 1 ? "s" : ""}` : "No matched event"}</small></td><td><span className={`evidence-badge ${candidate.status}`}>{candidate.statusLabel}</span></td><td>{candidate.chow.fStatistic.toFixed(2)} ({candidate.chow.dfNumerator}, {candidate.chow.dfDenominator})</td><td>{formatP(candidate.chow.pRaw)}</td><td>{formatP(candidate.chow.pHolm)}</td><td>{formatP(candidate.hacWald.pValue)}</td><td>{candidate.regimeComparison.absoluteChange > 0 ? "+" : ""}{candidate.regimeComparison.absoluteChange.toFixed(series.decimals)}</td></tr>)}</tbody></table> : <p className="no-breaks">BIC selected zero breaks, so no post-screening Chow test is reported.</p>}
+          </div>
+
+          {!!featured?.nearbyEvents.length && <div className="event-notes"><span className="mini-label">Nearby official events</span>{featured.nearbyEvents.map((event) => <article key={`${event.date}-${event.title}`}><time>{formatDate(event.date)}</time><div><h3>{event.title}</h3><p>The estimated break is within {event.monthDistance} month{event.monthDistance === 1 ? "" : "s"} of this event. Proximity does not demonstrate that the event caused the shift.</p><a href={event.sourceUrl} target="_blank" rel="noreferrer">{event.source} ↗</a></div></article>)}</div>}
+
+          <div className="diagnostic-details">
+            <details><summary>Stationarity and residual diagnostics</summary><div><p><b>ADF:</b> statistic {analysis.diagnostics.adfStatistic?.toFixed(3) ?? "—"}, p {formatP(analysis.diagnostics.adfPValue)}, using {analysis.diagnostics.adfLags ?? "—"} lag(s).</p><p><b>CUSUM:</b> statistic {analysis.diagnostics.cusumStatistic?.toFixed(3) ?? "—"}, p {formatP(analysis.diagnostics.cusumPValue)}. CUSUM and local breakpoint tests answer related but different stability questions.</p></div></details>
+            <details><summary>Exact model and decision rules</summary><div><p>{structural.methodology.model}. {structural.methodology.screening}. Candidates use {analysis.sample.minimumSegmentMonths}-month minimum regimes.</p><p>{structural.methodology.confirmation}; {structural.methodology.robustness}. “Supported” requires both adjusted Chow and HAC p-values below 0.05; 5–10% or mixed evidence is labelled possible.</p></div></details>
+            <details><summary>Interpretation limits</summary><div><p>Break dates were selected from the same sample used for confirmation, so p-values are exploratory conditional diagnostics. Revisions can change dates. Each indicator is tested separately; no economy-wide simultaneous regime is claimed.</p></div></details>
+          </div>
+        </>}
+      </div>
+    </section>
   );
 }
 
@@ -621,9 +805,11 @@ export default function Home() {
         </div>
       </section>
 
+      <StructuralSection dashboard={dashboard} />
+
       <section className="section method-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">04 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">05 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>

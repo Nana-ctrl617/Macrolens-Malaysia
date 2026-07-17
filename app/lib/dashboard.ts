@@ -11,6 +11,34 @@ export type SeriesData = {
   source_url: string;
   points: DataPoint[];
 };
+export type StructuralEvent = { date: string; title: string; category: string; source: string; sourceUrl: string; monthDistance: number };
+export type StructuralCandidate = {
+  breakPeriod: string;
+  status: "supported" | "possible" | "not-supported";
+  statusLabel: string;
+  adjacentSample: { preStart: string; preEnd: string; postStart: string; postEnd: string; preObservations: number; postObservations: number };
+  chow: { fStatistic: number; dfNumerator: number; dfDenominator: number; pRaw: number; pHolm: number };
+  hacWald: { statistic: number; df: number; pValue: number; maxLags: number };
+  regimeComparison: { preMean: number; postMean: number; absoluteChange: number; percentChange: number | null; preAnnualTrend: number; postAnnualTrend: number; annualTrendChange: number; standardisedMeanChange: number | null };
+  nearbyEvents: StructuralEvent[];
+};
+export type StructuralIndicator = {
+  indicatorId: string;
+  status: "fresh" | "stale" | "unavailable";
+  calculatedAt: string;
+  sample: { start: string; end: string; observations: number; frequency: string; minimumSegmentMonths: number; confidence: string };
+  screening: { method: string; criterion: string; maximumBreaks: number; selectedBreaks: number; bic: number | null };
+  diagnostics: { adfStatistic: number | null; adfPValue: number | null; adfLags: number | null; cusumStatistic: number | null; cusumPValue: number | null };
+  warnings: string[];
+  candidates: StructuralCandidate[];
+  narrative: string;
+};
+export type StructuralBreaks = {
+  status: "fresh" | "partial";
+  calculatedAt: string;
+  methodology: { model: string; screening: string; confirmation: string; robustness: string; significanceLevel: number; suggestiveLevel: number; eventWindowMonths: number; causalClaim: boolean };
+  indicators: Record<string, StructuralIndicator>;
+};
 export type DashboardPayload = {
   schemaVersion: number;
   generatedAt: string;
@@ -28,6 +56,7 @@ export type DashboardPayload = {
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
   };
   narratives: { snapshot: string; forecast: string; financial: string };
+  structuralBreaks?: StructuralBreaks;
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -36,7 +65,13 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   if (!value || typeof value !== "object") return false;
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
-  return candidate.schemaVersion === 1
+  const structuralValid = candidate.schemaVersion === 1 || (
+    candidate.schemaVersion === 2
+    && !!candidate.structuralBreaks
+    && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2)
+    && structuralValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)
@@ -56,4 +91,3 @@ export async function getDashboard(): Promise<DashboardPayload> {
     return { ...local, health: "fallback", usingFallback: true };
   }
 }
-

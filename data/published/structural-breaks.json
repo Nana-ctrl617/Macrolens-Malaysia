@@ -1,0 +1,732 @@
+{
+  "status": "fresh",
+  "calculatedAt": "2026-07-17T04:51:03Z",
+  "methodology": {
+    "model": "Level on intercept, linear trend, and one-month lag",
+    "screening": "Bai-Perron-style dynamic programming with BIC",
+    "confirmation": "Classical Chow test with within-indicator Holm correction",
+    "robustness": "HAC/Newey-West joint Wald test and full-sample CUSUM",
+    "significanceLevel": 0.05,
+    "suggestiveLevel": 0.1,
+    "eventWindowMonths": 6,
+    "causalClaim": false
+  },
+  "indicators": {
+    "headline": {
+      "indicatorId": "headline",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "1981-01-01",
+        "end": "2026-05-01",
+        "observations": 545,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 24,
+        "confidence": "standard"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 0,
+        "bic": -548.18447
+      },
+      "diagnostics": {
+        "adfStatistic": -4.430928,
+        "adfPValue": 0.00026158,
+        "adfLags": 13,
+        "cusumStatistic": 0.471058,
+        "cusumPValue": 0.9795161
+      },
+      "warnings": [],
+      "candidates": [],
+      "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "262e72c4699f3ebc8289ec081a582e4f22152cfb43dea03000c02f1948a9ed98"
+    },
+    "core": {
+      "indicatorId": "core",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "2019-01-01",
+        "end": "2026-05-01",
+        "observations": 89,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 24,
+        "confidence": "standard"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 2,
+        "bic": -242.313589
+      },
+      "diagnostics": {
+        "adfStatistic": -2.106791,
+        "adfPValue": 0.24179285,
+        "adfLags": 5,
+        "cusumStatistic": 0.776139,
+        "cusumPValue": 0.58340573
+      },
+      "warnings": [
+        "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
+      ],
+      "candidates": [
+        {
+          "breakPeriod": "2021-11-01",
+          "adjacentSample": {
+            "preStart": "2019-02-01",
+            "preEnd": "2021-10-01",
+            "postStart": "2021-11-01",
+            "postEnd": "2023-10-01",
+            "preObservations": 33,
+            "postObservations": 24
+          },
+          "chow": {
+            "fStatistic": 8.802684,
+            "dfNumerator": 3,
+            "dfDenominator": 51,
+            "pRaw": 8.367e-05,
+            "pHolm": 8.367e-05
+          },
+          "hacWald": {
+            "statistic": 17.811101,
+            "df": 3,
+            "pValue": 5e-08,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 1.012121,
+            "postMean": 2.9375,
+            "absoluteChange": 1.925379,
+            "percentChange": 190.232,
+            "preAnnualTrend": -0.229011,
+            "postAnnualTrend": 0.821739,
+            "annualTrendChange": 1.05075,
+            "standardisedMeanChange": 2.582852
+          },
+          "nearbyEvents": [
+            {
+              "date": "2022-05-11",
+              "title": "OPR changed to 2.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 6
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        },
+        {
+          "breakPeriod": "2023-11-01",
+          "adjacentSample": {
+            "preStart": "2021-11-01",
+            "preEnd": "2023-10-01",
+            "postStart": "2023-11-01",
+            "postEnd": "2026-05-01",
+            "preObservations": 24,
+            "postObservations": 31
+          },
+          "chow": {
+            "fStatistic": 12.273984,
+            "dfNumerator": 3,
+            "dfDenominator": 49,
+            "pRaw": 4.14e-06,
+            "pHolm": 8.29e-06
+          },
+          "hacWald": {
+            "statistic": 83.64782,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 2.9375,
+            "postMean": 1.93871,
+            "absoluteChange": -0.99879,
+            "percentChange": -34.0014,
+            "preAnnualTrend": 0.821739,
+            "postAnnualTrend": 0.140806,
+            "annualTrendChange": -0.680933,
+            "standardisedMeanChange": -1.468361
+          },
+          "nearbyEvents": [
+            {
+              "date": "2023-05-03",
+              "title": "OPR changed to 3.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 6
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        }
+      ],
+      "narrative": "The latest supported parameter shift is estimated near 2023-11. The adjacent-regime mean was 1.00 units lower; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "473b14140d5ede71d077f15f62c8b1614aa028637167e01132cb814b973a2876"
+    },
+    "unemployment": {
+      "indicatorId": "unemployment",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "2010-01-01",
+        "end": "2026-04-01",
+        "observations": 196,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 24,
+        "confidence": "standard"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 3,
+        "bic": -735.323583
+      },
+      "diagnostics": {
+        "adfStatistic": -2.321788,
+        "adfPValue": 0.16503713,
+        "adfLags": 0,
+        "cusumStatistic": 0.794338,
+        "cusumPValue": 0.55338101
+      },
+      "warnings": [
+        "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
+      ],
+      "candidates": [
+        {
+          "breakPeriod": "2013-08-01",
+          "adjacentSample": {
+            "preStart": "2010-02-01",
+            "preEnd": "2013-07-01",
+            "postStart": "2013-08-01",
+            "postEnd": "2020-03-01",
+            "preObservations": 42,
+            "postObservations": 80
+          },
+          "chow": {
+            "fStatistic": 11.298198,
+            "dfNumerator": 3,
+            "dfDenominator": 116,
+            "pRaw": 1.48e-06,
+            "pHolm": 1.48e-06
+          },
+          "hacWald": {
+            "statistic": 25.150991,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 3.109524,
+            "postMean": 3.25875,
+            "absoluteChange": 0.149226,
+            "percentChange": 4.799,
+            "preAnnualTrend": -0.070788,
+            "postAnnualTrend": 0.059339,
+            "annualTrendChange": 0.130127,
+            "standardisedMeanChange": 0.685841
+          },
+          "nearbyEvents": [],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        },
+        {
+          "breakPeriod": "2020-04-01",
+          "adjacentSample": {
+            "preStart": "2013-08-01",
+            "preEnd": "2020-03-01",
+            "postStart": "2020-04-01",
+            "postEnd": "2022-03-01",
+            "preObservations": 80,
+            "postObservations": 24
+          },
+          "chow": {
+            "fStatistic": 30.930818,
+            "dfNumerator": 3,
+            "dfDenominator": 98,
+            "pRaw": 0.0,
+            "pHolm": 0.0
+          },
+          "hacWald": {
+            "statistic": 25.13705,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 3.25875,
+            "postMean": 4.620833,
+            "absoluteChange": 1.362083,
+            "percentChange": 41.7977,
+            "preAnnualTrend": 0.059339,
+            "postAnnualTrend": -0.433565,
+            "annualTrendChange": -0.492904,
+            "standardisedMeanChange": 5.540803
+          },
+          "nearbyEvents": [
+            {
+              "date": "2020-03-03",
+              "title": "OPR changed to 2.50%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 1
+            },
+            {
+              "date": "2020-03-18",
+              "title": "Nationwide Movement Control Order began",
+              "category": "Public health",
+              "source": "Prime Minister's Office",
+              "sourceUrl": "https://www.pmo.gov.my/ucapan/?id=4837&m=p&p=muhyiddin",
+              "monthDistance": 1
+            },
+            {
+              "date": "2020-05-05",
+              "title": "OPR changed to 2.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 1
+            },
+            {
+              "date": "2020-01-22",
+              "title": "OPR changed to 2.75%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 3
+            },
+            {
+              "date": "2020-07-07",
+              "title": "OPR changed to 1.75%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 3
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        },
+        {
+          "breakPeriod": "2022-04-01",
+          "adjacentSample": {
+            "preStart": "2020-04-01",
+            "preEnd": "2022-03-01",
+            "postStart": "2022-04-01",
+            "postEnd": "2026-04-01",
+            "preObservations": 24,
+            "postObservations": 49
+          },
+          "chow": {
+            "fStatistic": 34.462446,
+            "dfNumerator": 3,
+            "dfDenominator": 67,
+            "pRaw": 0.0,
+            "pHolm": 0.0
+          },
+          "hacWald": {
+            "statistic": 55.533632,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 4.620833,
+            "postMean": 3.293878,
+            "absoluteChange": -1.326956,
+            "percentChange": -28.7168,
+            "preAnnualTrend": -0.433565,
+            "postAnnualTrend": -0.227265,
+            "annualTrendChange": 0.2063,
+            "standardisedMeanChange": -4.614327
+          },
+          "nearbyEvents": [
+            {
+              "date": "2022-05-11",
+              "title": "OPR changed to 2.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 1
+            },
+            {
+              "date": "2022-07-06",
+              "title": "OPR changed to 2.25%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 3
+            },
+            {
+              "date": "2022-09-08",
+              "title": "OPR changed to 2.50%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 5
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        }
+      ],
+      "narrative": "The latest supported parameter shift is estimated near 2022-04. The adjacent-regime mean was 1.33 units lower; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "783ded334ce3dd8258cf791486bb9e5b91c89e20e442b8d1e206770ae6428d86"
+    },
+    "opr": {
+      "indicatorId": "opr",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "2010-01-01",
+        "end": "2026-05-01",
+        "observations": 197,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 24,
+        "confidence": "standard"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 3,
+        "bic": -1028.889452
+      },
+      "diagnostics": {
+        "adfStatistic": -2.118732,
+        "adfPValue": 0.23704946,
+        "adfLags": 2,
+        "cusumStatistic": 1.324547,
+        "cusumPValue": 0.05986104
+      },
+      "warnings": [
+        "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
+      ],
+      "candidates": [
+        {
+          "breakPeriod": "2018-01-01",
+          "adjacentSample": {
+            "preStart": "2010-02-01",
+            "preEnd": "2017-12-01",
+            "postStart": "2018-01-01",
+            "postEnd": "2020-04-01",
+            "preObservations": 95,
+            "postObservations": 28
+          },
+          "chow": {
+            "fStatistic": 8.540611,
+            "dfNumerator": 3,
+            "dfDenominator": 117,
+            "pRaw": 3.555e-05,
+            "pHolm": 3.555e-05
+          },
+          "hacWald": {
+            "statistic": 12.849809,
+            "df": 3,
+            "pValue": 2.6e-07,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 3.0,
+            "postMean": 3.089286,
+            "absoluteChange": 0.089286,
+            "percentChange": 2.9762,
+            "preAnnualTrend": 0.06005,
+            "postAnnualTrend": -0.279146,
+            "annualTrendChange": -0.339197,
+            "standardisedMeanChange": 0.393521
+          },
+          "nearbyEvents": [
+            {
+              "date": "2018-01-25",
+              "title": "OPR changed to 3.25%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 0
+            },
+            {
+              "date": "2018-06-01",
+              "title": "GST zero-rated before abolition",
+              "category": "Fiscal policy",
+              "source": "Ministry of Finance",
+              "sourceUrl": "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf",
+              "monthDistance": 5
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        },
+        {
+          "breakPeriod": "2020-05-01",
+          "adjacentSample": {
+            "preStart": "2018-01-01",
+            "preEnd": "2020-04-01",
+            "postStart": "2020-05-01",
+            "postEnd": "2022-04-01",
+            "preObservations": 28,
+            "postObservations": 24
+          },
+          "chow": {
+            "fStatistic": 24.045466,
+            "dfNumerator": 3,
+            "dfDenominator": 46,
+            "pRaw": 0.0,
+            "pHolm": 0.0
+          },
+          "hacWald": {
+            "statistic": 543.012426,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 3.089286,
+            "postMean": 1.770833,
+            "absoluteChange": -1.318452,
+            "percentChange": -42.6782,
+            "preAnnualTrend": -0.279146,
+            "postAnnualTrend": -0.057391,
+            "annualTrendChange": 0.221755,
+            "standardisedMeanChange": -7.456757
+          },
+          "nearbyEvents": [
+            {
+              "date": "2020-05-05",
+              "title": "OPR changed to 2.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 0
+            },
+            {
+              "date": "2020-03-03",
+              "title": "OPR changed to 2.50%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 2
+            },
+            {
+              "date": "2020-03-18",
+              "title": "Nationwide Movement Control Order began",
+              "category": "Public health",
+              "source": "Prime Minister's Office",
+              "sourceUrl": "https://www.pmo.gov.my/ucapan/?id=4837&m=p&p=muhyiddin",
+              "monthDistance": 2
+            },
+            {
+              "date": "2020-07-07",
+              "title": "OPR changed to 1.75%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 2
+            },
+            {
+              "date": "2020-01-22",
+              "title": "OPR changed to 2.75%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 4
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        },
+        {
+          "breakPeriod": "2022-05-01",
+          "adjacentSample": {
+            "preStart": "2020-05-01",
+            "preEnd": "2022-04-01",
+            "postStart": "2022-05-01",
+            "postEnd": "2026-05-01",
+            "preObservations": 24,
+            "postObservations": 49
+          },
+          "chow": {
+            "fStatistic": 36.254236,
+            "dfNumerator": 3,
+            "dfDenominator": 67,
+            "pRaw": 0.0,
+            "pHolm": 0.0
+          },
+          "hacWald": {
+            "statistic": 494.879849,
+            "df": 3,
+            "pValue": 0.0,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 1.770833,
+            "postMean": 2.821429,
+            "absoluteChange": 1.050595,
+            "percentChange": 59.3277,
+            "preAnnualTrend": -0.057391,
+            "postAnnualTrend": 0.085408,
+            "annualTrendChange": 0.142799,
+            "standardisedMeanChange": 4.866219
+          },
+          "nearbyEvents": [
+            {
+              "date": "2022-05-11",
+              "title": "OPR changed to 2.00%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 0
+            },
+            {
+              "date": "2022-07-06",
+              "title": "OPR changed to 2.25%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 2
+            },
+            {
+              "date": "2022-09-08",
+              "title": "OPR changed to 2.50%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 4
+            },
+            {
+              "date": "2022-11-03",
+              "title": "OPR changed to 2.75%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 6
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        }
+      ],
+      "narrative": "The latest supported parameter shift is estimated near 2022-05. The adjacent-regime mean was 1.05 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "5c01edc9aec6b033d155f5d7b910d8d71d0a2bc1179b872158bd738ea7da82bb"
+    },
+    "fx": {
+      "indicatorId": "fx",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "1997-01-01",
+        "end": "2026-03-01",
+        "observations": 351,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 24,
+        "confidence": "standard"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 1,
+        "bic": -1585.877529
+      },
+      "diagnostics": {
+        "adfStatistic": -2.948616,
+        "adfPValue": 0.03997973,
+        "adfLags": 0,
+        "cusumStatistic": 0.975245,
+        "cusumPValue": 0.29748574
+      },
+      "warnings": [],
+      "candidates": [
+        {
+          "breakPeriod": "2014-09-01",
+          "adjacentSample": {
+            "preStart": "1997-02-01",
+            "preEnd": "2014-08-01",
+            "postStart": "2014-09-01",
+            "postEnd": "2026-03-01",
+            "preObservations": 211,
+            "postObservations": 139
+          },
+          "chow": {
+            "fStatistic": 9.110105,
+            "dfNumerator": 3,
+            "dfDenominator": 344,
+            "pRaw": 8.11e-06,
+            "pHolm": 8.11e-06
+          },
+          "hacWald": {
+            "statistic": 8.017708,
+            "df": 3,
+            "pValue": 3.525e-05,
+            "maxLags": 12
+          },
+          "regimeComparison": {
+            "preMean": 3.516387,
+            "postMean": 4.212905,
+            "absoluteChange": 0.696518,
+            "percentChange": 19.8078,
+            "preAnnualTrend": -0.036844,
+            "postAnnualTrend": 0.048257,
+            "annualTrendChange": 0.085101,
+            "standardisedMeanChange": 2.13426
+          },
+          "nearbyEvents": [
+            {
+              "date": "2014-07-10",
+              "title": "OPR changed to 3.25%",
+              "category": "Monetary policy",
+              "source": "Bank Negara Malaysia",
+              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
+              "monthDistance": 2
+            }
+          ],
+          "status": "supported",
+          "statusLabel": "Supported structural shift"
+        }
+      ],
+      "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.70 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "743325dc594d305ec12a441a7f500d50c44d9bbfd1e6135cb4cf7ccdd18bd453"
+    },
+    "mgs": {
+      "indicatorId": "mgs",
+      "status": "fresh",
+      "calculatedAt": "2026-07-17T04:51:03Z",
+      "sample": {
+        "start": "2021-11-01",
+        "end": "2026-07-01",
+        "observations": 57,
+        "frequency": "Monthly",
+        "minimumSegmentMonths": 12,
+        "confidence": "limited-history"
+      },
+      "screening": {
+        "method": "Bai-Perron-style dynamic programming",
+        "criterion": "BIC",
+        "maximumBreaks": 3,
+        "selectedBreaks": 0,
+        "bic": -227.247247
+      },
+      "diagnostics": {
+        "adfStatistic": -1.909854,
+        "adfPValue": 0.32743976,
+        "adfLags": 0,
+        "cusumStatistic": 0.545603,
+        "cusumPValue": 0.92716441
+      },
+      "warnings": [
+        "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
+        "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
+      ],
+      "candidates": [],
+      "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "71a9bd389b32e0a183c9c4c805dc676c5d8b7fe9e5fb7913f2e9b52a7cefc096"
+    }
+  }
+}

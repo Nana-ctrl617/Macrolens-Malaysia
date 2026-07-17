@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     points: series.points,
     status: payload.usingFallback ? "fallback" : sourceStatus?.status || payload.health,
     generatedAt: payload.generatedAt,
+    structuralBreaks: payload.structuralBreaks?.indicators[id],
   }, {
     headers: { "Cache-Control": "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400" },
   });
