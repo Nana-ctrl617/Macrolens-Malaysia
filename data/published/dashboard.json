@@ -1,43 +1,43 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-17T04:02:32Z",
-  "health": "fresh",
+  "generatedAt": "2026-07-17T04:35:12Z",
+  "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-04-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
-      "status": "fresh",
-      "retrievedAt": "2026-07-17T04:02:32Z",
+      "status": "stale",
+      "retrievedAt": "2026-07-17T04:35:12Z",
       "observationPeriod": "2026-07-16",
-      "message": "Official source validated"
+      "message": "Using last valid data: RuntimeError"
     }
   },
   "series": {
@@ -5539,7 +5539,7 @@
       },
       {
         "name": "ARIMAX",
-        "rmse": 0.2165,
+        "rmse": 0.2166,
         "mae": 0.1768,
         "selected": false
       }
