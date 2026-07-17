@@ -147,6 +147,8 @@ def fetch_mgs(previous: dict | None) -> list[dict]:
         latest = fetch_mgs_for_date()
     except requests.RequestException:
         latest = None
+    if not latest and previous:
+        raise RuntimeError("BNM benchmark-yield page rejected the automated refresh")
     combined = {point["date"]: point for point in old}
     if latest:
         combined[latest["date"]] = latest
