@@ -163,6 +163,7 @@ function buildAnalysis(data: IndicatorData, points: DataPoint[]) {
 
 function TimeSeriesChart({ data, points }: { data: IndicatorData; points: DataPoint[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hovered, setHovered] = useState<{ point: DataPoint; left: number; top: number; tooltipLeft: number } | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -171,7 +172,7 @@ function TimeSeriesChart({ data, points }: { data: IndicatorData; points: DataPo
     if (!container) return;
 
     const draw = () => {
-      const width = Math.max(container.clientWidth, 420);
+      const width = Math.max(container.clientWidth, 320);
       const height = 330;
       const ratio = window.devicePixelRatio || 1;
       canvas.width = width * ratio;
@@ -262,13 +263,54 @@ function TimeSeriesChart({ data, points }: { data: IndicatorData; points: DataPo
     return () => observer.disconnect();
   }, [data, points]);
 
+  const showPoint = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas || points.length < 2) return;
+    const bounds = canvas.getBoundingClientRect();
+    const width = bounds.width;
+    const padding = { top: 28, right: 22, bottom: 44, left: 58 };
+    const chartWidth = width - padding.left - padding.right;
+    const pointerX = Math.min(width - padding.right, Math.max(padding.left, clientX - bounds.left));
+    const index = Math.min(points.length - 1, Math.max(0, Math.round((pointerX - padding.left) / chartWidth * (points.length - 1))));
+    const values = points.map((point) => point.value);
+    let min = Math.min(...values), max = Math.max(...values);
+    const spread = Math.max(max - min, data.id === "fx" ? 0.15 : 0.5);
+    min -= spread * 0.14; max += spread * 0.14;
+    const canvasLeft = padding.left + index / (points.length - 1) * chartWidth;
+    const canvasTop = padding.top + (max - points[index].value) / (max - min) * (330 - padding.top - padding.bottom);
+    const left = canvas.offsetLeft + canvasLeft;
+    const top = canvas.offsetTop + canvasTop;
+    setHovered({ point: points[index], left, top, tooltipLeft: canvas.offsetLeft + Math.min(width - 76, Math.max(76, canvasLeft)) });
+  };
+
   return (
     <div className="detail-chart-wrap">
       <canvas
         ref={canvasRef}
         role="img"
+        tabIndex={0}
         aria-label={`${data.title} chart with ${points.length} observations from ${formatDate(points[0].date)} to ${formatDate(points[points.length - 1].date)}`}
+        onPointerMove={(event) => showPoint(event.clientX)}
+        onPointerDown={(event) => showPoint(event.clientX)}
+        onTouchStart={(event) => showPoint(event.touches[0].clientX)}
+        onClick={(event) => showPoint(event.clientX)}
+        onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)}
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          event.preventDefault();
+          const current = hovered ? points.findIndex((point) => point.date === hovered.point.date) : points.length - 1;
+          const next = Math.min(points.length - 1, Math.max(0, current + (event.key === "ArrowRight" ? 1 : -1)));
+          const bounds = event.currentTarget.getBoundingClientRect();
+          showPoint(bounds.left + 58 + next / (points.length - 1) * (bounds.width - 80));
+        }}
       />
+      {hovered && <>
+        <i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} />
+        <div className="chart-tooltip" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}>
+          <span>{formatDate(hovered.point.date)}</span><strong>{formatValue(hovered.point.value, data)}</strong>
+        </div>
+      </>}
+      <small className="chart-interaction-hint">Hover, tap, or use the arrow keys to inspect each observation.</small>
     </div>
   );
 }
@@ -471,12 +513,13 @@ function formatP(value: number | null) {
 
 function StructuralChart({ data, points, candidates }: { data: IndicatorData; points: DataPoint[]; candidates: StructuralCandidate[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hovered, setHovered] = useState<{ point: DataPoint; left: number; top: number; tooltipLeft: number } | null>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = canvas?.parentElement;
     if (!canvas || !container || points.length < 2) return;
     const draw = () => {
-      const width = Math.max(container.clientWidth, 420);
+      const width = Math.max(container.clientWidth, 320);
       const height = 390;
       const ratio = window.devicePixelRatio || 1;
       canvas.width = width * ratio;
@@ -550,7 +593,66 @@ function StructuralChart({ data, points, candidates }: { data: IndicatorData; po
     const observer = new ResizeObserver(draw); observer.observe(container);
     return () => observer.disconnect();
   }, [data, points, candidates]);
-  return <div className="structural-chart"><canvas ref={canvasRef} role="img" aria-label={`${data.title} structural-break chart with ${candidates.length} candidate breaks`} /><div className="structural-legend"><span><i className="supported" />Supported</span><span><i className="possible" />Possible</span><span><b />Nearby official event</span></div></div>;
+
+  const showPoint = (clientX: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas || points.length < 2) return;
+    const bounds = canvas.getBoundingClientRect();
+    const width = bounds.width;
+    const padding = { top: 54, right: 24, bottom: 46, left: 62 };
+    const chartWidth = width - padding.left - padding.right;
+    const pointerX = Math.min(width - padding.right, Math.max(padding.left, clientX - bounds.left));
+    const firstTime = new Date(`${points[0].date}T00:00:00`).getTime();
+    const lastTime = new Date(`${points[points.length - 1].date}T00:00:00`).getTime();
+    const targetTime = firstTime + (pointerX - padding.left) / chartWidth * (lastTime - firstTime);
+    let index = 0;
+    let closest = Number.POSITIVE_INFINITY;
+    points.forEach((point, pointIndex) => {
+      const distance = Math.abs(new Date(`${point.date}T00:00:00`).getTime() - targetTime);
+      if (distance < closest) { closest = distance; index = pointIndex; }
+    });
+    const values = points.map((point) => point.value);
+    let min = Math.min(...values), max = Math.max(...values);
+    const spread = Math.max(max - min, data.id === "fx" ? 0.15 : 0.5);
+    min -= spread * 0.12; max += spread * 0.12;
+    const pointTime = new Date(`${points[index].date}T00:00:00`).getTime();
+    const canvasLeft = padding.left + (pointTime - firstTime) / Math.max(1, lastTime - firstTime) * chartWidth;
+    const canvasTop = padding.top + (max - points[index].value) / (max - min) * (390 - padding.top - padding.bottom);
+    const left = canvas.offsetLeft + canvasLeft;
+    const top = canvas.offsetTop + canvasTop;
+    setHovered({ point: points[index], left, top, tooltipLeft: canvas.offsetLeft + Math.min(width - 76, Math.max(76, canvasLeft)) });
+  };
+
+  return <div className="structural-chart">
+    <canvas
+      ref={canvasRef}
+      role="img"
+      tabIndex={0}
+      aria-label={`${data.title} structural-break chart with ${candidates.length} candidate breaks`}
+      onPointerMove={(event) => showPoint(event.clientX)}
+      onPointerDown={(event) => showPoint(event.clientX)}
+      onTouchStart={(event) => showPoint(event.touches[0].clientX)}
+      onClick={(event) => showPoint(event.clientX)}
+      onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)}
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const current = hovered ? points.findIndex((point) => point.date === hovered.point.date) : points.length - 1;
+        const next = Math.min(points.length - 1, Math.max(0, current + (event.key === "ArrowRight" ? 1 : -1)));
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const firstTime = new Date(`${points[0].date}T00:00:00`).getTime();
+        const lastTime = new Date(`${points[points.length - 1].date}T00:00:00`).getTime();
+        const pointTime = new Date(`${points[next].date}T00:00:00`).getTime();
+        showPoint(bounds.left + 62 + (pointTime - firstTime) / Math.max(1, lastTime - firstTime) * (bounds.width - 86));
+      }}
+    />
+    {hovered && <>
+      <i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} />
+      <div className="chart-tooltip" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}><span>{formatDate(hovered.point.date)}</span><strong>{formatValue(hovered.point.value, data)}</strong></div>
+    </>}
+    <div className="structural-legend"><span><i className="supported" />Supported</span><span><i className="possible" />Possible</span><span><b />Nearby official event</span></div>
+    <small className="chart-interaction-hint">Hover, tap, or use the arrow keys to inspect each observation.</small>
+  </div>;
 }
 
 function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }) {
@@ -732,7 +834,7 @@ export default function Home() {
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h3>The recent path</h3></div><div className="legend"><i /> Year-on-year change</div></div>
           <div className="bar-chart" aria-label="Latest headline inflation history">
-            {liveHistory.map((value, index) => <div className="bar-column" key={index}><i style={{ height: `${Math.max(value, .15) / Math.max(...liveHistory, 2.3) * 100}%` }} /><span>{index === liveHistory.length - 1 ? `${value.toFixed(1)}%` : ""}</span></div>)}
+            {liveHistory.map((value, index) => <div className="bar-column" key={index} tabIndex={0} aria-label={`${formatDate(headlinePoints[index].date)}: ${value.toFixed(1)}%`}><i style={{ height: `${Math.max(value, .15) / Math.max(...liveHistory, 2.3) * 100}%` }} /><span>{index === liveHistory.length - 1 ? `${value.toFixed(1)}%` : ""}</span><b className="bar-tooltip"><small>{formatDate(headlinePoints[index].date)}</small>{value.toFixed(1)}%</b></div>)}
           </div>
           <div className="chart-axis">{liveHistoryLabels.map((label) => <span key={label}>{label}</span>)}</div>
           <div className="interpretation"><b>How to read this</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
