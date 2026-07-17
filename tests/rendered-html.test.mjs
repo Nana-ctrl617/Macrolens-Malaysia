@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+process.env.DASHBOARD_DATA_URL = "http://127.0.0.1:9/dashboard.json";
+
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
@@ -27,5 +29,16 @@ test("serves the embedded MGS history without an external request", async () => 
   const body = await response.json();
   assert.equal(body.id, "mgs");
   assert.ok(body.points.length > 50);
-  assert.deepEqual(body.points.at(-1), { date: "2026-07-01", value: 3.63 });
+  assert.deepEqual(body.points.at(-1), { date: "2026-07-16", value: 3.63 });
+});
+
+test("serves a validated consolidated fallback dashboard", async () => {
+  const response = await render("/api/dashboard");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.schemaVersion, 1);
+  assert.equal(body.usingFallback, true);
+  assert.equal(body.forecast.points.length, 3);
+  assert.ok(body.series.headline.points.length > 500);
+  assert.ok(body.sources.headline.observationPeriod);
 });

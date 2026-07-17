@@ -1,98 +1,54 @@
-# vinext-starter
+# MacroLens Malaysia
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+MacroLens is a public economics portfolio dashboard that explains Malaysian inflation, related financial conditions, and a transparent three-month statistical forecast. It is an educational analytical tool, not investment advice.
 
-## Prerequisites
+## What updates automatically
 
-- Node.js `>=22.13.0`
+A scheduled GitHub Actions workflow runs at 13:45 Malaysia time each day. It validates official DOSM/data.gov.my and Bank Negara Malaysia series, preserves the previous valid value when a source fails, compares three forecasting models, and publishes one versioned dashboard artifact.
 
-## Quick Start
+The website reads `data/published/dashboard.json` through `/api/dashboard`. A failed or invalid remote request falls back to the last snapshot bundled with the deployed site and displays a fallback status instead of claiming the data are live.
+
+## Data sources
+
+| Indicator | Frequency used | Official source |
+| --- | --- | --- |
+| Headline and core inflation | Monthly | DOSM via data.gov.my |
+| CPI divisions | Monthly | DOSM via data.gov.my |
+| Unemployment | Monthly | DOSM via data.gov.my |
+| OPR | Policy decisions | BNM OpenAPI |
+| USD/MYR | Monthly end rate | BNM via data.gov.my |
+| 10-year MGS | Latest trading observation | BNM Financial Markets |
+
+The BNM Financial Markets website may reject automated requests. When this happens, the pipeline retains the last validated MGS series and marks it stale rather than substituting another source.
+
+## Forecast methodology
+
+The pipeline compares a seasonal-naive baseline, SARIMA, and ARIMAX over 12 identical rolling forecast origins. Model selection uses RMSE, then MAE, then model simplicity. External ARIMAX inputs are lagged by one month and held constant over the three-month forecast horizon. Until enough stored data vintages accumulate, results are labelled as a pseudo-real-time backtest using conservative release lags.
+
+## Local setup
+
+Requirements: Node.js 22+, Python 3.12+, and the packages in `pipeline/requirements.txt`.
 
 ```bash
+pip install -r pipeline/requirements.txt
+python pipeline/macrolens.py
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Validation:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+pytest -q pipeline/tests
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Set `DASHBOARD_DATA_URL` to override the default public GitHub artifact URL. No API keys, accounts, payments, portfolios, or personal financial data are used.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## Repository structure
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+- `pipeline/macrolens.py`: collection, validation, modelling, narratives, and snapshot generation.
+- `.github/workflows/update-dashboard.yml`: scheduled and manual refresh workflow.
+- `data/published/dashboard.json`: latest validated public payload.
+- `data/vintages/`: CPI release snapshots retained for future real-time evaluation.
+- `app/`: responsive vinext website and API compatibility routes.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { DashboardPayload } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
@@ -62,11 +63,12 @@ function Header() {
   );
 }
 
-type Metric = (typeof metrics)[number];
+type MetricId = "headline" | "core" | "opr" | "unemployment" | "fx" | "mgs";
+type Metric = { id: MetricId; label: string; value: string; detail: string; period: string; tone: string; status?: string };
 type RangeKey = "1Y" | "3Y" | "5Y" | "10Y" | "ALL" | "CUSTOM";
 type DataPoint = { date: string; value: number };
 type IndicatorData = {
-  id: Metric["id"];
+  id: MetricId;
   title: string;
   unit: string;
   decimals: number;
@@ -77,7 +79,8 @@ type IndicatorData = {
 };
 
 function formatDate(date: string) {
-  return new Intl.DateTimeFormat("en-MY", { month: "short", year: "numeric" })
+  const includeDay = !date.endsWith("-01");
+  return new Intl.DateTimeFormat("en-MY", includeDay ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" })
     .format(new Date(`${date}T00:00:00`));
 }
 
@@ -279,6 +282,7 @@ function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: M
       <strong>{metric.value}</strong>
       <p>{metric.detail}</p>
       <small>Release period · {metric.period}</small>
+      {metric.status && <span className={`metric-status ${metric.status}`}>{metric.status}</span>}
       <span className="metric-open">View history <b>↗</b></span>
     </button>
   );
@@ -448,6 +452,49 @@ function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => v
 export default function Home() {
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/dashboard")
+      .then((response) => {
+        if (!response.ok) throw new Error("Dashboard data unavailable");
+        return response.json() as Promise<DashboardPayload>;
+      })
+      .then((payload) => active && setDashboard(payload))
+      .catch(() => active && setDashboard(null));
+    return () => { active = false; };
+  }, []);
+
+  const liveMetrics: Metric[] = useMemo(() => {
+    if (!dashboard) return metrics as Metric[];
+    const details: Record<MetricId, string> = {
+      headline: "Year on year", core: "Underlying pressure", opr: "BNM policy setting",
+      unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Government bond yield",
+    };
+    const tones: Record<MetricId, string> = { headline: "rust", core: "teal", opr: "navy", unemployment: "teal", fx: "navy", mgs: "rust" };
+    return (["headline", "core", "opr", "unemployment", "fx", "mgs"] as MetricId[]).map((id) => {
+      const series = dashboard.series[id];
+      const last = series.points[series.points.length - 1];
+      const value = series.unit === "RM" ? `RM ${last.value.toFixed(series.decimals)}` : `${last.value.toFixed(series.decimals)}${series.unit}`;
+      const daily = /day|trading/i.test(series.frequency);
+      const period = new Intl.DateTimeFormat("en-MY", daily ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }).format(new Date(`${last.date}T00:00:00`));
+      return { id, label: id === "mgs" ? "10-year MGS" : series.title, value, detail: details[id], period, tone: tones[id], status: dashboard.usingFallback ? "fallback" : dashboard.sources[id]?.status };
+    });
+  }, [dashboard]);
+
+  const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? history.map((value, index) => {
+    const date = new Date(Date.UTC(2024, 7 + index, 1));
+    return { date: date.toISOString().slice(0, 10), value };
+  });
+  const liveHistory = headlinePoints.map((point) => point.value);
+  const liveHistoryLabels = headlinePoints.filter((_, index) => index === 0 || index === headlinePoints.length - 1 || index % Math.max(1, Math.floor(headlinePoints.length / 6)) === 0).map((point) => formatDate(point.date));
+  const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? forecasts;
+  const liveModels = dashboard?.forecast.models ?? models;
+  const liveCategories = dashboard?.categories.map((item) => [item.name, item.value] as const) ?? categories;
+  const finalForecast = liveForecasts[liveForecasts.length - 1];
+  const selectedScore = liveModels.find((model) => model.selected) ?? liveModels[0];
+  const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
 
   return (
     <main id="top">
@@ -455,7 +502,7 @@ export default function Home() {
 
       <section className="hero shell">
         <div className="hero-copy">
-          <div className="kicker">Malaysia inflation monitor · 16 July 2026</div>
+          <div className="kicker">Malaysia inflation monitor · {updatedAt}</div>
           <h1>See the pressure.<br /><em>Read the direction.</em></h1>
           <p>A transparent view of Malaysian inflation—connecting official releases, financial conditions and a three-month statistical forecast.</p>
           <div className="hero-actions">
@@ -464,18 +511,18 @@ export default function Home() {
               {reviewMode ? "Hide review notes" : "Show what to improve"}
             </button>
           </div>
-          <div className="data-status"><span /> Official data · refreshed</div>
+          <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
         </div>
         <aside className="hero-brief" aria-label="Latest model brief">
           <div className="brief-label">Three-month signal</div>
           <div className="direction-badge"><span>→</span> Broadly stable</div>
-          <div className="brief-value">2.02%</div>
-          <p>Central forecast for August 2026</p>
+          <div className="brief-value">{finalForecast.value.toFixed(2)}%</div>
+          <p>Central forecast for {finalForecast.month}</p>
           <div className="brief-divider" />
           <dl>
-            <div><dt>Selected model</dt><dd>SARIMA</dd></div>
-            <div><dt>Backtest RMSE</dt><dd>0.18 pp</dd></div>
-            <div><dt>95% interval</dt><dd>−0.15% — 4.19%</dd></div>
+            <div><dt>Selected model</dt><dd>{dashboard?.forecast.selectedModel ?? "SARIMA"}</dd></div>
+            <div><dt>Backtest RMSE</dt><dd>{selectedScore.rmse.toFixed(2)} pp</dd></div>
+            <div><dt>95% interval</dt><dd>{finalForecast.low95.toFixed(2)}% — {finalForecast.high95.toFixed(2)}%</dd></div>
           </dl>
           <small>Uncertainty widens with the forecast horizon.</small>
         </aside>
@@ -497,15 +544,15 @@ export default function Home() {
           <div><span className="section-number">01 / Snapshot</span><h2>The economy at a glance</h2></div>
           <p>Six indicators frame the current inflation story. Each card keeps its own release period visible.</p>
         </div>
-        <div className="metrics-grid">{metrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
+        <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h3>The recent path</h3></div><div className="legend"><i /> Year-on-year change</div></div>
-          <div className="bar-chart" aria-label="Headline inflation from August 2024 to May 2026">
-            {history.map((value, index) => <div className="bar-column" key={index}><i style={{ height: `${Math.max(value, .15) / 2.3 * 100}%` }} /><span>{index === history.length - 1 ? `${value.toFixed(1)}%` : ""}</span></div>)}
+          <div className="bar-chart" aria-label="Latest headline inflation history">
+            {liveHistory.map((value, index) => <div className="bar-column" key={index}><i style={{ height: `${Math.max(value, .15) / Math.max(...liveHistory, 2.3) * 100}%` }} /><span>{index === liveHistory.length - 1 ? `${value.toFixed(1)}%` : ""}</span></div>)}
           </div>
-          <div className="chart-axis">{historyLabels.map((label) => <span key={label}>{label}</span>)}</div>
-          <div className="interpretation"><b>How to read this</b><p>Headline inflation is relatively contained at 2.0% and in line with core inflation. The short-run path has turned modestly upward, but the central forecast remains close to 2%.</p></div>
-          <small className="source-note">Source: DOSM via data.gov.my · Monthly data through May 2026</small>
+          <div className="chart-axis">{liveHistoryLabels.map((label) => <span key={label}>{label}</span>)}</div>
+          <div className="interpretation"><b>How to read this</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
+          <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>
       </section>
 
@@ -518,7 +565,7 @@ export default function Home() {
           <div className="forecast-layout">
             <div className="forecast-card">
               <div className="forecast-scale"><span>−1%</span><span>0%</span><span>1%</span><span>2%</span><span>3%</span><span>4%</span><span>5%</span></div>
-              {forecasts.map((item) => {
+              {liveForecasts.map((item) => {
                 const toPercent = (v: number) => ((v + 1) / 6) * 100;
                 return (
                   <div className="forecast-row" key={item.month}>
@@ -536,17 +583,17 @@ export default function Home() {
             <aside className="model-card">
               <span className="mini-label">Out-of-sample comparison</span>
               <h3>Model scorecard</h3>
-              {models.map((model) => (
+              {liveModels.map((model) => (
                 <div className={model.selected ? "model-row selected" : "model-row"} key={model.name}>
                   <div><strong>{model.name}</strong>{model.selected && <span>Selected</span>}</div>
                   <div className="model-bar"><i style={{ width: `${(model.rmse / .6) * 100}%` }} /></div>
                   <b>{model.rmse.toFixed(2)}</b>
                 </div>
               ))}
-              <small>RMSE in percentage points · 12 identical rolling windows · Lower is better</small>
+              <small>RMSE in percentage points · {dashboard?.forecast.backtestWindows ?? 12} identical rolling windows · Lower is better</small>
             </aside>
           </div>
-          <div className="forecast-takeaway"><span>Model reading</span><p>Inflation is estimated to remain broadly stable through August. The growing interval is the important message: confidence falls as the horizon extends.</p></div>
+          <div className="forecast-takeaway"><span>Model reading</span><p>{dashboard?.narratives.forecast ?? "Loading the latest model interpretation."}</p></div>
         </div>
       </section>
 
@@ -557,14 +604,14 @@ export default function Home() {
         </div>
         <div className="drivers-layout">
           <div className="category-card">
-            {categories.map(([name, value]) => (
+            {liveCategories.map(([name, value]) => (
               <div className="category-row" key={name}>
                 <span>{name}</span>
                 <div><i className={value < 0 ? "negative" : ""} style={{ width: `${Math.abs(value) / 4 * 100}%` }} /></div>
                 <b>{value.toFixed(1)}%</b>
               </div>
             ))}
-            <small className="source-note">Illustrative category view · DOSM CPI divisions · May 2026</small>
+            <small className="source-note">Automatically ranked, unweighted CPI division rates · {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "latest release"}</small>
           </div>
           <div className="meaning-column">
             <article><span>Bonds</span><h3>Persistent inflation can lift required yields.</h3><p>Bond prices and yields generally move in opposite directions, but global rates and risk appetite also matter.</p></article>
