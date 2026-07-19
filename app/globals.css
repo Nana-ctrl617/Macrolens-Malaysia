@@ -102,3 +102,45 @@ body.modal-open { overflow:hidden; }
 .decision-watch { padding:15px 17px; font-size:13px; line-height:1.6; }
 .decision-watch b { margin-bottom:5px; font-size:10px; }
 @media(max-width:700px){ .audience-switch button{font-size:13px}.decision-card{padding:21px}.decision-card h3{font-size:28px}.decision-evidence{font-size:14px}.decision-actions li{font-size:13.5px}.decision-watch{font-size:12px} }
+/* Site-wide readability floor: editorial body copy stays 14px+, compact labels 11–12px. */
+body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
+.kicker,.section-number,.mini-label,.brief-label,.review-heading>span,.review-grid article>span { font-size:12px; }
+.metric-topline,.card-heading span,.chart-axis,.source-note,.metric-open { font-size:12px; }
+.metric-card small { font-size:12px; }.metric-status { font-size:12px; padding:4px 7px; }.bar-column span { font-size:12px; }
+.bar-tooltip small { font-size:11px; }.legend { font-size:12px; }
+.forecast-scale { color:#b8c5c1; font-size:12px; }.forecast-row>strong,.forecast-point span { font-size:12px; }
+.interval-legend { color:#c4d0cc; font-size:12px; }.model-row strong,.model-row>b,.model-row span { font-size:12px; }
+.model-card>small { color:#b7c4c0; font-size:12px; }.forecast-takeaway span { font-size:12px; }
+.category-row>span,.category-row b { font-size:13px; }.meaning-column span { font-size:12px; }.meaning-column p { font-size:14px; }
+.indicator-tabs button,.structural-range button { font-size:12px; }.finding-top small,.finding-meta { font-size:12px; }
+.evidence-badge { font-size:12px; }.evidence-cards span,.regime-comparison span { font-size:12px; }
+.evidence-cards small,.regime-comparison small,.structural-legend { font-size:12px; }
+.structural-warning { font-size:12px; }.structural-warning b,.break-table-heading span { font-size:12px; }
+.download-links a { font-size:12px; }.break-table-wrap table { font-size:12px; }.break-table-wrap th { font-size:12px; }
+.break-table-wrap td:first-child small { font-size:12px; }.event-notes time,.event-notes a { font-size:12px; }
+.event-notes p,.diagnostic-details p { font-size:13px; }.detail-structural span { font-size:12px; }
+.detail-structural p { font-size:13px; }.detail-structural a { font-size:12px; }.method-list li>span { font-size:12px; }
+.method-list p { font-size:14px; }footer { font-size:13px; }
+.detail-kicker,.range-toolbar>span { font-size:12px; }.range-toolbar button { font-size:13px; }
+.custom-range input { font-size:13px; }.detail-chart-caption,.chart-interaction-hint { font-size:12px; }
+.chart-tooltip span { font-size:12px; }.detail-stats article>span,.detail-stats small,.detail-analysis span,.detail-analysis>small { font-size:12px; }
+.detail-analysis p { font-size:14px; }.detail-footer { font-size:12px; }.data-table-wrap table { font-size:13px; }.data-table-wrap th { font-size:12px; }
+.market-quote>span,.market-status { font-size:12px; }.market-range button { font-size:13px; }
+.market-stats span { font-size:12px; }.market-stats small,.market-quote small { color:#c1cdc9; font-size:12px; }
+.market-analysis span { font-size:12px; }.market-analysis p { color:#d1d9d6; font-size:14px; }
+.market-sources { color:#bdcac6; font-size:12px; }.market-disclaimer { color:#aebdb8; font-size:12px; }
+.decision-summary span,.decision-framework span { font-size:12px; }.decision-summary p { font-size:15px; }
+.decision-summary em { font-size:12px; }.decision-signals span { min-height:32px; color:#56625d; font-size:12px; }
+.decision-signals p { min-height:38px; color:#4f5b57; font-size:12px; line-height:1.5; }.decision-signals small { color:#59645f; font-size:12px; }
+.decision-card-top span,.decision-card-top b,.decision-actions>span,.decision-watch b { font-size:12px; }
+.decision-framework ol { font-size:13px; }.decision-framework a { font-size:12px; }.decision-disclaimer { font-size:12px; }
+.structure-toolbar label { font-size:12px; }.structure-toolbar p,.structure-chart>small,.sector-legend button { font-size:12px; }
+.structure-definition { font-size:14px; }.structure-highlights span { font-size:12px; }.structure-highlights small { font-size:12px; }
+.structure-analysis span { font-size:12px; }.structure-analysis p { font-size:14px; }.structure-table-wrap table { font-size:12px; }
+.structure-table-wrap th { font-size:12px; }.structure-notes { font-size:12px; }
+.why-heading span,.why-evidence-grid>article>span,.latest-pressure>span { font-size:12px; }
+.why-heading>p { font-size:14px; }.why-evidence-grid p { font-size:14px; }.why-evidence-grid small { font-size:12px; }
+.why-events a { font-size:12px; }.why-events time,.why-events b,.mechanism-grid article>span { font-size:12px; }
+.mechanism-grid h4 { font-size:14px; }.mechanism-grid p { font-size:13px; }.latest-pressure p { font-size:14px; }
+.latest-pressure small,.why-limit { font-size:12px; }.annual-evidence summary,.annual-evidence table { font-size:12px; }.annual-evidence th { font-size:12px; }
+@media(max-width:600px){ .category-row>span{font-size:12px}.decision-signals{grid-template-columns:1fr 1fr}.decision-signals p{min-height:0}.detail-analysis p,.meaning-column p,.structure-analysis p,.why-heading>p,.why-evidence-grid p{font-size:14px} }

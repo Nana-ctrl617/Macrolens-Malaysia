@@ -209,7 +209,7 @@ function TimeSeriesChart({ data, points }: { data: IndicatorData; points: DataPo
       const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
       const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
 
-      context.font = "500 12px DM Sans, sans-serif";
+      context.font = "500 13px DM Sans, sans-serif";
       context.fillStyle = "#7b837f";
       context.strokeStyle = "#e1dbd0";
       context.lineWidth = 1;
@@ -565,7 +565,7 @@ function StructuralChart({ data, points, candidates }: { data: IndicatorData; po
         context.fillStyle = index % 2 === 0 ? "rgba(28,107,97,.035)" : "rgba(223,91,54,.045)";
         context.fillRect(xTime(regimeEdges[index]), padding.top, xTime(regimeEdges[index + 1]) - xTime(regimeEdges[index]), chartHeight);
       }
-      context.font = "500 12px DM Sans, sans-serif";
+      context.font = "500 13px DM Sans, sans-serif";
       for (let index = 0; index < 5; index += 1) {
         const value = max - index / 4 * (max - min);
         const yPosition = padding.top + index / 4 * chartHeight;
@@ -587,7 +587,7 @@ function StructuralChart({ data, points, candidates }: { data: IndicatorData; po
         context.strokeStyle = candidate.status === "supported" ? "#df5b36" : candidate.status === "possible" ? "#b78332" : "#8b928f";
         context.lineWidth = 2; context.beginPath(); context.moveTo(x, padding.top); context.lineTo(x, height - padding.bottom); context.stroke(); context.setLineDash([]);
         context.fillStyle = context.strokeStyle;
-        context.font = "700 11px DM Sans, sans-serif";
+        context.font = "700 12px DM Sans, sans-serif";
         const label = new Intl.DateTimeFormat("en-MY", { month: "short", year: "numeric" }).format(new Date(`${candidate.breakPeriod}T00:00:00`));
         const offset = index % 2 === 0 ? 18 : 33;
         context.fillText(label, Math.min(x + 5, width - 78), offset);
@@ -597,7 +597,7 @@ function StructuralChart({ data, points, candidates }: { data: IndicatorData; po
       });
       [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
         const label = formatDate(points[index].date);
-        context.font = "500 12px DM Sans, sans-serif"; context.fillStyle = "#56615d";
+        context.font = "500 13px DM Sans, sans-serif"; context.fillStyle = "#46534f";
         const measured = context.measureText(label).width;
         const x = xTime(times[index]);
         context.fillText(label, index === 0 ? x : index === points.length - 1 ? x - measured : x - measured / 2, height - 15);
@@ -778,7 +778,7 @@ function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
       const active = sectors[selected] ?? sectors[0];
       context.textAlign = "center"; context.fillStyle = "#15221f"; context.font = `700 ${Math.max(28, size * .085)}px DM Sans, sans-serif`;
       context.fillText(`${active.share.toFixed(1)}%`, centre, centre - 2);
-      context.fillStyle = "#68736f"; context.font = `700 ${Math.max(10, size * .026)}px DM Sans, sans-serif`;
+      context.fillStyle = "#52605b"; context.font = `700 ${Math.max(12, size * .029)}px DM Sans, sans-serif`;
       context.fillText(active.name.toUpperCase(), centre, centre + 27, inner * 1.75);
     };
     draw(); const observer = new ResizeObserver(draw); observer.observe(container); return () => observer.disconnect();
@@ -947,7 +947,7 @@ function MarketChart({ points }: { points: DataPoint[] }) {
       const spread = Math.max(max - min, 30); min -= spread * .1; max += spread * .1;
       const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
       const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
-      context.font = "600 12px DM Sans, sans-serif";
+      context.font = "600 13px DM Sans, sans-serif";
       for (let index = 0; index < 5; index += 1) {
         const value = max - index / 4 * (max - min), yPosition = padding.top + index / 4 * chartHeight;
         context.strokeStyle = "rgba(255,255,255,.13)"; context.lineWidth = 1;
