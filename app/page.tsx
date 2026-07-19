@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DashboardPayload, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
+import type { DashboardPayload, DecisionCard, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
@@ -45,13 +45,14 @@ const reviewIdeas = [
   { number: "04", title: "Automate monthly refreshes", copy: "Store validated releases and publish a concise change log whenever official data update." },
 ];
 
-export type DashboardSection = "snapshot" | "forecast" | "drivers" | "bursa" | "structural" | "methodology";
+export type DashboardSection = "snapshot" | "forecast" | "drivers" | "bursa" | "decisions" | "structural" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
   { id: "forecast", label: "Forecast", href: "/forecast" },
   { id: "drivers", label: "Drivers", href: "/drivers" },
   { id: "bursa", label: "Bursa", href: "/bursa" },
+  { id: "decisions", label: "Decision guide", href: "/decisions" },
   { id: "structural", label: "Structural shifts", href: "/structural" },
   { id: "methodology", label: "Methodology", href: "/methodology" },
 ];
@@ -691,7 +692,7 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
     <section className="section structural-section" id="structural">
       <div className="shell">
         <div className="section-heading">
-          <div><span className="section-number">05 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <div><span className="section-number">06 / Structural shifts</span><h2>When the pattern changed</h2></div>
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
@@ -860,6 +861,33 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   </div></section>;
 }
 
+function DecisionCardView({ card }: { card: DecisionCard }) {
+  return <article className="decision-card">
+    <div className="decision-card-top"><span>{card.theme}</span><b>{card.stance}</b></div>
+    <h3>{card.title}</h3>
+    <p className="decision-evidence">{card.evidence}</p>
+    <div className="decision-actions"><span>Practical considerations</span><ul>{card.actions.map((action) => <li key={action}>{action}</li>)}</ul></div>
+    <p className="decision-watch"><b>Important limit</b>{card.watch}</p>
+  </article>;
+}
+
+function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const [audience, setAudience] = useState<"individuals" | "companies">("individuals");
+  const guide = dashboard?.decisionGuide;
+  const cards = guide?.audiences[audience] ?? [];
+  return <section className="section decision-section page-section" id="decisions"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">05 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
+    {!guide ? <div className="decision-empty">The decision guide will appear when the version-four dataset is available.</div> : <>
+      <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={guide.status}>{guide.status === "fresh" ? "Latest signals incorporated" : "Some inputs use cached data"}</em></div>
+      <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
+      <div className="audience-switch" role="group" aria-label="Choose decision-guide audience"><button className={audience === "individuals" ? "active" : ""} onClick={() => setAudience("individuals")}>For individuals</button><button className={audience === "companies" ? "active" : ""} onClick={() => setAudience("companies")}>For companies</button></div>
+      <div className="decision-grid">{cards.map((card) => <DecisionCardView key={card.id} card={card} />)}</div>
+      <div className="decision-framework"><div><span>How to use this page</span><ol><li>Start with the evidence shown on each card.</li><li>Compare it with your own cash flow, commitments and time horizon.</li><li>Stress-test what happens if the signal moves against you.</li><li>Use a licensed professional for decisions with material consequences.</li></ol></div><div><span>Official learning resources</span>{guide.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.name} ↗</a>)}</div></div>
+      <p className="decision-disclaimer">{guide.disclaimer}</p>
+    </>}
+  </div></section>;
+}
+
 export function DashboardPage({ section = "snapshot" }: { section?: DashboardSection }) {
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
@@ -879,7 +907,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#bursa": "/bursa", "#structural": "/structural", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1043,11 +1071,13 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "bursa" && <BursaSection dashboard={dashboard} />}
 
+      {section === "decisions" && <DecisionGuideSection dashboard={dashboard} />}
+
       {section === "structural" && <StructuralSection dashboard={dashboard} />}
 
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">06 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">07 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>

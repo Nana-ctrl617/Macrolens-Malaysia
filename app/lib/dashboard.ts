@@ -55,6 +55,17 @@ export type MarketData = {
   };
   narratives: { performance: string; macro: string };
 };
+export type DecisionCard = {
+  id: string; theme: string; stance: string; title: string; evidence: string;
+  actions: string[]; watch: string;
+};
+export type DecisionGuide = {
+  generatedAt: string; status: "fresh" | "partial"; title: string; summary: string;
+  signals: Array<{ label: string; value: string; period: string; reading: string }>;
+  audiences: { individuals: DecisionCard[]; companies: DecisionCard[] };
+  sources: Array<{ name: string; url: string }>;
+  disclaimer: string;
+};
 export type DashboardPayload = {
   schemaVersion: number;
   generatedAt: string;
@@ -74,6 +85,7 @@ export type DashboardPayload = {
   narratives: { snapshot: string; forecast: string; financial: string };
   structuralBreaks?: StructuralBreaks;
   market?: MarketData;
+  decisionGuide?: DecisionGuide;
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -83,19 +95,25 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
   const structuralValid = candidate.schemaVersion === 1 || (
-    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3)
+    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4)
     && !!candidate.structuralBreaks
     && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
   );
-  const marketValid = candidate.schemaVersion !== 3 || (
+  const marketValid = candidate.schemaVersion < 3 || (
     candidate.market?.benchmark?.id === "fbmklci"
     && Array.isArray(candidate.market.benchmark.points)
     && candidate.market.benchmark.points.length >= 250
     && typeof candidate.market.summary?.latest === "number"
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3)
+  const decisionValid = candidate.schemaVersion !== 4 || (
+    candidate.decisionGuide?.audiences?.individuals?.length === 4
+    && candidate.decisionGuide?.audiences?.companies?.length === 4
+    && candidate.decisionGuide?.signals?.length >= 6
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4)
     && structuralValid
     && marketValid
+    && decisionValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)

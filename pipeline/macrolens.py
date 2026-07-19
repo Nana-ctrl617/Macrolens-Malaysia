@@ -667,6 +667,112 @@ def narrative(series: dict[str, dict], forecast_data: dict) -> dict:
     }
 
 
+def build_decision_guide(series: dict[str, dict], market: dict, generated_at: str) -> dict:
+    def latest(key: str) -> tuple[float, str]:
+        point = series[key]["points"][-1]
+        return float(point["value"]), point["date"]
+
+    headline, headline_date = latest("headline")
+    core, core_date = latest("core")
+    opr, opr_date = latest("opr")
+    unemployment, unemployment_date = latest("unemployment")
+    fx, fx_date = latest("fx")
+    mgs, mgs_date = latest("mgs")
+    market_summary = market["summary"]
+    market_return = float(market_summary.get("return1Y") or 0)
+
+    inflation_reading = "positive but moderate" if 0 < headline < 3 else "elevated" if headline >= 3 else "very weak or negative"
+    rate_reading = "Borrowing still carries a meaningful financing cost" if opr >= 2.5 else "Policy rates are comparatively accommodative"
+    labour_reading = "The national unemployment rate is relatively low" if unemployment < 4 else "Labour-market slack is elevated"
+    market_reading = "positive" if market_return > 3 else "negative" if market_return < -3 else "broadly flat"
+
+    individuals = [
+        {
+            "id": "safety-buffer", "theme": "Savings and resilience", "stance": "Protect first",
+            "title": "Build liquidity before taking more market risk",
+            "evidence": f"Headline inflation is {headline:.1f}% and core inflation is {core:.1f}%, so cash purchasing power still changes even when inflation is moderate.",
+            "actions": ["Estimate essential monthly commitments and work toward an emergency buffer suited to income stability.", "Keep emergency money accessible; compare deposit terms, withdrawal limits and PIDM protection before choosing an account.", "Automate a realistic monthly transfer instead of relying on leftover cash."],
+            "watch": "Job stability, household-specific expenses and any variable-rate debt matter more than the national average alone.",
+        },
+        {
+            "id": "listed-investments", "theme": "Stocks and long-term investing", "stance": "Avoid chasing",
+            "title": "Use goals and diversification, not the latest index move",
+            "evidence": f"The FBM KLCI's latest one-year price return is {market_return:+.1f}% and its measured one-year volatility is {market_summary.get('annualizedVolatility1Y'):.1f}%.",
+            "actions": ["Match any equity allocation to the time horizon, loss capacity and need for near-term cash.", "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.", "Verify that intermediaries and products are authorised by the Securities Commission before transferring money."],
+            "watch": "Recent performance is not a forecast. Returns shown here exclude dividends, fees and taxes.",
+        },
+        {
+            "id": "property-borrowing", "theme": "Property and borrowing", "stance": "Stress-test",
+            "title": "Test affordability before relying on property appreciation",
+            "evidence": f"The OPR is {opr:.2f}% and the 10-year MGS yield is {mgs:.2f}%, both relevant reference points for financing conditions.",
+            "actions": ["Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.", "Recalculate repayments under a higher-rate scenario and a temporary income interruption.", "Preserve a separate cash reserve after the deposit and purchase costs."],
+            "watch": "Property suitability depends on location, financing terms, holding period and personal cash flow—not national inflation alone.",
+        },
+        {
+            "id": "career-budget", "theme": "Career and daily life", "stance": "Strengthen options",
+            "title": "Use the stable labour picture to improve resilience",
+            "evidence": f"National unemployment is {unemployment:.1f}%; {labour_reading.lower()}, but this does not describe every occupation or region.",
+            "actions": ["Track your own essential-cost inflation rather than assuming the headline CPI matches your household basket.", "Use stable employment periods to build portable skills, update professional evidence and explore market salary ranges.", "Direct pay increases or bonuses toward high-cost debt, emergency savings and long-term goals before lifestyle expansion."],
+            "watch": "Sector hiring, contract type and individual employability can diverge sharply from the national unemployment rate.",
+        },
+    ]
+
+    companies = [
+        {
+            "id": "cash-funding", "theme": "Cash flow and funding", "stance": "Protect liquidity",
+            "title": "Review debt sensitivity and idle-cash policy",
+            "evidence": f"The OPR is {opr:.2f}% while the 10-year MGS yield is {mgs:.2f}%. {rate_reading}.",
+            "actions": ["Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.", "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.", "Separate committed facilities from genuinely available liquidity and monitor covenant headroom."],
+            "watch": "Actual bank pricing depends on credit risk, collateral, tenor and facility structure.",
+        },
+        {
+            "id": "pricing-margins", "theme": "Pricing and margins", "stance": "Measure precisely",
+            "title": "Respond to cost pressure at product level",
+            "evidence": f"Headline inflation is {headline:.1f}% and core inflation is {core:.1f}% ({inflation_reading}); category pressures remain uneven.",
+            "actions": ["Track input, wage, freight and energy costs separately rather than applying a blanket CPI uplift.", "Review gross margin by product and customer before changing prices or promotions.", "Use smaller, explainable adjustments where demand is price-sensitive."],
+            "watch": "CPI measures consumer prices and is not a direct index of any company's input-cost structure.",
+        },
+        {
+            "id": "fx-exposure", "theme": "Ringgit and trade", "stance": "Map exposure",
+            "title": "Manage net currency exposure, not exchange-rate headlines",
+            "evidence": f"The latest monthly USD/MYR observation is RM {fx:.4f} per US dollar.",
+            "actions": ["Map contracted foreign-currency receipts and payments by date, currency and certainty.", "Use natural offsets first and discuss appropriate hedging instruments with regulated banking providers.", "Test quotations and margins under adverse exchange-rate scenarios."],
+            "watch": "The dashboard describes USD/MYR movements; it does not forecast a profitable hedge or currency direction.",
+        },
+        {
+            "id": "people-capex", "theme": "Hiring and investment", "stance": "Stage commitments",
+            "title": "Link hiring and capital spending to demand evidence",
+            "evidence": f"Unemployment is {unemployment:.1f}% and the KLCI's latest one-year price performance is {market_reading} at {market_return:+.1f}%.",
+            "actions": ["Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.", "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.", "Model downside demand, financing and FX assumptions before approving irreversible expenditure."],
+            "watch": "A stock index and national unemployment rate are broad signals, not company-specific revenue forecasts.",
+        },
+    ]
+
+    return {
+        "generatedAt": generated_at,
+        "status": "fresh" if market["status"] == "fresh" else "partial",
+        "title": "Decision guide for the current Malaysian economy",
+        "summary": f"Malaysia currently combines {headline:.1f}% headline inflation, a {opr:.2f}% OPR, {unemployment:.1f}% unemployment and a {market_return:+.1f}% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+        "signals": [
+            {"label": "Headline inflation", "value": f"{headline:.1f}%", "period": headline_date, "reading": inflation_reading},
+            {"label": "Core inflation", "value": f"{core:.1f}%", "period": core_date, "reading": "underlying price pressure"},
+            {"label": "OPR", "value": f"{opr:.2f}%", "period": opr_date, "reading": "policy-rate setting"},
+            {"label": "Unemployment", "value": f"{unemployment:.1f}%", "period": unemployment_date, "reading": labour_reading.lower()},
+            {"label": "USD/MYR", "value": f"RM {fx:.4f}", "period": fx_date, "reading": "ringgit cost of one US dollar"},
+            {"label": "10-year MGS", "value": f"{mgs:.2f}%", "period": mgs_date, "reading": "long-term government benchmark yield"},
+            {"label": "KLCI 1-year", "value": f"{market_return:+.1f}%", "period": market_summary["latestDate"], "reading": f"{market_reading} price performance"},
+        ],
+        "audiences": {"individuals": individuals, "companies": companies},
+        "sources": [
+            {"name": "PIDM emergency savings calculator", "url": "https://www.pidm.gov.my/finlit/pidm-emergency-savings-calculator"},
+            {"name": "Securities Commission investor empowerment", "url": "https://www.sc.com.my/investor-empowerment"},
+            {"name": "Bank Negara Malaysia OPR decisions", "url": "https://www.bnm.gov.my/monetary-stability/opr-decisions"},
+            {"name": "Malaysia official open data", "url": "https://data.gov.my/"},
+        ],
+        "disclaimer": "General educational scenarios only. They do not consider income, liabilities, tax, risk tolerance, business contracts or objectives. They are not personalised financial, investment, property, legal, tax or career advice.",
+    }
+
+
 def build(previous_path: Path = PUBLISHED) -> dict:
     previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else None
     retrieved = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -693,7 +799,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     structural_data = build_structural_analysis(series, previous, retrieved)
     market_data = build_market(previous, retrieved)
     payload = {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "generatedAt": retrieved,
         "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" else "partial",
         "sources": sources,
@@ -702,6 +808,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "forecast": forecast_data,
         "structuralBreaks": structural_data,
         "market": market_data,
+        "decisionGuide": build_decision_guide(series, market_data, retrieved),
         "narratives": narrative(series, forecast_data),
     }
     if previous:

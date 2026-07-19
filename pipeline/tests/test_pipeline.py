@@ -141,3 +141,15 @@ def test_market_failure_preserves_last_valid_prices(monkeypatch):
     result = macrolens.build_market(previous, "2026-01-01T00:00:00Z")
     assert result["status"] == "stale"
     assert result["benchmark"]["points"] == old
+
+
+def test_decision_guide_is_data_linked_and_balanced_for_both_audiences():
+    values = {"headline": 2.0, "core": 2.0, "opr": 2.75, "unemployment": 3.0, "fx": 4.08, "mgs": 3.65}
+    series = {key: {"points": sample(value=value)} for key, value in values.items()}
+    market = {"status": "fresh", "summary": {"return1Y": 8.4, "annualizedVolatility1Y": 11.2, "latestDate": "2026-07-17"}}
+    guide = macrolens.build_decision_guide(series, market, "2026-07-19T00:00:00Z")
+    assert "2.0% headline inflation" in guide["summary"]
+    assert len(guide["audiences"]["individuals"]) == 4
+    assert len(guide["audiences"]["companies"]) == 4
+    assert all(len(card["actions"]) == 3 and card["watch"] for cards in guide["audiences"].values() for card in cards)
+    assert "not personalised" in guide["disclaimer"].lower()

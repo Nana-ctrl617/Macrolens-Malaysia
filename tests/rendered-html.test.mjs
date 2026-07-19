@@ -28,6 +28,7 @@ test("renders each dashboard section on its own route", async () => {
     ["/forecast", "Three months ahead", "Forecast"],
     ["/drivers", "Where pressure is concentrated", "Drivers"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
+    ["/decisions", "What the signals may mean for decisions", "Decision guide"],
     ["/structural", "When the pattern changed", "Structural shifts"],
     ["/methodology", "Built to be questioned", "Methodology"],
   ];
@@ -54,7 +55,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 3);
+  assert.equal(body.schemaVersion, 4);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -63,6 +64,8 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.structuralBreaks.indicators.core.candidates.length > 0);
   assert.equal(body.market.benchmark.id, "fbmklci");
   assert.ok(body.market.benchmark.points.length >= 250);
+  assert.equal(body.decisionGuide.audiences.individuals.length, 4);
+  assert.equal(body.decisionGuide.audiences.companies.length, 4);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

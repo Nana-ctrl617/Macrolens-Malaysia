@@ -1,41 +1,41 @@
 {
-  "schemaVersion": 3,
-  "generatedAt": "2026-07-19T10:05:44Z",
+  "schemaVersion": 4,
+  "generatedAt": "2026-07-19T11:35:08Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "stale",
-      "retrievedAt": "2026-07-19T10:05:44Z",
+      "retrievedAt": "2026-07-19T11:35:08Z",
       "observationPeriod": "2026-07-16",
       "message": "Using last valid data: RuntimeError"
     }
@@ -6272,7 +6272,7 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T10:05:44Z",
+    "retrievedAt": "2026-07-19T11:35:08Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -16091,6 +16091,185 @@
       "performance": "The FBM KLCI gained 13.8% over the latest year, with 9.4% annualised volatility and a 6.5% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     }
+  },
+  "decisionGuide": {
+    "generatedAt": "2026-07-19T11:35:08Z",
+    "status": "fresh",
+    "title": "Decision guide for the current Malaysian economy",
+    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +13.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+    "signals": [
+      {
+        "label": "Headline inflation",
+        "value": "1.9%",
+        "period": "2026-06-01",
+        "reading": "positive but moderate"
+      },
+      {
+        "label": "Core inflation",
+        "value": "1.9%",
+        "period": "2026-06-01",
+        "reading": "underlying price pressure"
+      },
+      {
+        "label": "OPR",
+        "value": "2.75%",
+        "period": "2026-05-07",
+        "reading": "policy-rate setting"
+      },
+      {
+        "label": "Unemployment",
+        "value": "3.0%",
+        "period": "2026-05-01",
+        "reading": "the national unemployment rate is relatively low"
+      },
+      {
+        "label": "USD/MYR",
+        "value": "RM 4.0375",
+        "period": "2026-03-01",
+        "reading": "ringgit cost of one US dollar"
+      },
+      {
+        "label": "10-year MGS",
+        "value": "3.63%",
+        "period": "2026-07-16",
+        "reading": "long-term government benchmark yield"
+      },
+      {
+        "label": "KLCI 1-year",
+        "value": "+13.8%",
+        "period": "2026-07-17",
+        "reading": "positive price performance"
+      }
+    ],
+    "audiences": {
+      "individuals": [
+        {
+          "id": "safety-buffer",
+          "theme": "Savings and resilience",
+          "stance": "Protect first",
+          "title": "Build liquidity before taking more market risk",
+          "evidence": "Headline inflation is 1.9% and core inflation is 1.9%, so cash purchasing power still changes even when inflation is moderate.",
+          "actions": [
+            "Estimate essential monthly commitments and work toward an emergency buffer suited to income stability.",
+            "Keep emergency money accessible; compare deposit terms, withdrawal limits and PIDM protection before choosing an account.",
+            "Automate a realistic monthly transfer instead of relying on leftover cash."
+          ],
+          "watch": "Job stability, household-specific expenses and any variable-rate debt matter more than the national average alone."
+        },
+        {
+          "id": "listed-investments",
+          "theme": "Stocks and long-term investing",
+          "stance": "Avoid chasing",
+          "title": "Use goals and diversification, not the latest index move",
+          "evidence": "The FBM KLCI's latest one-year price return is +13.8% and its measured one-year volatility is 9.4%.",
+          "actions": [
+            "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
+            "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
+            "Verify that intermediaries and products are authorised by the Securities Commission before transferring money."
+          ],
+          "watch": "Recent performance is not a forecast. Returns shown here exclude dividends, fees and taxes."
+        },
+        {
+          "id": "property-borrowing",
+          "theme": "Property and borrowing",
+          "stance": "Stress-test",
+          "title": "Test affordability before relying on property appreciation",
+          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.63%, both relevant reference points for financing conditions.",
+          "actions": [
+            "Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.",
+            "Recalculate repayments under a higher-rate scenario and a temporary income interruption.",
+            "Preserve a separate cash reserve after the deposit and purchase costs."
+          ],
+          "watch": "Property suitability depends on location, financing terms, holding period and personal cash flow—not national inflation alone."
+        },
+        {
+          "id": "career-budget",
+          "theme": "Career and daily life",
+          "stance": "Strengthen options",
+          "title": "Use the stable labour picture to improve resilience",
+          "evidence": "National unemployment is 3.0%; the national unemployment rate is relatively low, but this does not describe every occupation or region.",
+          "actions": [
+            "Track your own essential-cost inflation rather than assuming the headline CPI matches your household basket.",
+            "Use stable employment periods to build portable skills, update professional evidence and explore market salary ranges.",
+            "Direct pay increases or bonuses toward high-cost debt, emergency savings and long-term goals before lifestyle expansion."
+          ],
+          "watch": "Sector hiring, contract type and individual employability can diverge sharply from the national unemployment rate."
+        }
+      ],
+      "companies": [
+        {
+          "id": "cash-funding",
+          "theme": "Cash flow and funding",
+          "stance": "Protect liquidity",
+          "title": "Review debt sensitivity and idle-cash policy",
+          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.63%. Borrowing still carries a meaningful financing cost.",
+          "actions": [
+            "Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.",
+            "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.",
+            "Separate committed facilities from genuinely available liquidity and monitor covenant headroom."
+          ],
+          "watch": "Actual bank pricing depends on credit risk, collateral, tenor and facility structure."
+        },
+        {
+          "id": "pricing-margins",
+          "theme": "Pricing and margins",
+          "stance": "Measure precisely",
+          "title": "Respond to cost pressure at product level",
+          "evidence": "Headline inflation is 1.9% and core inflation is 1.9% (positive but moderate); category pressures remain uneven.",
+          "actions": [
+            "Track input, wage, freight and energy costs separately rather than applying a blanket CPI uplift.",
+            "Review gross margin by product and customer before changing prices or promotions.",
+            "Use smaller, explainable adjustments where demand is price-sensitive."
+          ],
+          "watch": "CPI measures consumer prices and is not a direct index of any company's input-cost structure."
+        },
+        {
+          "id": "fx-exposure",
+          "theme": "Ringgit and trade",
+          "stance": "Map exposure",
+          "title": "Manage net currency exposure, not exchange-rate headlines",
+          "evidence": "The latest monthly USD/MYR observation is RM 4.0375 per US dollar.",
+          "actions": [
+            "Map contracted foreign-currency receipts and payments by date, currency and certainty.",
+            "Use natural offsets first and discuss appropriate hedging instruments with regulated banking providers.",
+            "Test quotations and margins under adverse exchange-rate scenarios."
+          ],
+          "watch": "The dashboard describes USD/MYR movements; it does not forecast a profitable hedge or currency direction."
+        },
+        {
+          "id": "people-capex",
+          "theme": "Hiring and investment",
+          "stance": "Stage commitments",
+          "title": "Link hiring and capital spending to demand evidence",
+          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is positive at +13.8%.",
+          "actions": [
+            "Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.",
+            "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.",
+            "Model downside demand, financing and FX assumptions before approving irreversible expenditure."
+          ],
+          "watch": "A stock index and national unemployment rate are broad signals, not company-specific revenue forecasts."
+        }
+      ]
+    },
+    "sources": [
+      {
+        "name": "PIDM emergency savings calculator",
+        "url": "https://www.pidm.gov.my/finlit/pidm-emergency-savings-calculator"
+      },
+      {
+        "name": "Securities Commission investor empowerment",
+        "url": "https://www.sc.com.my/investor-empowerment"
+      },
+      {
+        "name": "Bank Negara Malaysia OPR decisions",
+        "url": "https://www.bnm.gov.my/monetary-stability/opr-decisions"
+      },
+      {
+        "name": "Malaysia official open data",
+        "url": "https://data.gov.my/"
+      }
+    ],
+    "disclaimer": "General educational scenarios only. They do not consider income, liabilities, tax, risk tolerance, business contracts or objectives. They are not personalised financial, investment, property, legal, tax or career advice."
   },
   "narratives": {
     "snapshot": "Headline inflation eased to 1.9% in the latest release, while core inflation was 1.9%.",
