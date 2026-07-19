@@ -22,6 +22,7 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Headline versus core inflation/);
   assert.match(html, /full Consumer Price Index \(CPI\) basket/);
   assert.match(html, /selected volatile and administered-price items/);
+  assert.doesNotMatch(html, /Show what to improve|Review mode|Strong next steps for version two/);
   assert.doesNotMatch(html, /Three months ahead|The large-cap market pulse|When the pattern changed|Built to be questioned/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
@@ -29,7 +30,7 @@ test("renders the MacroLens public dashboard", async () => {
 test("renders each dashboard section on its own route", async () => {
   const routes = [
     ["/forecast", "Three months ahead", "Forecast"],
-    ["/drivers", "Where pressure is concentrated", "Drivers"],
+    ["/drivers", "What contributes to inflation", "Drivers"],
     ["/structure", "What produces Malaysia(?:'|&#x27;)s economic value", "Economic structure"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
@@ -60,7 +61,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 5);
+  assert.equal(body.schemaVersion, 6);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -73,6 +74,11 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.equal(body.decisionGuide.audiences.companies.length, 4);
   assert.equal(body.economicStructure.latestYear, 2025);
   assert.equal(body.economicStructure.years.at(-1).sectors.length, 6);
+  assert.equal(body.categories.length, 13);
+  assert.equal(body.categories.reduce((sum, item) => sum + item.weight, 0), 100);
+  assert.equal(body.cpiDecomposition.weightReferenceYear, 2022);
+  assert.equal(typeof body.forecast.scenario.coefficients.fx, "number");
+  assert.ok(body.dataOperations.releaseLog.length > 0);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

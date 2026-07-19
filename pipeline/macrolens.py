@@ -38,6 +38,7 @@ KLCI_SOURCE_URL = "https://finance.yahoo.com/quote/%5EKLSE/history/"
 KLCI_BENCHMARK_URL = "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open"
 GDP_STRUCTURE_URL = "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_supply.csv"
 GDP_STRUCTURE_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply"
+CPI_WEIGHTS_SOURCE_URL = "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"
 GDP_SECTORS = {
     "p1": "Agriculture",
     "p2": "Mining and quarrying",
@@ -87,6 +88,10 @@ CATEGORY_NAMES = {
     "10": "Education", "11": "Restaurants & accommodation services",
     "12": "Insurance & financial services", "13": "Personal care & miscellaneous",
 }
+CPI_WEIGHTS_2022 = {
+    "01": 29.8, "02": 1.9, "03": 2.7, "04": 23.2, "05": 4.3, "06": 2.7,
+    "07": 11.3, "08": 6.6, "09": 3.0, "10": 1.3, "11": 3.4, "12": 4.0, "13": 5.8,
+}
 
 
 def get(url: str, **kwargs) -> requests.Response:
@@ -119,8 +124,22 @@ def fetch_cpi() -> tuple[list[dict], list[dict], list[dict]]:
     latest_date = headline["date"].max()
     categories = headline[(headline["date"].eq(latest_date)) & (~headline["division"].eq("overall"))]
     categories = categories.assign(value=pd.to_numeric(categories["inflation_yoy"], errors="coerce")).dropna(subset=["value"])
-    categories = categories.reindex(categories["value"].abs().sort_values(ascending=False).index).head(8)
-    category_points = [{"code": str(row.division), "name": CATEGORY_NAMES.get(str(row.division).zfill(2), str(row.division)), "value": round(float(row.value), 2)} for row in categories.itertuples(index=False)]
+    category_points = []
+    for row in categories.itertuples(index=False):
+        code = str(row.division).zfill(2)
+        weight = CPI_WEIGHTS_2022.get(code)
+        if weight is None:
+            raise ValueError(f"Missing official CPI weight for division {code}")
+        category_points.append({
+            "code": code,
+            "name": CATEGORY_NAMES.get(code, code),
+            "value": round(float(row.value), 2),
+            "weight": weight,
+            "contribution": round(weight * float(row.value) / 100, 3),
+        })
+    if round(sum(item["weight"] for item in category_points), 1) != 100.0:
+        raise ValueError("Official CPI division weights do not sum to 100")
+    category_points.sort(key=lambda item: abs(item["contribution"]), reverse=True)
     return frame_to_points(overall, "date", "inflation_yoy"), frame_to_points(core_overall, "date", "inflation_yoy"), category_points
 
 
@@ -758,7 +777,59 @@ def forecast(series: dict[str, list[dict]]) -> dict:
     for date, value, bounds in zip(future_dates, central, intervals):
         low80, high80, low95, high95 = bounds
         points.append({"date": date.strftime("%Y-%m-%d"), "value": round(float(value), 3), "low80": round(float(low80), 3), "high80": round(float(high80), 3), "low95": round(float(min(low95, low80)), 3), "high95": round(float(max(high95, high80)), 3)})
-    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative release lags", "backtestWindows": 12, "models": scores, "points": points}
+    scenario = None
+    try:
+        sensitivity_model = fit_model("ARIMAX", y, exog)
+        scenario = {
+            "model": "ARIMAX sensitivity model",
+            "lag": "One-month-lag economic inputs",
+            "baseline": {key: round(float(exog[key].iloc[-1]), 4) for key in ("core", "fx", "opr")},
+            "coefficients": {key: round(float(sensitivity_model.params[key]), 6) for key in ("core", "fx", "opr")},
+            "warning": "A sensitivity overlay based on historical ARIMAX associations. It is not the selected forecast unless ARIMAX wins the backtest, and it does not identify causal effects.",
+        }
+    except Exception:
+        scenario = None
+    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative release lags", "backtestWindows": 12, "models": scores, "points": points, "scenario": scenario}
+
+
+def build_cpi_decomposition(categories: list[dict], headline_points: list[dict]) -> dict:
+    headline = float(headline_points[-1]["value"])
+    estimated = round(sum(float(item["contribution"]) for item in categories), 3)
+    return {
+        "observationPeriod": headline_points[-1]["date"],
+        "weightReferenceYear": 2022,
+        "effectiveFrom": "2024-01",
+        "source": "Department of Statistics Malaysia CPI publication",
+        "sourceUrl": CPI_WEIGHTS_SOURCE_URL,
+        "headline": round(headline, 3),
+        "estimatedTotal": estimated,
+        "reconciliationGap": round(headline - estimated, 3),
+        "method": "Official division weight multiplied by the division year-on-year inflation rate",
+        "warning": "This is a transparent weighted-pressure estimate. Malaysia uses a chained CPI, so division estimates need not add exactly to headline inflation; the reconciliation gap is shown rather than hidden.",
+    }
+
+
+def build_data_operations(series: dict[str, dict], generated_at: str) -> dict:
+    headline = series["headline"]["points"]
+    core_by_date = {item["date"]: item["value"] for item in series["core"]["points"]}
+    current_period = headline[-1]["date"][:7]
+    stored = {path.stem.removeprefix("cpi-") for path in VINTAGES.glob("cpi-*.json")}
+    stored.add(current_period)
+    releases = []
+    for item in reversed(headline[-6:]):
+        releases.append({
+            "period": item["date"],
+            "headline": round(float(item["value"]), 2),
+            "core": round(float(core_by_date[item["date"]]), 2) if item["date"] in core_by_date else None,
+        })
+    return {
+        "schedule": "Daily at 13:45 Malaysia time",
+        "lastSuccessfulRefresh": generated_at,
+        "vintageCount": len(stored),
+        "latestVintagePeriod": current_period,
+        "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
+        "releaseLog": releases,
+    }
 
 
 def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | None, retrieved: str) -> tuple[dict, dict]:
@@ -922,17 +993,19 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     market_data = build_market(previous, retrieved)
     economic_structure = build_economic_structure(previous, retrieved)
     payload = {
-        "schemaVersion": 5,
+        "schemaVersion": 6,
         "generatedAt": retrieved,
         "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
+        "cpiDecomposition": build_cpi_decomposition(categories, series["headline"]["points"]),
         "forecast": forecast_data,
         "structuralBreaks": structural_data,
         "market": market_data,
         "economicStructure": economic_structure,
         "decisionGuide": build_decision_guide(series, market_data, retrieved),
+        "dataOperations": build_data_operations(series, retrieved),
         "narratives": narrative(series, forecast_data),
     }
     if previous:

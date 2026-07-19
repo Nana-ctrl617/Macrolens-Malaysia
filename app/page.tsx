@@ -27,23 +27,21 @@ const models = [
   { name: "Seasonal naive", rmse: 0.53, mae: 0.46, selected: false },
 ];
 
-const categories = [
-  ["Restaurants & accommodation", 3.6],
-  ["Insurance & financial services", 3.1],
-  ["Personal care & miscellaneous", 2.8],
-  ["Housing, water & energy", 2.4],
-  ["Food & non-alcoholic beverages", 2.1],
-  ["Health", 1.7],
-  ["Transport", 1.2],
-  ["Information & communication", -0.4],
-] as const;
-
-const reviewIdeas = [
-  { number: "01", title: "Add data vintages", copy: "Recreate what forecasters knew at each historical date, not only today’s revised series." },
-  { number: "02", title: "Use official CPI weights", copy: "Turn category pressure into a true contribution-to-inflation decomposition." },
-  { number: "03", title: "Make scenarios interactive", copy: "Let users stress USD/MYR, OPR and commodity assumptions while keeping causal claims cautious." },
-  { number: "04", title: "Automate monthly refreshes", copy: "Store validated releases and publish a concise change log whenever official data update." },
-];
+const fallbackCategories = [
+  { code: "01", name: "Food & beverages", value: 2.1, weight: 29.8 },
+  { code: "04", name: "Housing, water, electricity & fuels", value: 2.4, weight: 23.2 },
+  { code: "07", name: "Transport", value: 1.2, weight: 11.3 },
+  { code: "08", name: "Information & communication", value: -0.4, weight: 6.6 },
+  { code: "13", name: "Personal care & miscellaneous", value: 2.8, weight: 5.8 },
+  { code: "05", name: "Furnishings & household maintenance", value: 1.1, weight: 4.3 },
+  { code: "12", name: "Insurance & financial services", value: 3.1, weight: 4.0 },
+  { code: "11", name: "Restaurants & accommodation services", value: 3.6, weight: 3.4 },
+  { code: "09", name: "Recreation, sport & culture", value: 1.0, weight: 3.0 },
+  { code: "03", name: "Clothing & footwear", value: 0.2, weight: 2.7 },
+  { code: "06", name: "Health", value: 1.7, weight: 2.7 },
+  { code: "02", name: "Alcoholic beverages & tobacco", value: 0.7, weight: 1.9 },
+  { code: "10", name: "Education", value: 2.0, weight: 1.3 },
+].map((item) => ({ ...item, contribution: Number((item.weight * item.value / 100).toFixed(3)) }));
 
 export type DashboardSection = "snapshot" | "forecast" | "drivers" | "structure" | "bursa" | "decisions" | "structural" | "methodology";
 
@@ -1059,6 +1057,74 @@ function DecisionCardView({ card }: { card: DecisionCard }) {
   </article>;
 }
 
+function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardPayload | null; forecastPoints: Array<{ month: string; value: number }> }) {
+  const [coreDelta, setCoreDelta] = useState(0);
+  const [fxDelta, setFxDelta] = useState(0);
+  const [oprDelta, setOprDelta] = useState(0);
+  const scenario = dashboard?.forecast.scenario;
+  const coefficients = scenario?.coefficients ?? { core: 0.84, fx: -0.138, opr: -0.469 };
+  const effect = coreDelta * coefficients.core + fxDelta * coefficients.fx + oprDelta * coefficients.opr;
+  const reset = () => { setCoreDelta(0); setFxDelta(0); setOprDelta(0); };
+  return <section className="scenario-explorer" aria-labelledby="scenario-title">
+    <div className="scenario-heading"><div><span>Interactive sensitivity</span><h3 id="scenario-title">Stress the forecast assumptions</h3></div><button onClick={reset}>Reset assumptions</button></div>
+    <div className="scenario-layout">
+      <div className="scenario-controls">
+        <label><span>Core inflation change <b>{coreDelta > 0 ? "+" : ""}{coreDelta.toFixed(1)} pp</b></span><input aria-label="Core inflation change" type="range" min="-1" max="1" step="0.1" value={coreDelta} onInput={(event) => setCoreDelta(Number(event.currentTarget.value))} /></label>
+        <label><span>USD/MYR change <b>{fxDelta > 0 ? "+" : ""}{fxDelta.toFixed(2)} RM</b></span><input aria-label="USD MYR change" type="range" min="-0.5" max="0.5" step="0.05" value={fxDelta} onInput={(event) => setFxDelta(Number(event.currentTarget.value))} /></label>
+        <label><span>OPR change <b>{oprDelta > 0 ? "+" : ""}{oprDelta.toFixed(2)} pp</b></span><input aria-label="OPR change" type="range" min="-1" max="1" step="0.25" value={oprDelta} onInput={(event) => setOprDelta(Number(event.currentTarget.value))} /></label>
+      </div>
+      <div className="scenario-result">
+        <span>Association-based overlay</span><strong>{effect > 0 ? "+" : ""}{effect.toFixed(2)} pp</strong><p>Estimated shift relative to the published central path.</p>
+        <div>{forecastPoints.map((point) => <article key={point.month}><small>{point.month}</small><b>{(point.value + effect).toFixed(2)}%</b></article>)}</div>
+      </div>
+    </div>
+    <p className="scenario-limit">{scenario?.warning ?? "This uses historical ARIMAX associations with lagged inputs. It is a sensitivity exercise, not a causal estimate, policy forecast or investment signal."}</p>
+  </section>;
+}
+
+function DriversSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const [view, setView] = useState<"contribution" | "rate">("contribution");
+  const categories = (dashboard?.categories?.some((item) => typeof item.contribution === "number") ? dashboard.categories : fallbackCategories)
+    .map((item) => ({ ...item, weight: item.weight ?? 0, contribution: item.contribution ?? 0 }));
+  const ordered = [...categories].sort((a, b) => Math.abs(view === "contribution" ? b.contribution : b.value) - Math.abs(view === "contribution" ? a.contribution : a.value));
+  const maximum = Math.max(...ordered.map((item) => Math.abs(view === "contribution" ? item.contribution : item.value)), .1);
+  const decomposition = dashboard?.cpiDecomposition;
+  const estimatedTotal = decomposition?.estimatedTotal ?? categories.reduce((sum, item) => sum + item.contribution, 0);
+  const headline = decomposition?.headline ?? dashboard?.series.headline.points.at(-1)?.value ?? 0;
+  const gap = decomposition?.reconciliationGap ?? headline - estimatedTotal;
+  return <section className="section shell page-section" id="drivers">
+    <div className="section-heading"><div><span className="section-number">03 / Drivers</span><h2>What contributes to inflation</h2></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
+    <div className="driver-summary"><article><span>Headline inflation</span><strong>{headline.toFixed(2)}%</strong></article><article><span>Weighted division estimate</span><strong>{estimatedTotal.toFixed(2)} pp</strong></article><article><span>Chain-index gap</span><strong>{gap > 0 ? "+" : ""}{gap.toFixed(2)} pp</strong></article></div>
+    <div className="driver-view-switch" role="group" aria-label="Choose driver measure"><button className={view === "contribution" ? "active" : ""} onClick={() => setView("contribution")}>Weighted contribution</button><button className={view === "rate" ? "active" : ""} onClick={() => setView("rate")}>Category inflation rate</button></div>
+    <div className="drivers-layout">
+      <div className="category-card weighted">
+        <div className="category-columns"><span>Division</span><span>{view === "contribution" ? "Contribution estimate" : "Inflation rate"}</span></div>
+        {ordered.map((item) => {
+          const measure = view === "contribution" ? item.contribution : item.value;
+          return <div className="category-row" key={item.code}><span>{item.name}<small>Official basket weight {item.weight.toFixed(1)}%</small></span><div><i className={measure < 0 ? "negative" : ""} style={{ width: `${Math.abs(measure) / maximum * 100}%` }} /></div><b>{measure > 0 ? "+" : ""}{measure.toFixed(view === "contribution" ? 2 : 1)}{view === "contribution" ? " pp" : "%"}</b></div>;
+        })}
+        <small className="source-note">DOSM expenditure weights reference 2022 · CPI basket effective January 2024 · Monthly rates through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "latest release"}</small>
+      </div>
+      <div className="meaning-column">
+        <article><span>Why weights matter</span><h3>A large category can move headline inflation even with a moderate rate.</h3><p>Contribution combines each division&apos;s year-on-year inflation rate with its share of the household basket.</p></article>
+        <article><span>Reconciliation</span><h3>The estimates may not add exactly to headline CPI.</h3><p>Malaysia uses a chained CPI. MacroLens shows the gap instead of forcing the components to equal the headline rate.</p></article>
+        <article><span>Interpretation</span><h3>Contribution describes arithmetic, not causation.</h3><p>A category&apos;s contribution shows where measured inflation is concentrated; it does not establish why prices changed.</p></article>
+        <a className="official-method-link" href={decomposition?.sourceUrl ?? "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"} target="_blank" rel="noreferrer">Official DOSM weights and technical notes ↗</a>
+      </div>
+    </div>
+  </section>;
+}
+
+function DataOperations({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const operations = dashboard?.dataOperations;
+  const releases = operations?.releaseLog ?? [];
+  return <section className="operations-panel" aria-labelledby="operations-title">
+    <div className="operations-heading"><span>Automated data operations</span><h3 id="operations-title">Vintages and release log</h3><p>The public dashboard already stores new CPI vintages and refreshes every day. This panel makes that process visible.</p></div>
+    <div className="operations-stats"><article><span>Refresh schedule</span><strong>{operations?.schedule ?? "Daily at 13:45 Malaysia time"}</strong></article><article><span>Stored CPI vintages</span><strong>{operations?.vintageCount ?? "Building"}</strong><small>{operations?.vintagePolicy ?? "A new snapshot is stored when the CPI period changes."}</small></article><article><span>Latest vintage</span><strong>{operations?.latestVintagePeriod ?? "Loading"}</strong></article></div>
+    {!!releases.length && <div className="release-log"><div><span>Release period</span><span>Headline</span><span>Core</span></div>{releases.map((item) => <div key={item.period}><strong>{formatDate(item.period)}</strong><b>{item.headline.toFixed(1)}%</b><b>{item.core == null ? "—" : `${item.core.toFixed(1)}%`}</b></div>)}</div>}
+  </section>;
+}
+
 function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const [audience, setAudience] = useState<"individuals" | "companies">("individuals");
   const guide = dashboard?.decisionGuide;
@@ -1077,7 +1143,6 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
 }
 
 export function DashboardPage({ section = "snapshot" }: { section?: DashboardSection }) {
-  const [reviewMode, setReviewMode] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
   const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
 
@@ -1125,7 +1190,6 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   const liveHistoryLabels = headlinePoints.filter((_, index) => index === 0 || index === headlinePoints.length - 1 || index % Math.max(1, Math.floor(headlinePoints.length / 6)) === 0).map((point) => formatDate(point.date));
   const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? forecasts;
   const liveModels = dashboard?.forecast.models ?? models;
-  const liveCategories = dashboard?.categories.map((item) => [item.name, item.value] as const) ?? categories;
   const finalForecast = liveForecasts[liveForecasts.length - 1];
   const selectedScore = liveModels.find((model) => model.selected) ?? liveModels[0];
   const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
@@ -1142,9 +1206,6 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <p>A transparent view of Malaysian inflation—connecting official releases, financial conditions and a three-month statistical forecast.</p>
           <div className="hero-actions">
             <a className="primary-button" href="/forecast">Explore the outlook</a>
-            <button className={reviewMode ? "review-toggle active" : "review-toggle"} onClick={() => setReviewMode(!reviewMode)} aria-pressed={reviewMode}>
-              {reviewMode ? "Hide review notes" : "Show what to improve"}
-            </button>
           </div>
           <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
         </div>
@@ -1162,17 +1223,6 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <small>Uncertainty widens with the forecast horizon.</small>
         </aside>
       </section>
-
-      {reviewMode && (
-        <section className="review-strip shell" aria-label="Improvement opportunities">
-          <div className="review-heading"><span>Review mode</span><h2>Strong next steps for version two</h2></div>
-          <div className="review-grid">
-            {reviewIdeas.map((idea) => (
-              <article key={idea.number}><span>{idea.number}</span><h3>{idea.title}</h3><p>{idea.copy}</p></article>
-            ))}
-          </div>
-        </section>
-      )}
 
       <section className="section shell" id="snapshot">
         <div className="section-heading">
@@ -1245,32 +1295,11 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
             </aside>
           </div>
           <div className="forecast-takeaway"><span>Model reading</span><p>{dashboard?.narratives.forecast ?? "Loading the latest model interpretation."}</p></div>
+          <ScenarioExplorer dashboard={dashboard} forecastPoints={liveForecasts} />
         </div>
       </section>}
 
-      {section === "drivers" && <section className="section shell page-section" id="drivers">
-        <div className="section-heading">
-          <div><span className="section-number">03 / Drivers</span><h2>Where pressure is concentrated</h2></div>
-          <p>Category rates identify areas of pressure. They are unweighted and should not be treated as contributions or causal estimates.</p>
-        </div>
-        <div className="drivers-layout">
-          <div className="category-card">
-            {liveCategories.map(([name, value]) => (
-              <div className="category-row" key={name}>
-                <span>{name}</span>
-                <div><i className={value < 0 ? "negative" : ""} style={{ width: `${Math.abs(value) / 4 * 100}%` }} /></div>
-                <b>{value.toFixed(1)}%</b>
-              </div>
-            ))}
-            <small className="source-note">Automatically ranked, unweighted CPI division rates · {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "latest release"}</small>
-          </div>
-          <div className="meaning-column">
-            <article><span>Bonds</span><h3>Persistent inflation can lift required yields.</h3><p>Bond prices and yields generally move in opposite directions, but global rates and risk appetite also matter.</p></article>
-            <article><span>Borrowing</span><h3>Policy expectations shape financing costs.</h3><p>Inflation persistence can affect the expected OPR path and, eventually, lending and deposit rates.</p></article>
-            <article><span>Ringgit</span><h3>Inflation alone is not an FX signal.</h3><p>Relative rates, trade flows, global growth and risk sentiment can dominate the currency response.</p></article>
-          </div>
-        </div>
-      </section>}
+      {section === "drivers" && <DriversSection dashboard={dashboard} />}
 
       {section === "structure" && <EconomicStructureSection dashboard={dashboard} />}
 
@@ -1290,6 +1319,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
             <li><span>04</span><div><h3>Communicate</h3><p>Select the lowest-RMSE model and show both 80% and 95% uncertainty bands.</p></div></li>
           </ol>
         </div>
+        <div className="shell"><DataOperations dashboard={dashboard} /></div>
       </section>}
 
       <footer className="shell">

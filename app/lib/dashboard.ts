@@ -90,7 +90,11 @@ export type DashboardPayload = {
   usingFallback?: boolean;
   sources: Record<string, { status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string; message: string }>;
   series: Record<string, SeriesData>;
-  categories: Array<{ code: string; name: string; value: number }>;
+  categories: Array<{ code: string; name: string; value: number; weight?: number; contribution?: number }>;
+  cpiDecomposition?: {
+    observationPeriod: string; weightReferenceYear: number; effectiveFrom: string; source: string; sourceUrl: string;
+    headline: number; estimatedTotal: number; reconciliationGap: number; method: string; warning: string;
+  };
   forecast: {
     selectedModel: string;
     methodLabel: string;
@@ -98,12 +102,17 @@ export type DashboardPayload = {
     status: string;
     models: Array<{ name: string; rmse: number; mae: number; selected: boolean }>;
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
+    scenario?: { model: string; lag: string; baseline: Record<"core" | "fx" | "opr", number>; coefficients: Record<"core" | "fx" | "opr", number>; warning: string } | null;
   };
   narratives: { snapshot: string; forecast: string; financial: string };
   structuralBreaks?: StructuralBreaks;
   market?: MarketData;
   decisionGuide?: DecisionGuide;
   economicStructure?: EconomicStructure;
+  dataOperations?: {
+    schedule: string; lastSuccessfulRefresh: string; vintageCount: number; latestVintagePeriod: string; vintagePolicy: string;
+    releaseLog: Array<{ period: string; headline: number; core: number | null }>;
+  };
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -113,7 +122,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
   const structuralValid = candidate.schemaVersion === 1 || (
-    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5)
+    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6)
     && !!candidate.structuralBreaks
     && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
   );
@@ -133,11 +142,19 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && !!candidate.economicStructure?.years.every((year) => year.sectors.length === 6)
     && typeof candidate.economicStructure?.latestYear === "number"
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5)
+  const researchValid = candidate.schemaVersion < 6 || (
+    candidate.categories?.length === 13
+    && candidate.categories.every((item) => typeof item.weight === "number" && typeof item.contribution === "number")
+    && candidate.cpiDecomposition?.weightReferenceYear === 2022
+    && typeof candidate.forecast?.scenario?.coefficients?.fx === "number"
+    && (candidate.dataOperations?.releaseLog?.length ?? 0) > 0
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6)
     && structuralValid
     && marketValid
     && decisionValid
     && structureValid
+    && researchValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)

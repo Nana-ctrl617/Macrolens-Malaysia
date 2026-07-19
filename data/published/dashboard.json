@@ -1,41 +1,41 @@
 {
-  "schemaVersion": 5,
-  "generatedAt": "2026-07-19T11:47:32Z",
+  "schemaVersion": 6,
+  "generatedAt": "2026-07-19T14:59:31Z",
   "health": "fresh",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:47:32Z",
+      "retrievedAt": "2026-07-19T14:59:31Z",
       "observationPeriod": "2026-07-17",
       "message": "Official source validated"
     }
@@ -5496,46 +5496,109 @@
   },
   "categories": [
     {
-      "code": "12",
-      "name": "Insurance & financial services",
-      "value": 5.7
-    },
-    {
-      "code": "13",
-      "name": "Personal care & miscellaneous",
-      "value": 3.4
-    },
-    {
-      "code": "07",
-      "name": "Transport",
-      "value": 2.8
-    },
-    {
-      "code": "02",
-      "name": "Alcoholic beverages & tobacco",
-      "value": 2.8
-    },
-    {
-      "code": "11",
-      "name": "Restaurants & accommodation services",
-      "value": 2.6
-    },
-    {
-      "code": "08",
-      "name": "Information & communication",
-      "value": 2.4
-    },
-    {
-      "code": "10",
-      "name": "Education",
-      "value": 2.1
+      "code": "01",
+      "name": "Food & non-alcoholic beverages",
+      "value": 1.4,
+      "weight": 29.8,
+      "contribution": 0.417
     },
     {
       "code": "04",
       "name": "Housing, water, electricity & fuels",
-      "value": 1.4
+      "value": 1.4,
+      "weight": 23.2,
+      "contribution": 0.325
+    },
+    {
+      "code": "07",
+      "name": "Transport",
+      "value": 2.8,
+      "weight": 11.3,
+      "contribution": 0.316
+    },
+    {
+      "code": "12",
+      "name": "Insurance & financial services",
+      "value": 5.7,
+      "weight": 4.0,
+      "contribution": 0.228
+    },
+    {
+      "code": "13",
+      "name": "Personal care & miscellaneous",
+      "value": 3.4,
+      "weight": 5.8,
+      "contribution": 0.197
+    },
+    {
+      "code": "08",
+      "name": "Information & communication",
+      "value": 2.4,
+      "weight": 6.6,
+      "contribution": 0.158
+    },
+    {
+      "code": "11",
+      "name": "Restaurants & accommodation services",
+      "value": 2.6,
+      "weight": 3.4,
+      "contribution": 0.088
+    },
+    {
+      "code": "02",
+      "name": "Alcoholic beverages & tobacco",
+      "value": 2.8,
+      "weight": 1.9,
+      "contribution": 0.053
+    },
+    {
+      "code": "09",
+      "name": "Recreation, sport & culture",
+      "value": 1.1,
+      "weight": 3.0,
+      "contribution": 0.033
+    },
+    {
+      "code": "06",
+      "name": "Health",
+      "value": 1.2,
+      "weight": 2.7,
+      "contribution": 0.032
+    },
+    {
+      "code": "10",
+      "name": "Education",
+      "value": 2.1,
+      "weight": 1.3,
+      "contribution": 0.027
+    },
+    {
+      "code": "05",
+      "name": "Furnishings & household maintenance",
+      "value": 0.4,
+      "weight": 4.3,
+      "contribution": 0.017
+    },
+    {
+      "code": "03",
+      "name": "Clothing & footwear",
+      "value": 0.0,
+      "weight": 2.7,
+      "contribution": 0.0
     }
   ],
+  "cpiDecomposition": {
+    "observationPeriod": "2026-06-01",
+    "weightReferenceYear": 2022,
+    "effectiveFrom": "2024-01",
+    "source": "Department of Statistics Malaysia CPI publication",
+    "sourceUrl": "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf",
+    "headline": 1.9,
+    "estimatedTotal": 1.891,
+    "reconciliationGap": 0.009,
+    "method": "Official division weight multiplied by the division year-on-year inflation rate",
+    "warning": "This is a transparent weighted-pressure estimate. Malaysia uses a chained CPI, so division estimates need not add exactly to headline inflation; the reconciliation gap is shown rather than hidden."
+  },
   "forecast": {
     "selectedModel": "ARIMAX",
     "methodLabel": "Pseudo-real-time backtest using conservative release lags",
@@ -5586,6 +5649,21 @@
         "high95": 2.365
       }
     ],
+    "scenario": {
+      "model": "ARIMAX sensitivity model",
+      "lag": "One-month-lag economic inputs",
+      "baseline": {
+        "core": 1.9,
+        "fx": 4.0375,
+        "opr": 2.75
+      },
+      "coefficients": {
+        "core": 0.840005,
+        "fx": -0.138064,
+        "opr": -0.468782
+      },
+      "warning": "A sensitivity overlay based on historical ARIMAX associations. It is not the selected forecast unless ARIMAX wins the backtest, and it does not identify causal effects."
+    },
     "status": "fresh"
   },
   "structuralBreaks": {
@@ -6276,7 +6354,7 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T11:47:32Z",
+    "retrievedAt": "2026-07-19T14:59:31Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -16098,7 +16176,7 @@
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T11:47:32Z",
+    "retrievedAt": "2026-07-19T14:59:31Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -16938,7 +17016,7 @@
     "message": "Official quarterly observations validated; only complete calendar years are published"
   },
   "decisionGuide": {
-    "generatedAt": "2026-07-19T11:47:32Z",
+    "generatedAt": "2026-07-19T14:59:31Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +13.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -17115,6 +17193,45 @@
       }
     ],
     "disclaimer": "General educational scenarios only. They do not consider income, liabilities, tax, risk tolerance, business contracts or objectives. They are not personalised financial, investment, property, legal, tax or career advice."
+  },
+  "dataOperations": {
+    "schedule": "Daily at 13:45 Malaysia time",
+    "lastSuccessfulRefresh": "2026-07-19T14:59:31Z",
+    "vintageCount": 2,
+    "latestVintagePeriod": "2026-06",
+    "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
+    "releaseLog": [
+      {
+        "period": "2026-06-01",
+        "headline": 1.9,
+        "core": 1.9
+      },
+      {
+        "period": "2026-05-01",
+        "headline": 2.0,
+        "core": 2.0
+      },
+      {
+        "period": "2026-04-01",
+        "headline": 1.9,
+        "core": 2.0
+      },
+      {
+        "period": "2026-03-01",
+        "headline": 1.7,
+        "core": 2.1
+      },
+      {
+        "period": "2026-02-01",
+        "headline": 1.4,
+        "core": 2.0
+      },
+      {
+        "period": "2026-01-01",
+        "headline": 1.6,
+        "core": 2.3
+      }
+    ]
   },
   "narratives": {
     "snapshot": "Headline inflation eased to 1.9% in the latest release, while core inflation was 1.9%.",

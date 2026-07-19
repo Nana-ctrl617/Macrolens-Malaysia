@@ -48,6 +48,18 @@ def test_write_creates_one_vintage_per_cpi_period(tmp_path, monkeypatch):
     assert len(list((tmp_path / "vintages").glob("*.json"))) == 1
 
 
+def test_official_cpi_weights_reconcile_and_gap_stays_visible():
+    assert sum(macrolens.CPI_WEIGHTS_2022.values()) == pytest.approx(100.0)
+    categories = [
+        {"code": code, "name": code, "value": 2.0, "weight": weight, "contribution": weight * 2.0 / 100}
+        for code, weight in macrolens.CPI_WEIGHTS_2022.items()
+    ]
+    result = macrolens.build_cpi_decomposition(categories, [{"date": "2026-06-01", "value": 2.1}])
+    assert result["estimatedTotal"] == pytest.approx(2.0)
+    assert result["reconciliationGap"] == pytest.approx(0.1)
+    assert result["weightReferenceYear"] == 2022
+
+
 def test_monthly_normalisation_uses_last_opr_observation_and_forward_fills():
     points = [
         {"date": "2020-01-05", "value": 3.0},
