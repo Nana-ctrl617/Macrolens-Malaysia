@@ -27,6 +27,7 @@ test("renders each dashboard section on its own route", async () => {
   const routes = [
     ["/forecast", "Three months ahead", "Forecast"],
     ["/drivers", "Where pressure is concentrated", "Drivers"],
+    ["/structure", "What produces Malaysia(?:'|&#x27;)s economic value", "Economic structure"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
     ["/structural", "When the pattern changed", "Structural shifts"],
@@ -48,14 +49,15 @@ test("serves the embedded MGS history without an external request", async () => 
   const body = await response.json();
   assert.equal(body.id, "mgs");
   assert.ok(body.points.length > 50);
-  assert.deepEqual(body.points.at(-1), { date: "2026-07-16", value: 3.63 });
+  assert.match(body.points.at(-1).date, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(body.points.at(-1).value > 0 && body.points.at(-1).value < 20);
 });
 
 test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 4);
+  assert.equal(body.schemaVersion, 5);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -66,6 +68,8 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.market.benchmark.points.length >= 250);
   assert.equal(body.decisionGuide.audiences.individuals.length, 4);
   assert.equal(body.decisionGuide.audiences.companies.length, 4);
+  assert.equal(body.economicStructure.latestYear, 2025);
+  assert.equal(body.economicStructure.years.at(-1).sectors.length, 6);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

@@ -153,3 +153,43 @@ def test_decision_guide_is_data_linked_and_balanced_for_both_audiences():
     assert len(guide["audiences"]["companies"]) == 4
     assert all(len(card["actions"]) == 3 and card["watch"] for cards in guide["audiences"].values() for card in cards)
     assert "not personalised" in guide["disclaimer"].lower()
+
+
+def gdp_structure_fixture(years=5):
+    import pandas as pd
+    rows = []
+    components = {"p1": 100.0, "p2": 100.0, "p3": 200.0, "p4": 100.0, "p5": 480.0, "p6": 20.0}
+    for date in pd.date_range("2020-01-01", periods=years * 4, freq="QS"):
+        annual_step = date.year - 2020
+        rows.append({"series": "abs", "date": date.strftime("%Y-%m-%d"), "sector": "p0", "value": sum(components.values()) + annual_step * len(components)})
+        for sector, value in components.items():
+            rows.append({"series": "abs", "date": date.strftime("%Y-%m-%d"), "sector": sector, "value": value + annual_step})
+    return pd.DataFrame(rows)
+
+
+def test_economic_structure_aggregates_complete_years_and_reconciles_shares():
+    result = macrolens.parse_economic_structure(gdp_structure_fixture(), "2026-01-01T00:00:00Z")
+    assert result["latestYear"] == 2024
+    assert len(result["years"]) == 5
+    latest = result["years"][-1]
+    assert len(latest["sectors"]) == 6
+    assert latest["sectors"][0]["name"] == "Services"
+    assert sum(sector["share"] for sector in latest["sectors"]) == pytest.approx(100, abs=0.1)
+    assert "2024" in latest["narrative"]
+
+
+def test_economic_structure_rejects_duplicates_and_changed_columns():
+    duplicated = gdp_structure_fixture()
+    duplicated = duplicated._append(duplicated.iloc[0], ignore_index=True)
+    with pytest.raises(ValueError, match="duplicate"):
+        macrolens.parse_economic_structure(duplicated, "2026-01-01T00:00:00Z")
+    with pytest.raises(ValueError, match="structure changed"):
+        macrolens.parse_economic_structure(duplicated.drop(columns=["sector"]), "2026-01-01T00:00:00Z")
+
+
+def test_economic_structure_failure_preserves_last_valid_result(monkeypatch):
+    previous = {"economicStructure": {"status": "fresh", "years": [{"year": 2024}]}}
+    monkeypatch.setattr(macrolens, "read_csv", lambda _: (_ for _ in ()).throw(RuntimeError("offline")))
+    result = macrolens.build_economic_structure(previous, "2026-01-01T00:00:00Z")
+    assert result["status"] == "stale"
+    assert result["years"] == previous["economicStructure"]["years"]

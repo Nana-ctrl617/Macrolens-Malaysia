@@ -1,43 +1,43 @@
 {
-  "schemaVersion": 4,
-  "generatedAt": "2026-07-19T11:35:08Z",
-  "health": "partial",
+  "schemaVersion": 5,
+  "generatedAt": "2026-07-19T11:47:32Z",
+  "health": "fresh",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:35:08Z",
+      "retrievedAt": "2026-07-19T11:47:32Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:35:08Z",
+      "retrievedAt": "2026-07-19T11:47:32Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:35:08Z",
+      "retrievedAt": "2026-07-19T11:47:32Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:35:08Z",
+      "retrievedAt": "2026-07-19T11:47:32Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T11:35:08Z",
+      "retrievedAt": "2026-07-19T11:47:32Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
-      "status": "stale",
-      "retrievedAt": "2026-07-19T11:35:08Z",
-      "observationPeriod": "2026-07-16",
-      "message": "Using last valid data: RuntimeError"
+      "status": "fresh",
+      "retrievedAt": "2026-07-19T11:47:32Z",
+      "observationPeriod": "2026-07-17",
+      "message": "Official source validated"
     }
   },
   "series": {
@@ -5486,6 +5486,10 @@
         {
           "date": "2026-07-16",
           "value": 3.63
+        },
+        {
+          "date": "2026-07-17",
+          "value": 3.65
         }
       ]
     }
@@ -5586,7 +5590,7 @@
   },
   "structuralBreaks": {
     "status": "fresh",
-    "calculatedAt": "2026-07-17T07:36:19Z",
+    "calculatedAt": "2026-07-19T11:47:32Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
       "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -6237,7 +6241,7 @@
       "mgs": {
         "indicatorId": "mgs",
         "status": "fresh",
-        "calculatedAt": "2026-07-17T04:51:03Z",
+        "calculatedAt": "2026-07-19T11:47:32Z",
         "sample": {
           "start": "2021-11-01",
           "end": "2026-07-01",
@@ -6251,14 +6255,14 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 0,
-          "bic": -227.247247
+          "bic": -227.052981
         },
         "diagnostics": {
-          "adfStatistic": -1.909854,
-          "adfPValue": 0.32743976,
+          "adfStatistic": -1.928512,
+          "adfPValue": 0.31876953,
           "adfLags": 0,
-          "cusumStatistic": 0.545603,
-          "cusumPValue": 0.92716441
+          "cusumStatistic": 0.541115,
+          "cusumPValue": 0.93145864
         },
         "warnings": [
           "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -6266,13 +6270,13 @@
         ],
         "candidates": [],
         "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "71a9bd389b32e0a183c9c4c805dc676c5d8b7fe9e5fb7913f2e9b52a7cefc096"
+        "seriesFingerprint": "77fe8f72de8320ef3dfff2348584fdc0020b4c2122f3538bc5cbc47a6cbb3f61"
       }
     }
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T11:35:08Z",
+    "retrievedAt": "2026-07-19T11:47:32Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -16092,8 +16096,849 @@
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     }
   },
+  "economicStructure": {
+    "status": "fresh",
+    "retrievedAt": "2026-07-19T11:47:32Z",
+    "observationPeriod": "2025-12-31",
+    "source": "Department of Statistics Malaysia via data.gov.my",
+    "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
+    "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_supply.csv",
+    "frequency": "Annual totals aggregated from quarterly observations",
+    "measure": "GDP at current prices by production sector",
+    "unit": "RM billion",
+    "latestYear": 2025,
+    "years": [
+      {
+        "year": 2015,
+        "total": 1176.941,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 643.882,
+            "share": 54.71,
+            "rank": 1,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 262.38,
+            "share": 22.29,
+            "rank": 2,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 103.059,
+            "share": 8.76,
+            "rank": 3,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 97.539,
+            "share": 8.29,
+            "rank": 4,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 55.382,
+            "share": 4.71,
+            "rank": 5,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 14.699,
+            "share": 1.25,
+            "rank": 6,
+            "changeValue": null,
+            "changeYoY": null,
+            "growthContribution": null
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 54.71,
+          "fastestGrowingSector": "Services",
+          "fastestGrowth": null,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": null
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2015, accounting for 54.7% of nominal GDP."
+      },
+      {
+        "year": 2016,
+        "total": 1249.697,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 689.97,
+            "share": 55.21,
+            "rank": 1,
+            "changeValue": 46.088,
+            "changeYoY": 7.16,
+            "growthContribution": 63.35
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 272.396,
+            "share": 21.8,
+            "rank": 2,
+            "changeValue": 10.016,
+            "changeYoY": 3.82,
+            "growthContribution": 13.77
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 105.755,
+            "share": 8.46,
+            "rank": 3,
+            "changeValue": 8.216,
+            "changeYoY": 8.42,
+            "growthContribution": 11.29
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 103.958,
+            "share": 8.32,
+            "rank": 4,
+            "changeValue": 0.899,
+            "changeYoY": 0.87,
+            "growthContribution": 1.24
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 61.089,
+            "share": 4.89,
+            "rank": 5,
+            "changeValue": 5.707,
+            "changeYoY": 10.3,
+            "growthContribution": 7.84
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 16.53,
+            "share": 1.32,
+            "rank": 6,
+            "changeValue": 1.831,
+            "changeYoY": 12.46,
+            "growthContribution": 2.52
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 55.21,
+          "fastestGrowingSector": "Construction",
+          "fastestGrowth": 10.3,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 46.088
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2016, accounting for 55.2% of nominal GDP. Construction recorded the fastest current-price increase at +10.3%, while Services added the largest ringgit amount to the annual change (RM +46.1 billion)."
+      },
+      {
+        "year": 2017,
+        "total": 1372.31,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 747.359,
+            "share": 54.46,
+            "rank": 1,
+            "changeValue": 57.389,
+            "changeYoY": 8.32,
+            "growthContribution": 46.8
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 299.798,
+            "share": 21.85,
+            "rank": 2,
+            "changeValue": 27.402,
+            "changeYoY": 10.06,
+            "growthContribution": 22.35
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 121.326,
+            "share": 8.84,
+            "rank": 3,
+            "changeValue": 17.368,
+            "changeYoY": 16.71,
+            "growthContribution": 14.16
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 117.994,
+            "share": 8.6,
+            "rank": 4,
+            "changeValue": 12.239,
+            "changeYoY": 11.57,
+            "growthContribution": 9.98
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 66.552,
+            "share": 4.85,
+            "rank": 5,
+            "changeValue": 5.463,
+            "changeYoY": 8.94,
+            "growthContribution": 4.46
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 19.28,
+            "share": 1.4,
+            "rank": 6,
+            "changeValue": 2.75,
+            "changeYoY": 16.64,
+            "growthContribution": 2.24
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 54.46,
+          "fastestGrowingSector": "Mining and quarrying",
+          "fastestGrowth": 16.71,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 57.389
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2017, accounting for 54.5% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +16.7%, while Services added the largest ringgit amount to the annual change (RM +57.4 billion)."
+      },
+      {
+        "year": 2018,
+        "total": 1447.76,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 804.994,
+            "share": 55.6,
+            "rank": 1,
+            "changeValue": 57.635,
+            "changeYoY": 7.71,
+            "growthContribution": 76.39
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 311.676,
+            "share": 21.53,
+            "rank": 2,
+            "changeValue": 11.878,
+            "changeYoY": 3.96,
+            "growthContribution": 15.74
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 134.834,
+            "share": 9.31,
+            "rank": 3,
+            "changeValue": 13.508,
+            "changeYoY": 11.13,
+            "growthContribution": 17.9
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 108.757,
+            "share": 7.51,
+            "rank": 4,
+            "changeValue": -9.237,
+            "changeYoY": -7.83,
+            "growthContribution": -12.24
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 70.048,
+            "share": 4.84,
+            "rank": 5,
+            "changeValue": 3.496,
+            "changeYoY": 5.25,
+            "growthContribution": 4.63
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 17.454,
+            "share": 1.21,
+            "rank": 6,
+            "changeValue": -1.826,
+            "changeYoY": -9.47,
+            "growthContribution": -2.42
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 55.6,
+          "fastestGrowingSector": "Mining and quarrying",
+          "fastestGrowth": 11.13,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 57.635
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2018, accounting for 55.6% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +11.1%, while Services added the largest ringgit amount to the annual change (RM +57.6 billion)."
+      },
+      {
+        "year": 2019,
+        "total": 1512.738,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 860.13,
+            "share": 56.86,
+            "rank": 1,
+            "changeValue": 55.136,
+            "changeYoY": 6.85,
+            "growthContribution": 84.85
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 323.862,
+            "share": 21.41,
+            "rank": 2,
+            "changeValue": 12.186,
+            "changeYoY": 3.91,
+            "growthContribution": 18.75
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 131.083,
+            "share": 8.67,
+            "rank": 3,
+            "changeValue": -3.751,
+            "changeYoY": -2.78,
+            "growthContribution": -5.77
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 109.542,
+            "share": 7.24,
+            "rank": 4,
+            "changeValue": 0.785,
+            "changeYoY": 0.72,
+            "growthContribution": 1.21
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 71.068,
+            "share": 4.7,
+            "rank": 5,
+            "changeValue": 1.02,
+            "changeYoY": 1.46,
+            "growthContribution": 1.57
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 17.053,
+            "share": 1.13,
+            "rank": 6,
+            "changeValue": -0.401,
+            "changeYoY": -2.3,
+            "growthContribution": -0.62
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 56.86,
+          "fastestGrowingSector": "Services",
+          "fastestGrowth": 6.85,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 55.136
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2019, accounting for 56.9% of nominal GDP. Services recorded the fastest current-price increase at +6.8%, while Services added the largest ringgit amount to the annual change (RM +55.1 billion)."
+      },
+      {
+        "year": 2020,
+        "total": 1418.49,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 817.712,
+            "share": 57.65,
+            "rank": 1,
+            "changeValue": -42.418,
+            "changeYoY": -4.93,
+            "growthContribution": 45.01
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 315.36,
+            "share": 22.23,
+            "rank": 2,
+            "changeValue": -8.502,
+            "changeYoY": -2.63,
+            "growthContribution": 9.02
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 115.833,
+            "share": 8.17,
+            "rank": 3,
+            "changeValue": 6.291,
+            "changeYoY": 5.74,
+            "growthContribution": -6.67
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 96.172,
+            "share": 6.78,
+            "rank": 4,
+            "changeValue": -34.911,
+            "changeYoY": -26.63,
+            "growthContribution": 37.04
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 57.657,
+            "share": 4.06,
+            "rank": 5,
+            "changeValue": -13.411,
+            "changeYoY": -18.87,
+            "growthContribution": 14.23
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 15.755,
+            "share": 1.11,
+            "rank": 6,
+            "changeValue": -1.298,
+            "changeYoY": -7.61,
+            "growthContribution": 1.38
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 57.65,
+          "fastestGrowingSector": "Agriculture",
+          "fastestGrowth": 5.74,
+          "largestGrowthContributor": "Agriculture",
+          "largestContributionValue": 6.291
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2020, accounting for 57.6% of nominal GDP. Agriculture recorded the fastest current-price increase at +5.7%, while Agriculture added the largest ringgit amount to the annual change (RM +6.3 billion)."
+      },
+      {
+        "year": 2021,
+        "total": 1548.701,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 841.692,
+            "share": 54.35,
+            "rank": 1,
+            "changeValue": 23.98,
+            "changeYoY": 2.93,
+            "growthContribution": 18.42
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 361.826,
+            "share": 23.36,
+            "rank": 2,
+            "changeValue": 46.466,
+            "changeYoY": 14.73,
+            "growthContribution": 35.69
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 148.152,
+            "share": 9.57,
+            "rank": 3,
+            "changeValue": 32.319,
+            "changeYoY": 27.9,
+            "growthContribution": 24.82
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 124.355,
+            "share": 8.03,
+            "rank": 4,
+            "changeValue": 28.183,
+            "changeYoY": 29.3,
+            "growthContribution": 21.64
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 55.654,
+            "share": 3.59,
+            "rank": 5,
+            "changeValue": -2.003,
+            "changeYoY": -3.47,
+            "growthContribution": -1.54
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 17.023,
+            "share": 1.1,
+            "rank": 6,
+            "changeValue": 1.268,
+            "changeYoY": 8.05,
+            "growthContribution": 0.97
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 54.35,
+          "fastestGrowingSector": "Mining and quarrying",
+          "fastestGrowth": 29.3,
+          "largestGrowthContributor": "Manufacturing",
+          "largestContributionValue": 46.466
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2021, accounting for 54.4% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +29.3%, while Manufacturing added the largest ringgit amount to the annual change (RM +46.5 billion)."
+      },
+      {
+        "year": 2022,
+        "total": 1794.893,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 959.254,
+            "share": 53.44,
+            "rank": 1,
+            "changeValue": 117.562,
+            "changeYoY": 13.97,
+            "growthContribution": 47.75
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 418.898,
+            "share": 23.34,
+            "rank": 2,
+            "changeValue": 57.072,
+            "changeYoY": 15.77,
+            "growthContribution": 23.18
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 176.249,
+            "share": 9.82,
+            "rank": 3,
+            "changeValue": 51.894,
+            "changeYoY": 41.73,
+            "growthContribution": 21.08
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 160.856,
+            "share": 8.96,
+            "rank": 4,
+            "changeValue": 12.704,
+            "changeYoY": 8.57,
+            "growthContribution": 5.16
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 60.824,
+            "share": 3.39,
+            "rank": 5,
+            "changeValue": 5.17,
+            "changeYoY": 9.29,
+            "growthContribution": 2.1
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 18.812,
+            "share": 1.05,
+            "rank": 6,
+            "changeValue": 1.789,
+            "changeYoY": 10.51,
+            "growthContribution": 0.73
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 53.44,
+          "fastestGrowingSector": "Mining and quarrying",
+          "fastestGrowth": 41.73,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 117.562
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2022, accounting for 53.4% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +41.7%, while Services added the largest ringgit amount to the annual change (RM +117.6 billion)."
+      },
+      {
+        "year": 2023,
+        "total": 1825.325,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 1023.02,
+            "share": 56.05,
+            "rank": 1,
+            "changeValue": 63.766,
+            "changeYoY": 6.65,
+            "growthContribution": 209.54
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 419.963,
+            "share": 23.01,
+            "rank": 2,
+            "changeValue": 1.065,
+            "changeYoY": 0.25,
+            "growthContribution": 3.5
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 154.101,
+            "share": 8.44,
+            "rank": 3,
+            "changeValue": -22.148,
+            "changeYoY": -12.57,
+            "growthContribution": -72.78
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 141.859,
+            "share": 7.77,
+            "rank": 4,
+            "changeValue": -18.997,
+            "changeYoY": -11.81,
+            "growthContribution": -62.42
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 65.895,
+            "share": 3.61,
+            "rank": 5,
+            "changeValue": 5.071,
+            "changeYoY": 8.34,
+            "growthContribution": 16.66
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 20.487,
+            "share": 1.12,
+            "rank": 6,
+            "changeValue": 1.675,
+            "changeYoY": 8.9,
+            "growthContribution": 5.5
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 56.05,
+          "fastestGrowingSector": "Construction",
+          "fastestGrowth": 8.34,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 63.766
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2023, accounting for 56.0% of nominal GDP. Construction recorded the fastest current-price increase at +8.3%, while Services added the largest ringgit amount to the annual change (RM +63.8 billion)."
+      },
+      {
+        "year": 2024,
+        "total": 1933.209,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 1087.104,
+            "share": 56.23,
+            "rank": 1,
+            "changeValue": 64.084,
+            "changeYoY": 6.26,
+            "growthContribution": 59.4
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 434.851,
+            "share": 22.49,
+            "rank": 2,
+            "changeValue": 14.888,
+            "changeYoY": 3.55,
+            "growthContribution": 13.8
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 157.431,
+            "share": 8.14,
+            "rank": 3,
+            "changeValue": 15.572,
+            "changeYoY": 10.98,
+            "growthContribution": 14.43
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 152.705,
+            "share": 7.9,
+            "rank": 4,
+            "changeValue": -1.396,
+            "changeYoY": -0.91,
+            "growthContribution": -1.29
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 78.096,
+            "share": 4.04,
+            "rank": 5,
+            "changeValue": 12.201,
+            "changeYoY": 18.52,
+            "growthContribution": 11.31
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 23.021,
+            "share": 1.19,
+            "rank": 6,
+            "changeValue": 2.534,
+            "changeYoY": 12.37,
+            "growthContribution": 2.35
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 56.23,
+          "fastestGrowingSector": "Construction",
+          "fastestGrowth": 18.52,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 64.084
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2024, accounting for 56.2% of nominal GDP. Construction recorded the fastest current-price increase at +18.5%, while Services added the largest ringgit amount to the annual change (RM +64.1 billion)."
+      },
+      {
+        "year": 2025,
+        "total": 2025.379,
+        "sectors": [
+          {
+            "id": "p5",
+            "name": "Services",
+            "value": 1159.236,
+            "share": 57.24,
+            "rank": 1,
+            "changeValue": 72.132,
+            "changeYoY": 6.64,
+            "growthContribution": 78.26
+          },
+          {
+            "id": "p3",
+            "name": "Manufacturing",
+            "value": 447.113,
+            "share": 22.08,
+            "rank": 2,
+            "changeValue": 12.262,
+            "changeYoY": 2.82,
+            "growthContribution": 13.3
+          },
+          {
+            "id": "p1",
+            "name": "Agriculture",
+            "value": 166.704,
+            "share": 8.23,
+            "rank": 3,
+            "changeValue": 9.273,
+            "changeYoY": 5.89,
+            "growthContribution": 10.06
+          },
+          {
+            "id": "p2",
+            "name": "Mining and quarrying",
+            "value": 138.681,
+            "share": 6.85,
+            "rank": 4,
+            "changeValue": -14.024,
+            "changeYoY": -9.18,
+            "growthContribution": -15.22
+          },
+          {
+            "id": "p4",
+            "name": "Construction",
+            "value": 86.897,
+            "share": 4.29,
+            "rank": 5,
+            "changeValue": 8.801,
+            "changeYoY": 11.27,
+            "growthContribution": 9.55
+          },
+          {
+            "id": "p6",
+            "name": "Import duties",
+            "value": 26.748,
+            "share": 1.32,
+            "rank": 6,
+            "changeValue": 3.727,
+            "changeYoY": 16.19,
+            "growthContribution": 4.04
+          }
+        ],
+        "summary": {
+          "largestSector": "Services",
+          "largestShare": 57.24,
+          "fastestGrowingSector": "Construction",
+          "fastestGrowth": 11.27,
+          "largestGrowthContributor": "Services",
+          "largestContributionValue": 72.132
+        },
+        "narrative": "Services was Malaysia's largest production sector in 2025, accounting for 57.2% of nominal GDP. Construction recorded the fastest current-price increase at +11.3%, while Services added the largest ringgit amount to the annual change (RM +72.1 billion)."
+      }
+    ],
+    "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
+    "message": "Official quarterly observations validated; only complete calendar years are published"
+  },
   "decisionGuide": {
-    "generatedAt": "2026-07-19T11:35:08Z",
+    "generatedAt": "2026-07-19T11:47:32Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +13.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -16130,8 +16975,8 @@
       },
       {
         "label": "10-year MGS",
-        "value": "3.63%",
-        "period": "2026-07-16",
+        "value": "3.65%",
+        "period": "2026-07-17",
         "reading": "long-term government benchmark yield"
       },
       {
@@ -16174,7 +17019,7 @@
           "theme": "Property and borrowing",
           "stance": "Stress-test",
           "title": "Test affordability before relying on property appreciation",
-          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.63%, both relevant reference points for financing conditions.",
+          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.65%, both relevant reference points for financing conditions.",
           "actions": [
             "Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.",
             "Recalculate repayments under a higher-rate scenario and a temporary income interruption.",
@@ -16202,7 +17047,7 @@
           "theme": "Cash flow and funding",
           "stance": "Protect liquidity",
           "title": "Review debt sensitivity and idle-cash policy",
-          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.63%. Borrowing still carries a meaningful financing cost.",
+          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.65%. Borrowing still carries a meaningful financing cost.",
           "actions": [
             "Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.",
             "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.",

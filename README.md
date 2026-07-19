@@ -8,7 +8,9 @@ A scheduled GitHub Actions workflow runs at 13:45 Malaysia time each day. It val
 
 The website reads `data/published/dashboard.json` through `/api/dashboard`. A failed or invalid remote request falls back to the last snapshot bundled with the deployed site and displays a fallback status instead of claiming the data are live.
 
-The interface uses separate routes for faster navigation: `/` for the snapshot, followed by `/forecast`, `/drivers`, `/bursa`, `/decisions`, `/structural`, and `/methodology`. All routes read the same consolidated payload so values cannot diverge between pages.
+The interface uses separate routes for faster navigation: `/` for the snapshot, followed by `/forecast`, `/drivers`, `/structure`, `/bursa`, `/decisions`, `/structural`, and `/methodology`. All routes read the same consolidated payload so values cannot diverge between pages.
+
+The Economic Structure page derives complete annual totals from DOSM's official quarterly nominal GDP-by-economic-sector dataset. Its year selector updates a six-part composition chart (five production sectors plus import duties), exact RM billion values, shares, year-on-year current-price changes, contribution to the annual ringgit change, and a deterministic interpretation. It clearly distinguishes GDP composition from government revenue, company profit, or household income.
 
 ## Data sources
 
@@ -34,7 +36,7 @@ Each indicator is converted to monthly frequency and modelled as a level dependi
 
 This is exploratory evidence of parameter instability, not causal identification. Nearby events are shown only within six months of a detected boundary and are never described as causes. Short MGS history is visibly labelled lower-confidence.
 
-Machine-readable results are available from `/api/structural-breaks?format=json` and `/api/structural-breaks?format=csv`, as well as `data/published/structural-breaks.*`. Payload schema version 4 also contains ten years of daily KLCI closes, returns, one-year volatility, drawdown, 52-week range, deterministic market commentary, and a self-updating decision guide for individuals and companies. Price data are delayed, third-party observations and are not described as live or official. Decision-guide scenarios are general education, not personalised advice.
+Machine-readable results are available from `/api/structural-breaks?format=json` and `/api/structural-breaks?format=csv`, as well as `data/published/structural-breaks.*`. Payload schema version 5 also contains ten years of daily KLCI closes, returns, one-year volatility, drawdown, 52-week range, deterministic market commentary, a self-updating decision guide, and annual nominal GDP sector composition through the latest complete year. Price data are delayed, third-party observations and are not described as live or official. Decision-guide scenarios are general education, not personalised advice.
 
 ## Local setup
 

@@ -66,6 +66,23 @@ export type DecisionGuide = {
   sources: Array<{ name: string; url: string }>;
   disclaimer: string;
 };
+export type EconomicSector = {
+  id: string; name: string; value: number; share: number; rank: number;
+  changeValue: number | null; changeYoY: number | null; growthContribution: number | null;
+};
+export type EconomicStructureYear = {
+  year: number; total: number; sectors: EconomicSector[]; narrative: string;
+  summary: {
+    largestSector: string; largestShare: number; fastestGrowingSector: string;
+    fastestGrowth: number | null; largestGrowthContributor: string; largestContributionValue: number | null;
+  };
+};
+export type EconomicStructure = {
+  status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string;
+  source: string; sourceUrl: string; datasetUrl: string; frequency: string;
+  measure: string; unit: string; latestYear: number; years: EconomicStructureYear[];
+  note: string; message: string;
+};
 export type DashboardPayload = {
   schemaVersion: number;
   generatedAt: string;
@@ -86,6 +103,7 @@ export type DashboardPayload = {
   structuralBreaks?: StructuralBreaks;
   market?: MarketData;
   decisionGuide?: DecisionGuide;
+  economicStructure?: EconomicStructure;
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -95,7 +113,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
   const structuralValid = candidate.schemaVersion === 1 || (
-    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4)
+    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5)
     && !!candidate.structuralBreaks
     && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
   );
@@ -105,15 +123,21 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && candidate.market.benchmark.points.length >= 250
     && typeof candidate.market.summary?.latest === "number"
   );
-  const decisionValid = candidate.schemaVersion !== 4 || (
+  const decisionValid = candidate.schemaVersion < 4 || (
     candidate.decisionGuide?.audiences?.individuals?.length === 4
     && candidate.decisionGuide?.audiences?.companies?.length === 4
     && candidate.decisionGuide?.signals?.length >= 6
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4)
+  const structureValid = candidate.schemaVersion < 5 || (
+    (candidate.economicStructure?.years?.length ?? 0) >= 5
+    && !!candidate.economicStructure?.years.every((year) => year.sectors.length === 6)
+    && typeof candidate.economicStructure?.latestYear === "number"
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5)
     && structuralValid
     && marketValid
     && decisionValid
+    && structureValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)

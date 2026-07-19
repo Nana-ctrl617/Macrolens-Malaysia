@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { DashboardPayload, DecisionCard, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import type { DashboardPayload, DecisionCard, EconomicSector, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
@@ -45,12 +45,13 @@ const reviewIdeas = [
   { number: "04", title: "Automate monthly refreshes", copy: "Store validated releases and publish a concise change log whenever official data update." },
 ];
 
-export type DashboardSection = "snapshot" | "forecast" | "drivers" | "bursa" | "decisions" | "structural" | "methodology";
+export type DashboardSection = "snapshot" | "forecast" | "drivers" | "structure" | "bursa" | "decisions" | "structural" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
   { id: "forecast", label: "Forecast", href: "/forecast" },
   { id: "drivers", label: "Drivers", href: "/drivers" },
+  { id: "structure", label: "Economic structure", href: "/structure" },
   { id: "bursa", label: "Bursa", href: "/bursa" },
   { id: "decisions", label: "Decision guide", href: "/decisions" },
   { id: "structural", label: "Structural shifts", href: "/structural" },
@@ -692,7 +693,7 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
     <section className="section structural-section" id="structural">
       <div className="shell">
         <div className="section-heading">
-          <div><span className="section-number">06 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <div><span className="section-number">07 / Structural shifts</span><h2>When the pattern changed</h2></div>
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
@@ -745,6 +746,81 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
       </div>
     </section>
   );
+}
+
+const sectorColours = ["#d95c3f", "#1d746b", "#e5a83c", "#274653", "#7b6fa6", "#8f9c91"];
+
+function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [selected, setSelected] = useState(0);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = canvas?.parentElement;
+    if (!canvas || !container || !sectors.length) return;
+    const draw = () => {
+      const size = Math.min(Math.max(container.clientWidth, 280), 520);
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = size * ratio; canvas.height = size * ratio;
+      canvas.style.width = `${size}px`; canvas.style.height = `${size}px`;
+      const context = canvas.getContext("2d"); if (!context) return;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, size, size);
+      const centre = size / 2, outer = size * .405, inner = size * .24;
+      let angle = -Math.PI / 2;
+      sectors.forEach((sector, index) => {
+        const sweep = sector.share / 100 * Math.PI * 2;
+        const gap = .012;
+        context.beginPath(); context.arc(centre, centre, outer + (selected === index ? 7 : 0), angle + gap, angle + sweep - gap);
+        context.arc(centre, centre, inner, angle + sweep - gap, angle + gap, true); context.closePath();
+        context.fillStyle = sectorColours[index % sectorColours.length]; context.fill();
+        angle += sweep;
+      });
+      const active = sectors[selected] ?? sectors[0];
+      context.textAlign = "center"; context.fillStyle = "#15221f"; context.font = `700 ${Math.max(28, size * .085)}px DM Sans, sans-serif`;
+      context.fillText(`${active.share.toFixed(1)}%`, centre, centre - 2);
+      context.fillStyle = "#68736f"; context.font = `700 ${Math.max(10, size * .026)}px DM Sans, sans-serif`;
+      context.fillText(active.name.toUpperCase(), centre, centre + 27, inner * 1.75);
+    };
+    draw(); const observer = new ResizeObserver(draw); observer.observe(container); return () => observer.disconnect();
+  }, [sectors, selected]);
+
+  const selectFromPointer = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - bounds.left - bounds.width / 2, y = event.clientY - bounds.top - bounds.height / 2;
+    const radius = Math.sqrt(x * x + y * y);
+    if (radius < bounds.width * .20 || radius > bounds.width * .45) return;
+    let angle = Math.atan2(y, x) + Math.PI / 2; if (angle < 0) angle += Math.PI * 2;
+    let cumulative = 0;
+    const index = sectors.findIndex((sector) => { cumulative += sector.share / 100 * Math.PI * 2; return angle <= cumulative; });
+    if (index >= 0) setSelected(index);
+  };
+  const active = sectors[selected] ?? sectors[0];
+  return <div className="structure-chart">
+    <canvas ref={canvasRef} role="img" tabIndex={0} aria-label={`GDP sector pie chart. Selected: ${active.name}, ${active.share.toFixed(2)} percent, RM ${active.value.toFixed(1)} billion.`}
+      onPointerMove={selectFromPointer} onPointerDown={selectFromPointer}
+      onKeyDown={(event) => { if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return; event.preventDefault(); setSelected((current) => (current + (event.key === "ArrowRight" ? 1 : sectors.length - 1)) % sectors.length); }} />
+    <small>Hover, tap, use the legend, or press arrow keys to inspect a sector.</small>
+    <div className="sector-legend" aria-label="GDP sector legend">{sectors.map((sector, index) => <button key={sector.id} className={selected === index ? "active" : ""} onClick={() => setSelected(index)}><i style={{ background: sectorColours[index] }} /><span>{sector.name}</span><b>{sector.share.toFixed(2)}%</b></button>)}</div>
+  </div>;
+}
+
+function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const structure = dashboard?.economicStructure;
+  const [year, setYear] = useState<number | null>(null);
+  const selectedYear = structure?.years.find((item) => item.year === year) ?? structure?.years.at(-1);
+  useEffect(() => { if (structure && year == null) setYear(structure.latestYear); }, [structure, year]);
+  return <section className="section structure-section page-section" id="structure"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">04 / Economic structure</span><h2>What produces Malaysia&apos;s economic value?</h2></div><p>Choose a year to see each sector&apos;s share of nominal GDP, its exact ringgit value, and how its current-price output changed from the prior year.</p></div>
+    {!structure || !selectedYear ? <div className="structure-empty">Economic-sector data will appear when the version-five dataset is available.</div> : <>
+      <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><p><span className={`structure-status ${structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
+      <div className="structure-overview">
+        <EconomicDonut sectors={selectedYear.sectors} />
+        <div className="structure-reading"><span className="mini-label">Production view · {selectedYear.year}</span><h3>RM {selectedYear.total.toLocaleString("en-MY", { maximumFractionDigits: 1 })} billion</h3><p className="structure-definition">Total GDP at purchasers&apos; prices. The six slices reconcile five production sectors plus import duties.</p><div className="structure-highlights"><article><span>Largest sector</span><strong>{selectedYear.summary.largestSector}</strong><small>{selectedYear.summary.largestShare.toFixed(1)}% of nominal GDP</small></article><article><span>Fastest current-price increase</span><strong>{selectedYear.summary.fastestGrowingSector}</strong><small>{selectedYear.summary.fastestGrowth == null ? "Prior-year comparison unavailable" : `${selectedYear.summary.fastestGrowth > 0 ? "+" : ""}${selectedYear.summary.fastestGrowth.toFixed(1)}% year on year`}</small></article><article><span>Largest RM addition</span><strong>{selectedYear.summary.largestGrowthContributor}</strong><small>{selectedYear.summary.largestContributionValue == null ? "Prior-year comparison unavailable" : `RM ${selectedYear.summary.largestContributionValue > 0 ? "+" : ""}${selectedYear.summary.largestContributionValue.toFixed(1)} billion`}</small></article></div></div>
+      </div>
+      <div className="structure-analysis"><span>What drove the year</span><p>{selectedYear.narrative}</p></div>
+      <div className="structure-table-wrap"><table><thead><tr><th>Rank</th><th>Sector</th><th>Share</th><th>Value</th><th>Nominal change</th><th>Share of annual RM change</th></tr></thead><tbody>{selectedYear.sectors.map((sector, index) => <tr key={sector.id}><td>{sector.rank}</td><td><i style={{ background: sectorColours[index] }} /><strong>{sector.name}</strong></td><td>{sector.share.toFixed(2)}%</td><td>RM {sector.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(sector.changeYoY ?? 0) < 0 ? "down" : "up"}>{sector.changeYoY == null ? "—" : `${sector.changeYoY > 0 ? "+" : ""}${sector.changeYoY.toFixed(2)}%`}</td><td>{sector.growthContribution == null ? "—" : `${sector.growthContribution > 0 ? "+" : ""}${sector.growthContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div>
+      <div className="structure-notes"><p><b>Important distinction.</b> {structure.note}</p><p>{structure.message} · Retrieved {formatDate(structure.retrievedAt.slice(0, 10))}</p><div><a href={structure.sourceUrl} target="_blank" rel="noreferrer">Official dataset and methodology ↗</a><a href={structure.datasetUrl} target="_blank" rel="noreferrer">Download source CSV ↗</a></div></div>
+    </>}
+  </div></section>;
 }
 
 type MarketRange = "1M" | "3M" | "YTD" | "1Y" | "3Y" | "5Y" | "ALL";
@@ -841,7 +917,7 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const periodReturn = points.length > 1 ? (points.at(-1)!.value / points[0].value - 1) * 100 : null;
   const summary = market?.summary;
   return <section className="section market-section" id="bursa"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">04 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
+    <div className="section-heading light"><div><span className="section-number">05 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
     {!market || !summary ? <div className="market-empty">Market history will appear when the version-three dataset is available.</div> : <>
       <div className="market-overview">
         <article className="market-quote"><span>FTSE Bursa Malaysia KLCI</span><strong>{summary.latest.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><div><b className={summary.change1D >= 0 ? "positive" : "negative"}>{signedPercent(summary.change1D)}</b><small>latest trading day · {formatDate(summary.latestDate)}</small></div><em className={`market-status ${market.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : market.status === "fresh" ? "Delayed data · refreshed" : "Delayed data · cached"}</em></article>
@@ -876,7 +952,7 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
   const guide = dashboard?.decisionGuide;
   const cards = guide?.audiences[audience] ?? [];
   return <section className="section decision-section page-section" id="decisions"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">05 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
+    <div className="section-heading"><div><span className="section-number">06 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
     {!guide ? <div className="decision-empty">The decision guide will appear when the version-four dataset is available.</div> : <>
       <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={guide.status}>{guide.status === "fresh" ? "Latest signals incorporated" : "Some inputs use cached data"}</em></div>
       <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
@@ -907,7 +983,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1069,6 +1145,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
         </div>
       </section>}
 
+      {section === "structure" && <EconomicStructureSection dashboard={dashboard} />}
+
       {section === "bursa" && <BursaSection dashboard={dashboard} />}
 
       {section === "decisions" && <DecisionGuideSection dashboard={dashboard} />}
@@ -1077,7 +1155,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">07 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">08 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>

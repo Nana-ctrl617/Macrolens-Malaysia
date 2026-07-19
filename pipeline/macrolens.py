@@ -36,6 +36,16 @@ BNM_ACCEPT = "application/vnd.BNM.API.v1+json"
 KLCI_URL = "https://query1.finance.yahoo.com/v8/finance/chart/%5EKLSE?range=10y&interval=1d&events=history"
 KLCI_SOURCE_URL = "https://finance.yahoo.com/quote/%5EKLSE/history/"
 KLCI_BENCHMARK_URL = "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open"
+GDP_STRUCTURE_URL = "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_supply.csv"
+GDP_STRUCTURE_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply"
+GDP_SECTORS = {
+    "p1": "Agriculture",
+    "p2": "Mining and quarrying",
+    "p3": "Manufacturing",
+    "p4": "Construction",
+    "p5": "Services",
+    "p6": "Import duties",
+}
 
 EVENT_CATALOGUE = [
     {"date": "2015-04-01", "title": "Goods and Services Tax introduced", "category": "Fiscal policy", "source": "Ministry of Finance", "sourceUrl": "https://www.mof.gov.my/portal/arkib/economy/2016/chapter4.pdf"},
@@ -200,6 +210,118 @@ def parse_klci(payload: dict) -> list[dict]:
 
 def fetch_klci() -> list[dict]:
     return parse_klci(get(KLCI_URL).json())
+
+
+def parse_economic_structure(frame: pd.DataFrame, retrieved: str) -> dict:
+    """Aggregate complete quarterly nominal GDP observations into annual sector shares."""
+    required = {"series", "date", "sector", "value"}
+    if not required.issubset(frame.columns):
+        raise ValueError("GDP sector source structure changed")
+    selected = frame.loc[frame["series"].eq("abs"), list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    selected["value"] = pd.to_numeric(selected["value"], errors="raise")
+    selected = selected[selected["sector"].isin({"p0", *GDP_SECTORS})]
+    if selected.empty or selected["value"].isna().any():
+        raise ValueError("GDP sector source is empty or malformed")
+    if selected.duplicated(["date", "sector"]).any():
+        raise ValueError("GDP sector source contains duplicate quarter-sector rows")
+    if (selected["value"] < 0).any():
+        raise ValueError("GDP sector source contains implausible negative values")
+    selected["year"] = selected["date"].dt.year
+    selected["quarter"] = selected["date"].dt.quarter
+
+    years: list[dict] = []
+    for year, annual_frame in selected.groupby("year", sort=True):
+        counts = annual_frame.groupby("sector")["quarter"].nunique()
+        if any(int(counts.get(code, 0)) != 4 for code in ["p0", *GDP_SECTORS]):
+            continue
+        totals = annual_frame.groupby("sector")["value"].sum()
+        total_million = float(totals["p0"])
+        sector_sum = sum(float(totals[code]) for code in GDP_SECTORS)
+        if total_million <= 0 or abs(sector_sum - total_million) / total_million > 0.003:
+            raise ValueError(f"GDP sector values do not reconcile for {year}")
+        sectors = [
+            {
+                "id": code,
+                "name": name,
+                "value": round(float(totals[code]) / 1000, 3),
+                "share": round(float(totals[code]) / total_million * 100, 2),
+            }
+            for code, name in GDP_SECTORS.items()
+        ]
+        sectors.sort(key=lambda item: item["share"], reverse=True)
+        for rank, sector in enumerate(sectors, start=1):
+            sector["rank"] = rank
+        years.append({"year": int(year), "total": round(total_million / 1000, 3), "sectors": sectors})
+
+    if len(years) < 5:
+        raise ValueError("GDP sector source has insufficient complete annual history")
+    previous_by_sector: dict[str, float] = {}
+    previous_total: float | None = None
+    for year_data in years:
+        total_change = year_data["total"] - previous_total if previous_total is not None else None
+        for sector in year_data["sectors"]:
+            previous_value = previous_by_sector.get(sector["id"])
+            change_value = sector["value"] - previous_value if previous_value is not None else None
+            sector["changeValue"] = round(change_value, 3) if change_value is not None else None
+            sector["changeYoY"] = round(change_value / previous_value * 100, 2) if previous_value and change_value is not None else None
+            sector["growthContribution"] = round(change_value / total_change * 100, 2) if total_change and change_value is not None else None
+            previous_by_sector[sector["id"]] = sector["value"]
+        previous_total = year_data["total"]
+        ranked = year_data["sectors"]
+        largest = ranked[0]
+        comparable = [sector for sector in ranked if sector["id"] != "p6" and sector["changeYoY"] is not None]
+        fastest = max(comparable, key=lambda item: item["changeYoY"]) if comparable else largest
+        contributor = max(comparable, key=lambda item: item["changeValue"]) if comparable else largest
+        year_data["summary"] = {
+            "largestSector": largest["name"],
+            "largestShare": largest["share"],
+            "fastestGrowingSector": fastest["name"],
+            "fastestGrowth": fastest["changeYoY"],
+            "largestGrowthContributor": contributor["name"],
+            "largestContributionValue": contributor["changeValue"],
+        }
+        if comparable:
+            year_data["narrative"] = (
+                f"{largest['name']} was Malaysia's largest production sector in {year_data['year']}, accounting for "
+                f"{largest['share']:.1f}% of nominal GDP. {fastest['name']} recorded the fastest current-price "
+                f"increase at {fastest['changeYoY']:+.1f}%, while {contributor['name']} added the largest ringgit "
+                f"amount to the annual change (RM {contributor['changeValue']:+.1f} billion)."
+            )
+        else:
+            year_data["narrative"] = f"{largest['name']} was Malaysia's largest production sector in {year_data['year']}, accounting for {largest['share']:.1f}% of nominal GDP."
+
+    latest = years[-1]
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": f"{latest['year']}-12-31",
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": GDP_STRUCTURE_SOURCE_URL,
+        "datasetUrl": GDP_STRUCTURE_URL,
+        "frequency": "Annual totals aggregated from quarterly observations",
+        "measure": "GDP at current prices by production sector",
+        "unit": "RM billion",
+        "latestYear": latest["year"],
+        "years": years,
+        "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
+        "message": "Official quarterly observations validated; only complete calendar years are published",
+    }
+
+
+def build_economic_structure(previous: dict | None, retrieved: str) -> dict:
+    try:
+        return parse_economic_structure(read_csv(GDP_STRUCTURE_URL), retrieved)
+    except Exception as error:
+        old = (previous or {}).get("economicStructure")
+        if not old or not old.get("years"):
+            raise
+        return {
+            **copy.deepcopy(old),
+            "status": "stale",
+            "retrievedAt": retrieved,
+            "message": f"Using last valid GDP sector data: {type(error).__name__}",
+        }
 
 
 def market_statistics(points: list[dict]) -> dict:
@@ -798,16 +920,18 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     forecast_data.setdefault("status", "fresh")
     structural_data = build_structural_analysis(series, previous, retrieved)
     market_data = build_market(previous, retrieved)
+    economic_structure = build_economic_structure(previous, retrieved)
     payload = {
-        "schemaVersion": 4,
+        "schemaVersion": 5,
         "generatedAt": retrieved,
-        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" else "partial",
+        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
         "forecast": forecast_data,
         "structuralBreaks": structural_data,
         "market": market_data,
+        "economicStructure": economic_structure,
         "decisionGuide": build_decision_guide(series, market_data, retrieved),
         "narratives": narrative(series, forecast_data),
     }
@@ -822,6 +946,8 @@ def build(previous_path: Path = PUBLISHED) -> dict:
             source.pop("retrievedAt", None)
         candidate.get("market", {}).pop("retrievedAt", None)
         baseline.get("market", {}).pop("retrievedAt", None)
+        candidate.get("economicStructure", {}).pop("retrievedAt", None)
+        baseline.get("economicStructure", {}).pop("retrievedAt", None)
         if candidate == baseline:
             return previous
     return payload
