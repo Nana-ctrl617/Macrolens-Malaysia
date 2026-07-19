@@ -103,3 +103,41 @@ def test_stable_series_can_select_no_break():
     series = pd.Series(values, index=pd.date_range("2010-01-01", periods=len(values), freq="MS"))
     breaks, _ = macrolens.screen_breaks(series, minimum_segment=24)
     assert breaks == []
+
+
+def test_klci_parser_drops_nulls_deduplicates_and_sorts():
+    import pandas as pd
+    dates = pd.date_range("2025-01-01", periods=260, freq="B")
+    timestamps = [int(date.timestamp()) for date in dates]
+    closes = [1500 + index * 0.2 for index in range(260)]
+    timestamps.extend([timestamps[-1], timestamps[-1] + 86400])
+    closes.extend([1600.0, None])
+    payload = {"chart": {"result": [{"timestamp": timestamps, "indicators": {"quote": [{"close": closes}]}}]}}
+    points = macrolens.parse_klci(payload)
+    assert len(points) == 260
+    assert points[-1]["value"] == 1600.0
+    assert [point["date"] for point in points] == sorted(point["date"] for point in points)
+
+
+def test_klci_parser_rejects_changed_structure():
+    with pytest.raises(ValueError, match="structure"):
+        macrolens.parse_klci({"chart": {"result": [{"timestamp": [1], "indicators": {}}]}})
+
+
+def test_market_statistics_reports_return_volatility_and_drawdown():
+    import pandas as pd
+    values = [1000.0, 1100.0, 880.0, 968.0]
+    points = [{"date": date.strftime("%Y-%m-%d"), "value": value} for date, value in zip(pd.date_range("2025-01-01", periods=4, freq="30D"), values)]
+    result = macrolens.market_statistics(points)
+    assert result["latest"] == 968.0
+    assert result["maxDrawdown1Y"] == pytest.approx(-20.0)
+    assert result["high52w"] == 1100.0
+
+
+def test_market_failure_preserves_last_valid_prices(monkeypatch):
+    old = sample(260, start="2000-01-01", value=1500)
+    previous = {"market": {"benchmark": {"points": old}}}
+    monkeypatch.setattr(macrolens, "fetch_klci", lambda: (_ for _ in ()).throw(RuntimeError("offline")))
+    result = macrolens.build_market(previous, "2026-01-01T00:00:00Z")
+    assert result["status"] == "stale"
+    assert result["benchmark"]["points"] == old

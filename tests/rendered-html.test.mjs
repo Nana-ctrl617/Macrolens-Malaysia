@@ -20,6 +20,8 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Built to be questioned/);
   assert.match(html, /When the pattern changed/);
   assert.match(html, /Structural shifts/);
+  assert.match(html, /The large-cap market pulse/);
+  assert.match(html, /version-three dataset/);
   assert.match(html, /Open historical data for Headline inflation/);
   assert.match(html, /View history/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -38,13 +40,15 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 2);
+  assert.equal(body.schemaVersion, 3);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
   assert.ok(body.sources.headline.observationPeriod);
   assert.equal(Object.keys(body.structuralBreaks.indicators).length, 6);
   assert.ok(body.structuralBreaks.indicators.core.candidates.length > 0);
+  assert.equal(body.market.benchmark.id, "fbmklci");
+  assert.ok(body.market.benchmark.points.length >= 250);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

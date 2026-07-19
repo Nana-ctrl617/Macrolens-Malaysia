@@ -56,6 +56,7 @@ function Header() {
         <a href="#snapshot">Snapshot</a>
         <a href="#forecast">Forecast</a>
         <a href="#drivers">Drivers</a>
+        <a href="#bursa">Bursa</a>
         <a href="#structural">Structural shifts</a>
         <a href="#method">Method</a>
       </nav>
@@ -680,7 +681,7 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
     <section className="section structural-section" id="structural">
       <div className="shell">
         <div className="section-heading">
-          <div><span className="section-number">04 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <div><span className="section-number">05 / Structural shifts</span><h2>When the pattern changed</h2></div>
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
@@ -735,6 +736,120 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
   );
 }
 
+type MarketRange = "1M" | "3M" | "YTD" | "1Y" | "3Y" | "5Y" | "ALL";
+
+function signedPercent(value: number | null) {
+  if (value == null) return "—";
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
+}
+
+function MarketChart({ points }: { points: DataPoint[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hovered, setHovered] = useState<{ point: DataPoint; left: number; top: number; tooltipLeft: number } | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = canvas?.parentElement;
+    if (!canvas || !container || points.length < 2) return;
+    const draw = () => {
+      const width = Math.max(container.clientWidth, 320), height = 350;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = width * ratio; canvas.height = height * ratio;
+      canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
+      const context = canvas.getContext("2d"); if (!context) return;
+      context.scale(ratio, ratio); context.clearRect(0, 0, width, height);
+      const padding = { top: 30, right: 24, bottom: 46, left: 66 };
+      const chartWidth = width - padding.left - padding.right, chartHeight = height - padding.top - padding.bottom;
+      const values = points.map((point) => point.value);
+      let min = Math.min(...values), max = Math.max(...values);
+      const spread = Math.max(max - min, 30); min -= spread * .1; max += spread * .1;
+      const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
+      const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
+      context.font = "600 12px DM Sans, sans-serif";
+      for (let index = 0; index < 5; index += 1) {
+        const value = max - index / 4 * (max - min), yPosition = padding.top + index / 4 * chartHeight;
+        context.strokeStyle = "rgba(255,255,255,.13)"; context.lineWidth = 1;
+        context.beginPath(); context.moveTo(padding.left, yPosition); context.lineTo(width - padding.right, yPosition); context.stroke();
+        context.fillStyle = "#bdcbc6"; context.fillText(value.toFixed(0), 7, yPosition + 4);
+      }
+      const gradient = context.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      gradient.addColorStop(0, "rgba(83,196,167,.33)"); gradient.addColorStop(1, "rgba(83,196,167,0)");
+      context.beginPath(); points.forEach((point, index) => index ? context.lineTo(x(index), y(point.value)) : context.moveTo(x(index), y(point.value)));
+      context.lineTo(x(points.length - 1), height - padding.bottom); context.lineTo(x(0), height - padding.bottom); context.closePath(); context.fillStyle = gradient; context.fill();
+      context.beginPath(); points.forEach((point, index) => index ? context.lineTo(x(index), y(point.value)) : context.moveTo(x(index), y(point.value)));
+      context.strokeStyle = "#53c4a7"; context.lineWidth = 2.5; context.lineJoin = "round"; context.stroke();
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
+        const label = formatDate(points[index].date); context.fillStyle = "#bdcbc6";
+        const measured = context.measureText(label).width;
+        context.fillText(label, index === 0 ? x(index) : index === points.length - 1 ? x(index) - measured : x(index) - measured / 2, height - 15);
+      });
+    };
+    draw(); const observer = new ResizeObserver(draw); observer.observe(container); return () => observer.disconnect();
+  }, [points]);
+
+  const showPoint = (clientX: number) => {
+    const canvas = canvasRef.current; if (!canvas || points.length < 2) return;
+    const bounds = canvas.getBoundingClientRect(), padding = { top: 30, right: 24, bottom: 46, left: 66 };
+    const chartWidth = bounds.width - padding.left - padding.right;
+    const pointer = Math.min(bounds.width - padding.right, Math.max(padding.left, clientX - bounds.left));
+    const index = Math.min(points.length - 1, Math.max(0, Math.round((pointer - padding.left) / chartWidth * (points.length - 1))));
+    const values = points.map((point) => point.value); let min = Math.min(...values), max = Math.max(...values);
+    const spread = Math.max(max - min, 30); min -= spread * .1; max += spread * .1;
+    const canvasLeft = padding.left + index / (points.length - 1) * chartWidth;
+    const canvasTop = padding.top + (max - points[index].value) / (max - min) * (350 - padding.top - padding.bottom);
+    setHovered({ point: points[index], left: canvas.offsetLeft + canvasLeft, top: canvas.offsetTop + canvasTop, tooltipLeft: canvas.offsetLeft + Math.min(bounds.width - 78, Math.max(78, canvasLeft)) });
+  };
+
+  return <div className="market-chart">
+    <canvas ref={canvasRef} tabIndex={0} role="img" aria-label="FTSE Bursa Malaysia KLCI historical daily closing levels"
+      onPointerMove={(event) => showPoint(event.clientX)} onPointerDown={(event) => showPoint(event.clientX)} onClick={(event) => showPoint(event.clientX)}
+      onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)}
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault(); const current = hovered ? points.findIndex((point) => point.date === hovered.point.date) : points.length - 1;
+        const next = Math.min(points.length - 1, Math.max(0, current + (event.key === "ArrowRight" ? 1 : -1)));
+        const bounds = event.currentTarget.getBoundingClientRect(); showPoint(bounds.left + 66 + next / (points.length - 1) * (bounds.width - 90));
+      }} />
+    {hovered && <><i className="chart-hover-line" style={{ left: hovered.left }} /><i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} /><div className="chart-tooltip" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}><span>{formatDate(hovered.point.date)}</span><strong>{hovered.point.value.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div></>}
+    <small className="chart-interaction-hint">Hover, tap, or use the arrow keys to inspect each trading observation.</small>
+  </div>;
+}
+
+function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const [range, setRange] = useState<MarketRange>("1Y");
+  const market = dashboard?.market;
+  const allPoints = useMemo(() => market?.benchmark.points ?? [], [market]);
+  const points = useMemo(() => {
+    if (!allPoints.length || range === "ALL") return allPoints;
+    const end = new Date(`${allPoints.at(-1)?.date}T00:00:00`), start = new Date(end);
+    if (range === "YTD") start.setMonth(0, 1);
+    else if (range.endsWith("M")) start.setMonth(start.getMonth() - Number(range.replace("M", "")));
+    else start.setFullYear(start.getFullYear() - Number(range.replace("Y", "")));
+    return allPoints.filter((point) => new Date(`${point.date}T00:00:00`) >= start);
+  }, [allPoints, range]);
+  const periodReturn = points.length > 1 ? (points.at(-1)!.value / points[0].value - 1) * 100 : null;
+  const summary = market?.summary;
+  return <section className="section market-section" id="bursa"><div className="shell">
+    <div className="section-heading light"><div><span className="section-number">04 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
+    {!market || !summary ? <div className="market-empty">Market history will appear when the version-three dataset is available.</div> : <>
+      <div className="market-overview">
+        <article className="market-quote"><span>FTSE Bursa Malaysia KLCI</span><strong>{summary.latest.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><div><b className={summary.change1D >= 0 ? "positive" : "negative"}>{signedPercent(summary.change1D)}</b><small>latest trading day · {formatDate(summary.latestDate)}</small></div><em className={`market-status ${market.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : market.status === "fresh" ? "Delayed data · refreshed" : "Delayed data · cached"}</em></article>
+        <div className="market-range" role="group" aria-label="Choose KLCI chart period">{(["1M", "3M", "YTD", "1Y", "3Y", "5Y", "ALL"] as MarketRange[]).map((item) => <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item}</button>)}</div>
+      </div>
+      <MarketChart points={points} />
+      <div className="market-stats">
+        <article><span>{range} return</span><strong className={(periodReturn ?? 0) >= 0 ? "positive" : "negative"}>{signedPercent(periodReturn)}</strong><small>Price change between selected endpoints</small></article>
+        <article><span>1-year volatility</span><strong>{summary.annualizedVolatility1Y?.toFixed(2) ?? "—"}%</strong><small>Annualised standard deviation of daily returns</small></article>
+        <article><span>1-year max drawdown</span><strong className="negative">{summary.maxDrawdown1Y.toFixed(2)}%</strong><small>Largest fall from a running peak</small></article>
+        <article><span>52-week range</span><strong>{summary.low52w.toFixed(0)}–{summary.high52w.toFixed(0)}</strong><small>Lowest and highest daily closes</small></article>
+      </div>
+      <div className="market-analysis"><article><span>Performance reading</span><p>{market.narratives.performance}</p></article><article><span>Macroeconomic context</span><p>{market.narratives.macro}</p></article></div>
+      <div className="market-sources"><span>{market.message} · Retrieved {formatDate(market.retrievedAt.slice(0, 10))}</span><div><a href={market.benchmark.benchmarkSourceUrl} target="_blank" rel="noreferrer">Benchmark definition ↗</a><a href={market.benchmark.sourceUrl} target="_blank" rel="noreferrer">Delayed price source ↗</a></div></div>
+      <p className="market-disclaimer">Returns exclude dividends, fees and taxes. Delayed third-party market data may be revised. This section is educational analysis, not investment advice or a trading signal.</p>
+    </>}
+  </div></section>;
+}
+
 export default function Home() {
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
@@ -742,7 +857,7 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/dashboard")
+    fetch(`/api/dashboard?refresh=${Date.now()}`, { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error("Dashboard data unavailable");
         return response.json() as Promise<DashboardPayload>;
@@ -907,11 +1022,13 @@ export default function Home() {
         </div>
       </section>
 
+      <BursaSection dashboard={dashboard} />
+
       <StructuralSection dashboard={dashboard} />
 
       <section className="section method-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">05 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">06 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>

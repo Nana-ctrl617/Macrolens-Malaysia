@@ -33,6 +33,9 @@ STRUCTURAL_CSV = ROOT / "data" / "published" / "structural-breaks.csv"
 VINTAGES = ROOT / "data" / "vintages"
 USER_AGENT = "MacroLens-Malaysia/2.0 (public economics portfolio)"
 BNM_ACCEPT = "application/vnd.BNM.API.v1+json"
+KLCI_URL = "https://query1.finance.yahoo.com/v8/finance/chart/%5EKLSE?range=10y&interval=1d&events=history"
+KLCI_SOURCE_URL = "https://finance.yahoo.com/quote/%5EKLSE/history/"
+KLCI_BENCHMARK_URL = "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open"
 
 EVENT_CATALOGUE = [
     {"date": "2015-04-01", "title": "Goods and Services Tax introduced", "category": "Fiscal policy", "source": "Ministry of Finance", "sourceUrl": "https://www.mof.gov.my/portal/arkib/economy/2016/chapter4.pdf"},
@@ -168,6 +171,101 @@ def fetch_mgs(previous: dict | None) -> list[dict]:
     if latest:
         combined[latest["date"]] = latest
     return [combined[date] for date in sorted(combined)]
+
+
+def parse_klci(payload: dict) -> list[dict]:
+    results = payload.get("chart", {}).get("result") or []
+    if not results:
+        raise ValueError("KLCI response contains no result")
+    result = results[0]
+    timestamps = result.get("timestamp") or []
+    quotes = result.get("indicators", {}).get("quote") or []
+    closes = quotes[0].get("close", []) if quotes else []
+    if not timestamps or len(timestamps) != len(closes):
+        raise ValueError("KLCI source structure changed")
+    points: dict[str, dict] = {}
+    for timestamp, close in zip(timestamps, closes):
+        if close is None:
+            continue
+        date = datetime.fromtimestamp(int(timestamp), timezone.utc).strftime("%Y-%m-%d")
+        value = float(close)
+        if not math.isfinite(value) or not 100 <= value <= 5000:
+            raise ValueError(f"KLCI implausible value {value}")
+        points[date] = {"date": date, "value": round(value, 4)}
+    ordered = [points[date] for date in sorted(points)]
+    if len(ordered) < 250:
+        raise ValueError(f"KLCI has only {len(ordered)} valid observations")
+    return ordered
+
+
+def fetch_klci() -> list[dict]:
+    return parse_klci(get(KLCI_URL).json())
+
+
+def market_statistics(points: list[dict]) -> dict:
+    values = pd.Series(
+        [float(point["value"]) for point in points],
+        index=pd.to_datetime([point["date"] for point in points]),
+        dtype=float,
+    ).sort_index()
+    latest_date, latest = values.index[-1], float(values.iloc[-1])
+
+    def return_since(target: pd.Timestamp) -> float | None:
+        eligible = values.loc[:target]
+        if eligible.empty:
+            return None
+        return round((latest / float(eligible.iloc[-1]) - 1) * 100, 2)
+
+    one_year = values.loc[values.index >= latest_date - pd.DateOffset(years=1)]
+    daily_returns = one_year.pct_change().dropna()
+    running_peak = one_year.cummax()
+    drawdown = one_year / running_peak - 1
+    prior = float(values.iloc[-2]) if len(values) > 1 else latest
+    return {
+        "latest": round(latest, 2),
+        "latestDate": latest_date.strftime("%Y-%m-%d"),
+        "change1D": round((latest / prior - 1) * 100, 2),
+        "return1M": return_since(latest_date - pd.DateOffset(months=1)),
+        "return3M": return_since(latest_date - pd.DateOffset(months=3)),
+        "returnYtd": return_since(pd.Timestamp(year=latest_date.year - 1, month=12, day=31)),
+        "return1Y": return_since(latest_date - pd.DateOffset(years=1)),
+        "annualizedVolatility1Y": round(float(daily_returns.std(ddof=1) * math.sqrt(252) * 100), 2) if len(daily_returns) > 1 else None,
+        "maxDrawdown1Y": round(float(drawdown.min() * 100), 2),
+        "high52w": round(float(one_year.max()), 2),
+        "low52w": round(float(one_year.min()), 2),
+    }
+
+
+def build_market(previous: dict | None, retrieved: str) -> dict:
+    try:
+        points = fetch_klci()
+        status, message = "fresh", "Delayed daily prices validated"
+    except Exception as error:
+        old = (previous or {}).get("market", {}).get("benchmark", {}).get("points")
+        if not old:
+            raise
+        points = old
+        status, message = "stale", f"Using last valid market data: {type(error).__name__}"
+    summary = market_statistics(points)
+    one_year = summary["return1Y"]
+    direction = "gained" if one_year is not None and one_year > 0 else "declined" if one_year is not None and one_year < 0 else "was broadly unchanged"
+    magnitude = abs(one_year or 0)
+    performance = f"The FBM KLCI {direction} {magnitude:.1f}% over the latest year, with {summary['annualizedVolatility1Y']:.1f}% annualised volatility and a {abs(summary['maxDrawdown1Y']):.1f}% maximum drawdown during that window."
+    macro = "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
+    return {
+        "status": status,
+        "retrievedAt": retrieved,
+        "message": message,
+        "benchmark": {
+            "id": "fbmklci", "title": "FTSE Bursa Malaysia KLCI", "symbol": "^KLSE",
+            "currency": "MYR", "unit": "index points", "decimals": 2,
+            "frequency": "Trading days", "source": "Yahoo Finance delayed market data",
+            "sourceUrl": KLCI_SOURCE_URL, "benchmarkSource": "FTSE Russell / Bursa Malaysia",
+            "benchmarkSourceUrl": KLCI_BENCHMARK_URL, "delayed": True, "points": points,
+        },
+        "summary": summary,
+        "narratives": {"performance": performance, "macro": macro},
+    }
 
 
 def validate_points(key: str, points: list[dict]) -> list[dict]:
@@ -593,15 +691,17 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         forecast_data = {**forecast_data, "status": "stale", "message": f"Forecast retained after {type(error).__name__}"}
     forecast_data.setdefault("status", "fresh")
     structural_data = build_structural_analysis(series, previous, retrieved)
+    market_data = build_market(previous, retrieved)
     payload = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "generatedAt": retrieved,
-        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) else "partial",
+        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
         "forecast": forecast_data,
         "structuralBreaks": structural_data,
+        "market": market_data,
         "narratives": narrative(series, forecast_data),
     }
     if previous:
@@ -613,6 +713,8 @@ def build(previous_path: Path = PUBLISHED) -> dict:
             source.pop("retrievedAt", None)
         for source in baseline.get("sources", {}).values():
             source.pop("retrievedAt", None)
+        candidate.get("market", {}).pop("retrievedAt", None)
+        baseline.get("market", {}).pop("retrievedAt", None)
         if candidate == baseline:
             return previous
     return payload

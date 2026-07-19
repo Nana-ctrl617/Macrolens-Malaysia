@@ -4,7 +4,7 @@ MacroLens is a public economics portfolio dashboard that explains Malaysian infl
 
 ## What updates automatically
 
-A scheduled GitHub Actions workflow runs at 13:45 Malaysia time each day. It validates official DOSM/data.gov.my and Bank Negara Malaysia series, preserves the previous valid value when a source fails, compares three forecasting models, recalculates structural-break evidence when a series changes, and publishes one versioned dashboard artifact.
+A scheduled GitHub Actions workflow runs at 13:45 Malaysia time each day. It validates official DOSM/data.gov.my and Bank Negara Malaysia series plus delayed FBM KLCI prices, preserves the previous valid value when a source fails, compares three forecasting models, recalculates structural-break evidence when a series changes, and publishes one versioned dashboard artifact.
 
 The website reads `data/published/dashboard.json` through `/api/dashboard`. A failed or invalid remote request falls back to the last snapshot bundled with the deployed site and displays a fallback status instead of claiming the data are live.
 
@@ -18,6 +18,7 @@ The website reads `data/published/dashboard.json` through `/api/dashboard`. A fa
 | OPR | Policy decisions | BNM OpenAPI |
 | USD/MYR | Monthly end rate | BNM via data.gov.my |
 | 10-year MGS | Latest trading observation | BNM Financial Markets |
+| FTSE Bursa Malaysia KLCI | Daily close, delayed | Yahoo Finance price history; benchmark definition from FTSE Russell/Bursa Malaysia |
 
 The BNM Financial Markets website may reject automated requests. When this happens, the pipeline retains the last validated MGS series and marks it stale rather than substituting another source.
 
@@ -31,7 +32,7 @@ Each indicator is converted to monthly frequency and modelled as a level dependi
 
 This is exploratory evidence of parameter instability, not causal identification. Nearby events are shown only within six months of a detected boundary and are never described as causes. Short MGS history is visibly labelled lower-confidence.
 
-Machine-readable results are available from `/api/structural-breaks?format=json` and `/api/structural-breaks?format=csv`, as well as `data/published/structural-breaks.*`.
+Machine-readable results are available from `/api/structural-breaks?format=json` and `/api/structural-breaks?format=csv`, as well as `data/published/structural-breaks.*`. Payload schema version 3 also contains ten years of daily KLCI closes, returns, one-year volatility, drawdown, 52-week range, and deterministic market commentary. Price data are delayed, third-party observations and are not described as live or official.
 
 ## Local setup
 

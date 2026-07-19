@@ -39,6 +39,22 @@ export type StructuralBreaks = {
   methodology: { model: string; screening: string; confirmation: string; robustness: string; significanceLevel: number; suggestiveLevel: number; eventWindowMonths: number; causalClaim: boolean };
   indicators: Record<string, StructuralIndicator>;
 };
+export type MarketData = {
+  status: "fresh" | "stale";
+  retrievedAt: string;
+  message: string;
+  benchmark: {
+    id: "fbmklci"; title: string; symbol: string; currency: string; unit: string; decimals: number;
+    frequency: string; source: string; sourceUrl: string; benchmarkSource: string; benchmarkSourceUrl: string;
+    delayed: boolean; points: DataPoint[];
+  };
+  summary: {
+    latest: number; latestDate: string; change1D: number; return1M: number | null; return3M: number | null;
+    returnYtd: number | null; return1Y: number | null; annualizedVolatility1Y: number | null;
+    maxDrawdown1Y: number; high52w: number; low52w: number;
+  };
+  narratives: { performance: string; macro: string };
+};
 export type DashboardPayload = {
   schemaVersion: number;
   generatedAt: string;
@@ -57,6 +73,7 @@ export type DashboardPayload = {
   };
   narratives: { snapshot: string; forecast: string; financial: string };
   structuralBreaks?: StructuralBreaks;
+  market?: MarketData;
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -66,12 +83,19 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
   const structuralValid = candidate.schemaVersion === 1 || (
-    candidate.schemaVersion === 2
+    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3)
     && !!candidate.structuralBreaks
     && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2)
+  const marketValid = candidate.schemaVersion !== 3 || (
+    candidate.market?.benchmark?.id === "fbmklci"
+    && Array.isArray(candidate.market.benchmark.points)
+    && candidate.market.benchmark.points.length >= 250
+    && typeof candidate.market.summary?.latest === "number"
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3)
     && structuralValid
+    && marketValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)
@@ -86,6 +110,9 @@ export async function getDashboard(): Promise<DashboardPayload> {
     if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
     const remote: unknown = await response.json();
     if (!isDashboard(remote)) throw new Error("Remote dashboard schema is invalid");
+    if (remote.schemaVersion < local.schemaVersion) {
+      return { ...local, health: "fallback", usingFallback: true };
+    }
     return { ...remote, usingFallback: false };
   } catch {
     return { ...local, health: "fallback", usingFallback: true };
