@@ -1190,8 +1190,6 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   const liveHistoryLabels = headlinePoints.filter((_, index) => index === 0 || index === headlinePoints.length - 1 || index % Math.max(1, Math.floor(headlinePoints.length / 6)) === 0).map((point) => formatDate(point.date));
   const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? forecasts;
   const liveModels = dashboard?.forecast.models ?? models;
-  const finalForecast = liveForecasts[liveForecasts.length - 1];
-  const selectedScore = liveModels.find((model) => model.selected) ?? liveModels[0];
   const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
 
   return (
@@ -1199,35 +1197,14 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       <Header active={section} />
 
       {section === "snapshot" && <>
-      <section className="hero shell">
-        <div className="hero-copy">
-          <div className="kicker">Malaysia inflation monitor · {updatedAt}</div>
-          <h1>See the pressure.<br /><em>Read the direction.</em></h1>
-          <p>A transparent view of Malaysian inflation—connecting official releases, financial conditions and a three-month statistical forecast.</p>
-          <div className="hero-actions">
-            <a className="primary-button" href="/forecast">Explore the outlook</a>
-          </div>
-          <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
-        </div>
-        <aside className="hero-brief" aria-label="Latest model brief">
-          <div className="brief-label">Three-month signal</div>
-          <div className="direction-badge"><span>→</span> Broadly stable</div>
-          <div className="brief-value">{finalForecast.value.toFixed(2)}%</div>
-          <p>Central forecast for {finalForecast.month}</p>
-          <div className="brief-divider" />
-          <dl>
-            <div><dt>Selected model</dt><dd>{dashboard?.forecast.selectedModel ?? "SARIMA"}</dd></div>
-            <div><dt>Backtest RMSE</dt><dd>{selectedScore.rmse.toFixed(2)} pp</dd></div>
-            <div><dt>95% interval</dt><dd>{finalForecast.low95.toFixed(2)}% — {finalForecast.high95.toFixed(2)}%</dd></div>
-          </dl>
-          <small>Uncertainty widens with the forecast horizon.</small>
-        </aside>
-      </section>
-
-      <section className="section shell" id="snapshot">
+      <section className="section snapshot-section shell" id="snapshot">
         <div className="section-heading">
-          <div><span className="section-number">01 / Snapshot</span><h2>The economy at a glance</h2></div>
-          <p>Six indicators frame the current inflation story. Each card keeps its own release period visible.</p>
+          <div><span className="section-number">01 / Snapshot</span><h2>Malaysia’s economy at a glance</h2></div>
+          <p>Track the latest signals across prices, interest rates, jobs, the ringgit and government bonds—with official data and clear explanations.</p>
+        </div>
+        <div className="snapshot-meta">
+          <span>Last successful refresh · {updatedAt}</span>
+          <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
         </div>
         <aside className="inflation-primer" aria-labelledby="inflation-primer-title">
           <div className="primer-heading">

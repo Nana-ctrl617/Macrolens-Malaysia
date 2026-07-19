@@ -17,7 +17,10 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /MacroLens Malaysia/);
   assert.match(html, /macrolens-logo\.png/);
   assert.match(html, /favicon-32\.png/);
-  assert.match(html, /See the pressure/);
+  assert.match(html, /Malaysia(?:'|&#x27;|’|&rsquo;)s economy at a glance/);
+  assert.match(html, /prices, interest rates, jobs, the ringgit and government bonds/);
+  assert.match(html, /Last successful refresh/);
+  assert.doesNotMatch(html, /Malaysia inflation monitor|See the pressure|Read the direction/);
   assert.match(html, /Structural shifts/);
   assert.match(html, /Open historical data for Headline inflation/);
   assert.match(html, /View history/);
