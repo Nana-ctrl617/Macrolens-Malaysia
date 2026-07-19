@@ -12,6 +12,8 @@ The interface uses separate routes for faster navigation: `/` for the snapshot, 
 
 The Economic Structure page derives complete annual totals from DOSM's official quarterly nominal GDP-by-economic-sector dataset. Its year selector updates a six-part composition chart (five production sectors plus import duties), exact RM billion values, shares, year-on-year current-price changes, contribution to the annual ringgit change, and a deterministic interpretation. It clearly distinguishes GDP composition from government revenue, company profit, or household income.
 
+Each snapshot indicator explorer also contains a selected-window explanation layer. It reports the strongest same-period monthly-change association across the dashboard series, any screened structural break and nearby verified event, indicator-specific economic mechanisms, and a year-by-year change table. These are labelled as diagnostic clues rather than causal estimates.
+
 ## Data sources
 
 | Indicator | Frequency used | Official source |

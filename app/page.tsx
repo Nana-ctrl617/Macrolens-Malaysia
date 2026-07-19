@@ -345,7 +345,7 @@ function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: M
   );
 }
 
-function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => void }) {
+function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashboard: DashboardPayload | null; onClose: () => void }) {
   const [data, setData] = useState<IndicatorData | null>(null);
   const [error, setError] = useState("");
   const [range, setRange] = useState<RangeKey>("5Y");
@@ -466,6 +466,7 @@ function IndicatorDetail({ metric, onClose }: { metric: Metric; onClose: () => v
                   </p>
                   <small>Monthly-change volatility: {analysis.volatility.toFixed(data.decimals + 1)} {data.unit === "RM" ? "ringgit" : "percentage points"}. This is descriptive analysis, not a causal estimate or forecast.</small>
                 </div>
+                <WhyAnalysis data={data} points={filtered} dashboard={dashboard} />
                 {data.structuralBreaks && (
                   <div className="detail-structural">
                     <div><span>Structural shift screen</span><strong>{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length} supported break{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length === 1 ? "" : "s"}</strong></div>
@@ -801,6 +802,100 @@ function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
     <small>Hover, tap, use the legend, or press arrow keys to inspect a sector.</small>
     <div className="sector-legend" aria-label="GDP sector legend">{sectors.map((sector, index) => <button key={sector.id} className={selected === index ? "active" : ""} onClick={() => setSelected(index)}><i style={{ background: sectorColours[index] }} /><span>{sector.name}</span><b>{sector.share.toFixed(2)}%</b></button>)}</div>
   </div>;
+}
+
+const mechanismNotes: Record<MetricId, Array<{ title: string; copy: string }>> = {
+  headline: [
+    { title: "Food, energy and administered prices", copy: "Headline inflation can move quickly when food, fuel, utilities, taxes or subsidies change because these items are included directly in the household basket." },
+    { title: "Imported cost pressure", copy: "A weaker ringgit can raise the local-currency cost of imported food, fuel and production inputs, although firms may absorb part of the change in margins." },
+    { title: "Domestic demand and wages", copy: "Strong spending or wage growth can allow businesses to pass higher costs through to consumer prices; weak demand can limit that pass-through." },
+  ],
+  core: [
+    { title: "Persistent domestic demand", copy: "Core inflation removes selected volatile or administered items, so sustained services demand and business pricing power often matter more than one-off commodity moves." },
+    { title: "Wages and operating costs", copy: "Labour, rent and recurring input costs can create broader price pressure when firms pass them through across many categories." },
+    { title: "Delayed monetary-policy effects", copy: "Changes in interest rates influence borrowing and spending gradually, so the effect on underlying inflation normally appears with a lag." },
+  ],
+  opr: [
+    { title: "Inflation outlook", copy: "BNM sets the OPR prospectively. Persistent or rising inflation risks can support tighter policy, while subdued pressure can create room for easing." },
+    { title: "Growth and labour conditions", copy: "Policy also considers whether demand, employment and financial conditions are strong enough to sustain price pressure." },
+    { title: "Risk management", copy: "An OPR decision is not a mechanical reaction to one indicator; BNM weighs the balance of risks and the expected path of the economy." },
+  ],
+  unemployment: [
+    { title: "Economic activity and shocks", copy: "Businesses tend to reduce hiring or employment when sales and production weaken, while recoveries usually improve labour demand with a delay." },
+    { title: "Participation and labour supply", copy: "The unemployment rate can change because both the number of unemployed people and the size of the labour force change." },
+    { title: "Sector reallocation", copy: "Different industries recover or contract at different speeds, creating mismatches between available workers, skills and locations." },
+  ],
+  fx: [
+    { title: "Relative interest-rate expectations", copy: "The ringgit can respond when expected Malaysian returns change relative to US and other global interest rates, affecting cross-border capital demand." },
+    { title: "Trade, commodities and global risk", copy: "Export receipts, commodity prices, global growth and investor risk appetite can alter demand for ringgit assets." },
+    { title: "Many forces move together", copy: "USD/MYR is a relative price between two currencies, so a move may originate in Malaysia, the United States or global markets." },
+  ],
+  mgs: [
+    { title: "Expected OPR and inflation", copy: "Long-term government yields embed expectations about future short rates and inflation, not only the current OPR." },
+    { title: "Global bond markets", copy: "US Treasury yields and global risk appetite can affect the return investors require from Malaysian government bonds." },
+    { title: "Term premium and bond supply", copy: "Fiscal borrowing, market liquidity and uncertainty can change the extra yield required to hold a long-maturity bond." },
+  ],
+};
+
+function monthlyLast(points: DataPoint[], start: string, end: string) {
+  const months = new Map<string, number>();
+  points.filter((point) => point.date >= start && point.date <= end).forEach((point) => months.set(point.date.slice(0, 7), point.value));
+  return months;
+}
+
+function correlation(left: number[], right: number[]) {
+  if (left.length !== right.length || left.length < 3) return null;
+  const leftMean = left.reduce((sum, value) => sum + value, 0) / left.length;
+  const rightMean = right.reduce((sum, value) => sum + value, 0) / right.length;
+  let covariance = 0, leftVariance = 0, rightVariance = 0;
+  left.forEach((value, index) => {
+    const a = value - leftMean, b = right[index] - rightMean;
+    covariance += a * b; leftVariance += a * a; rightVariance += b * b;
+  });
+  const denominator = Math.sqrt(leftVariance * rightVariance);
+  return denominator ? covariance / denominator : null;
+}
+
+function buildWhyEvidence(data: IndicatorData, points: DataPoint[], dashboard: DashboardPayload | null) {
+  const start = points[0].date, end = points.at(-1)!.date;
+  const target = monthlyLast(points, start, end);
+  const associations = Object.entries(dashboard?.series ?? {}).filter(([id]) => id !== data.id).map(([id, series]) => {
+    const related = monthlyLast(series.points, start, end);
+    const months = [...target.keys()].filter((month) => related.has(month)).sort();
+    const targetChanges: number[] = [], relatedChanges: number[] = [];
+    for (let index = 1; index < months.length; index += 1) {
+      targetChanges.push(target.get(months[index])! - target.get(months[index - 1])!);
+      relatedChanges.push(related.get(months[index])! - related.get(months[index - 1])!);
+    }
+    return { id, title: series.title, value: correlation(targetChanges, relatedChanges), observations: targetChanges.length };
+  }).filter((item) => item.value != null && item.observations >= 12).sort((a, b) => Math.abs(b.value!) - Math.abs(a.value!));
+  const strongest = associations[0] ?? null;
+
+  const annual = new Map<string, DataPoint[]>();
+  points.forEach((point) => { const year = point.date.slice(0, 4); annual.set(year, [...(annual.get(year) ?? []), point]); });
+  const annualRows = [...annual.entries()].map(([year, values]) => ({ year, first: values[0], last: values.at(-1)!, change: values.at(-1)!.value - values[0].value })).reverse();
+  const breaks = (data.structuralBreaks?.candidates ?? []).filter((candidate) => candidate.breakPeriod >= start && candidate.breakPeriod <= end).reverse();
+  const categories = data.id === "headline" || data.id === "core" ? (dashboard?.categories ?? []).slice(0, 3) : [];
+  return { strongest, annualRows, breaks, categories, mechanisms: mechanismNotes[data.id] };
+}
+
+function WhyAnalysis({ data, points, dashboard }: { data: IndicatorData; points: DataPoint[]; dashboard: DashboardPayload | null }) {
+  const evidence = useMemo(() => buildWhyEvidence(data, points, dashboard), [data, points, dashboard]);
+  const strongest = evidence.strongest;
+  const featuredBreak = evidence.breaks[0];
+  const associationStrength = strongest ? Math.abs(strongest.value!) >= .6 ? "strong" : Math.abs(strongest.value!) >= .35 ? "moderate" : "weak" : "unavailable";
+  return <section className="why-analysis" aria-labelledby="why-heading">
+    <div className="why-heading"><div><span>Evidence-based explanation</span><h3 id="why-heading">Why did it change?</h3></div><p>The dashboard tests clues that moved during your selected period. It reports what the data support, then explains plausible mechanisms without claiming that correlation proves cause.</p></div>
+    <div className="why-evidence-grid">
+      <article><span>Co-movement clue</span>{strongest ? <><strong>{strongest.title}</strong><p>{data.title} and {strongest.title.toLowerCase()} monthly changes had a {associationStrength} {strongest.value! >= 0 ? "positive" : "negative"} association (r = {strongest.value!.toFixed(2)}, {strongest.observations} overlapping changes).</p></> : <><strong>Insufficient overlap</strong><p>The selected window does not contain at least 12 comparable monthly changes across another dashboard series.</p></>}<small>Association is a screening clue, not a causal estimate.</small></article>
+      <article><span>Structural and event evidence</span>{featuredBreak ? <><strong>{featuredBreak.statusLabel} near {formatDate(featuredBreak.breakPeriod)}</strong><p>Adjusted Chow p {formatP(featuredBreak.chow.pHolm)}; HAC p {formatP(featuredBreak.hacWald.pValue)}. {featuredBreak.nearbyEvents.length ? `The screen matched ${featuredBreak.nearbyEvents.length} official event${featuredBreak.nearbyEvents.length > 1 ? "s" : ""} within six months.` : "No catalogue event was close enough to attach."}</p></> : <><strong>No screened break in this window</strong><p>The current stability model did not place a selected breakpoint inside this exact period. Gradual change can still occur without a discrete break.</p></>}<small>Data-selected break tests are exploratory and can change after revisions.</small></article>
+    </div>
+    {!!featuredBreak?.nearbyEvents.length && <div className="why-events">{featuredBreak.nearbyEvents.map((event) => <a key={`${event.date}-${event.title}`} href={event.sourceUrl} target="_blank" rel="noreferrer"><time>{formatDate(event.date)}</time><span>{event.title}</span><b>{event.source} ↗</b></a>)}</div>}
+    <div className="mechanism-grid">{evidence.mechanisms.map((item, index) => <article key={item.title}><span>0{index + 1}</span><div><h4>{item.title}</h4><p>{item.copy}</p></div></article>)}</div>
+    {!!evidence.categories.length && <div className="latest-pressure"><span>Latest CPI pressure check</span><p>{evidence.categories.map((item) => `${item.name} ${item.value > 0 ? "+" : ""}${item.value.toFixed(1)}%`).join(" · ")}</p><small>These are latest unweighted division inflation rates, not historical contribution weights, so they explain current concentration rather than the whole selected period.</small></div>}
+    <details className="annual-evidence"><summary>See the change year by year</summary><div><table><thead><tr><th>Year</th><th>First observation</th><th>Last observation</th><th>Within-year change</th></tr></thead><tbody>{evidence.annualRows.map((row) => <tr key={row.year}><td>{row.year}</td><td>{formatValue(row.first.value, data)}</td><td>{formatValue(row.last.value, data)}</td><td className={row.change < 0 ? "down" : row.change > 0 ? "up" : ""}>{row.change > 0 ? "+" : ""}{row.change.toFixed(data.decimals)} {data.unit === "RM" ? "RM" : "pp"}</td></tr>)}</tbody></table></div></details>
+    <p className="why-limit"><b>Interpretation boundary:</b> an economic cause requires more evidence than timing or correlation. Policy decisions, global shocks, expectations and data revisions may matter even when they are not represented by these six series.</p>
+  </section>;
 }
 
 function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
@@ -1170,7 +1265,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
         <p>Applied statistics × financial economics · Educational analysis, not investment advice.</p>
         <div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div>
       </footer>
-      {selectedMetric && <IndicatorDetail metric={selectedMetric} onClose={() => setSelectedMetric(null)} />}
+      {selectedMetric && <IndicatorDetail metric={selectedMetric} dashboard={dashboard} onClose={() => setSelectedMetric(null)} />}
     </main>
   );
 }
