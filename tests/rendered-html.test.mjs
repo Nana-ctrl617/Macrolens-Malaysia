@@ -16,15 +16,29 @@ test("renders the MacroLens public dashboard", async () => {
   const html = await response.text();
   assert.match(html, /MacroLens Malaysia/);
   assert.match(html, /See the pressure/);
-  assert.match(html, /Three months ahead/);
-  assert.match(html, /Built to be questioned/);
-  assert.match(html, /When the pattern changed/);
   assert.match(html, /Structural shifts/);
-  assert.match(html, /The large-cap market pulse/);
-  assert.match(html, /version-three dataset/);
   assert.match(html, /Open historical data for Headline inflation/);
   assert.match(html, /View history/);
+  assert.doesNotMatch(html, /Three months ahead|The large-cap market pulse|When the pattern changed|Built to be questioned/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("renders each dashboard section on its own route", async () => {
+  const routes = [
+    ["/forecast", "Three months ahead", "Forecast"],
+    ["/drivers", "Where pressure is concentrated", "Drivers"],
+    ["/bursa", "The large-cap market pulse", "Bursa"],
+    ["/structural", "When the pattern changed", "Structural shifts"],
+    ["/methodology", "Built to be questioned", "Methodology"],
+  ];
+  for (const [path, heading, activeLabel] of routes) {
+    const response = await render(path);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, new RegExp(heading));
+    assert.match(html, new RegExp(`aria-current="page" href="${path}">${activeLabel}`));
+    assert.doesNotMatch(html, /<h1>See the pressure/);
+  }
 });
 
 test("serves the embedded MGS history without an external request", async () => {

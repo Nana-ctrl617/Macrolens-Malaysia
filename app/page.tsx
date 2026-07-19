@@ -45,20 +45,30 @@ const reviewIdeas = [
   { number: "04", title: "Automate monthly refreshes", copy: "Store validated releases and publish a concise change log whenever official data update." },
 ];
 
-function Header() {
+export type DashboardSection = "snapshot" | "forecast" | "drivers" | "bursa" | "structural" | "methodology";
+
+const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
+  { id: "snapshot", label: "Snapshot", href: "/" },
+  { id: "forecast", label: "Forecast", href: "/forecast" },
+  { id: "drivers", label: "Drivers", href: "/drivers" },
+  { id: "bursa", label: "Bursa", href: "/bursa" },
+  { id: "structural", label: "Structural shifts", href: "/structural" },
+  { id: "methodology", label: "Methodology", href: "/methodology" },
+];
+
+function Header({ active }: { active: DashboardSection }) {
+  const activeLinkRef = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    activeLinkRef.current?.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [active]);
   return (
     <header className="site-header">
-      <a className="brand" href="#top" aria-label="MacroLens Malaysia home">
+      <a className="brand" href="/" aria-label="MacroLens Malaysia home">
         <span className="brand-dot" />
         <span>MacroLens Malaysia</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="#snapshot">Snapshot</a>
-        <a href="#forecast">Forecast</a>
-        <a href="#drivers">Drivers</a>
-        <a href="#bursa">Bursa</a>
-        <a href="#structural">Structural shifts</a>
-        <a href="#method">Method</a>
+        {navigation.map((item) => <a key={item.id} ref={active === item.id ? activeLinkRef : undefined} className={active === item.id ? "active" : ""} aria-current={active === item.id ? "page" : undefined} href={item.href}>{item.label}</a>)}
       </nav>
       <a className="source-link" href="https://data.gov.my/" target="_blank" rel="noreferrer">Official sources ↗</a>
     </header>
@@ -850,7 +860,7 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   </div></section>;
 }
 
-export default function Home() {
+export function DashboardPage({ section = "snapshot" }: { section?: DashboardSection }) {
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
   const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
@@ -866,6 +876,13 @@ export default function Home() {
       .catch(() => active && setDashboard(null));
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (section !== "snapshot") return;
+    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#bursa": "/bursa", "#structural": "/structural", "#method": "/methodology" };
+    const target = legacyRoutes[window.location.hash];
+    if (target) window.location.replace(target);
+  }, [section]);
 
   const liveMetrics: Metric[] = useMemo(() => {
     if (!dashboard) return metrics as Metric[];
@@ -899,15 +916,16 @@ export default function Home() {
 
   return (
     <main id="top">
-      <Header />
+      <Header active={section} />
 
+      {section === "snapshot" && <>
       <section className="hero shell">
         <div className="hero-copy">
           <div className="kicker">Malaysia inflation monitor · {updatedAt}</div>
           <h1>See the pressure.<br /><em>Read the direction.</em></h1>
           <p>A transparent view of Malaysian inflation—connecting official releases, financial conditions and a three-month statistical forecast.</p>
           <div className="hero-actions">
-            <a className="primary-button" href="#forecast">Explore the outlook</a>
+            <a className="primary-button" href="/forecast">Explore the outlook</a>
             <button className={reviewMode ? "review-toggle active" : "review-toggle"} onClick={() => setReviewMode(!reviewMode)} aria-pressed={reviewMode}>
               {reviewMode ? "Hide review notes" : "Show what to improve"}
             </button>
@@ -956,8 +974,9 @@ export default function Home() {
           <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>
       </section>
+      </>}
 
-      <section className="section forecast-section" id="forecast">
+      {section === "forecast" && <section className="section forecast-section page-section" id="forecast">
         <div className="shell">
           <div className="section-heading light">
             <div><span className="section-number">02 / Forecast</span><h2>Three months ahead</h2></div>
@@ -996,9 +1015,9 @@ export default function Home() {
           </div>
           <div className="forecast-takeaway"><span>Model reading</span><p>{dashboard?.narratives.forecast ?? "Loading the latest model interpretation."}</p></div>
         </div>
-      </section>
+      </section>}
 
-      <section className="section shell" id="drivers">
+      {section === "drivers" && <section className="section shell page-section" id="drivers">
         <div className="section-heading">
           <div><span className="section-number">03 / Drivers</span><h2>Where pressure is concentrated</h2></div>
           <p>Category rates identify areas of pressure. They are unweighted and should not be treated as contributions or causal estimates.</p>
@@ -1020,13 +1039,13 @@ export default function Home() {
             <article><span>Ringgit</span><h3>Inflation alone is not an FX signal.</h3><p>Relative rates, trade flows, global growth and risk sentiment can dominate the currency response.</p></article>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <BursaSection dashboard={dashboard} />
+      {section === "bursa" && <BursaSection dashboard={dashboard} />}
 
-      <StructuralSection dashboard={dashboard} />
+      {section === "structural" && <StructuralSection dashboard={dashboard} />}
 
-      <section className="section method-section" id="method">
+      {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
           <div className="method-intro"><span className="section-number">06 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
@@ -1036,7 +1055,7 @@ export default function Home() {
             <li><span>04</span><div><h3>Communicate</h3><p>Select the lowest-RMSE model and show both 80% and 95% uncertainty bands.</p></div></li>
           </ol>
         </div>
-      </section>
+      </section>}
 
       <footer className="shell">
         <div className="brand"><span className="brand-dot" /><span>MacroLens Malaysia</span></div>
@@ -1046,4 +1065,8 @@ export default function Home() {
       {selectedMetric && <IndicatorDetail metric={selectedMetric} onClose={() => setSelectedMetric(null)} />}
     </main>
   );
+}
+
+export default function Home() {
+  return <DashboardPage section="snapshot" />;
 }

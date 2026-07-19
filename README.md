@@ -8,6 +8,8 @@ A scheduled GitHub Actions workflow runs at 13:45 Malaysia time each day. It val
 
 The website reads `data/published/dashboard.json` through `/api/dashboard`. A failed or invalid remote request falls back to the last snapshot bundled with the deployed site and displays a fallback status instead of claiming the data are live.
 
+The interface uses separate routes for faster navigation: `/` for the snapshot, followed by `/forecast`, `/drivers`, `/bursa`, `/structural`, and `/methodology`. All routes read the same consolidated payload so values cannot diverge between pages.
+
 ## Data sources
 
 | Indicator | Frequency used | Official source |
