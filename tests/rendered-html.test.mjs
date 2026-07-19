@@ -19,6 +19,9 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Structural shifts/);
   assert.match(html, /Open historical data for Headline inflation/);
   assert.match(html, /View history/);
+  assert.match(html, /Headline versus core inflation/);
+  assert.match(html, /full Consumer Price Index \(CPI\) basket/);
+  assert.match(html, /selected volatile and administered-price items/);
   assert.doesNotMatch(html, /Three months ahead|The large-cap market pulse|When the pattern changed|Built to be questioned/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });

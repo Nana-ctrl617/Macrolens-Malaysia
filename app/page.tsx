@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointer
 import type { DashboardPayload, DecisionCard, EconomicSector, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
 
 const metrics = [
-  { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Year on year", period: "May 2026", tone: "rust" },
-  { id: "core", label: "Core inflation", value: "2.0%", detail: "Underlying pressure", period: "May 2026", tone: "teal" },
+  { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Full CPI basket, year on year", period: "May 2026", tone: "rust" },
+  { id: "core", label: "Core inflation", value: "2.0%", detail: "Underlying price pressure", period: "May 2026", tone: "teal" },
   { id: "opr", label: "Overnight Policy Rate", value: "2.75%", detail: "BNM policy setting", period: "Jul 2026", tone: "navy" },
   { id: "unemployment", label: "Unemployment", value: "3.0%", detail: "Share of labour force", period: "May 2026", tone: "teal" },
   { id: "fx", label: "USD / MYR", value: "RM 4.04", detail: "Monthly average", period: "May 2026", tone: "navy" },
@@ -57,6 +57,17 @@ const navigation: Array<{ id: DashboardSection; label: string; href: string }> =
   { id: "structural", label: "Structural shifts", href: "/structural" },
   { id: "methodology", label: "Methodology", href: "/methodology" },
 ];
+
+const inflationDefinitions = {
+  headline: {
+    short: "The year-on-year change in Malaysia's full Consumer Price Index (CPI) basket.",
+    explanation: "It includes all items in the basket, so movements in food, fuel, utilities, taxes and administered prices can affect it quickly.",
+  },
+  core: {
+    short: "A measure of underlying price pressure after selected volatile and administered-price items are removed from the CPI basket.",
+    explanation: "It helps show whether inflation is broad and persistent, but it is not a household's actual cost-of-living rate.",
+  },
+} as const;
 
 function Header({ active }: { active: DashboardSection }) {
   const activeLinkRef = useRef<HTMLAnchorElement>(null);
@@ -422,6 +433,12 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
 
         {data && (
           <>
+            {(metric.id === "headline" || metric.id === "core") && (
+              <aside className="indicator-definition" aria-label={`${metric.label} definition`}>
+                <span>What this index means</span>
+                <p><strong>{inflationDefinitions[metric.id].short}</strong> {inflationDefinitions[metric.id].explanation}</p>
+              </aside>
+            )}
             <div className="range-toolbar" aria-label="Select time frame">
               <span>Time frame</span>
               <div>
@@ -1086,7 +1103,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   const liveMetrics: Metric[] = useMemo(() => {
     if (!dashboard) return metrics as Metric[];
     const details: Record<MetricId, string> = {
-      headline: "Year on year", core: "Underlying pressure", opr: "BNM policy setting",
+      headline: "Full CPI basket, year on year", core: "Underlying price pressure", opr: "BNM policy setting",
       unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Government bond yield",
     };
     const tones: Record<MetricId, string> = { headline: "rust", core: "teal", opr: "navy", unemployment: "teal", fx: "navy", mgs: "rust" };
@@ -1162,6 +1179,21 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <div><span className="section-number">01 / Snapshot</span><h2>The economy at a glance</h2></div>
           <p>Six indicators frame the current inflation story. Each card keeps its own release period visible.</p>
         </div>
+        <aside className="inflation-primer" aria-labelledby="inflation-primer-title">
+          <div className="primer-heading">
+            <span>Quick guide</span>
+            <h3 id="inflation-primer-title">Headline versus core inflation</h3>
+          </div>
+          <article>
+            <strong>Headline inflation</strong>
+            <p>{inflationDefinitions.headline.short} {inflationDefinitions.headline.explanation}</p>
+          </article>
+          <article>
+            <strong>Core inflation</strong>
+            <p>{inflationDefinitions.core.short} {inflationDefinitions.core.explanation}</p>
+          </article>
+          <p className="primer-summary"><strong>The difference:</strong> headline describes price changes across the full household basket; core helps reveal the steadier underlying trend. Neither is better—they answer different questions.</p>
+        </aside>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h3>The recent path</h3></div><div className="legend"><i /> Year-on-year change</div></div>

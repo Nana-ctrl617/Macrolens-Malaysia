@@ -107,6 +107,21 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .kicker,.section-number,.mini-label,.brief-label,.review-heading>span,.review-grid article>span { font-size:12px; }
 .metric-topline,.card-heading span,.chart-axis,.source-note,.metric-open { font-size:12px; }
 .metric-card small { font-size:12px; }.metric-status { font-size:12px; padding:4px 7px; }.bar-column span { font-size:12px; }
+
+.inflation-primer { display:grid; grid-template-columns:.82fr 1fr 1fr; gap:0; margin:0 0 18px; overflow:hidden; border:1px solid #cfc8bb; border-radius:18px; background:#f8f4eb; }
+.inflation-primer>div,.inflation-primer>article { padding:22px 24px; }
+.inflation-primer>article { border-left:1px solid #d9d2c6; background:rgba(255,253,247,.7); }
+.primer-heading span,.indicator-definition>span { display:block; margin-bottom:7px; color:var(--rust); font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.primer-heading h3 { margin:0; font-size:25px; line-height:1.05; }
+.inflation-primer article strong { display:block; margin-bottom:7px; color:var(--teal); font-size:15px; }
+.inflation-primer article p,.primer-summary,.indicator-definition p { margin:0; color:#46534f; font-size:14px; line-height:1.6; }
+.primer-summary { grid-column:1/-1; padding:14px 24px; border-top:1px solid #d9d2c6; background:#e4eee9; }
+.primer-summary strong { color:var(--ink); }
+.indicator-definition { margin:-6px 0 20px; padding:15px 18px; border-left:3px solid var(--teal); border-radius:0 12px 12px 0; background:#edf3ef; }
+.indicator-definition p strong { color:var(--ink); }
+
+@media(max-width:900px){ .inflation-primer{grid-template-columns:1fr 1fr}.inflation-primer>.primer-heading{grid-column:1/-1}.inflation-primer>article:first-of-type{border-left:0}.inflation-primer>article{border-top:1px solid #d9d2c6} }
+@media(max-width:600px){ .inflation-primer{grid-template-columns:1fr}.inflation-primer>.primer-heading,.primer-summary{grid-column:auto}.inflation-primer>article{border-left:0}.inflation-primer>div,.inflation-primer>article{padding:18px}.primer-summary{padding:14px 18px}.primer-heading h3{font-size:23px} }
 .bar-tooltip small { font-size:11px; }.legend { font-size:12px; }
 .forecast-scale { color:#b8c5c1; font-size:12px; }.forecast-row>strong,.forecast-point span { font-size:12px; }
 .interval-legend { color:#c4d0cc; font-size:12px; }.model-row strong,.model-row>b,.model-row span { font-size:12px; }
