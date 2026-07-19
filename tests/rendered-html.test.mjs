@@ -15,6 +15,8 @@ test("renders the MacroLens public dashboard", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /MacroLens Malaysia/);
+  assert.match(html, /macrolens-logo\.png/);
+  assert.match(html, /favicon-32\.png/);
   assert.match(html, /See the pressure/);
   assert.match(html, /Structural shifts/);
   assert.match(html, /Open historical data for Headline inflation/);

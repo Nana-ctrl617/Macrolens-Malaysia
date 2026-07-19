@@ -1,0 +1,13 @@
+{
+  "name": "MacroLens Malaysia",
+  "short_name": "MacroLens",
+  "description": "Malaysian inflation, financial conditions and statistical forecasts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#17322c",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/macrolens-logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

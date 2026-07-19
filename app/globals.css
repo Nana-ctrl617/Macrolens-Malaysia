@@ -10,6 +10,7 @@ button { font:inherit; }
 .site-header { width:min(1240px,calc(100% - 40px)); height:82px; margin:auto; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); position:relative; z-index:10; }
 .brand { display:flex; align-items:center; gap:11px; font-size:13px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--teal); }
 .brand-dot { width:13px; height:13px; background:var(--rust); border-radius:50%; box-shadow:0 0 0 5px rgba(223,91,54,.13); }
+.brand-logo { width:30px; height:30px; flex:0 0 auto; border-radius:8px; object-fit:cover; }
 .site-header nav { display:flex; gap:30px; font-size:14px; }
 .site-header nav a { transition:color .2s; }.site-header nav a:hover { color:var(--rust); }
 .source-link { font-size:13px; font-weight:600; border-bottom:1px solid var(--ink); padding-bottom:3px; }

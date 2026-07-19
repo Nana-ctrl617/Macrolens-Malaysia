@@ -75,7 +75,7 @@ function Header({ active }: { active: DashboardSection }) {
   return (
     <header className="site-header">
       <a className="brand" href="/" aria-label="MacroLens Malaysia home">
-        <span className="brand-dot" />
+        <img className="brand-logo" src="/macrolens-logo.png" alt="" width="30" height="30" />
         <span>MacroLens Malaysia</span>
       </a>
       <nav aria-label="Primary navigation">
@@ -1323,7 +1323,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       </section>}
 
       <footer className="shell">
-        <div className="brand"><span className="brand-dot" /><span>MacroLens Malaysia</span></div>
+        <div className="brand"><img className="brand-logo" src="/macrolens-logo.png" alt="" width="30" height="30" /><span>MacroLens Malaysia</span></div>
         <p>Applied statistics × financial economics · Educational analysis, not investment advice.</p>
         <div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div>
       </footer>
