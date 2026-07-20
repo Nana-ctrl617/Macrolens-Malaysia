@@ -1,43 +1,43 @@
 {
   "schemaVersion": 6,
-  "generatedAt": "2026-07-19T14:59:31Z",
-  "health": "fresh",
+  "generatedAt": "2026-07-20T08:27:48Z",
+  "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
-      "status": "fresh",
-      "retrievedAt": "2026-07-19T14:59:31Z",
+      "status": "stale",
+      "retrievedAt": "2026-07-20T08:27:48Z",
       "observationPeriod": "2026-07-17",
-      "message": "Official source validated"
+      "message": "Using last valid data: RuntimeError"
     }
   },
   "series": {
@@ -5618,8 +5618,8 @@
       },
       {
         "name": "ARIMAX",
-        "rmse": 0.1857,
-        "mae": 0.1514,
+        "rmse": 0.1856,
+        "mae": 0.1512,
         "selected": true
       }
     ],
@@ -6354,7 +6354,7 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T14:59:31Z",
+    "retrievedAt": "2026-07-20T08:27:48Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -6370,14 +6370,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-07-18",
-          "value": 1670.84
-        },
-        {
-          "date": "2016-07-19",
-          "value": 1670.55
-        },
         {
           "date": "2016-07-20",
           "value": 1669.61
@@ -16153,30 +16145,34 @@
         {
           "date": "2026-07-17",
           "value": 1731.45
+        },
+        {
+          "date": "2026-07-20",
+          "value": 1721.35
         }
       ]
     },
     "summary": {
-      "latest": 1731.45,
-      "latestDate": "2026-07-17",
-      "change1D": 0.54,
-      "return1M": 1.25,
-      "return3M": 2.14,
-      "returnYtd": 3.06,
-      "return1Y": 13.84,
-      "annualizedVolatility1Y": 9.37,
+      "latest": 1721.35,
+      "latestDate": "2026-07-20",
+      "change1D": -0.58,
+      "return1M": 0.54,
+      "return3M": 1.12,
+      "returnYtd": 2.45,
+      "return1Y": 12.81,
+      "annualizedVolatility1Y": 9.4,
       "maxDrawdown1Y": -6.46,
       "high52w": 1771.25,
       "low52w": 1513.25
     },
     "narratives": {
-      "performance": "The FBM KLCI gained 13.8% over the latest year, with 9.4% annualised volatility and a 6.5% maximum drawdown during that window.",
+      "performance": "The FBM KLCI gained 12.8% over the latest year, with 9.4% annualised volatility and a 6.5% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-07-19T14:59:31Z",
+    "retrievedAt": "2026-07-20T08:27:48Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17016,10 +17012,10 @@
     "message": "Official quarterly observations validated; only complete calendar years are published"
   },
   "decisionGuide": {
-    "generatedAt": "2026-07-19T14:59:31Z",
+    "generatedAt": "2026-07-20T08:27:48Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
-    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +13.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +12.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
       {
         "label": "Headline inflation",
@@ -17059,8 +17055,8 @@
       },
       {
         "label": "KLCI 1-year",
-        "value": "+13.8%",
-        "period": "2026-07-17",
+        "value": "+12.8%",
+        "period": "2026-07-20",
         "reading": "positive price performance"
       }
     ],
@@ -17084,7 +17080,7 @@
           "theme": "Stocks and long-term investing",
           "stance": "Avoid chasing",
           "title": "Use goals and diversification, not the latest index move",
-          "evidence": "The FBM KLCI's latest one-year price return is +13.8% and its measured one-year volatility is 9.4%.",
+          "evidence": "The FBM KLCI's latest one-year price return is +12.8% and its measured one-year volatility is 9.4%.",
           "actions": [
             "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
             "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
@@ -17164,7 +17160,7 @@
           "theme": "Hiring and investment",
           "stance": "Stage commitments",
           "title": "Link hiring and capital spending to demand evidence",
-          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is positive at +13.8%.",
+          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is positive at +12.8%.",
           "actions": [
             "Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.",
             "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.",
@@ -17196,7 +17192,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-07-19T14:59:31Z",
+    "lastSuccessfulRefresh": "2026-07-20T08:27:48Z",
     "vintageCount": 2,
     "latestVintagePeriod": "2026-06",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
