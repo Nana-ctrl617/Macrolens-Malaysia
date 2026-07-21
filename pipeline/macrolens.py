@@ -38,6 +38,10 @@ KLCI_SOURCE_URL = "https://finance.yahoo.com/quote/%5EKLSE/history/"
 KLCI_BENCHMARK_URL = "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open"
 GDP_STRUCTURE_URL = "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_supply.csv"
 GDP_STRUCTURE_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply"
+GDP_DEMAND_URL = "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_demand.csv"
+GDP_DEMAND_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand"
+TRADE_HEADLINE_URL = "https://storage.dosm.gov.my/trade/trade_headline.csv"
+TRADE_HEADLINE_SOURCE_URL = "https://data.gov.my/data-catalogue/trade_headline"
 CPI_WEIGHTS_SOURCE_URL = "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"
 GDP_SECTORS = {
     "p1": "Agriculture",
@@ -46,6 +50,14 @@ GDP_SECTORS = {
     "p4": "Construction",
     "p5": "Services",
     "p6": "Import duties",
+}
+GDP_DEMAND_TYPES = {
+    "e1": ("Private consumption", 1),
+    "e2": ("Government consumption", 1),
+    "e3": ("Gross fixed capital formation", 1),
+    "e4": ("Inventories and valuables", 1),
+    "e5": ("Exports of goods and services", 1),
+    "e6": ("Imports of goods and services", -1),
 }
 
 EVENT_CATALOGUE = [
@@ -340,6 +352,243 @@ def build_economic_structure(previous: dict | None, retrieved: str) -> dict:
             "status": "stale",
             "retrievedAt": retrieved,
             "message": f"Using last valid GDP sector data: {type(error).__name__}",
+        }
+
+
+def parse_gdp_demand(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"series", "date", "type", "value"}
+    if not required.issubset(frame.columns):
+        raise ValueError("GDP demand source structure changed")
+    selected = frame.loc[frame["series"].eq("abs"), list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    selected["value"] = pd.to_numeric(selected["value"], errors="raise")
+    selected = selected[selected["type"].isin({"e0", *GDP_DEMAND_TYPES})]
+    if selected.empty or selected["value"].isna().any():
+        raise ValueError("GDP demand source is empty or malformed")
+    if selected.duplicated(["date", "type"]).any():
+        raise ValueError("GDP demand source contains duplicate quarter-component rows")
+    if (selected.loc[selected["type"].ne("e4"), "value"] < 0).any():
+        raise ValueError("GDP demand source contains implausible negative values")
+    selected["year"] = selected["date"].dt.year
+    selected["quarter"] = selected["date"].dt.quarter
+
+    years: list[dict] = []
+    for year, annual_frame in selected.groupby("year", sort=True):
+        counts = annual_frame.groupby("type")["quarter"].nunique()
+        if any(int(counts.get(code, 0)) != 4 for code in ["e0", *GDP_DEMAND_TYPES]):
+            continue
+        totals = annual_frame.groupby("type")["value"].sum()
+        total_million = float(totals["e0"])
+        signed_sum = sum(float(totals[code]) * sign for code, (_, sign) in GDP_DEMAND_TYPES.items())
+        if total_million <= 0 or abs(signed_sum - total_million) / total_million > 0.01:
+            raise ValueError(f"GDP demand values do not reconcile for {year}")
+        components = []
+        for code, (name, sign) in GDP_DEMAND_TYPES.items():
+            value = float(totals[code])
+            components.append({
+                "id": code,
+                "name": name,
+                "value": round(value / 1000, 3),
+                "share": round(value / total_million * 100, 2),
+                "gdpSign": sign,
+                "signedValue": round(value * sign / 1000, 3),
+            })
+        years.append({"year": int(year), "total": round(total_million / 1000, 3), "components": components})
+
+    if len(years) < 5:
+        raise ValueError("GDP demand source has insufficient complete annual history")
+    previous_by_component: dict[str, float] = {}
+    previous_total: float | None = None
+    for year_data in years:
+        total_change = year_data["total"] - previous_total if previous_total is not None else None
+        comparable = []
+        for component in year_data["components"]:
+            previous_value = previous_by_component.get(component["id"])
+            change_value = component["value"] - previous_value if previous_value is not None else None
+            component["changeValue"] = round(change_value, 3) if change_value is not None else None
+            component["changeYoY"] = round(change_value / previous_value * 100, 2) if previous_value and change_value is not None else None
+            signed_change = change_value * component["gdpSign"] if change_value is not None else None
+            component["signedContribution"] = round(signed_change / total_change * 100, 2) if total_change and signed_change is not None else None
+            previous_by_component[component["id"]] = component["value"]
+            if component["changeValue"] is not None and component["id"] != "e4":
+                comparable.append(component)
+        previous_total = year_data["total"]
+        driver = max(comparable, key=lambda item: abs(item["signedContribution"] or 0)) if comparable else year_data["components"][0]
+        demand_type = (
+            "consumption-led" if driver["id"] == "e1" else
+            "investment-led" if driver["id"] == "e3" else
+            "export-led" if driver["id"] == "e5" else
+            "import-sensitive" if driver["id"] == "e6" else
+            "broad-based"
+        )
+        year_data["summary"] = {
+            "largestComponent": max(year_data["components"], key=lambda item: item["share"])["name"],
+            "largestShare": max(year_data["components"], key=lambda item: item["share"])["share"],
+            "largestGrowthDriver": driver["name"],
+            "largestContribution": driver.get("signedContribution"),
+            "demandType": demand_type,
+        }
+        year_data["narrative"] = (
+            f"The expenditure view for {year_data['year']} looks {demand_type}. "
+            f"{driver['name']} made the largest absolute contribution to the annual GDP change "
+            f"among the main demand components."
+        )
+    latest = years[-1]
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": f"{latest['year']}-12-31",
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": GDP_DEMAND_SOURCE_URL,
+        "datasetUrl": GDP_DEMAND_URL,
+        "frequency": "Annual totals aggregated from quarterly observations",
+        "measure": "GDP at current prices by expenditure type",
+        "unit": "RM billion",
+        "latestYear": latest["year"],
+        "years": years,
+        "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
+        "message": "Official quarterly expenditure observations validated; complete years only",
+    }
+
+
+def build_growth_drivers(previous: dict | None, retrieved: str, production: dict) -> dict:
+    try:
+        demand = parse_gdp_demand(read_csv(GDP_DEMAND_URL), retrieved)
+        status = "fresh" if production.get("status") == "fresh" else "partial"
+        message = "Production and expenditure GDP views validated"
+    except Exception as error:
+        old = (previous or {}).get("growthDrivers")
+        if old and old.get("demand", {}).get("years"):
+            demand = copy.deepcopy(old["demand"])
+            demand["status"] = "stale"
+            demand["retrievedAt"] = retrieved
+            demand["message"] = f"Using last valid GDP demand data: {type(error).__name__}"
+            status = "partial"
+            message = "Production view refreshed; expenditure view retained from last validation"
+        else:
+            demand = {
+                "status": "unavailable",
+                "retrievedAt": retrieved,
+                "observationPeriod": production.get("observationPeriod", ""),
+                "source": "Department of Statistics Malaysia via data.gov.my",
+                "sourceUrl": GDP_DEMAND_SOURCE_URL,
+                "datasetUrl": GDP_DEMAND_URL,
+                "frequency": "Quarterly",
+                "measure": "GDP at current prices by expenditure type",
+                "unit": "RM billion",
+                "latestYear": None,
+                "years": [],
+                "note": "Expenditure-side GDP could not be validated in this run.",
+                "message": f"Expenditure view unavailable: {type(error).__name__}",
+            }
+            status = "partial"
+            message = "Production view available; expenditure view unavailable"
+    latest_production = production.get("years", [{}])[-1]
+    latest_demand = demand.get("years", [{}])[-1] if demand.get("years") else {}
+    production_driver = latest_production.get("summary", {}).get("largestGrowthContributor", "the largest production sector")
+    demand_driver = latest_demand.get("summary", {}).get("largestGrowthDriver", "available demand components")
+    return {
+        "status": status,
+        "generatedAt": retrieved,
+        "production": production,
+        "demand": demand,
+        "summary": (
+            f"Production-side GDP is still anchored by {latest_production.get('summary', {}).get('largestSector', 'the services sector')}. "
+            f"The latest expenditure-side screen points to {demand_driver} as the main annual demand-side driver where data are available."
+        ),
+        "message": message,
+    }
+
+
+def parse_trade_headline(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"date", "series", "total", "balance", "exports", "imports"}
+    if not required.issubset(frame.columns):
+        raise ValueError("Trade source structure changed")
+    selected = frame.loc[frame["series"].eq("abs"), list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    for column in ["total", "balance", "exports", "imports"]:
+        selected[column] = pd.to_numeric(selected[column], errors="raise")
+    selected = selected.dropna(subset=["date", "total", "balance", "exports", "imports"]).sort_values("date")
+    if selected.empty:
+        raise ValueError("Trade source is empty")
+    if selected.duplicated("date").any():
+        raise ValueError("Trade source contains duplicate monthly rows")
+    if (selected[["total", "exports", "imports"]] <= 0).any().any():
+        raise ValueError("Trade source contains implausible non-positive flows")
+    selected["check_balance"] = selected["exports"] - selected["imports"]
+    if ((selected["check_balance"] - selected["balance"]).abs() / selected["total"]).max() > 0.002:
+        raise ValueError("Trade balance does not reconcile with exports and imports")
+    points = [
+        {
+            "date": row.date.strftime("%Y-%m-%d"),
+            "exports": round(float(row.exports) / 1_000_000_000, 3),
+            "imports": round(float(row.imports) / 1_000_000_000, 3),
+            "total": round(float(row.total) / 1_000_000_000, 3),
+            "balance": round(float(row.balance) / 1_000_000_000, 3),
+        }
+        for row in selected.itertuples(index=False)
+    ]
+    if len(points) < 60:
+        raise ValueError("Trade source has insufficient monthly history")
+    latest = points[-1]
+    same_month_prior = next((point for point in reversed(points[:-1]) if point["date"][:7] == f"{int(latest['date'][:4]) - 1}{latest['date'][4:7]}"), None)
+    last12 = points[-12:]
+    prior12 = points[-24:-12] if len(points) >= 24 else []
+    def growth(column: str) -> float | None:
+        if same_month_prior and same_month_prior[column]:
+            return round((latest[column] / same_month_prior[column] - 1) * 100, 2)
+        return None
+    last12_balance = sum(point["balance"] for point in last12)
+    prior12_balance = sum(point["balance"] for point in prior12) if prior12 else None
+    export_growth = growth("exports")
+    import_growth = growth("imports")
+    trade_reading = (
+        "exports outpaced imports" if export_growth is not None and import_growth is not None and export_growth > import_growth else
+        "imports grew faster than exports" if export_growth is not None and import_growth is not None and import_growth > export_growth else
+        "trade growth was balanced"
+    )
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": latest["date"],
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": TRADE_HEADLINE_SOURCE_URL,
+        "datasetUrl": TRADE_HEADLINE_URL,
+        "frequency": "Monthly",
+        "unit": "RM billion",
+        "points": points,
+        "summary": {
+            "latestDate": latest["date"],
+            "exports": latest["exports"],
+            "imports": latest["imports"],
+            "total": latest["total"],
+            "balance": latest["balance"],
+            "exportsYoY": export_growth,
+            "importsYoY": import_growth,
+            "last12Balance": round(last12_balance, 3),
+            "prior12Balance": round(prior12_balance, 3) if prior12_balance is not None else None,
+            "tradeReading": trade_reading,
+        },
+        "narratives": {
+            "performance": f"In the latest month, Malaysia recorded RM {latest['exports']:.1f} billion of goods exports and RM {latest['imports']:.1f} billion of goods imports, leaving a RM {latest['balance']:.1f} billion trade balance.",
+            "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance.",
+        },
+        "message": "Official monthly trade headline data validated",
+    }
+
+
+def build_external_sector(previous: dict | None, retrieved: str) -> dict:
+    try:
+        return parse_trade_headline(read_csv(TRADE_HEADLINE_URL), retrieved)
+    except Exception as error:
+        old = (previous or {}).get("externalSector")
+        if not old or not old.get("points"):
+            raise
+        return {
+            **copy.deepcopy(old),
+            "status": "stale",
+            "retrievedAt": retrieved,
+            "message": f"Using last valid trade data: {type(error).__name__}",
         }
 
 
@@ -860,7 +1109,117 @@ def narrative(series: dict[str, dict], forecast_data: dict) -> dict:
     }
 
 
-def build_decision_guide(series: dict[str, dict], market: dict, generated_at: str) -> dict:
+def _series_change(series: dict, months: int) -> float | None:
+    points = series["points"]
+    if len(points) <= months:
+        return None
+    return round(float(points[-1]["value"]) - float(points[-1 - months]["value"]), 4)
+
+
+def _series_percentile(series: dict) -> float:
+    values = [float(point["value"]) for point in series["points"]]
+    latest = values[-1]
+    return round(sum(1 for value in values if value <= latest) / len(values) * 100, 1)
+
+
+def _heat_level(score: int) -> str:
+    return "high" if score >= 70 else "moderate" if score >= 40 else "low"
+
+
+def build_risk_heatmap(series: dict[str, dict], market: dict, growth_drivers: dict, external: dict, generated_at: str) -> dict:
+    def item(id_: str, label: str, group: str, score: int, evidence: str, rule: str, period: str, watch: str) -> dict:
+        return {
+            "id": id_,
+            "label": label,
+            "group": group,
+            "score": int(max(0, min(100, score))),
+            "level": _heat_level(score),
+            "evidence": evidence,
+            "rule": rule,
+            "period": period,
+            "watch": watch,
+        }
+
+    headline = float(series["headline"]["points"][-1]["value"])
+    core = float(series["core"]["points"][-1]["value"])
+    unemployment = float(series["unemployment"]["points"][-1]["value"])
+    opr = float(series["opr"]["points"][-1]["value"])
+    fx = float(series["fx"]["points"][-1]["value"])
+    mgs = float(series["mgs"]["points"][-1]["value"])
+    market_return = market["summary"].get("return1Y")
+    market_drawdown = abs(float(market["summary"].get("maxDrawdown1Y") or 0))
+    trade_balance = external["summary"]["balance"]
+    exports_yoy = external["summary"].get("exportsYoY")
+    imports_yoy = external["summary"].get("importsYoY")
+    demand_summary = growth_drivers.get("demand", {}).get("years", [{}])[-1].get("summary", {})
+
+    items = [
+        item("headline", "Headline inflation", "Prices", 25 if headline < 2 else 45 if headline < 3 else 75,
+             f"Latest headline CPI inflation is {headline:.1f}%.", "Low below 2%, moderate from 2-3%, high at 3% or above.", series["headline"]["points"][-1]["date"], "Watch food, transport and administered-price categories."),
+        item("core", "Core inflation", "Prices", 25 if core < 2 else 50 if core < 3 else 75,
+             f"Latest core inflation is {core:.1f}%; 3-month change is {_series_change(series['core'], 3) or 0:+.1f} pp.", "Low below 2%, moderate from 2-3%, high at 3% or above.", series["core"]["points"][-1]["date"], "Persistent core pressure matters more than one monthly headline move."),
+        item("unemployment", "Labour market", "Households", 25 if unemployment < 4 else 55 if unemployment < 5 else 80,
+             f"Unemployment is {unemployment:.1f}%.", "Low below 4%, moderate from 4-5%, high at 5% or above.", series["unemployment"]["points"][-1]["date"], "National unemployment can hide sector and regional weakness."),
+        item("opr", "Policy rate", "Financial conditions", 35 if opr < 2.5 else 55 if opr < 3.25 else 75,
+             f"OPR is {opr:.2f}%.", "Low below 2.50%, moderate from 2.50-3.25%, high above 3.25%.", series["opr"]["points"][-1]["date"], "The real policy stance also depends on expected inflation."),
+        item("fx", "USD/MYR pressure", "External", 30 if fx < 4.2 else 55 if fx < 4.6 else 80,
+             f"USD/MYR is RM {fx:.4f}, at the {_series_percentile(series['fx']):.1f}th percentile of this dashboard history.", "Higher USD/MYR levels receive higher imported-cost pressure scores.", series["fx"]["points"][-1]["date"], "A weaker ringgit can help exporters while raising imported costs."),
+        item("mgs", "10-year MGS yield", "Financial conditions", 30 if mgs < 3.5 else 55 if mgs < 4.25 else 80,
+             f"10-year MGS yield is {mgs:.2f}%.", "Low below 3.50%, moderate from 3.50-4.25%, high above 4.25%.", series["mgs"]["points"][-1]["date"], "Bond yields reflect policy expectations, term premium and global rates."),
+        item("bursa", "Bursa large-cap market", "Markets", 35 if (market_return or 0) >= 5 and market_drawdown < 10 else 55 if (market_return or 0) > -5 else 75,
+             f"KLCI one-year price return is {(market_return or 0):+.1f}% with a {market_drawdown:.1f}% max drawdown.", "Higher pressure when one-year return is negative or drawdown is large.", market["summary"]["latestDate"], "Index performance excludes dividends, fees and taxes."),
+        item("growth", "GDP growth drivers", "Growth", 35 if demand_summary.get("demandType") in {"consumption-led", "export-led", "investment-led"} else 55,
+             f"Latest demand screen is {demand_summary.get('demandType', 'production-only')}.", "Lower pressure when a clear demand engine is visible; higher when only partial evidence is available.", growth_drivers.get("demand", {}).get("observationPeriod") or growth_drivers.get("production", {}).get("observationPeriod", ""), "Current-price GDP combines volume and price effects."),
+        item("trade", "Goods trade balance", "External", 30 if trade_balance > 0 and (exports_yoy or 0) >= (imports_yoy or 0) else 55 if trade_balance > 0 else 75,
+             f"Latest goods trade balance is RM {trade_balance:+.1f} billion; exports YoY {exports_yoy if exports_yoy is not None else 0:+.1f}%, imports YoY {imports_yoy if imports_yoy is not None else 0:+.1f}%.", "Higher pressure when trade balance is negative or imports grow faster than exports.", external["summary"]["latestDate"], "Goods trade excludes services and income flows."),
+    ]
+    average = round(sum(entry["score"] for entry in items) / len(items), 1)
+    top = sorted(items, key=lambda entry: entry["score"], reverse=True)[:3]
+    return {
+        "generatedAt": generated_at,
+        "status": "fresh" if market["status"] == "fresh" and external["status"] == "fresh" and growth_drivers["status"] == "fresh" else "partial",
+        "overallScore": average,
+        "overallLevel": _heat_level(int(average)),
+        "summary": f"The current macro risk screen is {_heat_level(int(average))}. The highest-pressure signals are {', '.join(entry['label'] for entry in top)}.",
+        "method": "Deterministic rules combine latest levels, recent changes, historical percentile checks and market/trade summaries. Scores are descriptive screens, not forecasts or causal estimates.",
+        "items": items,
+    }
+
+
+def build_latest_brief(series: dict[str, dict], forecast_data: dict, market: dict, growth_drivers: dict, external: dict, risk: dict, generated_at: str) -> dict:
+    latest_headline = series["headline"]["points"][-1]
+    prior_headline = series["headline"]["points"][-2]
+    headline_change = float(latest_headline["value"]) - float(prior_headline["value"])
+    core = float(series["core"]["points"][-1]["value"])
+    fx_change = _series_change(series["fx"], 3) or 0
+    forecast_target = forecast_data["points"][-1]["value"]
+    watched = sorted(risk["items"], key=lambda entry: entry["score"], reverse=True)[:3]
+    return {
+        "generatedAt": generated_at,
+        "status": risk["status"],
+        "period": latest_headline["date"],
+        "headline": f"Malaysia's latest macro reading is {risk['overallLevel']} pressure, with headline inflation at {float(latest_headline['value']):.1f}% and core inflation at {core:.1f}%.",
+        "whatChanged": [
+            f"Headline inflation moved {headline_change:+.1f} percentage points from the prior monthly release.",
+            f"The ringgit moved {fx_change:+.2f} against the US dollar over the latest three-month dashboard window.",
+            f"The FBM KLCI one-year price return is {(market['summary'].get('return1Y') or 0):+.1f}%, while the latest goods trade balance is RM {external['summary']['balance']:+.1f} billion.",
+        ],
+        "whyItMayHaveHappened": [
+            "Inflation changes can reflect category-level CPI pressure, policy effects, administered prices and imported costs.",
+            "Exchange-rate and bond-yield changes may reflect both Malaysian conditions and global interest-rate or risk-appetite shifts.",
+            "GDP and trade readings help separate domestic demand from external demand, but they are not causal proof for market moves.",
+        ],
+        "watchNext": [f"{entry['label']}: {entry['watch']}" for entry in watched],
+        "implications": [
+            "Individuals should stress-test savings, debt repayments and job resilience against the highest-pressure signals.",
+            "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
+            f"The three-month inflation forecast ends at {forecast_target:.2f}%, but the prediction intervals are more important than the point estimate.",
+        ],
+        "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice.",
+    }
+
+
+def build_decision_guide(series: dict[str, dict], market: dict, generated_at: str, risk: dict | None = None, external: dict | None = None) -> dict:
     def latest(key: str) -> tuple[float, str]:
         point = series[key]["points"][-1]
         return float(point["value"]), point["date"]
@@ -908,6 +1267,20 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
             "actions": ["Track your own essential-cost inflation rather than assuming the headline CPI matches your household basket.", "Use stable employment periods to build portable skills, update professional evidence and explore market salary ranges.", "Direct pay increases or bonuses toward high-cost debt, emergency savings and long-term goals before lifestyle expansion."],
             "watch": "Sector hiring, contract type and individual employability can diverge sharply from the national unemployment rate.",
         },
+        {
+            "id": "debt-reset", "theme": "Debt and repayments", "stance": "Check buffers",
+            "title": "Review variable-rate and short-tenor commitments",
+            "evidence": f"The dashboard heatmap labels policy-rate pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'opr'), 'moderate')} and 10-year MGS pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'mgs'), 'moderate')}.",
+            "actions": ["List every debt repayment date, rate type and reset date.", "Check whether a higher instalment still leaves room for essentials and emergency savings.", "Avoid using short-term promotional rates as the only affordability test."],
+            "watch": "Lending rates depend on individual credit profile, bank policy and product terms, not only national benchmark rates.",
+        },
+        {
+            "id": "imported-costs", "theme": "Daily prices and imported goods", "stance": "Compare baskets",
+            "title": "Watch imported-cost pressure in your own spending",
+            "evidence": f"USD/MYR is RM {fx:.4f}; latest goods imports are RM {(external or {}).get('summary', {}).get('imports', 0):.1f} billion where trade data are available.",
+            "actions": ["Track recurring imported or foreign-currency-linked spending separately.", "Compare total cost after shipping, tax, warranties and exchange-rate conversion.", "Keep subscription and discretionary spending flexible when currency pressure is elevated."],
+            "watch": "A national exchange-rate move does not affect every household basket equally.",
+        },
     ]
 
     companies = [
@@ -938,6 +1311,20 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
             "evidence": f"Unemployment is {unemployment:.1f}% and the KLCI's latest one-year price performance is {market_reading} at {market_return:+.1f}%.",
             "actions": ["Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.", "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.", "Model downside demand, financing and FX assumptions before approving irreversible expenditure."],
             "watch": "A stock index and national unemployment rate are broad signals, not company-specific revenue forecasts.",
+        },
+        {
+            "id": "inventory-imports", "theme": "Inventory and import exposure", "stance": "Stress landed cost",
+            "title": "Tie inventory decisions to FX and trade evidence",
+            "evidence": f"Goods imports grew {(external or {}).get('summary', {}).get('importsYoY', 0):+.1f}% year on year, while USD/MYR is RM {fx:.4f}.",
+            "actions": ["Separate essential stock buffers from speculative over-ordering.", "Reprice landed cost assumptions using adverse FX and freight scenarios.", "Review supplier currency, payment timing and contract pass-through clauses."],
+            "watch": "Trade aggregates do not reveal firm-level demand, supplier reliability or margin quality.",
+        },
+        {
+            "id": "business-risk-gates", "theme": "Scenario governance", "stance": "Use triggers",
+            "title": "Set decision gates around the highest-risk signals",
+            "evidence": f"The current heatmap is {(risk or {}).get('overallLevel', 'moderate')} pressure, led by {', '.join(item['label'] for item in (risk or {}).get('items', [])[:2]) or 'macro and market indicators'}.",
+            "actions": ["Define measurable triggers before hiring, capex, refinancing or price changes.", "Assign owners for inflation, FX, cash-flow and sales indicators.", "Review decisions monthly after official releases instead of reacting to headlines."],
+            "watch": "A heatmap is a monitoring tool; it cannot replace customer, supplier and balance-sheet evidence.",
         },
     ]
 
@@ -992,10 +1379,14 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     structural_data = build_structural_analysis(series, previous, retrieved)
     market_data = build_market(previous, retrieved)
     economic_structure = build_economic_structure(previous, retrieved)
+    growth_drivers = build_growth_drivers(previous, retrieved, economic_structure)
+    external_sector = build_external_sector(previous, retrieved)
+    risk_heatmap = build_risk_heatmap(series, market_data, growth_drivers, external_sector, retrieved)
+    latest_brief = build_latest_brief(series, forecast_data, market_data, growth_drivers, external_sector, risk_heatmap, retrieved)
     payload = {
-        "schemaVersion": 6,
+        "schemaVersion": 7,
         "generatedAt": retrieved,
-        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" else "partial",
+        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
@@ -1004,7 +1395,11 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "structuralBreaks": structural_data,
         "market": market_data,
         "economicStructure": economic_structure,
-        "decisionGuide": build_decision_guide(series, market_data, retrieved),
+        "growthDrivers": growth_drivers,
+        "externalSector": external_sector,
+        "riskHeatmap": risk_heatmap,
+        "latestBrief": latest_brief,
+        "decisionGuide": build_decision_guide(series, market_data, retrieved, risk_heatmap, external_sector),
         "dataOperations": build_data_operations(series, retrieved),
         "narratives": narrative(series, forecast_data),
     }
@@ -1021,6 +1416,14 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         baseline.get("market", {}).pop("retrievedAt", None)
         candidate.get("economicStructure", {}).pop("retrievedAt", None)
         baseline.get("economicStructure", {}).pop("retrievedAt", None)
+        candidate.get("externalSector", {}).pop("retrievedAt", None)
+        baseline.get("externalSector", {}).pop("retrievedAt", None)
+        candidate.get("growthDrivers", {}).pop("generatedAt", None)
+        baseline.get("growthDrivers", {}).pop("generatedAt", None)
+        candidate.get("riskHeatmap", {}).pop("generatedAt", None)
+        baseline.get("riskHeatmap", {}).pop("generatedAt", None)
+        candidate.get("latestBrief", {}).pop("generatedAt", None)
+        baseline.get("latestBrief", {}).pop("generatedAt", None)
         if candidate == baseline:
             return previous
     return payload

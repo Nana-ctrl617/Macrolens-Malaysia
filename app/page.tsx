@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { DashboardPayload, DecisionCard, EconomicSector, StructuralCandidate, StructuralIndicator } from "@/app/lib/dashboard";
+import type { DashboardPayload, DecisionCard, EconomicSector, ExternalSector, RiskHeatmap, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Full CPI basket, year on year", period: "May 2026", tone: "rust" },
@@ -43,13 +43,16 @@ const fallbackCategories = [
   { code: "10", name: "Education", value: 2.0, weight: 1.3 },
 ].map((item) => ({ ...item, contribution: Number((item.weight * item.value / 100).toFixed(3)) }));
 
-export type DashboardSection = "snapshot" | "forecast" | "drivers" | "structure" | "bursa" | "decisions" | "structural" | "methodology";
+export type DashboardSection = "snapshot" | "brief" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bursa" | "decisions" | "structural" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
+  { id: "brief", label: "Brief", href: "/brief" },
+  { id: "risk", label: "Risk heatmap", href: "/risk" },
   { id: "forecast", label: "Forecast", href: "/forecast" },
   { id: "drivers", label: "Drivers", href: "/drivers" },
-  { id: "structure", label: "Economic structure", href: "/structure" },
+  { id: "structure", label: "Growth drivers", href: "/structure" },
+  { id: "external", label: "External sector", href: "/external" },
   { id: "bursa", label: "Bursa", href: "/bursa" },
   { id: "decisions", label: "Decision guide", href: "/decisions" },
   { id: "structural", label: "Structural shifts", href: "/structural" },
@@ -709,7 +712,7 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
     <section className="section structural-section" id="structural">
       <div className="shell">
         <div className="section-heading">
-          <div><span className="section-number">07 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <div><span className="section-number">10 / Structural shifts</span><h2>When the pattern changed</h2></div>
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
@@ -913,21 +916,145 @@ function WhyAnalysis({ data, points, dashboard }: { data: IndicatorData; points:
   </section>;
 }
 
+function levelLabel(level?: string) {
+  return level ? level.charAt(0).toUpperCase() + level.slice(1) : "Building";
+}
+
+function BriefSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const brief = dashboard?.latestBrief;
+  const risk = dashboard?.riskHeatmap;
+  return <section className="section brief-section page-section" id="brief"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">02 / Brief</span><h2>Latest economic brief</h2></div><p>A concise monthly reading of what changed, why it may have happened, what to watch next, and what it could mean for households and companies.</p></div>
+    {!brief ? <div className="brief-empty">The latest brief will appear when the version-seven dataset is available.</div> : <>
+      <div className="brief-hero"><div><span className="brief-label">Generated briefing</span><h3>{brief.headline}</h3><p>Last refreshed {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${brief.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : brief.status === "fresh" ? "Latest data included" : "Some inputs cached"}</em></div>
+      <div className="brief-grid">
+        <article><span>What changed recently</span><ul>{brief.whatChanged.map((item) => <li key={item}>{item}</li>)}</ul></article>
+        <article><span>Why it may have happened</span><ul>{brief.whyItMayHaveHappened.map((item) => <li key={item}>{item}</li>)}</ul></article>
+        <article><span>What to watch next</span><ul>{brief.watchNext.map((item) => <li key={item}>{item}</li>)}</ul></article>
+        <article><span>Implications</span><ul>{brief.implications.map((item) => <li key={item}>{item}</li>)}</ul></article>
+      </div>
+      {risk && <div className="brief-risk-link"><span className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</span><p>{risk.summary}</p><a href="/risk">Open full risk heatmap</a></div>}
+      <p className="brief-disclaimer">{brief.disclaimer}</p>
+    </>}
+  </div></section>;
+}
+
+function RiskHeatmapSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const risk = dashboard?.riskHeatmap;
+  const grouped = useMemo(() => {
+    const output = new Map<string, NonNullable<RiskHeatmap["items"]>>();
+    for (const item of risk?.items ?? []) output.set(item.group, [...(output.get(item.group) ?? []), item]);
+    return [...output.entries()];
+  }, [risk]);
+  return <section className="section risk-section page-section" id="risk"><div className="shell">
+    <div className="section-heading light"><div><span className="section-number">03 / Risk heatmap</span><h2>Where pressure is building</h2></div><p>Each score is rule-based and auditable. It is a monitoring screen, not a forecast or investment signal.</p></div>
+    {!risk ? <div className="risk-empty">The risk heatmap will appear when the version-seven dataset is available.</div> : <>
+      <div className="risk-overview"><article><span>Overall screen</span><strong>{risk.overallScore.toFixed(1)}</strong><b className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</b></article><div><p>{risk.summary}</p><small>{risk.method}</small></div></div>
+      <div className="risk-groups">{grouped.map(([group, items]) => <section key={group}><h3>{group}</h3>{items.map((item) => <article key={item.id} className={`risk-card ${item.level}`}><div><span>{item.label}</span><strong>{item.score}</strong></div><p>{item.evidence}</p><small>{item.rule}</small><em>{item.watch}</em></article>)}</section>)}</div>
+      <div className="risk-table-wrap"><table><thead><tr><th>Signal</th><th>Period</th><th>Score</th><th>Level</th><th>Evidence</th></tr></thead><tbody>{risk.items.map((item) => <tr key={item.id}><td>{item.label}</td><td>{item.period ? formatDate(item.period) : "Latest"}</td><td>{item.score}</td><td><span className={`risk-pill ${item.level}`}>{levelLabel(item.level)}</span></td><td>{item.evidence}</td></tr>)}</tbody></table></div>
+    </>}
+  </div></section>;
+}
+
+function ExternalChart({ points, metric }: { points: TradePoint[]; metric: "balance" | "exports" | "imports" }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hovered, setHovered] = useState<{ point: TradePoint; left: number; top: number; tooltipLeft: number } | null>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = canvas?.parentElement;
+    if (!canvas || !container || points.length < 2) return;
+    const draw = () => {
+      const width = Math.max(container.clientWidth, 320), height = 340, ratio = window.devicePixelRatio || 1;
+      canvas.width = width * ratio; canvas.height = height * ratio; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
+      const context = canvas.getContext("2d"); if (!context) return;
+      context.scale(ratio, ratio); context.clearRect(0, 0, width, height);
+      const padding = { top: 28, right: 24, bottom: 44, left: 70 };
+      const values = points.map((point) => point[metric]);
+      let min = Math.min(...values), max = Math.max(...values);
+      if (metric === "balance") { min = Math.min(min, 0); max = Math.max(max, 0); }
+      const spread = Math.max(max - min, 5); min -= spread * .12; max += spread * .12;
+      const chartWidth = width - padding.left - padding.right, chartHeight = height - padding.top - padding.bottom;
+      const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
+      const y = (value: number) => padding.top + (max - value) / (max - min) * chartHeight;
+      context.font = "600 13px DM Sans, sans-serif";
+      for (let index = 0; index < 5; index += 1) {
+        const value = max - index / 4 * (max - min), yPosition = padding.top + index / 4 * chartHeight;
+        context.strokeStyle = "rgba(24,35,33,.1)"; context.beginPath(); context.moveTo(padding.left, yPosition); context.lineTo(width - padding.right, yPosition); context.stroke();
+        context.fillStyle = "#68736f"; context.fillText(value.toFixed(0), 12, yPosition + 4);
+      }
+      if (metric === "balance") { context.strokeStyle = "rgba(223,91,54,.45)"; context.setLineDash([5, 5]); context.beginPath(); context.moveTo(padding.left, y(0)); context.lineTo(width - padding.right, y(0)); context.stroke(); context.setLineDash([]); }
+      context.beginPath(); points.forEach((point, index) => index ? context.lineTo(x(index), y(point[metric])) : context.moveTo(x(index), y(point[metric])));
+      context.strokeStyle = metric === "imports" ? "#df5b36" : metric === "exports" ? "#1c6b61" : "#213d4a"; context.lineWidth = 2.5; context.lineJoin = "round"; context.stroke();
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
+        const label = formatDate(points[index].date), measured = context.measureText(label).width; context.fillStyle = "#68736f";
+        context.fillText(label, index === 0 ? x(index) : index === points.length - 1 ? x(index) - measured : x(index) - measured / 2, height - 14);
+      });
+    };
+    draw(); const observer = new ResizeObserver(draw); observer.observe(container); return () => observer.disconnect();
+  }, [points, metric]);
+  const showPoint = (clientX: number) => {
+    const canvas = canvasRef.current; if (!canvas || points.length < 2) return;
+    const bounds = canvas.getBoundingClientRect(), padding = { top: 28, right: 24, bottom: 44, left: 70 };
+    const chartWidth = bounds.width - padding.left - padding.right;
+    const pointer = Math.min(bounds.width - padding.right, Math.max(padding.left, clientX - bounds.left));
+    const index = Math.min(points.length - 1, Math.max(0, Math.round((pointer - padding.left) / chartWidth * (points.length - 1))));
+    const values = points.map((point) => point[metric]); let min = Math.min(...values), max = Math.max(...values);
+    if (metric === "balance") { min = Math.min(min, 0); max = Math.max(max, 0); }
+    const spread = Math.max(max - min, 5); min -= spread * .12; max += spread * .12;
+    const left = padding.left + index / (points.length - 1) * chartWidth;
+    const top = padding.top + (max - points[index][metric]) / (max - min) * (340 - padding.top - padding.bottom);
+    setHovered({ point: points[index], left: canvas.offsetLeft + left, top: canvas.offsetTop + top, tooltipLeft: canvas.offsetLeft + Math.min(bounds.width - 85, Math.max(85, left)) });
+  };
+  return <div className="external-chart">
+    <canvas ref={canvasRef} tabIndex={0} role="img" aria-label={`Malaysia goods trade ${metric} chart`} onPointerMove={(event) => showPoint(event.clientX)} onPointerDown={(event) => showPoint(event.clientX)} onClick={(event) => showPoint(event.clientX)} onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)} />
+    {hovered && <><i className="chart-hover-line" style={{ left: hovered.left }} /><i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} /><div className="chart-tooltip light" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}><span>{formatDate(hovered.point.date)}</span><strong>RM {hovered.point[metric].toFixed(1)}bn</strong></div></>}
+    <small className="chart-interaction-hint">Hover or tap the line to inspect monthly values.</small>
+  </div>;
+}
+
+function ExternalSectorSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const external = dashboard?.externalSector;
+  const [metric, setMetric] = useState<"balance" | "exports" | "imports">("balance");
+  const [range, setRange] = useState<"3Y" | "5Y" | "ALL">("3Y");
+  const points = useMemo(() => {
+    const all = external?.points ?? [];
+    if (!all.length || range === "ALL") return all;
+    const end = new Date(`${all.at(-1)?.date}T00:00:00`), start = new Date(end);
+    start.setFullYear(start.getFullYear() - Number(range.replace("Y", "")));
+    return all.filter((point) => new Date(`${point.date}T00:00:00`) >= start);
+  }, [external, range]);
+  return <section className="section external-section page-section" id="external"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">07 / External sector</span><h2>Trade, exports and imported-cost pressure</h2></div><p>Goods trade helps explain how external demand, the ringgit and imported costs can flow through the Malaysian economy.</p></div>
+    {!external ? <div className="external-empty">External-sector data will appear when the version-seven dataset is available.</div> : <>
+      <div className="external-summary"><article><span>Exports</span><strong>RM {external.summary.exports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.exportsYoY)} year on year</small></article><article><span>Imports</span><strong>RM {external.summary.imports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.importsYoY)} year on year</small></article><article><span>Trade balance</span><strong className={external.summary.balance >= 0 ? "up" : "down"}>RM {external.summary.balance > 0 ? "+" : ""}{external.summary.balance.toFixed(1)}bn</strong><small>Latest month · {formatDate(external.summary.latestDate)}</small></article><article><span>12-month balance</span><strong>RM {external.summary.last12Balance > 0 ? "+" : ""}{external.summary.last12Balance.toFixed(1)}bn</strong><small>{external.summary.tradeReading}</small></article></div>
+      <div className="external-toolbar"><div role="group" aria-label="Choose trade chart measure">{(["balance", "exports", "imports"] as const).map((item) => <button key={item} className={metric === item ? "active" : ""} onClick={() => setMetric(item)}>{item === "balance" ? "Trade balance" : item[0].toUpperCase() + item.slice(1)}</button>)}</div><div role="group" aria-label="Choose trade chart time frame">{(["3Y", "5Y", "ALL"] as const).map((item) => <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item === "ALL" ? "All history" : item}</button>)}</div></div>
+      <ExternalChart points={points} metric={metric} />
+      <div className="external-analysis"><article><span>Latest reading</span><p>{external.narratives.performance}</p></article><article><span>Macro meaning</span><p>{external.narratives.macro}</p></article></div>
+      <div className="external-table-wrap"><table><thead><tr><th>Month</th><th>Exports</th><th>Imports</th><th>Total trade</th><th>Balance</th></tr></thead><tbody>{[...external.points].slice(-12).reverse().map((point) => <tr key={point.date}><td>{formatDate(point.date)}</td><td>RM {point.exports.toFixed(1)}bn</td><td>RM {point.imports.toFixed(1)}bn</td><td>RM {point.total.toFixed(1)}bn</td><td className={point.balance >= 0 ? "up" : "down"}>RM {point.balance > 0 ? "+" : ""}{point.balance.toFixed(1)}bn</td></tr>)}</tbody></table></div>
+      <div className="external-sources"><p>{external.message} · Retrieved {formatDate(external.retrievedAt.slice(0, 10))}</p><a href={external.sourceUrl} target="_blank" rel="noreferrer">Official data catalogue</a><a href={external.datasetUrl} target="_blank" rel="noreferrer">Source CSV</a></div>
+    </>}
+  </div></section>;
+}
+
 function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const structure = dashboard?.economicStructure;
+  const growth = dashboard?.growthDrivers;
   const [year, setYear] = useState<number | null>(null);
+  const [view, setView] = useState<"production" | "expenditure">("production");
   const selectedYear = structure?.years.find((item) => item.year === year) ?? structure?.years.at(-1);
+  const selectedDemandYear = growth?.demand.years.find((item) => item.year === year) ?? growth?.demand.years.at(-1);
   useEffect(() => { if (structure && year == null) setYear(structure.latestYear); }, [structure, year]);
   return <section className="section structure-section page-section" id="structure"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">04 / Economic structure</span><h2>What produces Malaysia&apos;s economic value?</h2></div><p>Choose a year to see each sector&apos;s share of nominal GDP, its exact ringgit value, and how its current-price output changed from the prior year.</p></div>
+    <div className="section-heading"><div><span className="section-number">06 / Growth drivers</span><h2>What drives Malaysia&apos;s economic value?</h2></div><p>Choose a year to compare the production side of GDP with the expenditure side: consumption, investment, exports, imports and inventories.</p></div>
     {!structure || !selectedYear ? <div className="structure-empty">Economic-sector data will appear when the version-five dataset is available.</div> : <>
-      <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><p><span className={`structure-status ${structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
-      <div className="structure-overview">
+      <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><div className="driver-view-switch" role="group" aria-label="Choose GDP view"><button className={view === "production" ? "active" : ""} onClick={() => setView("production")}>Production side</button><button className={view === "expenditure" ? "active" : ""} onClick={() => setView("expenditure")}>Expenditure side</button></div><p><span className={`structure-status ${growth?.status ?? structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : growth?.status === "fresh" || structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
+      {view === "production" && <div className="structure-overview">
         <EconomicDonut sectors={selectedYear.sectors} />
         <div className="structure-reading"><span className="mini-label">Production view · {selectedYear.year}</span><h3>RM {selectedYear.total.toLocaleString("en-MY", { maximumFractionDigits: 1 })} billion</h3><p className="structure-definition">Total GDP at purchasers&apos; prices. The six slices reconcile five production sectors plus import duties.</p><div className="structure-highlights"><article><span>Largest sector</span><strong>{selectedYear.summary.largestSector}</strong><small>{selectedYear.summary.largestShare.toFixed(1)}% of nominal GDP</small></article><article><span>Fastest current-price increase</span><strong>{selectedYear.summary.fastestGrowingSector}</strong><small>{selectedYear.summary.fastestGrowth == null ? "Prior-year comparison unavailable" : `${selectedYear.summary.fastestGrowth > 0 ? "+" : ""}${selectedYear.summary.fastestGrowth.toFixed(1)}% year on year`}</small></article><article><span>Largest RM addition</span><strong>{selectedYear.summary.largestGrowthContributor}</strong><small>{selectedYear.summary.largestContributionValue == null ? "Prior-year comparison unavailable" : `RM ${selectedYear.summary.largestContributionValue > 0 ? "+" : ""}${selectedYear.summary.largestContributionValue.toFixed(1)} billion`}</small></article></div></div>
-      </div>
-      <div className="structure-analysis"><span>What drove the year</span><p>{selectedYear.narrative}</p></div>
-      <div className="structure-table-wrap"><table><thead><tr><th>Rank</th><th>Sector</th><th>Share</th><th>Value</th><th>Nominal change</th><th>Share of annual RM change</th></tr></thead><tbody>{selectedYear.sectors.map((sector, index) => <tr key={sector.id}><td>{sector.rank}</td><td><i style={{ background: sectorColours[index] }} /><strong>{sector.name}</strong></td><td>{sector.share.toFixed(2)}%</td><td>RM {sector.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(sector.changeYoY ?? 0) < 0 ? "down" : "up"}>{sector.changeYoY == null ? "—" : `${sector.changeYoY > 0 ? "+" : ""}${sector.changeYoY.toFixed(2)}%`}</td><td>{sector.growthContribution == null ? "—" : `${sector.growthContribution > 0 ? "+" : ""}${sector.growthContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div>
+      </div>}
+      {view === "expenditure" && selectedDemandYear && <div className="demand-view"><div className="structure-reading"><span className="mini-label">Expenditure view · {selectedDemandYear.year}</span><h3>RM {selectedDemandYear.total.toLocaleString("en-MY", { maximumFractionDigits: 1 })} billion</h3><p className="structure-definition">{growth?.summary}</p><div className="structure-highlights"><article><span>Largest component</span><strong>{selectedDemandYear.summary.largestComponent}</strong><small>{selectedDemandYear.summary.largestShare.toFixed(1)}% of GDP</small></article><article><span>Main annual driver</span><strong>{selectedDemandYear.summary.largestGrowthDriver}</strong><small>{selectedDemandYear.summary.largestContribution == null ? "Prior-year comparison unavailable" : `${selectedDemandYear.summary.largestContribution > 0 ? "+" : ""}${selectedDemandYear.summary.largestContribution.toFixed(1)}% of GDP change`}</small></article><article><span>Reading</span><strong>{selectedDemandYear.summary.demandType}</strong><small>Current-price expenditure screen</small></article></div></div></div>}
+      <div className="structure-analysis"><span>What drove the year</span><p>{view === "production" ? selectedYear.narrative : selectedDemandYear?.narrative ?? "Expenditure-side GDP is not available for this selected year."}</p></div>
+      {view === "production" ? <div className="structure-table-wrap"><table><thead><tr><th>Rank</th><th>Sector</th><th>Share</th><th>Value</th><th>Nominal change</th><th>Share of annual RM change</th></tr></thead><tbody>{selectedYear.sectors.map((sector, index) => <tr key={sector.id}><td>{sector.rank}</td><td><i style={{ background: sectorColours[index] }} /><strong>{sector.name}</strong></td><td>{sector.share.toFixed(2)}%</td><td>RM {sector.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(sector.changeYoY ?? 0) < 0 ? "down" : "up"}>{sector.changeYoY == null ? "—" : `${sector.changeYoY > 0 ? "+" : ""}${sector.changeYoY.toFixed(2)}%`}</td><td>{sector.growthContribution == null ? "—" : `${sector.growthContribution > 0 ? "+" : ""}${sector.growthContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div> : <div className="structure-table-wrap"><table><thead><tr><th>Component</th><th>Share of GDP</th><th>Value</th><th>Nominal change</th><th>Contribution to GDP change</th></tr></thead><tbody>{(selectedDemandYear?.components ?? []).map((component) => <tr key={component.id}><td><strong>{component.name}</strong></td><td>{component.share.toFixed(2)}%</td><td>RM {component.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(component.changeYoY ?? 0) < 0 ? "down" : "up"}>{component.changeYoY == null ? "—" : `${component.changeYoY > 0 ? "+" : ""}${component.changeYoY.toFixed(2)}%`}</td><td>{component.signedContribution == null ? "—" : `${component.signedContribution > 0 ? "+" : ""}${component.signedContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div>}
       <div className="structure-notes"><p><b>Important distinction.</b> {structure.note}</p><p>{structure.message} · Retrieved {formatDate(structure.retrievedAt.slice(0, 10))}</p><div><a href={structure.sourceUrl} target="_blank" rel="noreferrer">Official dataset and methodology ↗</a><a href={structure.datasetUrl} target="_blank" rel="noreferrer">Download source CSV ↗</a></div></div>
     </>}
   </div></section>;
@@ -1027,7 +1154,7 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const periodReturn = points.length > 1 ? (points.at(-1)!.value / points[0].value - 1) * 100 : null;
   const summary = market?.summary;
   return <section className="section market-section" id="bursa"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">05 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
+    <div className="section-heading light"><div><span className="section-number">08 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
     {!market || !summary ? <div className="market-empty">Market history will appear when the version-three dataset is available.</div> : <>
       <div className="market-overview">
         <article className="market-quote"><span>FTSE Bursa Malaysia KLCI</span><strong>{summary.latest.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><div><b className={summary.change1D >= 0 ? "positive" : "negative"}>{signedPercent(summary.change1D)}</b><small>latest trading day · {formatDate(summary.latestDate)}</small></div><em className={`market-status ${market.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : market.status === "fresh" ? "Delayed data · refreshed" : "Delayed data · cached"}</em></article>
@@ -1093,7 +1220,7 @@ function DriversSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const headline = decomposition?.headline ?? dashboard?.series.headline.points.at(-1)?.value ?? 0;
   const gap = decomposition?.reconciliationGap ?? headline - estimatedTotal;
   return <section className="section shell page-section" id="drivers">
-    <div className="section-heading"><div><span className="section-number">03 / Drivers</span><h2>What contributes to inflation</h2></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
+    <div className="section-heading"><div><span className="section-number">05 / Drivers</span><h2>What contributes to inflation</h2></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
     <div className="driver-summary"><article><span>Headline inflation</span><strong>{headline.toFixed(2)}%</strong></article><article><span>Weighted division estimate</span><strong>{estimatedTotal.toFixed(2)} pp</strong></article><article><span>Chain-index gap</span><strong>{gap > 0 ? "+" : ""}{gap.toFixed(2)} pp</strong></article></div>
     <div className="driver-view-switch" role="group" aria-label="Choose driver measure"><button className={view === "contribution" ? "active" : ""} onClick={() => setView("contribution")}>Weighted contribution</button><button className={view === "rate" ? "active" : ""} onClick={() => setView("rate")}>Category inflation rate</button></div>
     <div className="drivers-layout">
@@ -1130,7 +1257,7 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
   const guide = dashboard?.decisionGuide;
   const cards = guide?.audiences[audience] ?? [];
   return <section className="section decision-section page-section" id="decisions"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">06 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
+    <div className="section-heading"><div><span className="section-number">09 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
     {!guide ? <div className="decision-empty">The decision guide will appear when the version-four dataset is available.</div> : <>
       <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={guide.status}>{guide.status === "fresh" ? "Latest signals incorporated" : "Some inputs use cached data"}</em></div>
       <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
@@ -1160,7 +1287,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1221,6 +1348,10 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           </article>
           <p className="primer-summary"><strong>The difference:</strong> headline describes price changes across the full household basket; core helps reveal the steadier underlying trend. Neither is better—they answer different questions.</p>
         </aside>
+        <div className="snapshot-completion">
+          <a href="/brief"><span>Latest brief</span><strong>{dashboard?.latestBrief?.headline ?? "Monthly brief loading"}</strong><small>What changed, possible reasons, watch list and decision context.</small></a>
+          <a href="/risk"><span>Risk heatmap</span><strong>{dashboard?.riskHeatmap ? `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Rule-based scores for prices, jobs, rates, FX, bonds, Bursa, GDP and trade.</small></a>
+        </div>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h3>The recent path</h3></div><div className="legend"><i /> Year-on-year change</div></div>
@@ -1234,10 +1365,14 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       </section>
       </>}
 
+      {section === "brief" && <BriefSection dashboard={dashboard} />}
+
+      {section === "risk" && <RiskHeatmapSection dashboard={dashboard} />}
+
       {section === "forecast" && <section className="section forecast-section page-section" id="forecast">
         <div className="shell">
           <div className="section-heading light">
-            <div><span className="section-number">02 / Forecast</span><h2>Three months ahead</h2></div>
+            <div><span className="section-number">04 / Forecast</span><h2>Three months ahead</h2></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
           <div className="forecast-layout">
@@ -1280,6 +1415,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "structure" && <EconomicStructureSection dashboard={dashboard} />}
 
+      {section === "external" && <ExternalSectorSection dashboard={dashboard} />}
+
       {section === "bursa" && <BursaSection dashboard={dashboard} />}
 
       {section === "decisions" && <DecisionGuideSection dashboard={dashboard} />}
@@ -1288,7 +1425,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">08 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">11 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>

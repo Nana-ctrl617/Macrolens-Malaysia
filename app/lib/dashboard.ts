@@ -66,6 +66,19 @@ export type DecisionGuide = {
   sources: Array<{ name: string; url: string }>;
   disclaimer: string;
 };
+export type BriefData = {
+  generatedAt: string; status: "fresh" | "partial"; period: string; headline: string;
+  whatChanged: string[]; whyItMayHaveHappened: string[]; watchNext: string[]; implications: string[];
+  disclaimer: string;
+};
+export type RiskItem = {
+  id: string; label: string; group: string; score: number; level: "low" | "moderate" | "high";
+  evidence: string; rule: string; period: string; watch: string;
+};
+export type RiskHeatmap = {
+  generatedAt: string; status: "fresh" | "partial"; overallScore: number; overallLevel: "low" | "moderate" | "high";
+  summary: string; method: string; items: RiskItem[];
+};
 export type EconomicSector = {
   id: string; name: string; value: number; share: number; rank: number;
   changeValue: number | null; changeYoY: number | null; growthContribution: number | null;
@@ -82,6 +95,29 @@ export type EconomicStructure = {
   source: string; sourceUrl: string; datasetUrl: string; frequency: string;
   measure: string; unit: string; latestYear: number; years: EconomicStructureYear[];
   note: string; message: string;
+};
+export type DemandComponent = {
+  id: string; name: string; value: number; share: number; gdpSign: number; signedValue: number;
+  changeValue: number | null; changeYoY: number | null; signedContribution: number | null;
+};
+export type DemandYear = {
+  year: number; total: number; components: DemandComponent[]; narrative: string;
+  summary: { largestComponent: string; largestShare: number; largestGrowthDriver: string; largestContribution: number | null; demandType: string };
+};
+export type DemandStructure = {
+  status: "fresh" | "stale" | "unavailable"; retrievedAt: string; observationPeriod: string;
+  source: string; sourceUrl: string; datasetUrl: string; frequency: string; measure: string; unit: string;
+  latestYear: number | null; years: DemandYear[]; note: string; message: string;
+};
+export type GrowthDrivers = {
+  status: "fresh" | "partial"; generatedAt: string; production: EconomicStructure; demand: DemandStructure; summary: string; message: string;
+};
+export type TradePoint = { date: string; exports: number; imports: number; total: number; balance: number };
+export type ExternalSector = {
+  status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string; source: string; sourceUrl: string; datasetUrl: string;
+  frequency: string; unit: string; points: TradePoint[];
+  summary: { latestDate: string; exports: number; imports: number; total: number; balance: number; exportsYoY: number | null; importsYoY: number | null; last12Balance: number; prior12Balance: number | null; tradeReading: string };
+  narratives: { performance: string; macro: string }; message: string;
 };
 export type DashboardPayload = {
   schemaVersion: number;
@@ -109,6 +145,10 @@ export type DashboardPayload = {
   market?: MarketData;
   decisionGuide?: DecisionGuide;
   economicStructure?: EconomicStructure;
+  latestBrief?: BriefData;
+  riskHeatmap?: RiskHeatmap;
+  growthDrivers?: GrowthDrivers;
+  externalSector?: ExternalSector;
   dataOperations?: {
     schedule: string; lastSuccessfulRefresh: string; vintageCount: number; latestVintagePeriod: string; vintagePolicy: string;
     releaseLog: Array<{ period: string; headline: number; core: number | null }>;
@@ -133,8 +173,8 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && typeof candidate.market.summary?.latest === "number"
   );
   const decisionValid = candidate.schemaVersion < 4 || (
-    candidate.decisionGuide?.audiences?.individuals?.length === 4
-    && candidate.decisionGuide?.audiences?.companies?.length === 4
+    (candidate.decisionGuide?.audiences?.individuals?.length ?? 0) >= (candidate.schemaVersion >= 7 ? 6 : 4)
+    && (candidate.decisionGuide?.audiences?.companies?.length ?? 0) >= (candidate.schemaVersion >= 7 ? 6 : 4)
     && candidate.decisionGuide?.signals?.length >= 6
   );
   const structureValid = candidate.schemaVersion < 5 || (
@@ -149,12 +189,19 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && typeof candidate.forecast?.scenario?.coefficients?.fx === "number"
     && (candidate.dataOperations?.releaseLog?.length ?? 0) > 0
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6)
+  const completionValid = candidate.schemaVersion < 7 || (
+    (candidate.latestBrief?.whatChanged?.length ?? 0) >= 3
+    && (candidate.riskHeatmap?.items?.length ?? 0) >= 9
+    && (candidate.growthDrivers?.demand?.years?.length ?? 0) >= 5
+    && (candidate.externalSector?.points?.length ?? 0) >= 60
+  );
+  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6 || candidate.schemaVersion === 7)
     && structuralValid
     && marketValid
     && decisionValid
     && structureValid
     && researchValid
+    && completionValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)

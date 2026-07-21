@@ -20,6 +20,8 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Malaysia(?:'|&#x27;|’|&rsquo;)s economy at a glance/);
   assert.match(html, /prices, interest rates, jobs, the ringgit and government bonds/);
   assert.match(html, /Last successful refresh/);
+  assert.match(html, /Latest brief/);
+  assert.match(html, /Risk heatmap/);
   assert.doesNotMatch(html, /Malaysia inflation monitor|See the pressure|Read the direction/);
   assert.match(html, /Structural shifts/);
   assert.match(html, /Open historical data for Headline inflation/);
@@ -28,15 +30,18 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /full Consumer Price Index \(CPI\) basket/);
   assert.match(html, /selected volatile and administered-price items/);
   assert.doesNotMatch(html, /Show what to improve|Review mode|Strong next steps for version two/);
-  assert.doesNotMatch(html, /Three months ahead|The large-cap market pulse|When the pattern changed|Built to be questioned/);
+  assert.doesNotMatch(html, /Three months ahead|The large-cap market pulse|When the pattern changed|Built to be questioned|Latest economic brief|Where pressure is building/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
 test("renders each dashboard section on its own route", async () => {
   const routes = [
+    ["/brief", "Latest economic brief", "Brief"],
+    ["/risk", "Where pressure is building", "Risk heatmap"],
     ["/forecast", "Three months ahead", "Forecast"],
     ["/drivers", "What contributes to inflation", "Drivers"],
-    ["/structure", "What produces Malaysia(?:'|&#x27;)s economic value", "Economic structure"],
+    ["/structure", "What drives Malaysia(?:'|&#x27;)s economic value", "Growth drivers"],
+    ["/external", "Trade, exports and imported-cost pressure", "External sector"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
     ["/structural", "When the pattern changed", "Structural shifts"],
@@ -66,7 +71,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 6);
+  assert.equal(body.schemaVersion, 7);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -75,10 +80,15 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.structuralBreaks.indicators.core.candidates.length > 0);
   assert.equal(body.market.benchmark.id, "fbmklci");
   assert.ok(body.market.benchmark.points.length >= 250);
-  assert.equal(body.decisionGuide.audiences.individuals.length, 4);
-  assert.equal(body.decisionGuide.audiences.companies.length, 4);
+  assert.ok(body.decisionGuide.audiences.individuals.length >= 6);
+  assert.ok(body.decisionGuide.audiences.companies.length >= 6);
   assert.equal(body.economicStructure.latestYear, 2025);
   assert.equal(body.economicStructure.years.at(-1).sectors.length, 6);
+  assert.ok(body.latestBrief.whatChanged.length >= 3);
+  assert.ok(body.riskHeatmap.items.length >= 9);
+  assert.ok(body.growthDrivers.demand.years.length >= 5);
+  assert.ok(body.externalSector.points.length >= 60);
+  assert.equal(body.externalSector.summary.tradeReading.includes("exports") || body.externalSector.summary.tradeReading.includes("imports") || body.externalSector.summary.tradeReading.includes("balanced"), true);
   assert.equal(body.categories.length, 13);
   assert.equal(body.categories.reduce((sum, item) => sum + item.weight, 0), 100);
   assert.equal(body.cpiDecomposition.weightReferenceYear, 2022);

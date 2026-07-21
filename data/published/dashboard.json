@@ -1,42 +1,42 @@
 {
-  "schemaVersion": 6,
-  "generatedAt": "2026-07-20T08:27:48Z",
+  "schemaVersion": 7,
+  "generatedAt": "2026-07-21T07:34:55Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-20T08:27:48Z",
+      "retrievedAt": "2026-07-21T07:34:55Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-20T08:27:48Z",
+      "retrievedAt": "2026-07-21T07:34:55Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-20T08:27:48Z",
+      "retrievedAt": "2026-07-21T07:34:55Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-20T08:27:48Z",
+      "retrievedAt": "2026-07-21T07:34:55Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-20T08:27:48Z",
+      "retrievedAt": "2026-07-21T07:34:55Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "stale",
-      "retrievedAt": "2026-07-20T08:27:48Z",
-      "observationPeriod": "2026-07-17",
+      "retrievedAt": "2026-07-21T07:34:55Z",
+      "observationPeriod": "2026-07-16",
       "message": "Using last valid data: RuntimeError"
     }
   },
@@ -5486,10 +5486,6 @@
         {
           "date": "2026-07-16",
           "value": 3.63
-        },
-        {
-          "date": "2026-07-17",
-          "value": 3.65
         }
       ]
     }
@@ -5618,8 +5614,8 @@
       },
       {
         "name": "ARIMAX",
-        "rmse": 0.1856,
-        "mae": 0.1512,
+        "rmse": 0.1857,
+        "mae": 0.1514,
         "selected": true
       }
     ],
@@ -5668,7 +5664,7 @@
   },
   "structuralBreaks": {
     "status": "fresh",
-    "calculatedAt": "2026-07-19T11:47:32Z",
+    "calculatedAt": "2026-07-17T07:36:19Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
       "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -6319,7 +6315,7 @@
       "mgs": {
         "indicatorId": "mgs",
         "status": "fresh",
-        "calculatedAt": "2026-07-19T11:47:32Z",
+        "calculatedAt": "2026-07-17T04:51:03Z",
         "sample": {
           "start": "2021-11-01",
           "end": "2026-07-01",
@@ -6333,14 +6329,14 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 0,
-          "bic": -227.052981
+          "bic": -227.247247
         },
         "diagnostics": {
-          "adfStatistic": -1.928512,
-          "adfPValue": 0.31876953,
+          "adfStatistic": -1.909854,
+          "adfPValue": 0.32743976,
           "adfLags": 0,
-          "cusumStatistic": 0.541115,
-          "cusumPValue": 0.93145864
+          "cusumStatistic": 0.545603,
+          "cusumPValue": 0.92716441
         },
         "warnings": [
           "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -6348,13 +6344,13 @@
         ],
         "candidates": [],
         "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "77fe8f72de8320ef3dfff2348584fdc0020b4c2122f3538bc5cbc47a6cbb3f61"
+        "seriesFingerprint": "71a9bd389b32e0a183c9c4c805dc676c5d8b7fe9e5fb7913f2e9b52a7cefc096"
       }
     }
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-20T08:27:48Z",
+    "retrievedAt": "2026-07-21T07:34:55Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -6370,10 +6366,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-07-20",
-          "value": 1669.61
-        },
         {
           "date": "2016-07-21",
           "value": 1657.54
@@ -16148,31 +16140,35 @@
         },
         {
           "date": "2026-07-20",
-          "value": 1721.35
+          "value": 1722.29
+        },
+        {
+          "date": "2026-07-21",
+          "value": 1717.58
         }
       ]
     },
     "summary": {
-      "latest": 1721.35,
-      "latestDate": "2026-07-20",
-      "change1D": -0.58,
-      "return1M": 0.54,
-      "return3M": 1.12,
-      "returnYtd": 2.45,
-      "return1Y": 12.81,
-      "annualizedVolatility1Y": 9.4,
+      "latest": 1717.58,
+      "latestDate": "2026-07-21",
+      "change1D": -0.27,
+      "return1M": 0.32,
+      "return3M": 0.13,
+      "returnYtd": 2.23,
+      "return1Y": 12.66,
+      "annualizedVolatility1Y": 9.39,
       "maxDrawdown1Y": -6.46,
       "high52w": 1771.25,
       "low52w": 1513.25
     },
     "narratives": {
-      "performance": "The FBM KLCI gained 12.8% over the latest year, with 9.4% annualised volatility and a 6.5% maximum drawdown during that window.",
+      "performance": "The FBM KLCI gained 12.7% over the latest year, with 9.4% annualised volatility and a 6.5% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-07-20T08:27:48Z",
+    "retrievedAt": "2026-07-21T07:34:55Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17011,11 +17007,4131 @@
     "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
     "message": "Official quarterly observations validated; only complete calendar years are published"
   },
+  "growthDrivers": {
+    "status": "fresh",
+    "generatedAt": "2026-07-21T07:34:55Z",
+    "production": {
+      "status": "fresh",
+      "retrievedAt": "2026-07-21T07:34:55Z",
+      "observationPeriod": "2025-12-31",
+      "source": "Department of Statistics Malaysia via data.gov.my",
+      "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
+      "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_supply.csv",
+      "frequency": "Annual totals aggregated from quarterly observations",
+      "measure": "GDP at current prices by production sector",
+      "unit": "RM billion",
+      "latestYear": 2025,
+      "years": [
+        {
+          "year": 2015,
+          "total": 1176.941,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 643.882,
+              "share": 54.71,
+              "rank": 1,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 262.38,
+              "share": 22.29,
+              "rank": 2,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 103.059,
+              "share": 8.76,
+              "rank": 3,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 97.539,
+              "share": 8.29,
+              "rank": 4,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 55.382,
+              "share": 4.71,
+              "rank": 5,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 14.699,
+              "share": 1.25,
+              "rank": 6,
+              "changeValue": null,
+              "changeYoY": null,
+              "growthContribution": null
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 54.71,
+            "fastestGrowingSector": "Services",
+            "fastestGrowth": null,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": null
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2015, accounting for 54.7% of nominal GDP."
+        },
+        {
+          "year": 2016,
+          "total": 1249.697,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 689.97,
+              "share": 55.21,
+              "rank": 1,
+              "changeValue": 46.088,
+              "changeYoY": 7.16,
+              "growthContribution": 63.35
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 272.396,
+              "share": 21.8,
+              "rank": 2,
+              "changeValue": 10.016,
+              "changeYoY": 3.82,
+              "growthContribution": 13.77
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 105.755,
+              "share": 8.46,
+              "rank": 3,
+              "changeValue": 8.216,
+              "changeYoY": 8.42,
+              "growthContribution": 11.29
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 103.958,
+              "share": 8.32,
+              "rank": 4,
+              "changeValue": 0.899,
+              "changeYoY": 0.87,
+              "growthContribution": 1.24
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 61.089,
+              "share": 4.89,
+              "rank": 5,
+              "changeValue": 5.707,
+              "changeYoY": 10.3,
+              "growthContribution": 7.84
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 16.53,
+              "share": 1.32,
+              "rank": 6,
+              "changeValue": 1.831,
+              "changeYoY": 12.46,
+              "growthContribution": 2.52
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 55.21,
+            "fastestGrowingSector": "Construction",
+            "fastestGrowth": 10.3,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 46.088
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2016, accounting for 55.2% of nominal GDP. Construction recorded the fastest current-price increase at +10.3%, while Services added the largest ringgit amount to the annual change (RM +46.1 billion)."
+        },
+        {
+          "year": 2017,
+          "total": 1372.31,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 747.359,
+              "share": 54.46,
+              "rank": 1,
+              "changeValue": 57.389,
+              "changeYoY": 8.32,
+              "growthContribution": 46.8
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 299.798,
+              "share": 21.85,
+              "rank": 2,
+              "changeValue": 27.402,
+              "changeYoY": 10.06,
+              "growthContribution": 22.35
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 121.326,
+              "share": 8.84,
+              "rank": 3,
+              "changeValue": 17.368,
+              "changeYoY": 16.71,
+              "growthContribution": 14.16
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 117.994,
+              "share": 8.6,
+              "rank": 4,
+              "changeValue": 12.239,
+              "changeYoY": 11.57,
+              "growthContribution": 9.98
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 66.552,
+              "share": 4.85,
+              "rank": 5,
+              "changeValue": 5.463,
+              "changeYoY": 8.94,
+              "growthContribution": 4.46
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 19.28,
+              "share": 1.4,
+              "rank": 6,
+              "changeValue": 2.75,
+              "changeYoY": 16.64,
+              "growthContribution": 2.24
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 54.46,
+            "fastestGrowingSector": "Mining and quarrying",
+            "fastestGrowth": 16.71,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 57.389
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2017, accounting for 54.5% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +16.7%, while Services added the largest ringgit amount to the annual change (RM +57.4 billion)."
+        },
+        {
+          "year": 2018,
+          "total": 1447.76,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 804.994,
+              "share": 55.6,
+              "rank": 1,
+              "changeValue": 57.635,
+              "changeYoY": 7.71,
+              "growthContribution": 76.39
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 311.676,
+              "share": 21.53,
+              "rank": 2,
+              "changeValue": 11.878,
+              "changeYoY": 3.96,
+              "growthContribution": 15.74
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 134.834,
+              "share": 9.31,
+              "rank": 3,
+              "changeValue": 13.508,
+              "changeYoY": 11.13,
+              "growthContribution": 17.9
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 108.757,
+              "share": 7.51,
+              "rank": 4,
+              "changeValue": -9.237,
+              "changeYoY": -7.83,
+              "growthContribution": -12.24
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 70.048,
+              "share": 4.84,
+              "rank": 5,
+              "changeValue": 3.496,
+              "changeYoY": 5.25,
+              "growthContribution": 4.63
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 17.454,
+              "share": 1.21,
+              "rank": 6,
+              "changeValue": -1.826,
+              "changeYoY": -9.47,
+              "growthContribution": -2.42
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 55.6,
+            "fastestGrowingSector": "Mining and quarrying",
+            "fastestGrowth": 11.13,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 57.635
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2018, accounting for 55.6% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +11.1%, while Services added the largest ringgit amount to the annual change (RM +57.6 billion)."
+        },
+        {
+          "year": 2019,
+          "total": 1512.738,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 860.13,
+              "share": 56.86,
+              "rank": 1,
+              "changeValue": 55.136,
+              "changeYoY": 6.85,
+              "growthContribution": 84.85
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 323.862,
+              "share": 21.41,
+              "rank": 2,
+              "changeValue": 12.186,
+              "changeYoY": 3.91,
+              "growthContribution": 18.75
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 131.083,
+              "share": 8.67,
+              "rank": 3,
+              "changeValue": -3.751,
+              "changeYoY": -2.78,
+              "growthContribution": -5.77
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 109.542,
+              "share": 7.24,
+              "rank": 4,
+              "changeValue": 0.785,
+              "changeYoY": 0.72,
+              "growthContribution": 1.21
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 71.068,
+              "share": 4.7,
+              "rank": 5,
+              "changeValue": 1.02,
+              "changeYoY": 1.46,
+              "growthContribution": 1.57
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 17.053,
+              "share": 1.13,
+              "rank": 6,
+              "changeValue": -0.401,
+              "changeYoY": -2.3,
+              "growthContribution": -0.62
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 56.86,
+            "fastestGrowingSector": "Services",
+            "fastestGrowth": 6.85,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 55.136
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2019, accounting for 56.9% of nominal GDP. Services recorded the fastest current-price increase at +6.8%, while Services added the largest ringgit amount to the annual change (RM +55.1 billion)."
+        },
+        {
+          "year": 2020,
+          "total": 1418.49,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 817.712,
+              "share": 57.65,
+              "rank": 1,
+              "changeValue": -42.418,
+              "changeYoY": -4.93,
+              "growthContribution": 45.01
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 315.36,
+              "share": 22.23,
+              "rank": 2,
+              "changeValue": -8.502,
+              "changeYoY": -2.63,
+              "growthContribution": 9.02
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 115.833,
+              "share": 8.17,
+              "rank": 3,
+              "changeValue": 6.291,
+              "changeYoY": 5.74,
+              "growthContribution": -6.67
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 96.172,
+              "share": 6.78,
+              "rank": 4,
+              "changeValue": -34.911,
+              "changeYoY": -26.63,
+              "growthContribution": 37.04
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 57.657,
+              "share": 4.06,
+              "rank": 5,
+              "changeValue": -13.411,
+              "changeYoY": -18.87,
+              "growthContribution": 14.23
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 15.755,
+              "share": 1.11,
+              "rank": 6,
+              "changeValue": -1.298,
+              "changeYoY": -7.61,
+              "growthContribution": 1.38
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 57.65,
+            "fastestGrowingSector": "Agriculture",
+            "fastestGrowth": 5.74,
+            "largestGrowthContributor": "Agriculture",
+            "largestContributionValue": 6.291
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2020, accounting for 57.6% of nominal GDP. Agriculture recorded the fastest current-price increase at +5.7%, while Agriculture added the largest ringgit amount to the annual change (RM +6.3 billion)."
+        },
+        {
+          "year": 2021,
+          "total": 1548.701,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 841.692,
+              "share": 54.35,
+              "rank": 1,
+              "changeValue": 23.98,
+              "changeYoY": 2.93,
+              "growthContribution": 18.42
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 361.826,
+              "share": 23.36,
+              "rank": 2,
+              "changeValue": 46.466,
+              "changeYoY": 14.73,
+              "growthContribution": 35.69
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 148.152,
+              "share": 9.57,
+              "rank": 3,
+              "changeValue": 32.319,
+              "changeYoY": 27.9,
+              "growthContribution": 24.82
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 124.355,
+              "share": 8.03,
+              "rank": 4,
+              "changeValue": 28.183,
+              "changeYoY": 29.3,
+              "growthContribution": 21.64
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 55.654,
+              "share": 3.59,
+              "rank": 5,
+              "changeValue": -2.003,
+              "changeYoY": -3.47,
+              "growthContribution": -1.54
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 17.023,
+              "share": 1.1,
+              "rank": 6,
+              "changeValue": 1.268,
+              "changeYoY": 8.05,
+              "growthContribution": 0.97
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 54.35,
+            "fastestGrowingSector": "Mining and quarrying",
+            "fastestGrowth": 29.3,
+            "largestGrowthContributor": "Manufacturing",
+            "largestContributionValue": 46.466
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2021, accounting for 54.4% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +29.3%, while Manufacturing added the largest ringgit amount to the annual change (RM +46.5 billion)."
+        },
+        {
+          "year": 2022,
+          "total": 1794.893,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 959.254,
+              "share": 53.44,
+              "rank": 1,
+              "changeValue": 117.562,
+              "changeYoY": 13.97,
+              "growthContribution": 47.75
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 418.898,
+              "share": 23.34,
+              "rank": 2,
+              "changeValue": 57.072,
+              "changeYoY": 15.77,
+              "growthContribution": 23.18
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 176.249,
+              "share": 9.82,
+              "rank": 3,
+              "changeValue": 51.894,
+              "changeYoY": 41.73,
+              "growthContribution": 21.08
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 160.856,
+              "share": 8.96,
+              "rank": 4,
+              "changeValue": 12.704,
+              "changeYoY": 8.57,
+              "growthContribution": 5.16
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 60.824,
+              "share": 3.39,
+              "rank": 5,
+              "changeValue": 5.17,
+              "changeYoY": 9.29,
+              "growthContribution": 2.1
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 18.812,
+              "share": 1.05,
+              "rank": 6,
+              "changeValue": 1.789,
+              "changeYoY": 10.51,
+              "growthContribution": 0.73
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 53.44,
+            "fastestGrowingSector": "Mining and quarrying",
+            "fastestGrowth": 41.73,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 117.562
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2022, accounting for 53.4% of nominal GDP. Mining and quarrying recorded the fastest current-price increase at +41.7%, while Services added the largest ringgit amount to the annual change (RM +117.6 billion)."
+        },
+        {
+          "year": 2023,
+          "total": 1825.325,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 1023.02,
+              "share": 56.05,
+              "rank": 1,
+              "changeValue": 63.766,
+              "changeYoY": 6.65,
+              "growthContribution": 209.54
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 419.963,
+              "share": 23.01,
+              "rank": 2,
+              "changeValue": 1.065,
+              "changeYoY": 0.25,
+              "growthContribution": 3.5
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 154.101,
+              "share": 8.44,
+              "rank": 3,
+              "changeValue": -22.148,
+              "changeYoY": -12.57,
+              "growthContribution": -72.78
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 141.859,
+              "share": 7.77,
+              "rank": 4,
+              "changeValue": -18.997,
+              "changeYoY": -11.81,
+              "growthContribution": -62.42
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 65.895,
+              "share": 3.61,
+              "rank": 5,
+              "changeValue": 5.071,
+              "changeYoY": 8.34,
+              "growthContribution": 16.66
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 20.487,
+              "share": 1.12,
+              "rank": 6,
+              "changeValue": 1.675,
+              "changeYoY": 8.9,
+              "growthContribution": 5.5
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 56.05,
+            "fastestGrowingSector": "Construction",
+            "fastestGrowth": 8.34,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 63.766
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2023, accounting for 56.0% of nominal GDP. Construction recorded the fastest current-price increase at +8.3%, while Services added the largest ringgit amount to the annual change (RM +63.8 billion)."
+        },
+        {
+          "year": 2024,
+          "total": 1933.209,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 1087.104,
+              "share": 56.23,
+              "rank": 1,
+              "changeValue": 64.084,
+              "changeYoY": 6.26,
+              "growthContribution": 59.4
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 434.851,
+              "share": 22.49,
+              "rank": 2,
+              "changeValue": 14.888,
+              "changeYoY": 3.55,
+              "growthContribution": 13.8
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 157.431,
+              "share": 8.14,
+              "rank": 3,
+              "changeValue": 15.572,
+              "changeYoY": 10.98,
+              "growthContribution": 14.43
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 152.705,
+              "share": 7.9,
+              "rank": 4,
+              "changeValue": -1.396,
+              "changeYoY": -0.91,
+              "growthContribution": -1.29
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 78.096,
+              "share": 4.04,
+              "rank": 5,
+              "changeValue": 12.201,
+              "changeYoY": 18.52,
+              "growthContribution": 11.31
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 23.021,
+              "share": 1.19,
+              "rank": 6,
+              "changeValue": 2.534,
+              "changeYoY": 12.37,
+              "growthContribution": 2.35
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 56.23,
+            "fastestGrowingSector": "Construction",
+            "fastestGrowth": 18.52,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 64.084
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2024, accounting for 56.2% of nominal GDP. Construction recorded the fastest current-price increase at +18.5%, while Services added the largest ringgit amount to the annual change (RM +64.1 billion)."
+        },
+        {
+          "year": 2025,
+          "total": 2025.379,
+          "sectors": [
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 1159.236,
+              "share": 57.24,
+              "rank": 1,
+              "changeValue": 72.132,
+              "changeYoY": 6.64,
+              "growthContribution": 78.26
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 447.113,
+              "share": 22.08,
+              "rank": 2,
+              "changeValue": 12.262,
+              "changeYoY": 2.82,
+              "growthContribution": 13.3
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 166.704,
+              "share": 8.23,
+              "rank": 3,
+              "changeValue": 9.273,
+              "changeYoY": 5.89,
+              "growthContribution": 10.06
+            },
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 138.681,
+              "share": 6.85,
+              "rank": 4,
+              "changeValue": -14.024,
+              "changeYoY": -9.18,
+              "growthContribution": -15.22
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 86.897,
+              "share": 4.29,
+              "rank": 5,
+              "changeValue": 8.801,
+              "changeYoY": 11.27,
+              "growthContribution": 9.55
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
+              "value": 26.748,
+              "share": 1.32,
+              "rank": 6,
+              "changeValue": 3.727,
+              "changeYoY": 16.19,
+              "growthContribution": 4.04
+            }
+          ],
+          "summary": {
+            "largestSector": "Services",
+            "largestShare": 57.24,
+            "fastestGrowingSector": "Construction",
+            "fastestGrowth": 11.27,
+            "largestGrowthContributor": "Services",
+            "largestContributionValue": 72.132
+          },
+          "narrative": "Services was Malaysia's largest production sector in 2025, accounting for 57.2% of nominal GDP. Construction recorded the fastest current-price increase at +11.3%, while Services added the largest ringgit amount to the annual change (RM +72.1 billion)."
+        }
+      ],
+      "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
+      "message": "Official quarterly observations validated; only complete calendar years are published"
+    },
+    "demand": {
+      "status": "fresh",
+      "retrievedAt": "2026-07-21T07:34:55Z",
+      "observationPeriod": "2025-12-31",
+      "source": "Department of Statistics Malaysia via data.gov.my",
+      "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
+      "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_demand.csv",
+      "frequency": "Annual totals aggregated from quarterly observations",
+      "measure": "GDP at current prices by expenditure type",
+      "unit": "RM billion",
+      "latestYear": 2025,
+      "years": [
+        {
+          "year": 2015,
+          "total": 1176.941,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 635.099,
+              "share": 53.96,
+              "gdpSign": 1,
+              "signedValue": 635.099,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 154.02,
+              "share": 13.09,
+              "gdpSign": 1,
+              "signedValue": 154.02,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 304.423,
+              "share": 25.87,
+              "gdpSign": 1,
+              "signedValue": 304.423,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": -5.195,
+              "share": -0.44,
+              "gdpSign": 1,
+              "signedValue": -5.195,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 817.371,
+              "share": 69.45,
+              "gdpSign": 1,
+              "signedValue": 817.371,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 728.778,
+              "share": 61.92,
+              "gdpSign": -1,
+              "signedValue": -728.778,
+              "changeValue": null,
+              "changeYoY": null,
+              "signedContribution": null
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 69.45,
+            "largestGrowthDriver": "Private consumption",
+            "largestContribution": null,
+            "demandType": "consumption-led"
+          },
+          "narrative": "The expenditure view for 2015 looks consumption-led. Private consumption made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2016,
+          "total": 1249.697,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 684.68,
+              "share": 54.79,
+              "gdpSign": 1,
+              "signedValue": 684.68,
+              "changeValue": 49.581,
+              "changeYoY": 7.81,
+              "signedContribution": 68.15
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 157.024,
+              "share": 12.56,
+              "gdpSign": 1,
+              "signedValue": 157.024,
+              "changeValue": 3.004,
+              "changeYoY": 1.95,
+              "signedContribution": 4.13
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 318.896,
+              "share": 25.52,
+              "gdpSign": 1,
+              "signedValue": 318.896,
+              "changeValue": 14.473,
+              "changeYoY": 4.75,
+              "signedContribution": 19.89
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 5.97,
+              "share": 0.48,
+              "gdpSign": 1,
+              "signedValue": 5.97,
+              "changeValue": 11.165,
+              "changeYoY": -214.92,
+              "signedContribution": 15.35
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 834.491,
+              "share": 66.78,
+              "gdpSign": 1,
+              "signedValue": 834.491,
+              "changeValue": 17.12,
+              "changeYoY": 2.09,
+              "signedContribution": 23.53
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 751.362,
+              "share": 60.12,
+              "gdpSign": -1,
+              "signedValue": -751.362,
+              "changeValue": 22.584,
+              "changeYoY": 3.1,
+              "signedContribution": -31.04
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 66.78,
+            "largestGrowthDriver": "Private consumption",
+            "largestContribution": 68.15,
+            "demandType": "consumption-led"
+          },
+          "narrative": "The expenditure view for 2016 looks consumption-led. Private consumption made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2017,
+          "total": 1372.31,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 760.146,
+              "share": 55.39,
+              "gdpSign": 1,
+              "signedValue": 760.146,
+              "changeValue": 75.466,
+              "changeYoY": 11.02,
+              "signedContribution": 61.55
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 167.32,
+              "share": 12.19,
+              "gdpSign": 1,
+              "signedValue": 167.32,
+              "changeValue": 10.296,
+              "changeYoY": 6.56,
+              "signedContribution": 8.4
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 343.941,
+              "share": 25.06,
+              "gdpSign": 1,
+              "signedValue": 343.941,
+              "changeValue": 25.045,
+              "changeYoY": 7.85,
+              "signedContribution": 20.43
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 6.646,
+              "share": 0.48,
+              "gdpSign": 1,
+              "signedValue": 6.646,
+              "changeValue": 0.676,
+              "changeYoY": 11.32,
+              "signedContribution": 0.55
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 960.779,
+              "share": 70.01,
+              "gdpSign": 1,
+              "signedValue": 960.779,
+              "changeValue": 126.288,
+              "changeYoY": 15.13,
+              "signedContribution": 103.0
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 866.524,
+              "share": 63.14,
+              "gdpSign": -1,
+              "signedValue": -866.524,
+              "changeValue": 115.162,
+              "changeYoY": 15.33,
+              "signedContribution": -93.92
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 70.01,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 103.0,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2017 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2018,
+          "total": 1447.76,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 831.388,
+              "share": 57.43,
+              "gdpSign": 1,
+              "signedValue": 831.388,
+              "changeValue": 71.242,
+              "changeYoY": 9.37,
+              "signedContribution": 94.42
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 173.29,
+              "share": 11.97,
+              "gdpSign": 1,
+              "signedValue": 173.29,
+              "changeValue": 5.97,
+              "changeYoY": 3.57,
+              "signedContribution": 7.91
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 350.365,
+              "share": 24.2,
+              "gdpSign": 1,
+              "signedValue": 350.365,
+              "changeValue": 6.424,
+              "changeYoY": 1.87,
+              "signedContribution": 8.51
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": -4.388,
+              "share": -0.3,
+              "gdpSign": 1,
+              "signedValue": -4.388,
+              "changeValue": -11.034,
+              "changeYoY": -166.02,
+              "signedContribution": -14.62
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 992.512,
+              "share": 68.56,
+              "gdpSign": 1,
+              "signedValue": 992.512,
+              "changeValue": 31.733,
+              "changeYoY": 3.3,
+              "signedContribution": 42.06
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 895.406,
+              "share": 61.85,
+              "gdpSign": -1,
+              "signedValue": -895.406,
+              "changeValue": 28.882,
+              "changeYoY": 3.33,
+              "signedContribution": -38.28
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 68.56,
+            "largestGrowthDriver": "Private consumption",
+            "largestContribution": 94.42,
+            "demandType": "consumption-led"
+          },
+          "narrative": "The expenditure view for 2018 looks consumption-led. Private consumption made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2019,
+          "total": 1512.738,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 904.188,
+              "share": 59.77,
+              "gdpSign": 1,
+              "signedValue": 904.188,
+              "changeValue": 72.8,
+              "changeYoY": 8.76,
+              "signedContribution": 112.04
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 176.281,
+              "share": 11.65,
+              "gdpSign": 1,
+              "signedValue": 176.281,
+              "changeValue": 2.991,
+              "changeYoY": 1.73,
+              "signedContribution": 4.6
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 346.973,
+              "share": 22.94,
+              "gdpSign": 1,
+              "signedValue": 346.973,
+              "changeValue": -3.392,
+              "changeYoY": -0.97,
+              "signedContribution": -5.22
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": -28.569,
+              "share": -1.89,
+              "gdpSign": 1,
+              "signedValue": -28.569,
+              "changeValue": -24.181,
+              "changeYoY": 551.07,
+              "signedContribution": -37.21
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 987.481,
+              "share": 65.28,
+              "gdpSign": 1,
+              "signedValue": 987.481,
+              "changeValue": -5.031,
+              "changeYoY": -0.51,
+              "signedContribution": -7.74
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 873.619,
+              "share": 57.75,
+              "gdpSign": -1,
+              "signedValue": -873.619,
+              "changeValue": -21.787,
+              "changeYoY": -2.43,
+              "signedContribution": 33.53
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 65.28,
+            "largestGrowthDriver": "Private consumption",
+            "largestContribution": 112.04,
+            "demandType": "consumption-led"
+          },
+          "narrative": "The expenditure view for 2019 looks consumption-led. Private consumption made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2020,
+          "total": 1418.49,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 865.451,
+              "share": 61.01,
+              "gdpSign": 1,
+              "signedValue": 865.451,
+              "changeValue": -38.737,
+              "changeYoY": -4.28,
+              "signedContribution": 41.1
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 183.868,
+              "share": 12.96,
+              "gdpSign": 1,
+              "signedValue": 183.868,
+              "changeValue": 7.587,
+              "changeYoY": 4.3,
+              "signedContribution": -8.05
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 296.663,
+              "share": 20.91,
+              "gdpSign": 1,
+              "signedValue": 296.663,
+              "changeValue": -50.31,
+              "changeYoY": -14.5,
+              "signedContribution": 53.38
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": -17.817,
+              "share": -1.26,
+              "gdpSign": 1,
+              "signedValue": -17.817,
+              "changeValue": 10.752,
+              "changeYoY": -37.64,
+              "signedContribution": -11.41
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 873.477,
+              "share": 61.58,
+              "gdpSign": 1,
+              "signedValue": 873.477,
+              "changeValue": -114.004,
+              "changeYoY": -11.54,
+              "signedContribution": 120.96
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 783.153,
+              "share": 55.21,
+              "gdpSign": -1,
+              "signedValue": -783.153,
+              "changeValue": -90.466,
+              "changeYoY": -10.36,
+              "signedContribution": -95.99
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 61.58,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 120.96,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2020 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2021,
+          "total": 1548.701,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 898.359,
+              "share": 58.01,
+              "gdpSign": 1,
+              "signedValue": 898.359,
+              "changeValue": 32.908,
+              "changeYoY": 3.8,
+              "signedContribution": 25.27
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 195.707,
+              "share": 12.64,
+              "gdpSign": 1,
+              "signedValue": 195.707,
+              "changeValue": 11.839,
+              "changeYoY": 6.44,
+              "signedContribution": 9.09
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 298.703,
+              "share": 19.29,
+              "gdpSign": 1,
+              "signedValue": 298.703,
+              "changeValue": 2.04,
+              "changeYoY": 0.69,
+              "signedContribution": 1.57
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 43.958,
+              "share": 2.84,
+              "gdpSign": 1,
+              "signedValue": 43.958,
+              "changeValue": 61.775,
+              "changeYoY": -346.72,
+              "signedContribution": 47.44
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 1093.895,
+              "share": 70.63,
+              "gdpSign": 1,
+              "signedValue": 1093.895,
+              "changeValue": 220.418,
+              "changeYoY": 25.23,
+              "signedContribution": 169.28
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 981.922,
+              "share": 63.4,
+              "gdpSign": -1,
+              "signedValue": -981.922,
+              "changeValue": 198.769,
+              "changeYoY": 25.38,
+              "signedContribution": -152.65
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 70.63,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 169.28,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2021 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2022,
+          "total": 1794.893,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 1034.028,
+              "share": 57.61,
+              "gdpSign": 1,
+              "signedValue": 1034.028,
+              "changeValue": 135.669,
+              "changeYoY": 15.1,
+              "signedContribution": 55.11
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 208.446,
+              "share": 11.61,
+              "gdpSign": 1,
+              "signedValue": 208.446,
+              "changeValue": 12.739,
+              "changeYoY": 6.51,
+              "signedContribution": 5.17
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 326.817,
+              "share": 18.21,
+              "gdpSign": 1,
+              "signedValue": 326.817,
+              "changeValue": 28.114,
+              "changeYoY": 9.41,
+              "signedContribution": 11.42
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 96.532,
+              "share": 5.38,
+              "gdpSign": 1,
+              "signedValue": 96.532,
+              "changeValue": 52.574,
+              "changeYoY": 119.6,
+              "signedContribution": 21.35
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 1378.618,
+              "share": 76.81,
+              "gdpSign": 1,
+              "signedValue": 1378.618,
+              "changeValue": 284.723,
+              "changeYoY": 26.03,
+              "signedContribution": 115.65
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 1249.547,
+              "share": 69.62,
+              "gdpSign": -1,
+              "signedValue": -1249.547,
+              "changeValue": 267.625,
+              "changeYoY": 27.26,
+              "signedContribution": -108.71
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 76.81,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 115.65,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2022 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2023,
+          "total": 1825.325,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 1103.047,
+              "share": 60.43,
+              "gdpSign": 1,
+              "signedValue": 1103.047,
+              "changeValue": 69.019,
+              "changeYoY": 6.67,
+              "signedContribution": 226.8
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 220.26,
+              "share": 12.07,
+              "gdpSign": 1,
+              "signedValue": 220.26,
+              "changeValue": 11.814,
+              "changeYoY": 5.67,
+              "signedContribution": 38.82
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 350.653,
+              "share": 19.21,
+              "gdpSign": 1,
+              "signedValue": 350.653,
+              "changeValue": 23.836,
+              "changeYoY": 7.29,
+              "signedContribution": 78.33
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 64.461,
+              "share": 3.53,
+              "gdpSign": 1,
+              "signedValue": 64.461,
+              "changeValue": -32.071,
+              "changeYoY": -33.22,
+              "signedContribution": -105.39
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 1252.717,
+              "share": 68.63,
+              "gdpSign": 1,
+              "signedValue": 1252.717,
+              "changeValue": -125.901,
+              "changeYoY": -9.13,
+              "signedContribution": -413.71
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 1165.812,
+              "share": 63.87,
+              "gdpSign": -1,
+              "signedValue": -1165.812,
+              "changeValue": -83.735,
+              "changeYoY": -6.7,
+              "signedContribution": 275.15
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 68.63,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": -413.71,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2023 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2024,
+          "total": 1933.209,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 1172.374,
+              "share": 60.64,
+              "gdpSign": 1,
+              "signedValue": 1172.374,
+              "changeValue": 69.327,
+              "changeYoY": 6.29,
+              "signedContribution": 64.26
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 232.934,
+              "share": 12.05,
+              "gdpSign": 1,
+              "signedValue": 232.934,
+              "changeValue": 12.674,
+              "changeYoY": 5.75,
+              "signedContribution": 11.75
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 397.163,
+              "share": 20.54,
+              "gdpSign": 1,
+              "signedValue": 397.163,
+              "changeValue": 46.51,
+              "changeYoY": 13.26,
+              "signedContribution": 43.11
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": 30.842,
+              "share": 1.6,
+              "gdpSign": 1,
+              "signedValue": 30.842,
+              "changeValue": -33.619,
+              "changeYoY": -52.15,
+              "signedContribution": -31.16
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 1381.455,
+              "share": 71.46,
+              "gdpSign": 1,
+              "signedValue": 1381.455,
+              "changeValue": 128.738,
+              "changeYoY": 10.28,
+              "signedContribution": 119.33
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 1281.558,
+              "share": 66.29,
+              "gdpSign": -1,
+              "signedValue": -1281.558,
+              "changeValue": 115.746,
+              "changeYoY": 9.93,
+              "signedContribution": -107.29
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 71.46,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 119.33,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2024 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        },
+        {
+          "year": 2025,
+          "total": 2025.379,
+          "components": [
+            {
+              "id": "e1",
+              "name": "Private consumption",
+              "value": 1248.108,
+              "share": 61.62,
+              "gdpSign": 1,
+              "signedValue": 1248.108,
+              "changeValue": 75.734,
+              "changeYoY": 6.46,
+              "signedContribution": 82.17
+            },
+            {
+              "id": "e2",
+              "name": "Government consumption",
+              "value": 249.138,
+              "share": 12.3,
+              "gdpSign": 1,
+              "signedValue": 249.138,
+              "changeValue": 16.204,
+              "changeYoY": 6.96,
+              "signedContribution": 17.58
+            },
+            {
+              "id": "e3",
+              "name": "Gross fixed capital formation",
+              "value": 431.751,
+              "share": 21.32,
+              "gdpSign": 1,
+              "signedValue": 431.751,
+              "changeValue": 34.588,
+              "changeYoY": 8.71,
+              "signedContribution": 37.53
+            },
+            {
+              "id": "e4",
+              "name": "Inventories and valuables",
+              "value": -14.322,
+              "share": -0.71,
+              "gdpSign": 1,
+              "signedValue": -14.322,
+              "changeValue": -45.164,
+              "changeYoY": -146.44,
+              "signedContribution": -49.0
+            },
+            {
+              "id": "e5",
+              "name": "Exports of goods and services",
+              "value": 1462.781,
+              "share": 72.22,
+              "gdpSign": 1,
+              "signedValue": 1462.781,
+              "changeValue": 81.326,
+              "changeYoY": 5.89,
+              "signedContribution": 88.23
+            },
+            {
+              "id": "e6",
+              "name": "Imports of goods and services",
+              "value": 1352.076,
+              "share": 66.76,
+              "gdpSign": -1,
+              "signedValue": -1352.076,
+              "changeValue": 70.518,
+              "changeYoY": 5.5,
+              "signedContribution": -76.51
+            }
+          ],
+          "summary": {
+            "largestComponent": "Exports of goods and services",
+            "largestShare": 72.22,
+            "largestGrowthDriver": "Exports of goods and services",
+            "largestContribution": 88.23,
+            "demandType": "export-led"
+          },
+          "narrative": "The expenditure view for 2025 looks export-led. Exports of goods and services made the largest absolute contribution to the annual GDP change among the main demand components."
+        }
+      ],
+      "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
+      "message": "Official quarterly expenditure observations validated; complete years only"
+    },
+    "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
+    "message": "Production and expenditure GDP views validated"
+  },
+  "externalSector": {
+    "status": "fresh",
+    "retrievedAt": "2026-07-21T07:34:55Z",
+    "observationPeriod": "2026-04-01",
+    "source": "Department of Statistics Malaysia via data.gov.my",
+    "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
+    "datasetUrl": "https://storage.dosm.gov.my/trade/trade_headline.csv",
+    "frequency": "Monthly",
+    "unit": "RM billion",
+    "points": [
+      {
+        "date": "2000-01-01",
+        "exports": 25.431,
+        "imports": 20.823,
+        "total": 46.255,
+        "balance": 4.608
+      },
+      {
+        "date": "2000-02-01",
+        "exports": 27.283,
+        "imports": 22.067,
+        "total": 49.351,
+        "balance": 5.216
+      },
+      {
+        "date": "2000-03-01",
+        "exports": 31.989,
+        "imports": 24.985,
+        "total": 56.974,
+        "balance": 7.004
+      },
+      {
+        "date": "2000-04-01",
+        "exports": 28.903,
+        "imports": 25.5,
+        "total": 54.403,
+        "balance": 3.402
+      },
+      {
+        "date": "2000-05-01",
+        "exports": 30.269,
+        "imports": 26.032,
+        "total": 56.302,
+        "balance": 4.237
+      },
+      {
+        "date": "2000-06-01",
+        "exports": 31.763,
+        "imports": 26.992,
+        "total": 58.755,
+        "balance": 4.77
+      },
+      {
+        "date": "2000-07-01",
+        "exports": 32.705,
+        "imports": 28.658,
+        "total": 61.362,
+        "balance": 4.047
+      },
+      {
+        "date": "2000-08-01",
+        "exports": 34.008,
+        "imports": 29.09,
+        "total": 63.097,
+        "balance": 4.918
+      },
+      {
+        "date": "2000-09-01",
+        "exports": 34.941,
+        "imports": 28.742,
+        "total": 63.684,
+        "balance": 6.199
+      },
+      {
+        "date": "2000-10-01",
+        "exports": 32.972,
+        "imports": 27.281,
+        "total": 60.253,
+        "balance": 5.691
+      },
+      {
+        "date": "2000-11-01",
+        "exports": 32.779,
+        "imports": 26.765,
+        "total": 59.544,
+        "balance": 6.013
+      },
+      {
+        "date": "2000-12-01",
+        "exports": 30.228,
+        "imports": 24.522,
+        "total": 54.75,
+        "balance": 5.706
+      },
+      {
+        "date": "2001-01-01",
+        "exports": 28.055,
+        "imports": 25.014,
+        "total": 53.069,
+        "balance": 3.041
+      },
+      {
+        "date": "2001-02-01",
+        "exports": 28.435,
+        "imports": 22.202,
+        "total": 50.637,
+        "balance": 6.233
+      },
+      {
+        "date": "2001-03-01",
+        "exports": 29.585,
+        "imports": 25.426,
+        "total": 55.012,
+        "balance": 4.159
+      },
+      {
+        "date": "2001-04-01",
+        "exports": 27.334,
+        "imports": 22.863,
+        "total": 50.197,
+        "balance": 4.47
+      },
+      {
+        "date": "2001-05-01",
+        "exports": 28.03,
+        "imports": 23.22,
+        "total": 51.25,
+        "balance": 4.811
+      },
+      {
+        "date": "2001-06-01",
+        "exports": 27.417,
+        "imports": 24.191,
+        "total": 51.608,
+        "balance": 3.226
+      },
+      {
+        "date": "2001-07-01",
+        "exports": 26.924,
+        "imports": 22.568,
+        "total": 49.492,
+        "balance": 4.355
+      },
+      {
+        "date": "2001-08-01",
+        "exports": 27.665,
+        "imports": 22.201,
+        "total": 49.866,
+        "balance": 5.464
+      },
+      {
+        "date": "2001-09-01",
+        "exports": 27.533,
+        "imports": 22.236,
+        "total": 49.769,
+        "balance": 5.296
+      },
+      {
+        "date": "2001-10-01",
+        "exports": 28.709,
+        "imports": 24.373,
+        "total": 53.082,
+        "balance": 4.336
+      },
+      {
+        "date": "2001-11-01",
+        "exports": 28.33,
+        "imports": 24.353,
+        "total": 52.683,
+        "balance": 3.977
+      },
+      {
+        "date": "2001-12-01",
+        "exports": 26.268,
+        "imports": 21.581,
+        "total": 47.848,
+        "balance": 4.687
+      },
+      {
+        "date": "2002-01-01",
+        "exports": 27.317,
+        "imports": 23.033,
+        "total": 50.35,
+        "balance": 4.284
+      },
+      {
+        "date": "2002-02-01",
+        "exports": 24.013,
+        "imports": 20.364,
+        "total": 44.377,
+        "balance": 3.649
+      },
+      {
+        "date": "2002-03-01",
+        "exports": 30.576,
+        "imports": 25.581,
+        "total": 56.157,
+        "balance": 4.995
+      },
+      {
+        "date": "2002-04-01",
+        "exports": 28.983,
+        "imports": 26.949,
+        "total": 55.932,
+        "balance": 2.034
+      },
+      {
+        "date": "2002-05-01",
+        "exports": 28.996,
+        "imports": 25.368,
+        "total": 54.364,
+        "balance": 3.627
+      },
+      {
+        "date": "2002-06-01",
+        "exports": 29.106,
+        "imports": 24.842,
+        "total": 53.948,
+        "balance": 4.264
+      },
+      {
+        "date": "2002-07-01",
+        "exports": 30.947,
+        "imports": 26.87,
+        "total": 57.817,
+        "balance": 4.077
+      },
+      {
+        "date": "2002-08-01",
+        "exports": 31.51,
+        "imports": 26.831,
+        "total": 58.341,
+        "balance": 4.679
+      },
+      {
+        "date": "2002-09-01",
+        "exports": 31.197,
+        "imports": 26.416,
+        "total": 57.613,
+        "balance": 4.78
+      },
+      {
+        "date": "2002-10-01",
+        "exports": 33.024,
+        "imports": 26.995,
+        "total": 60.019,
+        "balance": 6.029
+      },
+      {
+        "date": "2002-11-01",
+        "exports": 32.075,
+        "imports": 25.606,
+        "total": 57.681,
+        "balance": 6.469
+      },
+      {
+        "date": "2002-12-01",
+        "exports": 29.687,
+        "imports": 24.236,
+        "total": 53.923,
+        "balance": 5.452
+      },
+      {
+        "date": "2003-01-01",
+        "exports": 31.622,
+        "imports": 24.542,
+        "total": 56.164,
+        "balance": 7.08
+      },
+      {
+        "date": "2003-02-01",
+        "exports": 27.007,
+        "imports": 21.284,
+        "total": 48.291,
+        "balance": 5.723
+      },
+      {
+        "date": "2003-03-01",
+        "exports": 33.108,
+        "imports": 25.834,
+        "total": 58.942,
+        "balance": 7.274
+      },
+      {
+        "date": "2003-04-01",
+        "exports": 32.155,
+        "imports": 25.464,
+        "total": 57.619,
+        "balance": 6.691
+      },
+      {
+        "date": "2003-05-01",
+        "exports": 31.952,
+        "imports": 24.973,
+        "total": 56.926,
+        "balance": 6.979
+      },
+      {
+        "date": "2003-06-01",
+        "exports": 32.391,
+        "imports": 24.912,
+        "total": 57.303,
+        "balance": 7.48
+      },
+      {
+        "date": "2003-07-01",
+        "exports": 32.998,
+        "imports": 27.597,
+        "total": 60.595,
+        "balance": 5.401
+      },
+      {
+        "date": "2003-08-01",
+        "exports": 33.462,
+        "imports": 25.519,
+        "total": 58.981,
+        "balance": 7.942
+      },
+      {
+        "date": "2003-09-01",
+        "exports": 34.06,
+        "imports": 27.318,
+        "total": 61.377,
+        "balance": 6.742
+      },
+      {
+        "date": "2003-10-01",
+        "exports": 37.106,
+        "imports": 30.369,
+        "total": 67.475,
+        "balance": 6.737
+      },
+      {
+        "date": "2003-11-01",
+        "exports": 33.256,
+        "imports": 26.603,
+        "total": 59.859,
+        "balance": 6.653
+      },
+      {
+        "date": "2003-12-01",
+        "exports": 38.767,
+        "imports": 32.123,
+        "total": 70.89,
+        "balance": 6.644
+      },
+      {
+        "date": "2004-01-01",
+        "exports": 35.316,
+        "imports": 28.518,
+        "total": 63.834,
+        "balance": 6.798
+      },
+      {
+        "date": "2004-02-01",
+        "exports": 32.433,
+        "imports": 26.382,
+        "total": 58.815,
+        "balance": 6.051
+      },
+      {
+        "date": "2004-03-01",
+        "exports": 40.238,
+        "imports": 33.323,
+        "total": 73.562,
+        "balance": 6.915
+      },
+      {
+        "date": "2004-04-01",
+        "exports": 39.877,
+        "imports": 33.525,
+        "total": 73.402,
+        "balance": 6.351
+      },
+      {
+        "date": "2004-05-01",
+        "exports": 38.631,
+        "imports": 31.589,
+        "total": 70.22,
+        "balance": 7.042
+      },
+      {
+        "date": "2004-06-01",
+        "exports": 39.878,
+        "imports": 34.646,
+        "total": 74.523,
+        "balance": 5.232
+      },
+      {
+        "date": "2004-07-01",
+        "exports": 42.435,
+        "imports": 34.93,
+        "total": 77.365,
+        "balance": 7.505
+      },
+      {
+        "date": "2004-08-01",
+        "exports": 41.529,
+        "imports": 33.33,
+        "total": 74.859,
+        "balance": 8.2
+      },
+      {
+        "date": "2004-09-01",
+        "exports": 44.45,
+        "imports": 37.636,
+        "total": 82.086,
+        "balance": 6.815
+      },
+      {
+        "date": "2004-10-01",
+        "exports": 44.128,
+        "imports": 36.031,
+        "total": 80.16,
+        "balance": 8.097
+      },
+      {
+        "date": "2004-11-01",
+        "exports": 38.742,
+        "imports": 32.77,
+        "total": 71.511,
+        "balance": 5.972
+      },
+      {
+        "date": "2004-12-01",
+        "exports": 43.596,
+        "imports": 36.953,
+        "total": 80.548,
+        "balance": 6.643
+      },
+      {
+        "date": "2005-01-01",
+        "exports": 39.206,
+        "imports": 31.246,
+        "total": 70.452,
+        "balance": 7.96
+      },
+      {
+        "date": "2005-02-01",
+        "exports": 36.825,
+        "imports": 29.46,
+        "total": 66.285,
+        "balance": 7.365
+      },
+      {
+        "date": "2005-03-01",
+        "exports": 46.987,
+        "imports": 36.538,
+        "total": 83.525,
+        "balance": 10.449
+      },
+      {
+        "date": "2005-04-01",
+        "exports": 43.798,
+        "imports": 34.997,
+        "total": 78.794,
+        "balance": 8.801
+      },
+      {
+        "date": "2005-05-01",
+        "exports": 42.916,
+        "imports": 35.96,
+        "total": 78.876,
+        "balance": 6.955
+      },
+      {
+        "date": "2005-06-01",
+        "exports": 44.75,
+        "imports": 36.731,
+        "total": 81.481,
+        "balance": 8.019
+      },
+      {
+        "date": "2005-07-01",
+        "exports": 43.784,
+        "imports": 37.599,
+        "total": 81.384,
+        "balance": 6.185
+      },
+      {
+        "date": "2005-08-01",
+        "exports": 46.746,
+        "imports": 36.654,
+        "total": 83.401,
+        "balance": 10.092
+      },
+      {
+        "date": "2005-09-01",
+        "exports": 48.017,
+        "imports": 39.968,
+        "total": 87.985,
+        "balance": 8.049
+      },
+      {
+        "date": "2005-10-01",
+        "exports": 49.748,
+        "imports": 39.129,
+        "total": 88.878,
+        "balance": 10.619
+      },
+      {
+        "date": "2005-11-01",
+        "exports": 43.712,
+        "imports": 34.611,
+        "total": 78.323,
+        "balance": 9.101
+      },
+      {
+        "date": "2005-12-01",
+        "exports": 49.745,
+        "imports": 39.976,
+        "total": 89.722,
+        "balance": 9.769
+      },
+      {
+        "date": "2006-01-01",
+        "exports": 43.2,
+        "imports": 34.17,
+        "total": 77.37,
+        "balance": 9.029
+      },
+      {
+        "date": "2006-02-01",
+        "exports": 42.409,
+        "imports": 34.733,
+        "total": 77.142,
+        "balance": 7.676
+      },
+      {
+        "date": "2006-03-01",
+        "exports": 51.429,
+        "imports": 41.522,
+        "total": 92.951,
+        "balance": 9.907
+      },
+      {
+        "date": "2006-04-01",
+        "exports": 45.9,
+        "imports": 38.716,
+        "total": 84.616,
+        "balance": 7.184
+      },
+      {
+        "date": "2006-05-01",
+        "exports": 48.244,
+        "imports": 39.923,
+        "total": 88.167,
+        "balance": 8.321
+      },
+      {
+        "date": "2006-06-01",
+        "exports": 49.157,
+        "imports": 40.629,
+        "total": 89.787,
+        "balance": 8.528
+      },
+      {
+        "date": "2006-07-01",
+        "exports": 50.558,
+        "imports": 41.132,
+        "total": 91.69,
+        "balance": 9.427
+      },
+      {
+        "date": "2006-08-01",
+        "exports": 53.41,
+        "imports": 43.088,
+        "total": 96.498,
+        "balance": 10.321
+      },
+      {
+        "date": "2006-09-01",
+        "exports": 53.121,
+        "imports": 42.54,
+        "total": 95.661,
+        "balance": 10.581
+      },
+      {
+        "date": "2006-10-01",
+        "exports": 48.039,
+        "imports": 38.297,
+        "total": 86.336,
+        "balance": 9.742
+      },
+      {
+        "date": "2006-11-01",
+        "exports": 51.331,
+        "imports": 42.045,
+        "total": 93.377,
+        "balance": 9.286
+      },
+      {
+        "date": "2006-12-01",
+        "exports": 52.442,
+        "imports": 41.352,
+        "total": 93.794,
+        "balance": 11.089
+      },
+      {
+        "date": "2007-01-01",
+        "exports": 47.982,
+        "imports": 40.338,
+        "total": 88.32,
+        "balance": 7.644
+      },
+      {
+        "date": "2007-02-01",
+        "exports": 40.895,
+        "imports": 34.116,
+        "total": 75.011,
+        "balance": 6.779
+      },
+      {
+        "date": "2007-03-01",
+        "exports": 48.794,
+        "imports": 42.357,
+        "total": 91.151,
+        "balance": 6.436
+      },
+      {
+        "date": "2007-04-01",
+        "exports": 45.968,
+        "imports": 40.213,
+        "total": 86.181,
+        "balance": 5.756
+      },
+      {
+        "date": "2007-05-01",
+        "exports": 49.702,
+        "imports": 41.572,
+        "total": 91.274,
+        "balance": 8.13
+      },
+      {
+        "date": "2007-06-01",
+        "exports": 49.119,
+        "imports": 40.296,
+        "total": 89.415,
+        "balance": 8.822
+      },
+      {
+        "date": "2007-07-01",
+        "exports": 50.384,
+        "imports": 42.443,
+        "total": 92.828,
+        "balance": 7.941
+      },
+      {
+        "date": "2007-08-01",
+        "exports": 53.863,
+        "imports": 44.591,
+        "total": 98.454,
+        "balance": 9.272
+      },
+      {
+        "date": "2007-09-01",
+        "exports": 54.124,
+        "imports": 42.531,
+        "total": 96.655,
+        "balance": 11.593
+      },
+      {
+        "date": "2007-10-01",
+        "exports": 54.763,
+        "imports": 45.375,
+        "total": 100.138,
+        "balance": 9.388
+      },
+      {
+        "date": "2007-11-01",
+        "exports": 54.454,
+        "imports": 43.949,
+        "total": 98.403,
+        "balance": 10.505
+      },
+      {
+        "date": "2007-12-01",
+        "exports": 54.252,
+        "imports": 44.264,
+        "total": 98.516,
+        "balance": 9.988
+      },
+      {
+        "date": "2008-01-01",
+        "exports": 53.181,
+        "imports": 43.209,
+        "total": 96.39,
+        "balance": 9.971
+      },
+      {
+        "date": "2008-02-01",
+        "exports": 47.266,
+        "imports": 37.903,
+        "total": 85.169,
+        "balance": 9.363
+      },
+      {
+        "date": "2008-03-01",
+        "exports": 51.801,
+        "imports": 43.613,
+        "total": 95.414,
+        "balance": 8.188
+      },
+      {
+        "date": "2008-04-01",
+        "exports": 55.743,
+        "imports": 43.231,
+        "total": 98.974,
+        "balance": 12.512
+      },
+      {
+        "date": "2008-05-01",
+        "exports": 61.171,
+        "imports": 45.404,
+        "total": 106.575,
+        "balance": 15.767
+      },
+      {
+        "date": "2008-06-01",
+        "exports": 58.439,
+        "imports": 45.102,
+        "total": 103.541,
+        "balance": 13.337
+      },
+      {
+        "date": "2008-07-01",
+        "exports": 63.472,
+        "imports": 48.727,
+        "total": 112.199,
+        "balance": 14.744
+      },
+      {
+        "date": "2008-08-01",
+        "exports": 59.972,
+        "imports": 46.857,
+        "total": 106.829,
+        "balance": 13.115
+      },
+      {
+        "date": "2008-09-01",
+        "exports": 62.825,
+        "imports": 47.401,
+        "total": 110.225,
+        "balance": 15.424
+      },
+      {
+        "date": "2008-10-01",
+        "exports": 52.823,
+        "imports": 43.709,
+        "total": 96.532,
+        "balance": 9.115
+      },
+      {
+        "date": "2008-11-01",
+        "exports": 51.308,
+        "imports": 40.212,
+        "total": 91.52,
+        "balance": 11.097
+      },
+      {
+        "date": "2008-12-01",
+        "exports": 45.013,
+        "imports": 34.437,
+        "total": 79.45,
+        "balance": 10.576
+      },
+      {
+        "date": "2009-01-01",
+        "exports": 37.003,
+        "imports": 30.071,
+        "total": 67.073,
+        "balance": 6.932
+      },
+      {
+        "date": "2009-02-01",
+        "exports": 38.456,
+        "imports": 27.362,
+        "total": 65.818,
+        "balance": 11.094
+      },
+      {
+        "date": "2009-03-01",
+        "exports": 42.524,
+        "imports": 30.909,
+        "total": 73.433,
+        "balance": 11.614
+      },
+      {
+        "date": "2009-04-01",
+        "exports": 41.181,
+        "imports": 33.715,
+        "total": 74.896,
+        "balance": 7.466
+      },
+      {
+        "date": "2009-05-01",
+        "exports": 43.101,
+        "imports": 32.996,
+        "total": 76.097,
+        "balance": 10.105
+      },
+      {
+        "date": "2009-06-01",
+        "exports": 45.369,
+        "imports": 35.981,
+        "total": 81.35,
+        "balance": 9.389
+      },
+      {
+        "date": "2009-07-01",
+        "exports": 49.313,
+        "imports": 40.989,
+        "total": 90.302,
+        "balance": 8.324
+      },
+      {
+        "date": "2009-08-01",
+        "exports": 48.291,
+        "imports": 38.255,
+        "total": 86.546,
+        "balance": 10.036
+      },
+      {
+        "date": "2009-09-01",
+        "exports": 47.779,
+        "imports": 37.96,
+        "total": 85.738,
+        "balance": 9.819
+      },
+      {
+        "date": "2009-10-01",
+        "exports": 54.688,
+        "imports": 42.803,
+        "total": 97.491,
+        "balance": 11.885
+      },
+      {
+        "date": "2009-11-01",
+        "exports": 50.085,
+        "imports": 41.116,
+        "total": 91.2,
+        "balance": 8.969
+      },
+      {
+        "date": "2009-12-01",
+        "exports": 54.729,
+        "imports": 42.513,
+        "total": 97.242,
+        "balance": 12.216
+      },
+      {
+        "date": "2010-01-01",
+        "exports": 52.527,
+        "imports": 39.446,
+        "total": 91.973,
+        "balance": 13.081
+      },
+      {
+        "date": "2010-02-01",
+        "exports": 46.641,
+        "imports": 35.105,
+        "total": 81.746,
+        "balance": 11.536
+      },
+      {
+        "date": "2010-03-01",
+        "exports": 59.433,
+        "imports": 45.062,
+        "total": 104.495,
+        "balance": 14.372
+      },
+      {
+        "date": "2010-04-01",
+        "exports": 51.896,
+        "imports": 42.707,
+        "total": 94.603,
+        "balance": 9.189
+      },
+      {
+        "date": "2010-05-01",
+        "exports": 52.29,
+        "imports": 44.094,
+        "total": 96.383,
+        "balance": 8.196
+      },
+      {
+        "date": "2010-06-01",
+        "exports": 52.785,
+        "imports": 46.744,
+        "total": 99.529,
+        "balance": 6.042
+      },
+      {
+        "date": "2010-07-01",
+        "exports": 55.33,
+        "imports": 48.386,
+        "total": 103.716,
+        "balance": 6.944
+      },
+      {
+        "date": "2010-08-01",
+        "exports": 52.795,
+        "imports": 44.523,
+        "total": 97.318,
+        "balance": 8.272
+      },
+      {
+        "date": "2010-09-01",
+        "exports": 50.322,
+        "imports": 43.463,
+        "total": 93.784,
+        "balance": 6.859
+      },
+      {
+        "date": "2010-10-01",
+        "exports": 54.904,
+        "imports": 48.123,
+        "total": 103.027,
+        "balance": 6.781
+      },
+      {
+        "date": "2010-11-01",
+        "exports": 52.637,
+        "imports": 43.7,
+        "total": 96.337,
+        "balance": 8.938
+      },
+      {
+        "date": "2010-12-01",
+        "exports": 57.262,
+        "imports": 47.477,
+        "total": 104.738,
+        "balance": 9.785
+      },
+      {
+        "date": "2011-01-01",
+        "exports": 54.683,
+        "imports": 44.904,
+        "total": 99.587,
+        "balance": 9.779
+      },
+      {
+        "date": "2011-02-01",
+        "exports": 50.074,
+        "imports": 39.233,
+        "total": 89.306,
+        "balance": 10.841
+      },
+      {
+        "date": "2011-03-01",
+        "exports": 62.479,
+        "imports": 50.645,
+        "total": 113.124,
+        "balance": 11.834
+      },
+      {
+        "date": "2011-04-01",
+        "exports": 58.315,
+        "imports": 46.778,
+        "total": 105.093,
+        "balance": 11.537
+      },
+      {
+        "date": "2011-05-01",
+        "exports": 55.354,
+        "imports": 46.604,
+        "total": 101.959,
+        "balance": 8.75
+      },
+      {
+        "date": "2011-06-01",
+        "exports": 59.05,
+        "imports": 50.341,
+        "total": 109.391,
+        "balance": 8.709
+      },
+      {
+        "date": "2011-07-01",
+        "exports": 59.657,
+        "imports": 49.781,
+        "total": 109.438,
+        "balance": 9.876
+      },
+      {
+        "date": "2011-08-01",
+        "exports": 58.623,
+        "imports": 47.549,
+        "total": 106.172,
+        "balance": 11.074
+      },
+      {
+        "date": "2011-09-01",
+        "exports": 58.696,
+        "imports": 49.043,
+        "total": 107.739,
+        "balance": 9.652
+      },
+      {
+        "date": "2011-10-01",
+        "exports": 63.347,
+        "imports": 48.94,
+        "total": 112.287,
+        "balance": 14.407
+      },
+      {
+        "date": "2011-11-01",
+        "exports": 56.821,
+        "imports": 47.358,
+        "total": 104.179,
+        "balance": 9.463
+      },
+      {
+        "date": "2011-12-01",
+        "exports": 60.764,
+        "imports": 52.451,
+        "total": 113.215,
+        "balance": 8.312
+      },
+      {
+        "date": "2012-01-01",
+        "exports": 55.114,
+        "imports": 46.299,
+        "total": 101.413,
+        "balance": 8.814
+      },
+      {
+        "date": "2012-02-01",
+        "exports": 56.961,
+        "imports": 46.281,
+        "total": 103.242,
+        "balance": 10.68
+      },
+      {
+        "date": "2012-03-01",
+        "exports": 62.004,
+        "imports": 51.331,
+        "total": 113.336,
+        "balance": 10.673
+      },
+      {
+        "date": "2012-04-01",
+        "exports": 57.876,
+        "imports": 50.223,
+        "total": 108.099,
+        "balance": 7.654
+      },
+      {
+        "date": "2012-05-01",
+        "exports": 58.931,
+        "imports": 54.167,
+        "total": 113.097,
+        "balance": 4.764
+      },
+      {
+        "date": "2012-06-01",
+        "exports": 61.059,
+        "imports": 51.771,
+        "total": 112.83,
+        "balance": 9.289
+      },
+      {
+        "date": "2012-07-01",
+        "exports": 58.051,
+        "imports": 54.504,
+        "total": 112.556,
+        "balance": 3.547
+      },
+      {
+        "date": "2012-08-01",
+        "exports": 55.668,
+        "imports": 48.872,
+        "total": 104.54,
+        "balance": 6.796
+      },
+      {
+        "date": "2012-09-01",
+        "exports": 59.942,
+        "imports": 53.143,
+        "total": 113.085,
+        "balance": 6.8
+      },
+      {
+        "date": "2012-10-01",
+        "exports": 61.23,
+        "imports": 51.686,
+        "total": 112.916,
+        "balance": 9.543
+      },
+      {
+        "date": "2012-11-01",
+        "exports": 58.317,
+        "imports": 49.378,
+        "total": 107.694,
+        "balance": 8.939
+      },
+      {
+        "date": "2012-12-01",
+        "exports": 57.487,
+        "imports": 49.023,
+        "total": 106.51,
+        "balance": 8.465
+      },
+      {
+        "date": "2013-01-01",
+        "exports": 57.08,
+        "imports": 53.725,
+        "total": 110.805,
+        "balance": 3.355
+      },
+      {
+        "date": "2013-02-01",
+        "exports": 52.493,
+        "imports": 44.255,
+        "total": 96.748,
+        "balance": 8.238
+      },
+      {
+        "date": "2013-03-01",
+        "exports": 60.049,
+        "imports": 55.112,
+        "total": 115.161,
+        "balance": 4.938
+      },
+      {
+        "date": "2013-04-01",
+        "exports": 55.837,
+        "imports": 54.771,
+        "total": 110.608,
+        "balance": 1.065
+      },
+      {
+        "date": "2013-05-01",
+        "exports": 55.657,
+        "imports": 52.922,
+        "total": 108.579,
+        "balance": 2.734
+      },
+      {
+        "date": "2013-06-01",
+        "exports": 56.649,
+        "imports": 52.423,
+        "total": 109.072,
+        "balance": 4.226
+      },
+      {
+        "date": "2013-07-01",
+        "exports": 60.63,
+        "imports": 57.864,
+        "total": 118.494,
+        "balance": 2.766
+      },
+      {
+        "date": "2013-08-01",
+        "exports": 62.796,
+        "imports": 55.789,
+        "total": 118.585,
+        "balance": 7.007
+      },
+      {
+        "date": "2013-09-01",
+        "exports": 63.283,
+        "imports": 54.599,
+        "total": 117.883,
+        "balance": 8.684
+      },
+      {
+        "date": "2013-10-01",
+        "exports": 67.194,
+        "imports": 58.562,
+        "total": 125.755,
+        "balance": 8.632
+      },
+      {
+        "date": "2013-11-01",
+        "exports": 62.409,
+        "imports": 52.524,
+        "total": 114.932,
+        "balance": 9.885
+      },
+      {
+        "date": "2013-12-01",
+        "exports": 65.916,
+        "imports": 56.15,
+        "total": 122.066,
+        "balance": 9.767
+      },
+      {
+        "date": "2014-01-01",
+        "exports": 64.053,
+        "imports": 57.61,
+        "total": 121.663,
+        "balance": 6.444
+      },
+      {
+        "date": "2014-02-01",
+        "exports": 58.928,
+        "imports": 48.478,
+        "total": 107.406,
+        "balance": 10.45
+      },
+      {
+        "date": "2014-03-01",
+        "exports": 64.893,
+        "imports": 55.428,
+        "total": 120.321,
+        "balance": 9.464
+      },
+      {
+        "date": "2014-04-01",
+        "exports": 66.198,
+        "imports": 57.488,
+        "total": 123.686,
+        "balance": 8.709
+      },
+      {
+        "date": "2014-05-01",
+        "exports": 64.75,
+        "imports": 59.163,
+        "total": 123.913,
+        "balance": 5.588
+      },
+      {
+        "date": "2014-06-01",
+        "exports": 61.202,
+        "imports": 57.12,
+        "total": 118.323,
+        "balance": 4.082
+      },
+      {
+        "date": "2014-07-01",
+        "exports": 61.063,
+        "imports": 57.477,
+        "total": 118.539,
+        "balance": 3.586
+      },
+      {
+        "date": "2014-08-01",
+        "exports": 63.89,
+        "imports": 60.02,
+        "total": 123.91,
+        "balance": 3.87
+      },
+      {
+        "date": "2014-09-01",
+        "exports": 64.503,
+        "imports": 55.194,
+        "total": 119.696,
+        "balance": 9.309
+      },
+      {
+        "date": "2014-10-01",
+        "exports": 64.986,
+        "imports": 63.904,
+        "total": 128.89,
+        "balance": 1.083
+      },
+      {
+        "date": "2014-11-01",
+        "exports": 63.591,
+        "imports": 52.599,
+        "total": 116.19,
+        "balance": 10.992
+      },
+      {
+        "date": "2014-12-01",
+        "exports": 67.36,
+        "imports": 58.457,
+        "total": 125.817,
+        "balance": 8.903
+      },
+      {
+        "date": "2015-01-01",
+        "exports": 62.971,
+        "imports": 54.641,
+        "total": 117.613,
+        "balance": 8.33
+      },
+      {
+        "date": "2015-02-01",
+        "exports": 52.474,
+        "imports": 48.644,
+        "total": 101.118,
+        "balance": 3.83
+      },
+      {
+        "date": "2015-03-01",
+        "exports": 65.511,
+        "imports": 58.607,
+        "total": 124.118,
+        "balance": 6.904
+      },
+      {
+        "date": "2015-04-01",
+        "exports": 60.047,
+        "imports": 53.708,
+        "total": 113.754,
+        "balance": 6.339
+      },
+      {
+        "date": "2015-05-01",
+        "exports": 60.419,
+        "imports": 55.077,
+        "total": 115.496,
+        "balance": 5.343
+      },
+      {
+        "date": "2015-06-01",
+        "exports": 64.31,
+        "imports": 56.499,
+        "total": 120.809,
+        "balance": 7.811
+      },
+      {
+        "date": "2015-07-01",
+        "exports": 63.319,
+        "imports": 60.83,
+        "total": 124.149,
+        "balance": 2.489
+      },
+      {
+        "date": "2015-08-01",
+        "exports": 66.573,
+        "imports": 56.333,
+        "total": 122.905,
+        "balance": 10.24
+      },
+      {
+        "date": "2015-09-01",
+        "exports": 70.152,
+        "imports": 60.503,
+        "total": 130.656,
+        "balance": 9.649
+      },
+      {
+        "date": "2015-10-01",
+        "exports": 75.741,
+        "imports": 63.636,
+        "total": 139.377,
+        "balance": 12.106
+      },
+      {
+        "date": "2015-11-01",
+        "exports": 67.563,
+        "imports": 57.385,
+        "total": 124.948,
+        "balance": 10.179
+      },
+      {
+        "date": "2015-12-01",
+        "exports": 68.274,
+        "imports": 59.915,
+        "total": 128.189,
+        "balance": 8.359
+      },
+      {
+        "date": "2016-01-01",
+        "exports": 61.851,
+        "imports": 56.455,
+        "total": 118.306,
+        "balance": 5.396
+      },
+      {
+        "date": "2016-02-01",
+        "exports": 56.717,
+        "imports": 49.366,
+        "total": 106.083,
+        "balance": 7.351
+      },
+      {
+        "date": "2016-03-01",
+        "exports": 66.555,
+        "imports": 55.391,
+        "total": 121.946,
+        "balance": 11.164
+      },
+      {
+        "date": "2016-04-01",
+        "exports": 61.319,
+        "imports": 52.286,
+        "total": 113.605,
+        "balance": 9.034
+      },
+      {
+        "date": "2016-05-01",
+        "exports": 59.99,
+        "imports": 56.773,
+        "total": 116.763,
+        "balance": 3.218
+      },
+      {
+        "date": "2016-06-01",
+        "exports": 66.508,
+        "imports": 60.926,
+        "total": 127.435,
+        "balance": 5.582
+      },
+      {
+        "date": "2016-07-01",
+        "exports": 60.067,
+        "imports": 57.968,
+        "total": 118.035,
+        "balance": 2.1
+      },
+      {
+        "date": "2016-08-01",
+        "exports": 67.668,
+        "imports": 59.045,
+        "total": 126.712,
+        "balance": 8.623
+      },
+      {
+        "date": "2016-09-01",
+        "exports": 68.182,
+        "imports": 60.469,
+        "total": 128.651,
+        "balance": 7.713
+      },
+      {
+        "date": "2016-10-01",
+        "exports": 69.334,
+        "imports": 59.452,
+        "total": 128.786,
+        "balance": 9.882
+      },
+      {
+        "date": "2016-11-01",
+        "exports": 72.971,
+        "imports": 63.858,
+        "total": 136.829,
+        "balance": 9.113
+      },
+      {
+        "date": "2016-12-01",
+        "exports": 75.801,
+        "imports": 66.831,
+        "total": 142.633,
+        "balance": 8.97
+      },
+      {
+        "date": "2017-01-01",
+        "exports": 70.309,
+        "imports": 65.44,
+        "total": 135.749,
+        "balance": 4.87
+      },
+      {
+        "date": "2017-02-01",
+        "exports": 71.979,
+        "imports": 63.059,
+        "total": 135.038,
+        "balance": 8.921
+      },
+      {
+        "date": "2017-03-01",
+        "exports": 82.891,
+        "imports": 77.24,
+        "total": 160.131,
+        "balance": 5.651
+      },
+      {
+        "date": "2017-04-01",
+        "exports": 74.243,
+        "imports": 65.211,
+        "total": 139.454,
+        "balance": 9.033
+      },
+      {
+        "date": "2017-05-01",
+        "exports": 79.216,
+        "imports": 72.973,
+        "total": 152.189,
+        "balance": 6.243
+      },
+      {
+        "date": "2017-06-01",
+        "exports": 72.824,
+        "imports": 62.627,
+        "total": 135.451,
+        "balance": 10.196
+      },
+      {
+        "date": "2017-07-01",
+        "exports": 78.748,
+        "imports": 70.59,
+        "total": 149.337,
+        "balance": 8.158
+      },
+      {
+        "date": "2017-08-01",
+        "exports": 82.025,
+        "imports": 72.113,
+        "total": 154.138,
+        "balance": 9.912
+      },
+      {
+        "date": "2017-09-01",
+        "exports": 77.861,
+        "imports": 69.65,
+        "total": 147.512,
+        "balance": 8.211
+      },
+      {
+        "date": "2017-10-01",
+        "exports": 81.862,
+        "imports": 71.851,
+        "total": 153.713,
+        "balance": 10.011
+      },
+      {
+        "date": "2017-11-01",
+        "exports": 83.486,
+        "imports": 73.552,
+        "total": 157.038,
+        "balance": 9.934
+      },
+      {
+        "date": "2017-12-01",
+        "exports": 79.482,
+        "imports": 72.116,
+        "total": 151.598,
+        "balance": 7.366
+      },
+      {
+        "date": "2018-01-01",
+        "exports": 83.252,
+        "imports": 73.201,
+        "total": 156.454,
+        "balance": 10.051
+      },
+      {
+        "date": "2018-02-01",
+        "exports": 70.552,
+        "imports": 61.417,
+        "total": 131.969,
+        "balance": 9.136
+      },
+      {
+        "date": "2018-03-01",
+        "exports": 84.856,
+        "imports": 69.897,
+        "total": 154.752,
+        "balance": 14.959
+      },
+      {
+        "date": "2018-04-01",
+        "exports": 84.636,
+        "imports": 71.374,
+        "total": 156.01,
+        "balance": 13.263
+      },
+      {
+        "date": "2018-05-01",
+        "exports": 82.862,
+        "imports": 74.04,
+        "total": 156.902,
+        "balance": 8.822
+      },
+      {
+        "date": "2018-06-01",
+        "exports": 78.845,
+        "imports": 72.746,
+        "total": 151.591,
+        "balance": 6.099
+      },
+      {
+        "date": "2018-07-01",
+        "exports": 86.475,
+        "imports": 78.349,
+        "total": 164.824,
+        "balance": 8.125
+      },
+      {
+        "date": "2018-08-01",
+        "exports": 81.982,
+        "imports": 80.536,
+        "total": 162.518,
+        "balance": 1.446
+      },
+      {
+        "date": "2018-09-01",
+        "exports": 83.342,
+        "imports": 67.771,
+        "total": 151.113,
+        "balance": 15.571
+      },
+      {
+        "date": "2018-10-01",
+        "exports": 97.122,
+        "imports": 80.27,
+        "total": 177.392,
+        "balance": 16.852
+      },
+      {
+        "date": "2018-11-01",
+        "exports": 85.543,
+        "imports": 77.046,
+        "total": 162.589,
+        "balance": 8.496
+      },
+      {
+        "date": "2018-12-01",
+        "exports": 84.12,
+        "imports": 73.157,
+        "total": 157.276,
+        "balance": 10.963
+      },
+      {
+        "date": "2019-01-01",
+        "exports": 86.341,
+        "imports": 73.922,
+        "total": 160.262,
+        "balance": 12.419
+      },
+      {
+        "date": "2019-02-01",
+        "exports": 67.683,
+        "imports": 55.567,
+        "total": 123.25,
+        "balance": 12.116
+      },
+      {
+        "date": "2019-03-01",
+        "exports": 85.677,
+        "imports": 69.681,
+        "total": 155.358,
+        "balance": 15.996
+      },
+      {
+        "date": "2019-04-01",
+        "exports": 86.228,
+        "imports": 74.377,
+        "total": 160.605,
+        "balance": 11.851
+      },
+      {
+        "date": "2019-05-01",
+        "exports": 84.679,
+        "imports": 75.109,
+        "total": 159.787,
+        "balance": 9.57
+      },
+      {
+        "date": "2019-06-01",
+        "exports": 76.691,
+        "imports": 65.63,
+        "total": 142.321,
+        "balance": 11.061
+      },
+      {
+        "date": "2019-07-01",
+        "exports": 89.765,
+        "imports": 73.796,
+        "total": 163.561,
+        "balance": 15.969
+      },
+      {
+        "date": "2019-08-01",
+        "exports": 81.513,
+        "imports": 70.461,
+        "total": 151.974,
+        "balance": 11.052
+      },
+      {
+        "date": "2019-09-01",
+        "exports": 78.252,
+        "imports": 69.438,
+        "total": 147.689,
+        "balance": 8.814
+      },
+      {
+        "date": "2019-10-01",
+        "exports": 90.861,
+        "imports": 73.289,
+        "total": 164.15,
+        "balance": 17.572
+      },
+      {
+        "date": "2019-11-01",
+        "exports": 80.947,
+        "imports": 74.261,
+        "total": 155.208,
+        "balance": 6.686
+      },
+      {
+        "date": "2019-12-01",
+        "exports": 86.436,
+        "imports": 73.88,
+        "total": 160.316,
+        "balance": 12.556
+      },
+      {
+        "date": "2020-01-01",
+        "exports": 84.288,
+        "imports": 72.25,
+        "total": 156.538,
+        "balance": 12.039
+      },
+      {
+        "date": "2020-02-01",
+        "exports": 74.604,
+        "imports": 62.16,
+        "total": 136.765,
+        "balance": 12.444
+      },
+      {
+        "date": "2020-03-01",
+        "exports": 80.229,
+        "imports": 68.737,
+        "total": 148.966,
+        "balance": 11.492
+      },
+      {
+        "date": "2020-04-01",
+        "exports": 64.911,
+        "imports": 69.376,
+        "total": 134.287,
+        "balance": -4.465
+      },
+      {
+        "date": "2020-05-01",
+        "exports": 62.801,
+        "imports": 52.943,
+        "total": 115.744,
+        "balance": 9.858
+      },
+      {
+        "date": "2020-06-01",
+        "exports": 82.905,
+        "imports": 62.996,
+        "total": 145.901,
+        "balance": 19.91
+      },
+      {
+        "date": "2020-07-01",
+        "exports": 92.682,
+        "imports": 67.424,
+        "total": 160.106,
+        "balance": 25.258
+      },
+      {
+        "date": "2020-08-01",
+        "exports": 80.754,
+        "imports": 65.975,
+        "total": 146.729,
+        "balance": 14.779
+      },
+      {
+        "date": "2020-09-01",
+        "exports": 88.892,
+        "imports": 66.956,
+        "total": 155.848,
+        "balance": 21.936
+      },
+      {
+        "date": "2020-10-01",
+        "exports": 91.19,
+        "imports": 68.931,
+        "total": 160.121,
+        "balance": 22.259
+      },
+      {
+        "date": "2020-11-01",
+        "exports": 84.721,
+        "imports": 67.617,
+        "total": 152.338,
+        "balance": 17.105
+      },
+      {
+        "date": "2020-12-01",
+        "exports": 95.848,
+        "imports": 75.117,
+        "total": 170.964,
+        "balance": 20.731
+      },
+      {
+        "date": "2021-01-01",
+        "exports": 89.677,
+        "imports": 73.058,
+        "total": 162.734,
+        "balance": 16.619
+      },
+      {
+        "date": "2021-02-01",
+        "exports": 87.804,
+        "imports": 69.68,
+        "total": 157.484,
+        "balance": 18.124
+      },
+      {
+        "date": "2021-03-01",
+        "exports": 105.228,
+        "imports": 80.867,
+        "total": 186.095,
+        "balance": 24.361
+      },
+      {
+        "date": "2021-04-01",
+        "exports": 105.631,
+        "imports": 85.293,
+        "total": 190.924,
+        "balance": 20.338
+      },
+      {
+        "date": "2021-05-01",
+        "exports": 92.387,
+        "imports": 78.532,
+        "total": 170.919,
+        "balance": 13.856
+      },
+      {
+        "date": "2021-06-01",
+        "exports": 105.317,
+        "imports": 83.217,
+        "total": 188.534,
+        "balance": 22.1
+      },
+      {
+        "date": "2021-07-01",
+        "exports": 97.124,
+        "imports": 83.564,
+        "total": 180.689,
+        "balance": 13.56
+      },
+      {
+        "date": "2021-08-01",
+        "exports": 95.379,
+        "imports": 74.245,
+        "total": 169.624,
+        "balance": 21.134
+      },
+      {
+        "date": "2021-09-01",
+        "exports": 110.882,
+        "imports": 84.65,
+        "total": 195.533,
+        "balance": 26.232
+      },
+      {
+        "date": "2021-10-01",
+        "exports": 114.488,
+        "imports": 87.905,
+        "total": 202.394,
+        "balance": 26.583
+      },
+      {
+        "date": "2021-11-01",
+        "exports": 112.671,
+        "imports": 93.384,
+        "total": 206.054,
+        "balance": 19.287
+      },
+      {
+        "date": "2021-12-01",
+        "exports": 124.433,
+        "imports": 92.949,
+        "total": 217.381,
+        "balance": 31.484
+      },
+      {
+        "date": "2022-01-01",
+        "exports": 111.06,
+        "imports": 92.822,
+        "total": 203.882,
+        "balance": 18.238
+      },
+      {
+        "date": "2022-02-01",
+        "exports": 101.742,
+        "imports": 82.589,
+        "total": 184.331,
+        "balance": 19.152
+      },
+      {
+        "date": "2022-03-01",
+        "exports": 131.488,
+        "imports": 105.244,
+        "total": 236.732,
+        "balance": 26.244
+      },
+      {
+        "date": "2022-04-01",
+        "exports": 127.483,
+        "imports": 104.107,
+        "total": 231.59,
+        "balance": 23.375
+      },
+      {
+        "date": "2022-05-01",
+        "exports": 120.59,
+        "imports": 107.791,
+        "total": 228.381,
+        "balance": 12.798
+      },
+      {
+        "date": "2022-06-01",
+        "exports": 144.275,
+        "imports": 121.094,
+        "total": 265.369,
+        "balance": 23.182
+      },
+      {
+        "date": "2022-07-01",
+        "exports": 134.326,
+        "imports": 118.487,
+        "total": 252.812,
+        "balance": 15.839
+      },
+      {
+        "date": "2022-08-01",
+        "exports": 141.519,
+        "imports": 124.231,
+        "total": 265.75,
+        "balance": 17.288
+      },
+      {
+        "date": "2022-09-01",
+        "exports": 144.25,
+        "imports": 112.41,
+        "total": 256.66,
+        "balance": 31.839
+      },
+      {
+        "date": "2022-10-01",
+        "exports": 131.977,
+        "imports": 113.518,
+        "total": 245.495,
+        "balance": 18.459
+      },
+      {
+        "date": "2022-11-01",
+        "exports": 129.694,
+        "imports": 107.89,
+        "total": 237.584,
+        "balance": 21.804
+      },
+      {
+        "date": "2022-12-01",
+        "exports": 131.606,
+        "imports": 103.626,
+        "total": 235.232,
+        "balance": 27.98
+      },
+      {
+        "date": "2023-01-01",
+        "exports": 112.666,
+        "imports": 94.508,
+        "total": 207.174,
+        "balance": 18.157
+      },
+      {
+        "date": "2023-02-01",
+        "exports": 112.682,
+        "imports": 92.703,
+        "total": 205.385,
+        "balance": 19.979
+      },
+      {
+        "date": "2023-03-01",
+        "exports": 129.745,
+        "imports": 104.469,
+        "total": 234.213,
+        "balance": 25.276
+      },
+      {
+        "date": "2023-04-01",
+        "exports": 105.166,
+        "imports": 93.821,
+        "total": 198.986,
+        "balance": 11.345
+      },
+      {
+        "date": "2023-05-01",
+        "exports": 119.516,
+        "imports": 104.105,
+        "total": 223.62,
+        "balance": 15.411
+      },
+      {
+        "date": "2023-06-01",
+        "exports": 123.942,
+        "imports": 94.875,
+        "total": 218.817,
+        "balance": 29.067
+      },
+      {
+        "date": "2023-07-01",
+        "exports": 116.765,
+        "imports": 99.458,
+        "total": 216.224,
+        "balance": 17.307
+      },
+      {
+        "date": "2023-08-01",
+        "exports": 115.181,
+        "imports": 97.85,
+        "total": 213.031,
+        "balance": 17.33
+      },
+      {
+        "date": "2023-09-01",
+        "exports": 124.334,
+        "imports": 99.937,
+        "total": 224.271,
+        "balance": 24.398
+      },
+      {
+        "date": "2023-10-01",
+        "exports": 126.152,
+        "imports": 113.187,
+        "total": 239.339,
+        "balance": 12.964
+      },
+      {
+        "date": "2023-11-01",
+        "exports": 121.604,
+        "imports": 109.501,
+        "total": 231.105,
+        "balance": 12.103
+      },
+      {
+        "date": "2023-12-01",
+        "exports": 118.447,
+        "imports": 106.631,
+        "total": 225.078,
+        "balance": 11.816
+      },
+      {
+        "date": "2024-01-01",
+        "exports": 122.41,
+        "imports": 112.238,
+        "total": 234.648,
+        "balance": 10.173
+      },
+      {
+        "date": "2024-02-01",
+        "exports": 111.357,
+        "imports": 100.116,
+        "total": 211.473,
+        "balance": 11.241
+      },
+      {
+        "date": "2024-03-01",
+        "exports": 128.565,
+        "imports": 115.845,
+        "total": 244.41,
+        "balance": 12.719
+      },
+      {
+        "date": "2024-04-01",
+        "exports": 114.695,
+        "imports": 106.954,
+        "total": 221.649,
+        "balance": 7.742
+      },
+      {
+        "date": "2024-05-01",
+        "exports": 128.037,
+        "imports": 118.083,
+        "total": 246.12,
+        "balance": 9.955
+      },
+      {
+        "date": "2024-06-01",
+        "exports": 126.017,
+        "imports": 100.414,
+        "total": 226.43,
+        "balance": 25.603
+      },
+      {
+        "date": "2024-07-01",
+        "exports": 131.147,
+        "imports": 105.035,
+        "total": 236.181,
+        "balance": 26.112
+      },
+      {
+        "date": "2024-08-01",
+        "exports": 129.004,
+        "imports": 123.49,
+        "total": 252.493,
+        "balance": 5.514
+      },
+      {
+        "date": "2024-09-01",
+        "exports": 123.557,
+        "imports": 110.79,
+        "total": 234.347,
+        "balance": 12.767
+      },
+      {
+        "date": "2024-10-01",
+        "exports": 128.139,
+        "imports": 116.269,
+        "total": 244.408,
+        "balance": 11.869
+      },
+      {
+        "date": "2024-11-01",
+        "exports": 126.31,
+        "imports": 111.259,
+        "total": 237.569,
+        "balance": 15.05
+      },
+      {
+        "date": "2024-12-01",
+        "exports": 138.476,
+        "imports": 119.342,
+        "total": 257.818,
+        "balance": 19.134
+      },
+      {
+        "date": "2025-01-01",
+        "exports": 122.814,
+        "imports": 119.155,
+        "total": 241.969,
+        "balance": 3.659
+      },
+      {
+        "date": "2025-02-01",
+        "exports": 118.242,
+        "imports": 105.625,
+        "total": 223.867,
+        "balance": 12.617
+      },
+      {
+        "date": "2025-03-01",
+        "exports": 137.304,
+        "imports": 112.535,
+        "total": 249.838,
+        "balance": 24.769
+      },
+      {
+        "date": "2025-04-01",
+        "exports": 133.499,
+        "imports": 128.369,
+        "total": 261.869,
+        "balance": 5.13
+      },
+      {
+        "date": "2025-05-01",
+        "exports": 126.618,
+        "imports": 125.858,
+        "total": 252.475,
+        "balance": 0.76
+      },
+      {
+        "date": "2025-06-01",
+        "exports": 121.55,
+        "imports": 113.145,
+        "total": 234.695,
+        "balance": 8.404
+      },
+      {
+        "date": "2025-07-01",
+        "exports": 140.063,
+        "imports": 125.458,
+        "total": 265.52,
+        "balance": 14.605
+      },
+      {
+        "date": "2025-08-01",
+        "exports": 131.318,
+        "imports": 115.469,
+        "total": 246.787,
+        "balance": 15.85
+      },
+      {
+        "date": "2025-09-01",
+        "exports": 139.026,
+        "imports": 118.796,
+        "total": 257.822,
+        "balance": 20.23
+      },
+      {
+        "date": "2025-10-01",
+        "exports": 148.33,
+        "imports": 127.912,
+        "total": 276.242,
+        "balance": 20.418
+      },
+      {
+        "date": "2025-11-01",
+        "exports": 134.935,
+        "imports": 128.85,
+        "total": 263.785,
+        "balance": 6.085
+      },
+      {
+        "date": "2025-12-01",
+        "exports": 152.775,
+        "imports": 130.708,
+        "total": 283.483,
+        "balance": 22.066
+      },
+      {
+        "date": "2026-01-01",
+        "exports": 146.828,
+        "imports": 124.869,
+        "total": 271.697,
+        "balance": 21.958
+      },
+      {
+        "date": "2026-02-01",
+        "exports": 130.952,
+        "imports": 114.244,
+        "total": 245.197,
+        "balance": 16.708
+      },
+      {
+        "date": "2026-03-01",
+        "exports": 148.788,
+        "imports": 124.291,
+        "total": 273.079,
+        "balance": 24.497
+      },
+      {
+        "date": "2026-04-01",
+        "exports": 182.743,
+        "imports": 153.991,
+        "total": 336.733,
+        "balance": 28.752
+      }
+    ],
+    "summary": {
+      "latestDate": "2026-04-01",
+      "exports": 182.743,
+      "imports": 153.991,
+      "total": 336.733,
+      "balance": 28.752,
+      "exportsYoY": 36.89,
+      "importsYoY": 19.96,
+      "last12Balance": 200.333,
+      "prior12Balance": 172.179,
+      "tradeReading": "exports outpaced imports"
+    },
+    "narratives": {
+      "performance": "In the latest month, Malaysia recorded RM 182.7 billion of goods exports and RM 154.0 billion of goods imports, leaving a RM 28.8 billion trade balance.",
+      "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance."
+    },
+    "message": "Official monthly trade headline data validated"
+  },
+  "riskHeatmap": {
+    "generatedAt": "2026-07-21T07:34:55Z",
+    "status": "fresh",
+    "overallScore": 35.0,
+    "overallLevel": "low",
+    "summary": "The current macro risk screen is low. The highest-pressure signals are Policy rate, 10-year MGS yield, Bursa large-cap market.",
+    "method": "Deterministic rules combine latest levels, recent changes, historical percentile checks and market/trade summaries. Scores are descriptive screens, not forecasts or causal estimates.",
+    "items": [
+      {
+        "id": "headline",
+        "label": "Headline inflation",
+        "group": "Prices",
+        "score": 25,
+        "level": "low",
+        "evidence": "Latest headline CPI inflation is 1.9%.",
+        "rule": "Low below 2%, moderate from 2-3%, high at 3% or above.",
+        "period": "2026-06-01",
+        "watch": "Watch food, transport and administered-price categories."
+      },
+      {
+        "id": "core",
+        "label": "Core inflation",
+        "group": "Prices",
+        "score": 25,
+        "level": "low",
+        "evidence": "Latest core inflation is 1.9%; 3-month change is -0.2 pp.",
+        "rule": "Low below 2%, moderate from 2-3%, high at 3% or above.",
+        "period": "2026-06-01",
+        "watch": "Persistent core pressure matters more than one monthly headline move."
+      },
+      {
+        "id": "unemployment",
+        "label": "Labour market",
+        "group": "Households",
+        "score": 25,
+        "level": "low",
+        "evidence": "Unemployment is 3.0%.",
+        "rule": "Low below 4%, moderate from 4-5%, high at 5% or above.",
+        "period": "2026-05-01",
+        "watch": "National unemployment can hide sector and regional weakness."
+      },
+      {
+        "id": "opr",
+        "label": "Policy rate",
+        "group": "Financial conditions",
+        "score": 55,
+        "level": "moderate",
+        "evidence": "OPR is 2.75%.",
+        "rule": "Low below 2.50%, moderate from 2.50-3.25%, high above 3.25%.",
+        "period": "2026-05-07",
+        "watch": "The real policy stance also depends on expected inflation."
+      },
+      {
+        "id": "fx",
+        "label": "USD/MYR pressure",
+        "group": "External",
+        "score": 30,
+        "level": "low",
+        "evidence": "USD/MYR is RM 4.0375, at the 65.8th percentile of this dashboard history.",
+        "rule": "Higher USD/MYR levels receive higher imported-cost pressure scores.",
+        "period": "2026-03-01",
+        "watch": "A weaker ringgit can help exporters while raising imported costs."
+      },
+      {
+        "id": "mgs",
+        "label": "10-year MGS yield",
+        "group": "Financial conditions",
+        "score": 55,
+        "level": "moderate",
+        "evidence": "10-year MGS yield is 3.63%.",
+        "rule": "Low below 3.50%, moderate from 3.50-4.25%, high above 4.25%.",
+        "period": "2026-07-16",
+        "watch": "Bond yields reflect policy expectations, term premium and global rates."
+      },
+      {
+        "id": "bursa",
+        "label": "Bursa large-cap market",
+        "group": "Markets",
+        "score": 35,
+        "level": "low",
+        "evidence": "KLCI one-year price return is +12.7% with a 6.5% max drawdown.",
+        "rule": "Higher pressure when one-year return is negative or drawdown is large.",
+        "period": "2026-07-21",
+        "watch": "Index performance excludes dividends, fees and taxes."
+      },
+      {
+        "id": "growth",
+        "label": "GDP growth drivers",
+        "group": "Growth",
+        "score": 35,
+        "level": "low",
+        "evidence": "Latest demand screen is export-led.",
+        "rule": "Lower pressure when a clear demand engine is visible; higher when only partial evidence is available.",
+        "period": "2025-12-31",
+        "watch": "Current-price GDP combines volume and price effects."
+      },
+      {
+        "id": "trade",
+        "label": "Goods trade balance",
+        "group": "External",
+        "score": 30,
+        "level": "low",
+        "evidence": "Latest goods trade balance is RM +28.8 billion; exports YoY +36.9%, imports YoY +20.0%.",
+        "rule": "Higher pressure when trade balance is negative or imports grow faster than exports.",
+        "period": "2026-04-01",
+        "watch": "Goods trade excludes services and income flows."
+      }
+    ]
+  },
+  "latestBrief": {
+    "generatedAt": "2026-07-21T07:34:55Z",
+    "status": "fresh",
+    "period": "2026-06-01",
+    "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.9%.",
+    "whatChanged": [
+      "Headline inflation moved -0.1 percentage points from the prior monthly release.",
+      "The ringgit moved -0.02 against the US dollar over the latest three-month dashboard window.",
+      "The FBM KLCI one-year price return is +12.7%, while the latest goods trade balance is RM +28.8 billion."
+    ],
+    "whyItMayHaveHappened": [
+      "Inflation changes can reflect category-level CPI pressure, policy effects, administered prices and imported costs.",
+      "Exchange-rate and bond-yield changes may reflect both Malaysian conditions and global interest-rate or risk-appetite shifts.",
+      "GDP and trade readings help separate domestic demand from external demand, but they are not causal proof for market moves."
+    ],
+    "watchNext": [
+      "Policy rate: The real policy stance also depends on expected inflation.",
+      "10-year MGS yield: Bond yields reflect policy expectations, term premium and global rates.",
+      "Bursa large-cap market: Index performance excludes dividends, fees and taxes."
+    ],
+    "implications": [
+      "Individuals should stress-test savings, debt repayments and job resilience against the highest-pressure signals.",
+      "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
+      "The three-month inflation forecast ends at 1.80%, but the prediction intervals are more important than the point estimate."
+    ],
+    "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice."
+  },
   "decisionGuide": {
-    "generatedAt": "2026-07-20T08:27:48Z",
+    "generatedAt": "2026-07-21T07:34:55Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
-    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +12.8% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +12.7% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
       {
         "label": "Headline inflation",
@@ -17049,14 +21165,14 @@
       },
       {
         "label": "10-year MGS",
-        "value": "3.65%",
-        "period": "2026-07-17",
+        "value": "3.63%",
+        "period": "2026-07-16",
         "reading": "long-term government benchmark yield"
       },
       {
         "label": "KLCI 1-year",
-        "value": "+12.8%",
-        "period": "2026-07-20",
+        "value": "+12.7%",
+        "period": "2026-07-21",
         "reading": "positive price performance"
       }
     ],
@@ -17080,7 +21196,7 @@
           "theme": "Stocks and long-term investing",
           "stance": "Avoid chasing",
           "title": "Use goals and diversification, not the latest index move",
-          "evidence": "The FBM KLCI's latest one-year price return is +12.8% and its measured one-year volatility is 9.4%.",
+          "evidence": "The FBM KLCI's latest one-year price return is +12.7% and its measured one-year volatility is 9.4%.",
           "actions": [
             "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
             "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
@@ -17093,7 +21209,7 @@
           "theme": "Property and borrowing",
           "stance": "Stress-test",
           "title": "Test affordability before relying on property appreciation",
-          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.65%, both relevant reference points for financing conditions.",
+          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.63%, both relevant reference points for financing conditions.",
           "actions": [
             "Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.",
             "Recalculate repayments under a higher-rate scenario and a temporary income interruption.",
@@ -17113,6 +21229,32 @@
             "Direct pay increases or bonuses toward high-cost debt, emergency savings and long-term goals before lifestyle expansion."
           ],
           "watch": "Sector hiring, contract type and individual employability can diverge sharply from the national unemployment rate."
+        },
+        {
+          "id": "debt-reset",
+          "theme": "Debt and repayments",
+          "stance": "Check buffers",
+          "title": "Review variable-rate and short-tenor commitments",
+          "evidence": "The dashboard heatmap labels policy-rate pressure as moderate and 10-year MGS pressure as moderate.",
+          "actions": [
+            "List every debt repayment date, rate type and reset date.",
+            "Check whether a higher instalment still leaves room for essentials and emergency savings.",
+            "Avoid using short-term promotional rates as the only affordability test."
+          ],
+          "watch": "Lending rates depend on individual credit profile, bank policy and product terms, not only national benchmark rates."
+        },
+        {
+          "id": "imported-costs",
+          "theme": "Daily prices and imported goods",
+          "stance": "Compare baskets",
+          "title": "Watch imported-cost pressure in your own spending",
+          "evidence": "USD/MYR is RM 4.0375; latest goods imports are RM 154.0 billion where trade data are available.",
+          "actions": [
+            "Track recurring imported or foreign-currency-linked spending separately.",
+            "Compare total cost after shipping, tax, warranties and exchange-rate conversion.",
+            "Keep subscription and discretionary spending flexible when currency pressure is elevated."
+          ],
+          "watch": "A national exchange-rate move does not affect every household basket equally."
         }
       ],
       "companies": [
@@ -17121,7 +21263,7 @@
           "theme": "Cash flow and funding",
           "stance": "Protect liquidity",
           "title": "Review debt sensitivity and idle-cash policy",
-          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.65%. Borrowing still carries a meaningful financing cost.",
+          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.63%. Borrowing still carries a meaningful financing cost.",
           "actions": [
             "Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.",
             "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.",
@@ -17160,13 +21302,39 @@
           "theme": "Hiring and investment",
           "stance": "Stage commitments",
           "title": "Link hiring and capital spending to demand evidence",
-          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is positive at +12.8%.",
+          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is positive at +12.7%.",
           "actions": [
             "Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.",
             "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.",
             "Model downside demand, financing and FX assumptions before approving irreversible expenditure."
           ],
           "watch": "A stock index and national unemployment rate are broad signals, not company-specific revenue forecasts."
+        },
+        {
+          "id": "inventory-imports",
+          "theme": "Inventory and import exposure",
+          "stance": "Stress landed cost",
+          "title": "Tie inventory decisions to FX and trade evidence",
+          "evidence": "Goods imports grew +20.0% year on year, while USD/MYR is RM 4.0375.",
+          "actions": [
+            "Separate essential stock buffers from speculative over-ordering.",
+            "Reprice landed cost assumptions using adverse FX and freight scenarios.",
+            "Review supplier currency, payment timing and contract pass-through clauses."
+          ],
+          "watch": "Trade aggregates do not reveal firm-level demand, supplier reliability or margin quality."
+        },
+        {
+          "id": "business-risk-gates",
+          "theme": "Scenario governance",
+          "stance": "Use triggers",
+          "title": "Set decision gates around the highest-risk signals",
+          "evidence": "The current heatmap is low pressure, led by Headline inflation, Core inflation.",
+          "actions": [
+            "Define measurable triggers before hiring, capex, refinancing or price changes.",
+            "Assign owners for inflation, FX, cash-flow and sales indicators.",
+            "Review decisions monthly after official releases instead of reacting to headlines."
+          ],
+          "watch": "A heatmap is a monitoring tool; it cannot replace customer, supplier and balance-sheet evidence."
         }
       ]
     },
@@ -17192,7 +21360,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-07-20T08:27:48Z",
+    "lastSuccessfulRefresh": "2026-07-21T07:34:55Z",
     "vintageCount": 2,
     "latestVintagePeriod": "2026-06",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",

@@ -161,8 +161,8 @@ def test_decision_guide_is_data_linked_and_balanced_for_both_audiences():
     market = {"status": "fresh", "summary": {"return1Y": 8.4, "annualizedVolatility1Y": 11.2, "latestDate": "2026-07-17"}}
     guide = macrolens.build_decision_guide(series, market, "2026-07-19T00:00:00Z")
     assert "2.0% headline inflation" in guide["summary"]
-    assert len(guide["audiences"]["individuals"]) == 4
-    assert len(guide["audiences"]["companies"]) == 4
+    assert len(guide["audiences"]["individuals"]) >= 6
+    assert len(guide["audiences"]["companies"]) >= 6
     assert all(len(card["actions"]) == 3 and card["watch"] for cards in guide["audiences"].values() for card in cards)
     assert "not personalised" in guide["disclaimer"].lower()
 
@@ -205,3 +205,86 @@ def test_economic_structure_failure_preserves_last_valid_result(monkeypatch):
     result = macrolens.build_economic_structure(previous, "2026-01-01T00:00:00Z")
     assert result["status"] == "stale"
     assert result["years"] == previous["economicStructure"]["years"]
+
+
+def gdp_demand_fixture(years=5):
+    import pandas as pd
+    rows = []
+    components = {"e1": 550.0, "e2": 120.0, "e3": 210.0, "e4": 10.0, "e5": 760.0, "e6": 650.0}
+    for date in pd.date_range("2020-01-01", periods=years * 4, freq="QS"):
+        annual_step = date.year - 2020
+        rows.append({"series": "abs", "date": date.strftime("%Y-%m-%d"), "type": "e0", "value": components["e1"] + components["e2"] + components["e3"] + components["e4"] + components["e5"] - components["e6"] + annual_step * 4})
+        for code, value in components.items():
+            rows.append({"series": "abs", "date": date.strftime("%Y-%m-%d"), "type": code, "value": value + annual_step})
+    return pd.DataFrame(rows)
+
+
+def test_gdp_demand_aggregates_and_reconciles_expenditure_view():
+    result = macrolens.parse_gdp_demand(gdp_demand_fixture(), "2026-01-01T00:00:00Z")
+    assert result["latestYear"] == 2024
+    assert len(result["years"][-1]["components"]) == 6
+    imports = next(component for component in result["years"][-1]["components"] if component["id"] == "e6")
+    assert imports["gdpSign"] == -1
+    assert "expenditure" in result["measure"].lower()
+
+
+def test_gdp_demand_rejects_duplicates_and_changed_columns():
+    duplicated = gdp_demand_fixture()
+    duplicated = duplicated._append(duplicated.iloc[0], ignore_index=True)
+    with pytest.raises(ValueError, match="duplicate"):
+        macrolens.parse_gdp_demand(duplicated, "2026-01-01T00:00:00Z")
+    with pytest.raises(ValueError, match="structure changed"):
+        macrolens.parse_gdp_demand(duplicated.drop(columns=["type"]), "2026-01-01T00:00:00Z")
+
+
+def trade_fixture(months=72):
+    import pandas as pd
+    rows = []
+    for index, date in enumerate(pd.date_range("2020-01-01", periods=months, freq="MS")):
+        exports = 100_000_000_000 + index * 1_000_000_000
+        imports = 85_000_000_000 + index * 800_000_000
+        rows.append({
+            "date": date.strftime("%Y-%m-%d"),
+            "series": "abs",
+            "total": exports + imports,
+            "balance": exports - imports,
+            "exports": exports,
+            "imports": imports,
+        })
+    return pd.DataFrame(rows, columns=["date", "series", "total", "balance", "exports", "imports"])
+
+
+def test_trade_parser_validates_monthly_flows_and_summary():
+    result = macrolens.parse_trade_headline(trade_fixture(), "2026-01-01T00:00:00Z")
+    assert result["status"] == "fresh"
+    assert len(result["points"]) == 72
+    assert result["summary"]["balance"] > 0
+    assert result["summary"]["exportsYoY"] is not None
+
+
+def test_trade_parser_rejects_empty_duplicate_and_malformed_data():
+    with pytest.raises(ValueError, match="empty"):
+        macrolens.parse_trade_headline(trade_fixture(0), "2026-01-01T00:00:00Z")
+    duplicated = trade_fixture()
+    duplicated = duplicated._append(duplicated.iloc[0], ignore_index=True)
+    with pytest.raises(ValueError, match="duplicate"):
+        macrolens.parse_trade_headline(duplicated, "2026-01-01T00:00:00Z")
+    malformed = trade_fixture().drop(columns=["imports"])
+    with pytest.raises(ValueError, match="structure changed"):
+        macrolens.parse_trade_headline(malformed, "2026-01-01T00:00:00Z")
+
+
+def test_heatmap_and_brief_are_deterministic_and_data_linked():
+    values = {"headline": 3.2, "core": 2.8, "opr": 2.75, "unemployment": 3.0, "fx": 4.5, "mgs": 3.8}
+    series = {key: {"points": sample(80, value=value)} for key, value in values.items()}
+    market = {"status": "fresh", "summary": {"return1Y": -2.0, "maxDrawdown1Y": -12.0, "latestDate": "2026-01-01"}}
+    production = macrolens.parse_economic_structure(gdp_structure_fixture(), "2026-01-01T00:00:00Z")
+    demand = macrolens.parse_gdp_demand(gdp_demand_fixture(), "2026-01-01T00:00:00Z")
+    growth = {"status": "fresh", "production": production, "demand": demand}
+    external = macrolens.parse_trade_headline(trade_fixture(), "2026-01-01T00:00:00Z")
+    heatmap = macrolens.build_risk_heatmap(series, market, growth, external, "2026-01-01T00:00:00Z")
+    assert len(heatmap["items"]) == 9
+    assert heatmap == macrolens.build_risk_heatmap(series, market, growth, external, "2026-01-01T00:00:00Z")
+    brief = macrolens.build_latest_brief(series, {"points": [{"value": 2.1}, {"value": 2.2}, {"value": 2.3}]}, market, growth, external, heatmap, "2026-01-01T00:00:00Z")
+    assert len(brief["whatChanged"]) == 3
+    assert "not personalised" in brief["disclaimer"].lower()
