@@ -1275,7 +1275,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/dashboard?refresh=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/dashboard-v7?refresh=${Date.now()}`, { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error("Dashboard data unavailable");
         return response.json() as Promise<DashboardPayload>;

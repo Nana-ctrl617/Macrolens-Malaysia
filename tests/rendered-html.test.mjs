@@ -96,6 +96,15 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.dataOperations.releaseLog.length > 0);
 });
 
+test("serves the versioned dashboard endpoint used by the browser app", async () => {
+  const response = await render("/api/dashboard-v7");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.schemaVersion, 7);
+  assert.ok(body.latestBrief.headline);
+  assert.ok(body.riskHeatmap.items.length >= 9);
+});
+
 test("serves structural diagnostics from the indicator payload", async () => {
   const response = await render("/api/indicator?id=core");
   assert.equal(response.status, 200);
