@@ -1,41 +1,41 @@
 {
   "schemaVersion": 7,
-  "generatedAt": "2026-07-21T07:57:38Z",
+  "generatedAt": "2026-07-22T07:57:42Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "stale",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2026-07-16",
       "message": "Using last valid data: RuntimeError"
     }
@@ -6350,7 +6350,7 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-21T07:57:38Z",
+    "retrievedAt": "2026-07-22T07:57:42Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -6366,10 +6366,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-07-21",
-          "value": 1657.54
-        },
         {
           "date": "2016-07-22",
           "value": 1657.42
@@ -16144,18 +16140,22 @@
         },
         {
           "date": "2026-07-21",
-          "value": 1716.84
+          "value": 1720.37
+        },
+        {
+          "date": "2026-07-22",
+          "value": 1711.26
         }
       ]
     },
     "summary": {
-      "latest": 1716.84,
-      "latestDate": "2026-07-21",
-      "change1D": -0.32,
-      "return1M": 0.28,
-      "return3M": 0.09,
-      "returnYtd": 2.19,
-      "return1Y": 12.61,
+      "latest": 1711.26,
+      "latestDate": "2026-07-22",
+      "change1D": -0.53,
+      "return1M": 0.61,
+      "return3M": 0.05,
+      "returnYtd": 1.85,
+      "return1Y": 12.63,
       "annualizedVolatility1Y": 9.39,
       "maxDrawdown1Y": -6.46,
       "high52w": 1771.25,
@@ -16168,7 +16168,7 @@
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-07-21T07:57:38Z",
+    "retrievedAt": "2026-07-22T07:57:42Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17009,10 +17009,10 @@
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-07-21T07:57:38Z",
+    "generatedAt": "2026-07-22T07:57:42Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17853,7 +17853,7 @@
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-07-21T07:57:38Z",
+      "retrievedAt": "2026-07-22T07:57:42Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -18752,7 +18752,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-07-21T07:57:38Z",
+    "retrievedAt": "2026-07-22T07:57:42Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -20992,7 +20992,7 @@
     "message": "Official monthly trade headline data validated"
   },
   "riskHeatmap": {
-    "generatedAt": "2026-07-21T07:57:38Z",
+    "generatedAt": "2026-07-22T07:57:42Z",
     "status": "fresh",
     "overallScore": 35.0,
     "overallLevel": "low",
@@ -21073,7 +21073,7 @@
         "level": "low",
         "evidence": "KLCI one-year price return is +12.6% with a 6.5% max drawdown.",
         "rule": "Higher pressure when one-year return is negative or drawdown is large.",
-        "period": "2026-07-21",
+        "period": "2026-07-22",
         "watch": "Index performance excludes dividends, fees and taxes."
       },
       {
@@ -21101,7 +21101,7 @@
     ]
   },
   "latestBrief": {
-    "generatedAt": "2026-07-21T07:57:38Z",
+    "generatedAt": "2026-07-22T07:57:42Z",
     "status": "fresh",
     "period": "2026-06-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.9%.",
@@ -21128,7 +21128,7 @@
     "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice."
   },
   "decisionGuide": {
-    "generatedAt": "2026-07-21T07:57:38Z",
+    "generatedAt": "2026-07-22T07:57:42Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +12.6% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -21172,7 +21172,7 @@
       {
         "label": "KLCI 1-year",
         "value": "+12.6%",
-        "period": "2026-07-21",
+        "period": "2026-07-22",
         "reading": "positive price performance"
       }
     ],
@@ -21360,7 +21360,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-07-21T07:57:38Z",
+    "lastSuccessfulRefresh": "2026-07-22T07:57:42Z",
     "vintageCount": 2,
     "latestVintagePeriod": "2026-06",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
