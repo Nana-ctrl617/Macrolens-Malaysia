@@ -119,6 +119,37 @@ export type ExternalSector = {
   summary: { latestDate: string; exports: number; imports: number; total: number; balance: number; exportsYoY: number | null; importsYoY: number | null; last12Balance: number; prior12Balance: number | null; tradeReading: string };
   narratives: { performance: string; macro: string }; message: string;
 };
+export type BalancePaymentsQuarter = { date: string; accounts: Array<{ id: string; name: string; balance: number }> };
+export type BalancePayments = {
+  status: "fresh" | "stale" | "unavailable"; retrievedAt: string; observationPeriod: string; source: string; sourceUrl: string; datasetUrl: string;
+  frequency: string; unit: string; quarters: BalancePaymentsQuarter[];
+  summary: { latestDate: string; currentAccount: number | null; currentAccountChange: number | null; financialAccount: number | null; reserveAccount: number | null; largestAbsoluteComponent: string; reading: string };
+  narratives: { externalPosition: string; ringgitContext: string };
+  message: string;
+};
+export type HouseholdPressure = {
+  generatedAt: string; status: "fresh" | "partial"; overallScore: number; overallLevel: "low" | "moderate" | "high";
+  summary: string; disclaimer: string;
+  components: Array<{ id: string; label: string; score: number; level?: "low" | "moderate" | "high"; evidence: string; watch: string }>;
+  scenarios: Array<{ id?: string; title: string; prompt: string; limit: string }>;
+};
+export type SectorDeepDive = {
+  generatedAt: string; status: "fresh" | "partial"; year: number; summary: string;
+  sectors: Array<{ id: string; name: string; share: number; value: number; changeYoY: number | null; growthContribution: number | null; riskLevel: "low" | "moderate" | "high"; exportLink: string; marketLink: string; narrative: string }>;
+};
+export type MacroTimeline = {
+  generatedAt: string; status: "fresh" | "partial"; entries: Array<{ date: string; title: string; category: string; source: string; sourceUrl: string; type?: string; evidence: string; interpretation?: string }>;
+  note: string;
+};
+export type DataHealth = {
+  generatedAt: string; overall: "fresh" | "partial" | "fallback"; schemaVersion: number; staleCount: number;
+  sources: Array<{ id: string; label?: string; status: string; period?: string; observationPeriod?: string; retrievedAt: string; message: string }>;
+  note: string;
+};
+export type MonthlyReport = {
+  generatedAt: string; title: string; period?: string; summary?: string; sections: Array<{ heading: string; body: string; bullets?: string[] }>;
+  downloads: Array<{ label: string; href?: string; url?: string; format?: string }>; disclaimer: string;
+};
 export type DashboardPayload = {
   schemaVersion: number;
   generatedAt: string;
@@ -149,6 +180,12 @@ export type DashboardPayload = {
   riskHeatmap?: RiskHeatmap;
   growthDrivers?: GrowthDrivers;
   externalSector?: ExternalSector;
+  balancePayments?: BalancePayments;
+  householdPressure?: HouseholdPressure;
+  sectorDeepDive?: SectorDeepDive;
+  macroTimeline?: MacroTimeline;
+  dataHealth?: DataHealth;
+  monthlyReport?: MonthlyReport;
   dataOperations?: {
     schedule: string; lastSuccessfulRefresh: string; vintageCount: number; latestVintagePeriod: string; vintagePolicy: string;
     releaseLog: Array<{ period: string; headline: number; core: number | null }>;
@@ -162,7 +199,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
   const structuralValid = candidate.schemaVersion === 1 || (
-    (candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6)
+    candidate.schemaVersion >= 2
     && !!candidate.structuralBreaks
     && required.every((key) => candidate.structuralBreaks?.indicators?.[key]?.indicatorId === key)
   );
@@ -195,13 +232,22 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && (candidate.growthDrivers?.demand?.years?.length ?? 0) >= 5
     && (candidate.externalSector?.points?.length ?? 0) >= 60
   );
-  return (candidate.schemaVersion === 1 || candidate.schemaVersion === 2 || candidate.schemaVersion === 3 || candidate.schemaVersion === 4 || candidate.schemaVersion === 5 || candidate.schemaVersion === 6 || candidate.schemaVersion === 7)
+  const deepValid = candidate.schemaVersion < 8 || (
+    (candidate.balancePayments?.quarters?.length ?? 0) >= 20
+    && (candidate.householdPressure?.components?.length ?? 0) >= 5
+    && (candidate.sectorDeepDive?.sectors?.length ?? 0) >= 5
+    && (candidate.macroTimeline?.entries?.length ?? 0) >= 5
+    && (candidate.dataHealth?.sources?.length ?? 0) >= 8
+    && (candidate.monthlyReport?.sections?.length ?? 0) >= 5
+  );
+  return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 8)
     && structuralValid
     && marketValid
     && decisionValid
     && structureValid
     && researchValid
     && completionValid
+    && deepValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)

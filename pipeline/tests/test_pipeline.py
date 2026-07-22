@@ -288,3 +288,72 @@ def test_heatmap_and_brief_are_deterministic_and_data_linked():
     brief = macrolens.build_latest_brief(series, {"points": [{"value": 2.1}, {"value": 2.2}, {"value": 2.3}]}, market, growth, external, heatmap, "2026-01-01T00:00:00Z")
     assert len(brief["whatChanged"]) == 3
     assert "not personalised" in brief["disclaimer"].lower()
+
+
+def bop_fixture(quarters=24):
+    import pandas as pd
+    rows = []
+    accounts = ["ca", "ka", "fa", "reserves", "neo"]
+    for index, date in enumerate(pd.date_range("2020-01-01", periods=quarters, freq="QS")):
+        for account in accounts:
+            base = {"ca": 12_000, "ka": -200, "fa": 7_000, "reserves": -3_500, "neo": -1_000}[account]
+            rows.append({"date": date.strftime("%Y-%m-%d"), "account": account, "balance": base + index * 100})
+    return pd.DataFrame(rows, columns=["date", "account", "balance"])
+
+
+def test_bop_parser_validates_quarterly_balances_and_summary():
+    result = macrolens.parse_bop_balance(bop_fixture(), "2026-01-01T00:00:00Z")
+    assert result["status"] == "fresh"
+    assert len(result["quarters"]) == 24
+    assert result["summary"]["currentAccount"] > 0
+    assert result["summary"]["largestAbsoluteComponent"]
+
+
+def test_bop_parser_rejects_empty_duplicate_changed_and_short_data():
+    with pytest.raises(ValueError, match="empty|insufficient"):
+        macrolens.parse_bop_balance(bop_fixture(0), "2026-01-01T00:00:00Z")
+    duplicated = bop_fixture()
+    duplicated = duplicated._append(duplicated.iloc[0], ignore_index=True)
+    with pytest.raises(ValueError, match="duplicate"):
+        macrolens.parse_bop_balance(duplicated, "2026-01-01T00:00:00Z")
+    with pytest.raises(ValueError, match="structure changed"):
+        macrolens.parse_bop_balance(bop_fixture().drop(columns=["balance"]), "2026-01-01T00:00:00Z")
+    with pytest.raises(ValueError, match="insufficient"):
+        macrolens.parse_bop_balance(bop_fixture(8), "2026-01-01T00:00:00Z")
+
+
+def test_v8_research_builders_are_payload_linked_and_deterministic():
+    values = {"headline": 1.9, "core": 2.0, "opr": 2.75, "unemployment": 3.1, "fx": 4.4, "mgs": 3.7}
+    series = {key: {"points": sample(80, value=value)} for key, value in values.items()}
+    market = {"status": "fresh", "retrievedAt": "2026-01-01T00:00:00Z", "summary": {"return1Y": 8.0, "maxDrawdown1Y": -8.0, "latestDate": "2026-01-01"}, "benchmark": {"points": sample(260, value=1600), "source": "Stooq", "sourceUrl": "https://stooq.com/"}}
+    production = macrolens.parse_economic_structure(gdp_structure_fixture(), "2026-01-01T00:00:00Z")
+    demand = macrolens.parse_gdp_demand(gdp_demand_fixture(), "2026-01-01T00:00:00Z")
+    growth = {"status": "fresh", "generatedAt": "2026-01-01T00:00:00Z", "production": production, "demand": demand}
+    external = macrolens.parse_trade_headline(trade_fixture(), "2026-01-01T00:00:00Z")
+    heatmap = macrolens.build_risk_heatmap(series, market, growth, external, "2026-01-01T00:00:00Z")
+    household = macrolens.build_household_pressure(series, market, heatmap, "2026-01-01T00:00:00Z")
+    sectors = macrolens.build_sector_deep_dive(growth, market, external, "2026-01-01T00:00:00Z")
+    structural = {"indicators": {"headline": {"candidates": [{"breakPeriod": "2020-04-01", "status": "supported", "statusLabel": "Supported structural shift", "chow": {"pHolm": 0.01}, "hacWald": {"pValue": 0.02}}]}}}
+    timeline = macrolens.build_macro_timeline(series, structural, market, "2026-01-01T00:00:00Z")
+    payload = {
+        "schemaVersion": 8,
+        "health": "fresh",
+        "generatedAt": "2026-01-01T00:00:00Z",
+        "sources": {"headline": {"status": "fresh", "retrievedAt": "2026-01-01T00:00:00Z", "observationPeriod": "2026-01-01", "message": "ok"}},
+        "market": market,
+        "economicStructure": production,
+        "externalSector": external,
+        "balancePayments": macrolens.parse_bop_balance(bop_fixture(), "2026-01-01T00:00:00Z"),
+        "latestBrief": {"period": "2026-01-01", "headline": "Brief headline"},
+        "riskHeatmap": heatmap,
+        "householdPressure": household,
+        "narratives": {"forecast": "Forecast narrative"},
+    }
+    health = macrolens.build_data_health(payload, "2026-01-01T00:00:00Z")
+    report = macrolens.build_monthly_report(payload, "2026-01-01T00:00:00Z")
+    assert household == macrolens.build_household_pressure(series, market, heatmap, "2026-01-01T00:00:00Z")
+    assert len(household["components"]) == 5
+    assert len(sectors["sectors"]) == 6
+    assert any(entry["category"] == "Structural diagnostics" for entry in timeline["entries"])
+    assert health["schemaVersion"] == 8 and len(health["sources"]) >= 4
+    assert len(report["sections"]) == 5

@@ -1,43 +1,43 @@
 {
-  "schemaVersion": 7,
-  "generatedAt": "2026-07-22T07:57:42Z",
-  "health": "partial",
+  "schemaVersion": 8,
+  "generatedAt": "2026-07-22T09:18:33Z",
+  "health": "fresh",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2026-05-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
-      "status": "stale",
-      "retrievedAt": "2026-07-22T07:57:42Z",
-      "observationPeriod": "2026-07-16",
-      "message": "Using last valid data: RuntimeError"
+      "status": "fresh",
+      "retrievedAt": "2026-07-22T09:18:33Z",
+      "observationPeriod": "2026-07-21",
+      "message": "Official source validated"
     }
   },
   "series": {
@@ -5486,6 +5486,10 @@
         {
           "date": "2026-07-16",
           "value": 3.63
+        },
+        {
+          "date": "2026-07-21",
+          "value": 3.66
         }
       ]
     }
@@ -5614,8 +5618,8 @@
       },
       {
         "name": "ARIMAX",
-        "rmse": 0.1856,
-        "mae": 0.1512,
+        "rmse": 0.1857,
+        "mae": 0.1514,
         "selected": true
       }
     ],
@@ -5664,7 +5668,7 @@
   },
   "structuralBreaks": {
     "status": "fresh",
-    "calculatedAt": "2026-07-17T07:36:19Z",
+    "calculatedAt": "2026-07-22T09:18:33Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
       "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -6315,7 +6319,7 @@
       "mgs": {
         "indicatorId": "mgs",
         "status": "fresh",
-        "calculatedAt": "2026-07-17T04:51:03Z",
+        "calculatedAt": "2026-07-22T09:18:33Z",
         "sample": {
           "start": "2021-11-01",
           "end": "2026-07-01",
@@ -6329,14 +6333,14 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 0,
-          "bic": -227.247247
+          "bic": -226.936192
         },
         "diagnostics": {
-          "adfStatistic": -1.909854,
-          "adfPValue": 0.32743976,
+          "adfStatistic": -1.937511,
+          "adfPValue": 0.31462573,
           "adfLags": 0,
-          "cusumStatistic": 0.545603,
-          "cusumPValue": 0.92716441
+          "cusumStatistic": 0.538782,
+          "cusumPValue": 0.93363382
         },
         "warnings": [
           "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -6344,13 +6348,13 @@
         ],
         "candidates": [],
         "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "71a9bd389b32e0a183c9c4c805dc676c5d8b7fe9e5fb7913f2e9b52a7cefc096"
+        "seriesFingerprint": "6dcdd919c8d07b23f42c4bed6160bb38a92c106e9d07a9f944ec9572f914fe29"
       }
     }
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-07-22T07:57:42Z",
+    "retrievedAt": "2026-07-22T09:18:33Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -16144,17 +16148,17 @@
         },
         {
           "date": "2026-07-22",
-          "value": 1711.26
+          "value": 1711.37
         }
       ]
     },
     "summary": {
-      "latest": 1711.26,
+      "latest": 1711.37,
       "latestDate": "2026-07-22",
-      "change1D": -0.53,
-      "return1M": 0.61,
-      "return3M": 0.05,
-      "returnYtd": 1.85,
+      "change1D": -0.52,
+      "return1M": 0.62,
+      "return3M": 0.06,
+      "returnYtd": 1.86,
       "return1Y": 12.63,
       "annualizedVolatility1Y": 9.39,
       "maxDrawdown1Y": -6.46,
@@ -16168,7 +16172,7 @@
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-07-22T07:57:42Z",
+    "retrievedAt": "2026-07-22T09:18:33Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17009,10 +17013,10 @@
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-07-22T07:57:42Z",
+    "generatedAt": "2026-07-22T09:18:33Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17853,7 +17857,7 @@
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-07-22T07:57:42Z",
+      "retrievedAt": "2026-07-22T09:18:33Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -18752,7 +18756,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-07-22T07:57:42Z",
+    "retrievedAt": "2026-07-22T09:18:33Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -20991,8 +20995,2268 @@
     },
     "message": "Official monthly trade headline data validated"
   },
+  "balancePayments": {
+    "status": "fresh",
+    "retrievedAt": "2026-07-22T09:18:33Z",
+    "observationPeriod": "2026-01-01",
+    "source": "Department of Statistics Malaysia via data.gov.my",
+    "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
+    "datasetUrl": "https://storage.dosm.gov.my/bop/bop_balance.csv",
+    "frequency": "Quarterly",
+    "unit": "RM billion",
+    "quarters": [
+      {
+        "date": "2010-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 28.352
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -17.392
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.026
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -10.231
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -0.703
+          }
+        ]
+      },
+      {
+        "date": "2010-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 13.579
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -0.209
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.034
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.112
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -6.225
+          }
+        ]
+      },
+      {
+        "date": "2010-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 18.899
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -3.117
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.043
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -9.814
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -5.926
+          }
+        ]
+      },
+      {
+        "date": "2010-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 21.985
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 0.773
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.008
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -5.59
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -17.161
+          }
+        ]
+      },
+      {
+        "date": "2011-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 24.711
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -6.39
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.042
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -2.472
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -15.807
+          }
+        ]
+      },
+      {
+        "date": "2011-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 24.004
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 51.429
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.021
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -17.361
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -58.05
+          }
+        ]
+      },
+      {
+        "date": "2011-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 27.45
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -22.406
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.034
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -2.795
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.216
+          }
+        ]
+      },
+      {
+        "date": "2011-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 23.158
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 0.631
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.036
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -12.711
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -11.043
+          }
+        ]
+      },
+      {
+        "date": "2012-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 15.554
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -10.368
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.136
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -4.876
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -0.174
+          }
+        ]
+      },
+      {
+        "date": "2012-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 6.859
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 6.484
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.006
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -8.378
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -4.959
+          }
+        ]
+      },
+      {
+        "date": "2012-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 7.233
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -8.959
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.01
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 2.258
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -0.523
+          }
+        ]
+      },
+      {
+        "date": "2012-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 20.531
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -10.171
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.393
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -4.849
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -5.903
+          }
+        ]
+      },
+      {
+        "date": "2013-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 12.423
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 1.2
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.002
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.449
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -6.177
+          }
+        ]
+      },
+      {
+        "date": "2013-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 0.978
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 4.397
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.003
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.272
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 1.9
+          }
+        ]
+      },
+      {
+        "date": "2013-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 8.499
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -15.685
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.005
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 2.888
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 4.293
+          }
+        ]
+      },
+      {
+        "date": "2013-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 13.585
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -10.128
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.02
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.382
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 3.946
+          }
+        ]
+      },
+      {
+        "date": "2014-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 19.82
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -38.038
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.002
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.195
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 18.025
+          }
+        ]
+      },
+      {
+        "date": "2014-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 15.292
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -12.09
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.0
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -0.228
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.973
+          }
+        ]
+      },
+      {
+        "date": "2014-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 7.256
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -2.2
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.066
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -5.881
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 0.758
+          }
+        ]
+      },
+      {
+        "date": "2014-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 6.186
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -27.627
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.28
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.11
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 28.271
+          }
+        ]
+      },
+      {
+        "date": "2015-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 10.917
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -29.165
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.001
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -6.751
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 24.999
+          }
+        ]
+      },
+      {
+        "date": "2015-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 8.193
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 0.383
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -1.107
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -9.347
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 1.878
+          }
+        ]
+      },
+      {
+        "date": "2015-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 5.226
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -33.17
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.013
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -6.993
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 34.95
+          }
+        ]
+      },
+      {
+        "date": "2015-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 10.819
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 6.6
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.015
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -9.131
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -8.274
+          }
+        ]
+      },
+      {
+        "date": "2016-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 6.314
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 9.038
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.004
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -12.969
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.387
+          }
+        ]
+      },
+      {
+        "date": "2016-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 3.096
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 11.131
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.126
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -10.009
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -4.344
+          }
+        ]
+      },
+      {
+        "date": "2016-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 7.682
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -5.104
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.02
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -1.179
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -1.38
+          }
+        ]
+      },
+      {
+        "date": "2016-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 12.816
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -15.315
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.008
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.257
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 2.25
+          }
+        ]
+      },
+      {
+        "date": "2017-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 5.058
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -8.313
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.017
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 1.061
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 2.178
+          }
+        ]
+      },
+      {
+        "date": "2017-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 10.187
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 8.986
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.008
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -8.895
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -10.285
+          }
+        ]
+      },
+      {
+        "date": "2017-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 12.159
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -6.261
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.025
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.309
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -6.182
+          }
+        ]
+      },
+      {
+        "date": "2017-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 10.892
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 0.858
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.025
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -9.606
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.119
+          }
+        ]
+      },
+      {
+        "date": "2018-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 14.864
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 8.906
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.041
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -5.538
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -18.191
+          }
+        ]
+      },
+      {
+        "date": "2018-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 3.421
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 9.77
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.021
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -14.058
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 0.888
+          }
+        ]
+      },
+      {
+        "date": "2018-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 3.271
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -1.951
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.012
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -4.735
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 3.427
+          }
+        ]
+      },
+      {
+        "date": "2018-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 10.739
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -5.295
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.015
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -11.547
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 6.118
+          }
+        ]
+      },
+      {
+        "date": "2019-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 17.498
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -12.924
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.005
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.92
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -5.499
+          }
+        ]
+      },
+      {
+        "date": "2019-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 14.772
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -18.997
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.009
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 2.875
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 1.359
+          }
+        ]
+      },
+      {
+        "date": "2019-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 13.245
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -4.153
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.01
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -2.641
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -6.44
+          }
+        ]
+      },
+      {
+        "date": "2019-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 7.403
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -1.95
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.385
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -8.002
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 2.164
+          }
+        ]
+      },
+      {
+        "date": "2020-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 8.094
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -13.583
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.089
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -3.091
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 8.669
+          }
+        ]
+      },
+      {
+        "date": "2020-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 5.6
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -21.892
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.052
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 9.982
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 6.362
+          }
+        ]
+      },
+      {
+        "date": "2020-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 26.514
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -31.893
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.177
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 3.913
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 1.643
+          }
+        ]
+      },
+      {
+        "date": "2020-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 18.884
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -10.027
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.102
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -11.377
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 2.623
+          }
+        ]
+      },
+      {
+        "date": "2021-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 11.956
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 17.095
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.073
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -11.846
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -17.132
+          }
+        ]
+      },
+      {
+        "date": "2021-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 12.499
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -3.683
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.065
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -4.046
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -4.705
+          }
+        ]
+      },
+      {
+        "date": "2021-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 19.655
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 0.869
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.061
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.822
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -21.285
+          }
+        ]
+      },
+      {
+        "date": "2021-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 16.068
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 1.962
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.269
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -15.197
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.564
+          }
+        ]
+      },
+      {
+        "date": "2022-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 4.868
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 32.463
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.096
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -24.484
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -12.751
+          }
+        ]
+      },
+      {
+        "date": "2022-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 4.151
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -2.62
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.077
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 3.459
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -4.911
+          }
+        ]
+      },
+      {
+        "date": "2022-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 20.24
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -19.98
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.214
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 13.159
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -13.204
+          }
+        ]
+      },
+      {
+        "date": "2022-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 27.964
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -1.329
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.066
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -4.076
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -22.492
+          }
+        ]
+      },
+      {
+        "date": "2023-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 3.868
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -1.586
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.071
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -7.933
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 5.721
+          }
+        ]
+      },
+      {
+        "date": "2023-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 8.197
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -7.459
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.02
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -13.109
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 12.391
+          }
+        ]
+      },
+      {
+        "date": "2023-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 7.128
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 19.968
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.021
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -19.38
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -7.695
+          }
+        ]
+      },
+      {
+        "date": "2023-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 0.855
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -18.074
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.146
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 7.282
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 10.083
+          }
+        ]
+      },
+      {
+        "date": "2024-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 12.071
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -22.948
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.001
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 19.59
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -8.715
+          }
+        ]
+      },
+      {
+        "date": "2024-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 4.153
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 24.895
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.005
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -30.417
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": 1.347
+          }
+        ]
+      },
+      {
+        "date": "2024-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 1.203
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -5.817
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.007
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 6.941
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -2.348
+          }
+        ]
+      },
+      {
+        "date": "2024-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 9.927
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -8.244
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.088
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 4.317
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -6.026
+          }
+        ]
+      },
+      {
+        "date": "2025-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 13.845
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -14.133
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": 0.082
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 3.284
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -3.115
+          }
+        ]
+      },
+      {
+        "date": "2025-04-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 2.705
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -1.724
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.009
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": 0.011
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -0.988
+          }
+        ]
+      },
+      {
+        "date": "2025-07-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 13.506
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": -9.516
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.031
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -0.603
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -3.142
+          }
+        ]
+      },
+      {
+        "date": "2025-10-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 2.748
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 9.369
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.281
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -11.006
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -1.155
+          }
+        ]
+      },
+      {
+        "date": "2026-01-01",
+        "accounts": [
+          {
+            "id": "ca",
+            "name": "Current account",
+            "balance": 15.157
+          },
+          {
+            "id": "fa",
+            "name": "Financial account",
+            "balance": 27.352
+          },
+          {
+            "id": "ka",
+            "name": "Capital account",
+            "balance": -0.025
+          },
+          {
+            "id": "neo",
+            "name": "Net errors and omissions",
+            "balance": -26.184
+          },
+          {
+            "id": "reserves",
+            "name": "Official reserve account",
+            "balance": -16.368
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "latestDate": "2026-01-01",
+      "currentAccount": 15.157,
+      "currentAccountChange": 12.409,
+      "financialAccount": 27.352,
+      "reserveAccount": -16.368,
+      "largestAbsoluteComponent": "Financial account",
+      "reading": "surplus"
+    },
+    "narratives": {
+      "externalPosition": "Malaysia's latest current account is a RM 15.2 billion surplus. The financial account balance is RM +27.4 billion and the official reserve account balance is RM -16.4 billion.",
+      "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions."
+    },
+    "message": "Official quarterly BOP component balances validated"
+  },
+  "householdPressure": {
+    "generatedAt": "2026-07-22T09:18:33Z",
+    "status": "fresh",
+    "overallScore": 36.0,
+    "overallLevel": "low",
+    "summary": "Household pressure is low, led by debt service in the current rule-based screen.",
+    "components": [
+      {
+        "id": "cost-of-living",
+        "label": "Cost of living",
+        "score": 30,
+        "evidence": "Headline inflation is 1.9% and core inflation is 1.9%.",
+        "watch": "Track your own food, transport, rent and utilities basket rather than relying only on national CPI."
+      },
+      {
+        "id": "debt-service",
+        "label": "Debt service",
+        "score": 60,
+        "evidence": "The OPR is 2.75%, which anchors many floating-rate loan discussions.",
+        "watch": "Stress-test mortgage, hire-purchase and personal-loan instalments before taking new commitments."
+      },
+      {
+        "id": "job-income",
+        "label": "Job and income",
+        "score": 25,
+        "evidence": "Unemployment is 3.0%.",
+        "watch": "National unemployment can hide weaker hiring in specific sectors or regions."
+      },
+      {
+        "id": "imported-spending",
+        "label": "Imported spending",
+        "score": 30,
+        "evidence": "USD/MYR is RM 4.0375.",
+        "watch": "Foreign-currency subscriptions, travel, imported goods and overseas education can move differently from local CPI."
+      },
+      {
+        "id": "wealth-risk",
+        "label": "Market wealth",
+        "score": 35,
+        "evidence": "KLCI one-year price return is +12.6%.",
+        "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."
+      }
+    ],
+    "scenarios": [
+      {
+        "title": "Variable-rate borrower",
+        "prompt": "If policy-rate pressure remains elevated, check whether repayments still fit after a 50-100 bp stress test.",
+        "limit": "Actual loan pricing depends on lender, tenure, collateral and borrower profile."
+      },
+      {
+        "title": "New property buyer",
+        "prompt": "Compare rent, ownership costs, maintenance and cash buffer after down payment before relying on future price appreciation.",
+        "limit": "This is not a property recommendation and does not assess any location."
+      },
+      {
+        "title": "Early-career worker",
+        "prompt": "Use stable labour periods to build emergency savings, portfolio evidence and transferable skills.",
+        "limit": "Occupation-specific hiring can diverge from national unemployment."
+      },
+      {
+        "title": "Long-term investor",
+        "prompt": "Use diversification and time horizon rather than the latest Bursa move as the decision anchor.",
+        "limit": "Returns exclude dividends, fees and taxes and are not forecasts."
+      }
+    ],
+    "disclaimer": "Educational household-pressure screen only. It is not personalised financial, investment, property, tax, legal or career advice."
+  },
+  "sectorDeepDive": {
+    "generatedAt": "2026-07-22T09:18:33Z",
+    "status": "fresh",
+    "year": 2025,
+    "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
+    "sectors": [
+      {
+        "id": "p5",
+        "name": "Services",
+        "share": 57.24,
+        "value": 1159.236,
+        "changeYoY": 6.64,
+        "growthContribution": 78.26,
+        "exportLink": "moderate",
+        "marketLink": "direct and indirect",
+        "riskLevel": "low",
+        "narrative": "Services accounts for 57.2% of nominal GDP in 2025. Its current-price output change is +6.6% where prior-year comparison is available."
+      },
+      {
+        "id": "p3",
+        "name": "Manufacturing",
+        "share": 22.08,
+        "value": 447.113,
+        "changeYoY": 2.82,
+        "growthContribution": 13.3,
+        "exportLink": "high",
+        "marketLink": "direct and indirect",
+        "riskLevel": "low",
+        "narrative": "Manufacturing accounts for 22.1% of nominal GDP in 2025. Its current-price output change is +2.8% where prior-year comparison is available."
+      },
+      {
+        "id": "p1",
+        "name": "Agriculture",
+        "share": 8.23,
+        "value": 166.704,
+        "changeYoY": 5.89,
+        "growthContribution": 10.06,
+        "exportLink": "high",
+        "marketLink": "mostly indirect",
+        "riskLevel": "low",
+        "narrative": "Agriculture accounts for 8.2% of nominal GDP in 2025. Its current-price output change is +5.9% where prior-year comparison is available."
+      },
+      {
+        "id": "p2",
+        "name": "Mining and quarrying",
+        "share": 6.85,
+        "value": 138.681,
+        "changeYoY": -9.18,
+        "growthContribution": -15.22,
+        "exportLink": "high",
+        "marketLink": "direct and indirect",
+        "riskLevel": "moderate",
+        "narrative": "Mining and quarrying accounts for 6.8% of nominal GDP in 2025. Its current-price output change is -9.2% where prior-year comparison is available."
+      },
+      {
+        "id": "p4",
+        "name": "Construction",
+        "share": 4.29,
+        "value": 86.897,
+        "changeYoY": 11.27,
+        "growthContribution": 9.55,
+        "exportLink": "low",
+        "marketLink": "mostly indirect",
+        "riskLevel": "low",
+        "narrative": "Construction accounts for 4.3% of nominal GDP in 2025. Its current-price output change is +11.3% where prior-year comparison is available."
+      },
+      {
+        "id": "p6",
+        "name": "Import duties",
+        "share": 1.32,
+        "value": 26.748,
+        "changeYoY": 16.19,
+        "growthContribution": 4.04,
+        "exportLink": "low",
+        "marketLink": "mostly indirect",
+        "riskLevel": "low",
+        "narrative": "Import duties accounts for 1.3% of nominal GDP in 2025. Its current-price output change is +16.2% where prior-year comparison is available."
+      }
+    ],
+    "source": "Department of Statistics Malaysia via data.gov.my",
+    "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
+    "limitations": "Sector screens describe broad economic structure. They do not forecast company earnings or identify investable stocks."
+  },
+  "macroTimeline": {
+    "generatedAt": "2026-07-22T09:18:33Z",
+    "status": "fresh",
+    "entries": [
+      {
+        "date": "2013-08-01",
+        "title": "Supported structural shift in Unemployment rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2014-09-01",
+        "title": "Supported structural shift in USD / MYR",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2015-04-01",
+        "title": "Goods and Services Tax introduced",
+        "category": "Fiscal policy",
+        "source": "Ministry of Finance",
+        "sourceUrl": "https://www.mof.gov.my/portal/arkib/economy/2016/chapter4.pdf",
+        "type": "official-event",
+        "evidence": "Version-controlled event catalogue with official source link."
+      },
+      {
+        "date": "2018-01-01",
+        "title": "Supported structural shift in Overnight Policy Rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2018-06-01",
+        "title": "GST zero-rated before abolition",
+        "category": "Fiscal policy",
+        "source": "Ministry of Finance",
+        "sourceUrl": "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf",
+        "type": "official-event",
+        "evidence": "Version-controlled event catalogue with official source link."
+      },
+      {
+        "date": "2018-09-01",
+        "title": "Sales and Service Tax reintroduced",
+        "category": "Fiscal policy",
+        "source": "Ministry of Finance",
+        "sourceUrl": "https://belanjawan.mof.gov.my/pdf/belanjawan2026/revenue/section2.pdf",
+        "type": "official-event",
+        "evidence": "Version-controlled event catalogue with official source link."
+      },
+      {
+        "date": "2020-03-18",
+        "title": "Nationwide Movement Control Order began",
+        "category": "Public health",
+        "source": "Prime Minister's Office",
+        "sourceUrl": "https://www.pmo.gov.my/ucapan/?id=4837&m=p&p=muhyiddin",
+        "type": "official-event",
+        "evidence": "Version-controlled event catalogue with official source link."
+      },
+      {
+        "date": "2020-04-01",
+        "title": "Supported structural shift in Unemployment rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2020-05-01",
+        "title": "Supported structural shift in Overnight Policy Rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2021-11-01",
+        "title": "Supported structural shift in Core inflation",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2022-04-01",
+        "title": "Supported structural shift in Unemployment rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2022-05-01",
+        "title": "Supported structural shift in Overnight Policy Rate",
+        "category": "Structural diagnostics",
+        "source": "MacroLens structural-break screen",
+        "sourceUrl": "/api/structural-breaks?format=json",
+        "type": "statistical-break",
+        "evidence": "Adjusted Chow p 0.000; HAC p 0.000."
+      },
+      {
+        "date": "2024-06-10",
+        "title": "Targeted diesel subsidy implemented in Peninsular Malaysia",
+        "category": "Administered prices",
+        "source": "Ministry of Finance",
+        "sourceUrl": "https://www.mof.gov.my/portal/en/news/press-release/government-implements-targeted-diesel-subsidy-for-peninsular-malaysia-effective-10-june-2024",
+        "type": "official-event",
+        "evidence": "Version-controlled event catalogue with official source link."
+      },
+      {
+        "date": "2026-07-22",
+        "title": "Latest Bursa KLCI observation",
+        "category": "Market data",
+        "source": "Yahoo Finance delayed market data",
+        "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
+        "type": "latest-observation",
+        "evidence": "KLCI one-year price return +12.6%."
+      }
+    ],
+    "summary": "The timeline combines official Malaysian events, data-selected structural breaks and the latest market observation. Event proximity is context, not causal proof.",
+    "limitations": "Structural-break candidates are exploratory and may change after official data revisions."
+  },
   "riskHeatmap": {
-    "generatedAt": "2026-07-22T07:57:42Z",
+    "generatedAt": "2026-07-22T09:18:33Z",
     "status": "fresh",
     "overallScore": 35.0,
     "overallLevel": "low",
@@ -21060,9 +23324,9 @@
         "group": "Financial conditions",
         "score": 55,
         "level": "moderate",
-        "evidence": "10-year MGS yield is 3.63%.",
+        "evidence": "10-year MGS yield is 3.66%.",
         "rule": "Low below 3.50%, moderate from 3.50-4.25%, high above 4.25%.",
-        "period": "2026-07-16",
+        "period": "2026-07-21",
         "watch": "Bond yields reflect policy expectations, term premium and global rates."
       },
       {
@@ -21101,7 +23365,7 @@
     ]
   },
   "latestBrief": {
-    "generatedAt": "2026-07-22T07:57:42Z",
+    "generatedAt": "2026-07-22T09:18:33Z",
     "status": "fresh",
     "period": "2026-06-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.9%.",
@@ -21128,7 +23392,7 @@
     "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice."
   },
   "decisionGuide": {
-    "generatedAt": "2026-07-22T07:57:42Z",
+    "generatedAt": "2026-07-22T09:18:33Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a +12.6% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -21165,8 +23429,8 @@
       },
       {
         "label": "10-year MGS",
-        "value": "3.63%",
-        "period": "2026-07-16",
+        "value": "3.66%",
+        "period": "2026-07-21",
         "reading": "long-term government benchmark yield"
       },
       {
@@ -21209,7 +23473,7 @@
           "theme": "Property and borrowing",
           "stance": "Stress-test",
           "title": "Test affordability before relying on property appreciation",
-          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.63%, both relevant reference points for financing conditions.",
+          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.66%, both relevant reference points for financing conditions.",
           "actions": [
             "Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.",
             "Recalculate repayments under a higher-rate scenario and a temporary income interruption.",
@@ -21263,7 +23527,7 @@
           "theme": "Cash flow and funding",
           "stance": "Protect liquidity",
           "title": "Review debt sensitivity and idle-cash policy",
-          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.63%. Borrowing still carries a meaningful financing cost.",
+          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.66%. Borrowing still carries a meaningful financing cost.",
           "actions": [
             "Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.",
             "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.",
@@ -21360,7 +23624,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-07-22T07:57:42Z",
+    "lastSuccessfulRefresh": "2026-07-22T09:18:33Z",
     "vintageCount": 2,
     "latestVintagePeriod": "2026-06",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -21401,5 +23665,166 @@
     "snapshot": "Headline inflation eased to 1.9% in the latest release, while core inflation was 1.9%.",
     "forecast": "The selected ARIMAX model places the three-month central forecast at 1.80%. Prediction intervals, rather than the point estimate alone, should guide interpretation.",
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
+  },
+  "dataHealth": {
+    "generatedAt": "2026-07-22T09:18:33Z",
+    "schemaVersion": 8,
+    "overallHealth": "fresh",
+    "sourceCount": 10,
+    "staleCount": 0,
+    "sources": [
+      {
+        "id": "headline",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-06-01",
+        "message": "Official source validated"
+      },
+      {
+        "id": "core",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-06-01",
+        "message": "Official source validated"
+      },
+      {
+        "id": "unemployment",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-05-01",
+        "message": "Official source validated"
+      },
+      {
+        "id": "opr",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-05-07",
+        "message": "Official source validated"
+      },
+      {
+        "id": "fx",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-03-01",
+        "message": "Official source validated"
+      },
+      {
+        "id": "mgs",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-07-21",
+        "message": "Official source validated"
+      },
+      {
+        "id": "market",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-07-22",
+        "message": "Delayed daily prices validated"
+      },
+      {
+        "id": "economicStructure",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2025-12-31",
+        "message": "Official quarterly observations validated; only complete calendar years are published"
+      },
+      {
+        "id": "externalSector",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-04-01",
+        "message": "Official monthly trade headline data validated"
+      },
+      {
+        "id": "balancePayments",
+        "status": "fresh",
+        "retrievedAt": "2026-07-22T09:18:33Z",
+        "observationPeriod": "2026-01-01",
+        "message": "Official quarterly BOP component balances validated"
+      }
+    ],
+    "refresh": {
+      "schedule": "Daily at 13:45 Malaysia time",
+      "lastSuccessfulRefresh": "2026-07-22T09:18:33Z",
+      "vintageCount": 2,
+      "latestVintagePeriod": "2026-06",
+      "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
+      "releaseLog": [
+        {
+          "period": "2026-06-01",
+          "headline": 1.9,
+          "core": 1.9
+        },
+        {
+          "period": "2026-05-01",
+          "headline": 2.0,
+          "core": 2.0
+        },
+        {
+          "period": "2026-04-01",
+          "headline": 1.9,
+          "core": 2.0
+        },
+        {
+          "period": "2026-03-01",
+          "headline": 1.7,
+          "core": 2.1
+        },
+        {
+          "period": "2026-02-01",
+          "headline": 1.4,
+          "core": 2.0
+        },
+        {
+          "period": "2026-01-01",
+          "headline": 1.6,
+          "core": 2.3
+        }
+      ]
+    },
+    "summary": "10 of 10 source groups are fresh in the latest generated payload."
+  },
+  "monthlyReport": {
+    "generatedAt": "2026-07-22T09:18:33Z",
+    "title": "MacroLens Malaysia monthly research brief",
+    "period": "2026-06-01",
+    "sections": [
+      {
+        "heading": "Main macro reading",
+        "body": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.9%."
+      },
+      {
+        "heading": "Risk heatmap",
+        "body": "The current macro risk screen is low. The highest-pressure signals are Policy rate, 10-year MGS yield, Bursa large-cap market."
+      },
+      {
+        "heading": "Household pressure",
+        "body": "Household pressure is low, led by debt service in the current rule-based screen."
+      },
+      {
+        "heading": "External position",
+        "body": "Malaysia's latest current account is a RM 15.2 billion surplus. The financial account balance is RM +27.4 billion and the official reserve account balance is RM -16.4 billion."
+      },
+      {
+        "heading": "Forecast",
+        "body": "The selected ARIMAX model places the three-month central forecast at 1.80%. Prediction intervals, rather than the point estimate alone, should guide interpretation."
+      }
+    ],
+    "downloads": [
+      {
+        "label": "Dashboard JSON",
+        "url": "/api/dashboard-v7"
+      },
+      {
+        "label": "Structural diagnostics CSV",
+        "url": "/api/structural-breaks?format=csv"
+      },
+      {
+        "label": "Structural diagnostics JSON",
+        "url": "/api/structural-breaks?format=json"
+      }
+    ],
+    "disclaimer": "This report is generated from validated dashboard data and is educational analysis, not personalised financial advice."
   }
 }

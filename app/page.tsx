@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { DashboardPayload, DecisionCard, EconomicSector, ExternalSector, RiskHeatmap, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
+import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, MacroTimeline, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Full CPI basket, year on year", period: "May 2026", tone: "rust" },
@@ -43,7 +43,7 @@ const fallbackCategories = [
   { code: "10", name: "Education", value: 2.0, weight: 1.3 },
 ].map((item) => ({ ...item, contribution: Number((item.weight * item.value / 100).toFixed(3)) }));
 
-export type DashboardSection = "snapshot" | "brief" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bursa" | "decisions" | "structural" | "methodology";
+export type DashboardSection = "snapshot" | "brief" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
@@ -53,9 +53,15 @@ const navigation: Array<{ id: DashboardSection; label: string; href: string }> =
   { id: "drivers", label: "Drivers", href: "/drivers" },
   { id: "structure", label: "Growth drivers", href: "/structure" },
   { id: "external", label: "External sector", href: "/external" },
+  { id: "bop", label: "BOP", href: "/bop" },
+  { id: "household", label: "Households", href: "/household" },
+  { id: "sectors", label: "Sectors", href: "/sectors" },
   { id: "bursa", label: "Bursa", href: "/bursa" },
   { id: "decisions", label: "Decision guide", href: "/decisions" },
+  { id: "timeline", label: "Timeline", href: "/timeline" },
   { id: "structural", label: "Structural shifts", href: "/structural" },
+  { id: "report", label: "Report", href: "/report" },
+  { id: "health", label: "Data health", href: "/health" },
   { id: "methodology", label: "Methodology", href: "/methodology" },
 ];
 
@@ -1184,6 +1190,86 @@ function DecisionCardView({ card }: { card: DecisionCard }) {
   </article>;
 }
 
+function HouseholdPressureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const household: HouseholdPressure | undefined = dashboard?.householdPressure;
+  return <section className="section deep-section household-section page-section" id="household"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">10 / Households</span><h2>Household pressure monitor</h2></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
+    {!household ? <div className="deep-empty">Household pressure analysis will appear when the version-eight dataset is available.</div> : <>
+      <div className="deep-hero"><div><span>Overall household pressure</span><strong>{household.overallScore.toFixed(1)}</strong><b className={`risk-pill ${household.overallLevel}`}>{levelLabel(household.overallLevel)}</b></div><p>{household.summary}</p></div>
+      <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
+      <div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h3>{item.title}</h3><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div>
+      <p className="deep-disclaimer">{household.disclaimer}</p>
+    </>}
+  </div></section>;
+}
+
+function BalancePaymentsSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const bop: BalancePayments | undefined = dashboard?.balancePayments;
+  const latest = bop?.quarters.at(-1);
+  const fmt = (value: number | null | undefined) => value == null ? "—" : `RM ${value > 0 ? "+" : ""}${value.toFixed(1)}bn`;
+  const account = (row: BalancePayments["quarters"][number] | undefined, id: string) => row?.accounts.find((item) => item.id === id)?.balance ?? null;
+  return <section className="section deep-section bop-section page-section" id="bop"><div className="shell">
+    <div className="section-heading light"><div><span className="section-number">08 / Balance of payments</span><h2>External financing position</h2></div><p>Trade in goods is only one part of the external story. The balance of payments adds income flows, services, capital and financial-account movements.</p></div>
+    {!bop || !latest ? <div className="deep-empty">Balance-of-payments data will appear when the version-eight dataset is available.</div> : <>
+      <div className="deep-hero"><div><span>Latest quarter</span><strong>{formatDate(latest.date)}</strong><b className={`risk-pill ${bop.status}`}>{bop.status}</b></div><p>{bop.narratives.externalPosition}</p></div>
+      <div className="deep-card-grid">
+        <article><span>Current account</span><strong>{fmt(bop.summary.currentAccount)}</strong><p>{bop.summary.reading} · change from previous quarter {fmt(bop.summary.currentAccountChange)}</p></article>
+        <article><span>Financial account</span><strong>{fmt(bop.summary.financialAccount)}</strong><p>Largest latest component: {bop.summary.largestAbsoluteComponent}.</p></article>
+        <article><span>Reserve assets</span><strong>{fmt(bop.summary.reserveAccount)}</strong><p>{bop.narratives.ringgitContext}</p></article>
+      </div>
+      <div className="deep-table-wrap"><table><thead><tr><th>Quarter</th><th>Current account</th><th>Capital account</th><th>Financial account</th><th>Reserve assets</th><th>Net errors</th></tr></thead><tbody>{[...bop.quarters].slice(-12).reverse().map((row) => <tr key={row.date}><td>{formatDate(row.date)}</td><td>{fmt(account(row, "ca"))}</td><td>{fmt(account(row, "ka"))}</td><td>{fmt(account(row, "fa"))}</td><td>{fmt(account(row, "reserves"))}</td><td>{fmt(account(row, "neo"))}</td></tr>)}</tbody></table></div>
+      <div className="external-sources"><p>{bop.message} · Retrieved {formatDate(bop.retrievedAt.slice(0, 10))}</p><a href={bop.sourceUrl} target="_blank" rel="noreferrer">Official data catalogue</a><a href={bop.datasetUrl} target="_blank" rel="noreferrer">Source CSV</a></div>
+      <p className="deep-disclaimer">Balance-of-payments components are accounting flows, not a causal model of exchange-rate movements.</p>
+    </>}
+  </div></section>;
+}
+
+function SectorDeepDiveSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const deep: SectorDeepDive | undefined = dashboard?.sectorDeepDive;
+  return <section className="section deep-section sectors-section page-section" id="sectors"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">11 / Sector deep dive</span><h2>How sectors connect to markets and external demand</h2></div><p>Uses the latest production-side GDP structure and links each sector to export sensitivity, Bursa exposure and dashboard risk conditions.</p></div>
+    {!deep ? <div className="deep-empty">Sector deep dives will appear when the version-eight dataset is available.</div> : <>
+      <div className="deep-hero"><div><span>Reference year</span><strong>{deep.year}</strong><b className={`risk-pill ${deep.status}`}>{deep.status}</b></div><p>{deep.summary}</p></div>
+      <div className="sector-deep-grid">{deep.sectors.map((sector) => <article key={sector.id} className={`sector-deep-card ${sector.riskLevel}`}><div><span>{sector.name}</span><b>{sector.share.toFixed(1)}%</b></div><p>{sector.narrative}</p><dl><div><dt>Value</dt><dd>RM {sector.value.toFixed(1)}bn</dd></div><div><dt>Growth</dt><dd>{sector.changeYoY == null ? "—" : signedPercent(sector.changeYoY)}</dd></div><div><dt>Contribution</dt><dd>{sector.growthContribution == null ? "—" : `${sector.growthContribution.toFixed(1)}%`}</dd></div><div><dt>Market link</dt><dd>{sector.marketLink}</dd></div></dl></article>)}</div>
+    </>}
+  </div></section>;
+}
+
+function MacroTimelineSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const timeline: MacroTimeline | undefined = dashboard?.macroTimeline;
+  return <section className="section deep-section timeline-section page-section" id="timeline"><div className="shell">
+    <div className="section-heading light"><div><span className="section-number">13 / Timeline</span><h2>Macro event and evidence timeline</h2></div><p>Combines verified event dates, detected structural breaks and latest market observations in one chronological audit trail.</p></div>
+    {!timeline ? <div className="deep-empty">The macro timeline will appear when the version-eight dataset is available.</div> : <>
+      <div className="timeline-list">{[...timeline.entries].sort((a, b) => b.date.localeCompare(a.date)).map((entry) => <article key={`${entry.date}-${entry.title}`}><time>{formatDate(entry.date)}</time><div><span>{entry.category}</span><h3>{entry.title}</h3><p>{entry.evidence}</p><small>{entry.interpretation ?? "Context marker only; proximity does not prove causation."}</small><a href={entry.sourceUrl} target="_blank" rel="noreferrer">{entry.source} ↗</a></div></article>)}</div>
+      <p className="deep-disclaimer">{timeline.note}</p>
+    </>}
+  </div></section>;
+}
+
+function MonthlyReportSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const report = dashboard?.monthlyReport;
+  return <section className="section deep-section report-section page-section" id="report"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">15 / Report</span><h2>Latest generated report</h2></div><p>A recruiter-friendly written summary generated from the same validated dashboard payload.</p></div>
+    {!report ? <div className="deep-empty">The generated report will appear when the version-eight dataset is available.</div> : <>
+      <div className="deep-hero"><div><span>{formatDate(report.generatedAt.slice(0, 10))}</span><strong>{report.title}</strong></div><p>{report.summary ?? `Generated for ${report.period ? formatDate(report.period) : "the latest validated release"}.`}</p></div>
+      <div className="report-grid">{report.sections.map((section) => <article key={section.heading}><h3>{section.heading}</h3>{section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : <p>{section.body}</p>}</article>)}</div>
+      <div className="report-downloads">{report.downloads.map((item) => <a key={item.href ?? item.url} href={item.href ?? item.url}><span>{item.format ?? "Data"}</span>{item.label}</a>)}<a href="/api/report"><span>JSON</span>Generated report API</a></div>
+      <p className="deep-disclaimer">{report.disclaimer}</p>
+    </>}
+  </div></section>;
+}
+
+function DataHealthSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const health = dashboard?.dataHealth;
+  return <section className="section deep-section health-section page-section" id="health"><div className="shell">
+    <div className="section-heading light"><div><span className="section-number">16 / Data health</span><h2>Source freshness and validation audit</h2></div><p>Shows whether the dashboard is fresh, stale or using fallback data. Cached data is never labelled as live.</p></div>
+    {!health ? <div className="deep-empty">Data-health details will appear when the version-eight dataset is available.</div> : <>
+      <div className="deep-hero"><div><span>Schema version {health.schemaVersion}</span><strong>{levelLabel(health.overall)}</strong><b className={`risk-pill ${health.overall}`}>{health.staleCount} stale</b></div><p>{health.note}</p></div>
+      <div className="deep-table-wrap"><table><thead><tr><th>Source</th><th>Status</th><th>Observation period</th><th>Retrieved</th><th>Message</th></tr></thead><tbody>{health.sources.map((source) => <tr key={source.id}><td>{source.label ?? source.id}</td><td><span className={`risk-pill ${source.status}`}>{source.status}</span></td><td>{source.period || source.observationPeriod ? formatDate(source.period ?? source.observationPeriod ?? "") : "—"}</td><td>{source.retrievedAt ? formatDate(source.retrievedAt.slice(0, 10)) : "—"}</td><td>{source.message}</td></tr>)}</tbody></table></div>
+    </>}
+  </div></section>;
+}
+
 function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardPayload | null; forecastPoints: Array<{ month: string; value: number }> }) {
   const [coreDelta, setCoreDelta] = useState(0);
   const [fxDelta, setFxDelta] = useState(0);
@@ -1287,7 +1373,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bursa": "/bursa", "#decisions": "/decisions", "#structural": "/structural", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1417,11 +1503,23 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "external" && <ExternalSectorSection dashboard={dashboard} />}
 
+      {section === "bop" && <BalancePaymentsSection dashboard={dashboard} />}
+
+      {section === "household" && <HouseholdPressureSection dashboard={dashboard} />}
+
+      {section === "sectors" && <SectorDeepDiveSection dashboard={dashboard} />}
+
       {section === "bursa" && <BursaSection dashboard={dashboard} />}
 
       {section === "decisions" && <DecisionGuideSection dashboard={dashboard} />}
 
+      {section === "timeline" && <MacroTimelineSection dashboard={dashboard} />}
+
       {section === "structural" && <StructuralSection dashboard={dashboard} />}
+
+      {section === "report" && <MonthlyReportSection dashboard={dashboard} />}
+
+      {section === "health" && <DataHealthSection dashboard={dashboard} />}
 
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">

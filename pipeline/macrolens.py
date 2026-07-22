@@ -42,6 +42,8 @@ GDP_DEMAND_URL = "https://storage.dosm.gov.my/gdp/gdp_qtr_nominal_demand.csv"
 GDP_DEMAND_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand"
 TRADE_HEADLINE_URL = "https://storage.dosm.gov.my/trade/trade_headline.csv"
 TRADE_HEADLINE_SOURCE_URL = "https://data.gov.my/data-catalogue/trade_headline"
+BOP_BALANCE_URL = "https://storage.dosm.gov.my/bop/bop_balance.csv"
+BOP_BALANCE_SOURCE_URL = "https://data.gov.my/data-catalogue/bop_balance"
 CPI_WEIGHTS_SOURCE_URL = "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"
 GDP_SECTORS = {
     "p1": "Agriculture",
@@ -590,6 +592,236 @@ def build_external_sector(previous: dict | None, retrieved: str) -> dict:
             "retrievedAt": retrieved,
             "message": f"Using last valid trade data: {type(error).__name__}",
         }
+
+
+def parse_bop_balance(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"date", "account", "balance"}
+    if not required.issubset(frame.columns):
+        raise ValueError("BOP source structure changed")
+    names = {
+        "ca": "Current account",
+        "ka": "Capital account",
+        "fa": "Financial account",
+        "reserves": "Official reserve account",
+        "neo": "Net errors and omissions",
+    }
+    selected = frame.loc[frame["account"].isin(names), list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    selected["balance"] = pd.to_numeric(selected["balance"], errors="raise")
+    selected = selected.dropna(subset=["date", "account", "balance"]).sort_values(["date", "account"])
+    if selected.empty:
+        raise ValueError("BOP source is empty")
+    if selected.duplicated(["date", "account"]).any():
+        raise ValueError("BOP source contains duplicate quarter-account rows")
+    quarters = []
+    for date, quarter_frame in selected.groupby("date", sort=True):
+        accounts = []
+        for row in quarter_frame.itertuples(index=False):
+            accounts.append({
+                "id": str(row.account),
+                "name": names[str(row.account)],
+                "balance": round(float(row.balance) / 1000, 3),
+            })
+        if len(accounts) == len(names):
+            quarters.append({"date": date.strftime("%Y-%m-%d"), "accounts": accounts})
+    if len(quarters) < 20:
+        raise ValueError("BOP source has insufficient quarterly history")
+    latest = quarters[-1]
+    latest_accounts = {item["id"]: item for item in latest["accounts"]}
+    prior = quarters[-2]
+    prior_accounts = {item["id"]: item for item in prior["accounts"]}
+    current = latest_accounts["ca"]["balance"]
+    financial = latest_accounts["fa"]["balance"]
+    reserves = latest_accounts["reserves"]["balance"]
+    direction = "surplus" if current > 0 else "deficit" if current < 0 else "balanced"
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": latest["date"],
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": BOP_BALANCE_SOURCE_URL,
+        "datasetUrl": BOP_BALANCE_URL,
+        "frequency": "Quarterly",
+        "unit": "RM billion",
+        "quarters": quarters,
+        "summary": {
+            "latestDate": latest["date"],
+            "currentAccount": current,
+            "currentAccountChange": round(current - prior_accounts["ca"]["balance"], 3),
+            "financialAccount": financial,
+            "reserveAccount": reserves,
+            "largestAbsoluteComponent": max(latest["accounts"], key=lambda item: abs(item["balance"]))["name"],
+            "reading": direction,
+        },
+        "narratives": {
+            "externalPosition": f"Malaysia's latest current account is a RM {abs(current):.1f} billion {direction}. The financial account balance is RM {financial:+.1f} billion and the official reserve account balance is RM {reserves:+.1f} billion.",
+            "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions.",
+        },
+        "message": "Official quarterly BOP component balances validated",
+    }
+
+
+def build_balance_payments(previous: dict | None, retrieved: str) -> dict:
+    try:
+        return parse_bop_balance(read_csv(BOP_BALANCE_URL), retrieved)
+    except Exception as error:
+        old = (previous or {}).get("balancePayments")
+        if not old or not old.get("quarters"):
+            raise
+        return {
+            **copy.deepcopy(old),
+            "status": "stale",
+            "retrievedAt": retrieved,
+            "message": f"Using last valid BOP data: {type(error).__name__}",
+        }
+
+
+def build_household_pressure(series: dict[str, dict], market: dict, risk: dict, generated_at: str) -> dict:
+    headline = float(series["headline"]["points"][-1]["value"])
+    core = float(series["core"]["points"][-1]["value"])
+    opr = float(series["opr"]["points"][-1]["value"])
+    unemployment = float(series["unemployment"]["points"][-1]["value"])
+    fx = float(series["fx"]["points"][-1]["value"])
+    market_return = float(market["summary"].get("return1Y") or 0)
+    components = [
+        {"id": "cost-of-living", "label": "Cost of living", "score": 30 if headline < 2 else 55 if headline < 3 else 80, "evidence": f"Headline inflation is {headline:.1f}% and core inflation is {core:.1f}%.", "watch": "Track your own food, transport, rent and utilities basket rather than relying only on national CPI."},
+        {"id": "debt-service", "label": "Debt service", "score": 35 if opr < 2.5 else 60 if opr < 3.25 else 80, "evidence": f"The OPR is {opr:.2f}%, which anchors many floating-rate loan discussions.", "watch": "Stress-test mortgage, hire-purchase and personal-loan instalments before taking new commitments."},
+        {"id": "job-income", "label": "Job and income", "score": 25 if unemployment < 4 else 55 if unemployment < 5 else 80, "evidence": f"Unemployment is {unemployment:.1f}%.", "watch": "National unemployment can hide weaker hiring in specific sectors or regions."},
+        {"id": "imported-spending", "label": "Imported spending", "score": 30 if fx < 4.2 else 55 if fx < 4.6 else 80, "evidence": f"USD/MYR is RM {fx:.4f}.", "watch": "Foreign-currency subscriptions, travel, imported goods and overseas education can move differently from local CPI."},
+        {"id": "wealth-risk", "label": "Market wealth", "score": 35 if market_return > 5 else 55 if market_return > -5 else 80, "evidence": f"KLCI one-year price return is {market_return:+.1f}%.", "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."},
+    ]
+    average = round(sum(item["score"] for item in components) / len(components), 1)
+    return {
+        "generatedAt": generated_at,
+        "status": risk.get("status", "partial"),
+        "overallScore": average,
+        "overallLevel": _heat_level(int(average)),
+        "summary": f"Household pressure is {_heat_level(int(average))}, led by {max(components, key=lambda item: item['score'])['label'].lower()} in the current rule-based screen.",
+        "components": components,
+        "scenarios": [
+            {"title": "Variable-rate borrower", "prompt": "If policy-rate pressure remains elevated, check whether repayments still fit after a 50-100 bp stress test.", "limit": "Actual loan pricing depends on lender, tenure, collateral and borrower profile."},
+            {"title": "New property buyer", "prompt": "Compare rent, ownership costs, maintenance and cash buffer after down payment before relying on future price appreciation.", "limit": "This is not a property recommendation and does not assess any location."},
+            {"title": "Early-career worker", "prompt": "Use stable labour periods to build emergency savings, portfolio evidence and transferable skills.", "limit": "Occupation-specific hiring can diverge from national unemployment."},
+            {"title": "Long-term investor", "prompt": "Use diversification and time horizon rather than the latest Bursa move as the decision anchor.", "limit": "Returns exclude dividends, fees and taxes and are not forecasts."},
+        ],
+        "disclaimer": "Educational household-pressure screen only. It is not personalised financial, investment, property, tax, legal or career advice.",
+    }
+
+
+def build_sector_deep_dive(growth_drivers: dict, market: dict, external: dict, generated_at: str) -> dict:
+    production = growth_drivers.get("production", {})
+    latest_year = production.get("years", [{}])[-1]
+    sectors = []
+    for sector in latest_year.get("sectors", []):
+        export_link = "high" if sector["id"] in {"p2", "p3", "p1"} else "moderate" if sector["id"] == "p5" else "low"
+        market_link = "direct and indirect" if sector["id"] in {"p3", "p5", "p2"} else "mostly indirect"
+        risk_score = 35 + (10 if export_link == "high" and external["summary"].get("exportsYoY", 0) < 0 else 0) + (10 if (sector.get("changeYoY") or 0) < 0 else 0)
+        sectors.append({
+            "id": sector["id"],
+            "name": sector["name"],
+            "share": sector["share"],
+            "value": sector["value"],
+            "changeYoY": sector.get("changeYoY"),
+            "growthContribution": sector.get("growthContribution"),
+            "exportLink": export_link,
+            "marketLink": market_link,
+            "riskLevel": _heat_level(risk_score),
+            "narrative": f"{sector['name']} accounts for {sector['share']:.1f}% of nominal GDP in {latest_year.get('year')}. Its current-price output change is {sector.get('changeYoY') if sector.get('changeYoY') is not None else 0:+.1f}% where prior-year comparison is available.",
+        })
+    return {
+        "generatedAt": generated_at,
+        "status": growth_drivers.get("status", "partial"),
+        "year": latest_year.get("year"),
+        "summary": f"The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for {latest_year.get('year')}.",
+        "sectors": sectors,
+        "source": production.get("source", "Department of Statistics Malaysia via data.gov.my"),
+        "sourceUrl": production.get("sourceUrl", GDP_STRUCTURE_SOURCE_URL),
+        "limitations": "Sector screens describe broad economic structure. They do not forecast company earnings or identify investable stocks.",
+    }
+
+
+def build_macro_timeline(series: dict[str, dict], structural: dict, market: dict, generated_at: str) -> dict:
+    entries = []
+    for event in EVENT_CATALOGUE:
+        entries.append({**event, "type": "official-event", "evidence": "Version-controlled event catalogue with official source link."})
+    for key, indicator in structural.get("indicators", {}).items():
+        for candidate in indicator.get("candidates", []):
+            if candidate.get("status") in {"supported", "possible"}:
+                entries.append({
+                    "date": candidate["breakPeriod"],
+                    "title": f"{candidate['statusLabel']} in {SPECS.get(key, SeriesSpec(key, key, '', 1, '', '', '', 0, 0, 0)).title}",
+                    "category": "Structural diagnostics",
+                    "source": "MacroLens structural-break screen",
+                    "sourceUrl": "/api/structural-breaks?format=json",
+                    "type": "statistical-break",
+                    "evidence": f"Adjusted Chow p {candidate['chow']['pHolm']:.3f}; HAC p {candidate['hacWald']['pValue']:.3f}.",
+                })
+    entries.append({"date": market["summary"]["latestDate"], "title": "Latest Bursa KLCI observation", "category": "Market data", "source": market["benchmark"]["source"], "sourceUrl": market["benchmark"]["sourceUrl"], "type": "latest-observation", "evidence": f"KLCI one-year price return {market['summary'].get('return1Y') or 0:+.1f}%."})
+    entries.sort(key=lambda item: item["date"])
+    return {
+        "generatedAt": generated_at,
+        "status": "fresh" if structural.get("status") == "fresh" else "partial",
+        "entries": entries,
+        "summary": "The timeline combines official Malaysian events, data-selected structural breaks and the latest market observation. Event proximity is context, not causal proof.",
+        "limitations": "Structural-break candidates are exploratory and may change after official data revisions.",
+    }
+
+
+def build_data_health(payload: dict, generated_at: str) -> dict:
+    source_rows = []
+    for key, source in payload.get("sources", {}).items():
+        source_rows.append({"id": key, **source})
+    extra = [
+        ("market", payload.get("market", {})),
+        ("economicStructure", payload.get("economicStructure", {})),
+        ("externalSector", payload.get("externalSector", {})),
+        ("balancePayments", payload.get("balancePayments", {})),
+    ]
+    for key, source in extra:
+        if source:
+            source_rows.append({
+                "id": key,
+                "status": source.get("status", "fresh"),
+                "retrievedAt": source.get("retrievedAt", generated_at),
+                "observationPeriod": source.get("observationPeriod") or source.get("summary", {}).get("latestDate", ""),
+                "message": source.get("message", "Validated"),
+            })
+    stale_count = sum(1 for row in source_rows if row.get("status") != "fresh")
+    return {
+        "generatedAt": generated_at,
+        "schemaVersion": payload.get("schemaVersion"),
+        "overallHealth": payload.get("health"),
+        "sourceCount": len(source_rows),
+        "staleCount": stale_count,
+        "sources": source_rows,
+        "refresh": payload.get("dataOperations", {}),
+        "summary": f"{len(source_rows) - stale_count} of {len(source_rows)} source groups are fresh in the latest generated payload.",
+    }
+
+
+def build_monthly_report(payload: dict, generated_at: str) -> dict:
+    brief = payload["latestBrief"]
+    risk = payload["riskHeatmap"]
+    bop = payload["balancePayments"]
+    household = payload["householdPressure"]
+    return {
+        "generatedAt": generated_at,
+        "title": "MacroLens Malaysia monthly research brief",
+        "period": brief["period"],
+        "sections": [
+            {"heading": "Main macro reading", "body": brief["headline"]},
+            {"heading": "Risk heatmap", "body": risk["summary"]},
+            {"heading": "Household pressure", "body": household["summary"]},
+            {"heading": "External position", "body": bop["narratives"]["externalPosition"]},
+            {"heading": "Forecast", "body": payload["narratives"]["forecast"]},
+        ],
+        "downloads": [
+            {"label": "Dashboard JSON", "url": "/api/dashboard-v7"},
+            {"label": "Structural diagnostics CSV", "url": "/api/structural-breaks?format=csv"},
+            {"label": "Structural diagnostics JSON", "url": "/api/structural-breaks?format=json"},
+        ],
+        "disclaimer": "This report is generated from validated dashboard data and is educational analysis, not personalised financial advice.",
+    }
 
 
 def market_statistics(points: list[dict]) -> dict:
@@ -1381,12 +1613,16 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     economic_structure = build_economic_structure(previous, retrieved)
     growth_drivers = build_growth_drivers(previous, retrieved, economic_structure)
     external_sector = build_external_sector(previous, retrieved)
+    balance_payments = build_balance_payments(previous, retrieved)
     risk_heatmap = build_risk_heatmap(series, market_data, growth_drivers, external_sector, retrieved)
     latest_brief = build_latest_brief(series, forecast_data, market_data, growth_drivers, external_sector, risk_heatmap, retrieved)
+    household_pressure = build_household_pressure(series, market_data, risk_heatmap, retrieved)
+    sector_deep_dive = build_sector_deep_dive(growth_drivers, market_data, external_sector, retrieved)
+    macro_timeline = build_macro_timeline(series, structural_data, market_data, retrieved)
     payload = {
-        "schemaVersion": 7,
+        "schemaVersion": 8,
         "generatedAt": retrieved,
-        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" else "partial",
+        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" and balance_payments["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
@@ -1397,12 +1633,18 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "economicStructure": economic_structure,
         "growthDrivers": growth_drivers,
         "externalSector": external_sector,
+        "balancePayments": balance_payments,
+        "householdPressure": household_pressure,
+        "sectorDeepDive": sector_deep_dive,
+        "macroTimeline": macro_timeline,
         "riskHeatmap": risk_heatmap,
         "latestBrief": latest_brief,
         "decisionGuide": build_decision_guide(series, market_data, retrieved, risk_heatmap, external_sector),
         "dataOperations": build_data_operations(series, retrieved),
         "narratives": narrative(series, forecast_data),
     }
+    payload["dataHealth"] = build_data_health(payload, retrieved)
+    payload["monthlyReport"] = build_monthly_report(payload, retrieved)
     if previous:
         candidate = copy.deepcopy(payload)
         baseline = copy.deepcopy(previous)
@@ -1418,12 +1660,24 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         baseline.get("economicStructure", {}).pop("retrievedAt", None)
         candidate.get("externalSector", {}).pop("retrievedAt", None)
         baseline.get("externalSector", {}).pop("retrievedAt", None)
+        candidate.get("balancePayments", {}).pop("retrievedAt", None)
+        baseline.get("balancePayments", {}).pop("retrievedAt", None)
         candidate.get("growthDrivers", {}).pop("generatedAt", None)
         baseline.get("growthDrivers", {}).pop("generatedAt", None)
         candidate.get("riskHeatmap", {}).pop("generatedAt", None)
         baseline.get("riskHeatmap", {}).pop("generatedAt", None)
         candidate.get("latestBrief", {}).pop("generatedAt", None)
         baseline.get("latestBrief", {}).pop("generatedAt", None)
+        candidate.get("householdPressure", {}).pop("generatedAt", None)
+        baseline.get("householdPressure", {}).pop("generatedAt", None)
+        candidate.get("sectorDeepDive", {}).pop("generatedAt", None)
+        baseline.get("sectorDeepDive", {}).pop("generatedAt", None)
+        candidate.get("macroTimeline", {}).pop("generatedAt", None)
+        baseline.get("macroTimeline", {}).pop("generatedAt", None)
+        candidate.get("dataHealth", {}).pop("generatedAt", None)
+        baseline.get("dataHealth", {}).pop("generatedAt", None)
+        candidate.get("monthlyReport", {}).pop("generatedAt", None)
+        baseline.get("monthlyReport", {}).pop("generatedAt", None)
         if candidate == baseline:
             return previous
     return payload

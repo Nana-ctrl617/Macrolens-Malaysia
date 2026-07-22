@@ -22,6 +22,8 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Last successful refresh/);
   assert.match(html, /Latest brief/);
   assert.match(html, /Risk heatmap/);
+  assert.match(html, /Households/);
+  assert.match(html, /Data health/);
   assert.doesNotMatch(html, /Malaysia inflation monitor|See the pressure|Read the direction/);
   assert.match(html, /Structural shifts/);
   assert.match(html, /Open historical data for Headline inflation/);
@@ -42,9 +44,15 @@ test("renders each dashboard section on its own route", async () => {
     ["/drivers", "What contributes to inflation", "Drivers"],
     ["/structure", "What drives Malaysia(?:'|&#x27;)s economic value", "Growth drivers"],
     ["/external", "Trade, exports and imported-cost pressure", "External sector"],
+    ["/bop", "External financing position", "BOP"],
+    ["/household", "Household pressure monitor", "Households"],
+    ["/sectors", "How sectors connect to markets and external demand", "Sectors"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
+    ["/timeline", "Macro event and evidence timeline", "Timeline"],
     ["/structural", "When the pattern changed", "Structural shifts"],
+    ["/report", "Latest generated report", "Report"],
+    ["/health", "Source freshness and validation audit", "Data health"],
     ["/methodology", "Built to be questioned", "Methodology"],
   ];
   for (const [path, heading, activeLabel] of routes) {
@@ -71,7 +79,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 7);
+  assert.equal(body.schemaVersion, 8);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -88,6 +96,12 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.riskHeatmap.items.length >= 9);
   assert.ok(body.growthDrivers.demand.years.length >= 5);
   assert.ok(body.externalSector.points.length >= 60);
+  assert.ok(body.balancePayments.quarters.length >= 20);
+  assert.ok(body.householdPressure.components.length >= 5);
+  assert.ok(body.sectorDeepDive.sectors.length >= 5);
+  assert.ok(body.macroTimeline.entries.length >= 5);
+  assert.ok(body.dataHealth.sources.length >= 8);
+  assert.ok(body.monthlyReport.sections.length >= 5);
   assert.equal(body.externalSector.summary.tradeReading.includes("exports") || body.externalSector.summary.tradeReading.includes("imports") || body.externalSector.summary.tradeReading.includes("balanced"), true);
   assert.equal(body.categories.length, 13);
   assert.equal(body.categories.reduce((sum, item) => sum + item.weight, 0), 100);
@@ -100,9 +114,18 @@ test("serves the versioned dashboard endpoint used by the browser app", async ()
   const response = await render("/api/dashboard-v7");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 7);
+  assert.equal(body.schemaVersion, 8);
   assert.ok(body.latestBrief.headline);
   assert.ok(body.riskHeatmap.items.length >= 9);
+  assert.ok(body.householdPressure.components.length >= 5);
+});
+
+test("serves the generated monthly report endpoint", async () => {
+  const response = await render("/api/report");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.ok(body.title);
+  assert.ok(body.sections.length >= 5);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {
@@ -123,3 +146,4 @@ test("downloads structural diagnostics as CSV and JSON", async () => {
   const body = await jsonResponse.json();
   assert.equal(body.indicators.unemployment.indicatorId, "unemployment");
 });
+
