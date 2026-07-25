@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 process.env.DASHBOARD_DATA_URL = "http://127.0.0.1:9/dashboard.json";
+process.env.NEWS_RSS_FIXTURE = `<?xml version="1.0"?><rss><channel>
+  <item><title>Malaysia economy expands as exports improve - Test News</title><link>https://example.com/economy</link><pubDate>Sat, 25 Jul 2026 02:00:00 GMT</pubDate><source url="https://example.com">Test News</source><description>Malaysia GDP and exports improved while economists watched the ringgit.</description></item>
+  <item><title>BNM keeps focus on inflation and policy rate - Test Markets</title><link>https://example.com/bnm</link><pubDate>Fri, 24 Jul 2026 02:00:00 GMT</pubDate><source url="https://example.com/markets">Test Markets</source><description>Bank Negara Malaysia commentary discussed inflation, OPR and market conditions.</description></item>
+</channel></rss>`;
 
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -21,6 +25,7 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /prices, interest rates, jobs, the ringgit and government bonds/);
   assert.match(html, /Last successful refresh/);
   assert.match(html, /Latest brief/);
+  assert.match(html, /Latest headlines/);
   assert.match(html, /Risk heatmap/);
   assert.match(html, /Households/);
   assert.match(html, /Data health/);
@@ -39,6 +44,7 @@ test("renders the MacroLens public dashboard", async () => {
 test("renders each dashboard section on its own route", async () => {
   const routes = [
     ["/brief", "Latest economic brief", "Brief"],
+    ["/news", "Latest Malaysia economy headlines", "News"],
     ["/risk", "Where pressure is building", "Risk heatmap"],
     ["/forecast", "Three months ahead", "Forecast"],
     ["/drivers", "What contributes to inflation", "Drivers"],
@@ -126,6 +132,17 @@ test("serves the generated monthly report endpoint", async () => {
   const body = await response.json();
   assert.ok(body.title);
   assert.ok(body.sections.length >= 5);
+});
+
+test("serves latest Malaysia economy headlines", async () => {
+  const response = await render("/api/news");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.schemaVersion, 1);
+  assert.equal(body.status, "fresh");
+  assert.ok(body.items.length >= 2);
+  assert.ok(body.items[0].topics.length > 0);
+  assert.match(body.disclaimer, /context only/i);
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

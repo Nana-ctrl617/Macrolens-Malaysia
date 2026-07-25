@@ -43,11 +43,12 @@ const fallbackCategories = [
   { code: "10", name: "Education", value: 2.0, weight: 1.3 },
 ].map((item) => ({ ...item, contribution: Number((item.weight * item.value / 100).toFixed(3)) }));
 
-export type DashboardSection = "snapshot" | "brief" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
+export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
   { id: "brief", label: "Brief", href: "/brief" },
+  { id: "news", label: "News", href: "/news" },
   { id: "risk", label: "Risk heatmap", href: "/risk" },
   { id: "forecast", label: "Forecast", href: "/forecast" },
   { id: "drivers", label: "Drivers", href: "/drivers" },
@@ -109,6 +110,26 @@ type IndicatorData = {
   frequency: string;
   points: DataPoint[];
   structuralBreaks?: StructuralIndicator;
+};
+type NewsItem = {
+  title: string;
+  link: string;
+  publishedAt: string;
+  source: string;
+  sourceUrl?: string;
+  summary: string;
+  topics: string[];
+  relevanceScore: number;
+};
+type NewsPayload = {
+  schemaVersion: number;
+  generatedAt: string;
+  status: "fresh" | "partial" | "unavailable";
+  refreshPolicy: string;
+  queryWindow: string;
+  sources: Array<{ id: string; label: string; url: string; status: string; message: string }>;
+  items: NewsItem[];
+  disclaimer: string;
 };
 
 function formatDate(date: string) {
@@ -962,6 +983,69 @@ function RiskHeatmapSection({ dashboard }: { dashboard: DashboardPayload | null 
   </div></section>;
 }
 
+function NewsSection() {
+  const [news, setNews] = useState<NewsPayload | null>(null);
+  const [topic, setTopic] = useState("All");
+  const [source, setSource] = useState("All");
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/news?refresh=${Date.now()}`, { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("News unavailable");
+        return response.json() as Promise<NewsPayload>;
+      })
+      .then((payload) => active && setNews(payload))
+      .catch(() => active && setNews({
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        status: "unavailable",
+        refreshPolicy: "News feeds are temporarily unavailable.",
+        queryWindow: "Past seven days",
+        sources: [],
+        items: [],
+        disclaimer: "News headlines are unavailable right now. The official statistical dashboard remains available.",
+      }));
+    return () => { active = false; };
+  }, []);
+
+  const topics = useMemo(() => ["All", ...Array.from(new Set((news?.items ?? []).flatMap((item) => item.topics))).sort()], [news]);
+  const sources = useMemo(() => ["All", ...Array.from(new Set((news?.items ?? []).map((item) => item.source))).sort()], [news]);
+  const filtered = useMemo(() => (news?.items ?? []).filter((item) => (
+    (topic === "All" || item.topics.includes(topic))
+    && (source === "All" || item.source === source)
+  )), [news, topic, source]);
+  const featured = filtered[0];
+  const generated = news ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(news.generatedAt)) : "Loading";
+
+  return <section className="section news-section page-section" id="news"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">03 / News</span><h2>Latest Malaysia economy headlines</h2></div><p>Recent headlines that may help explain what markets and policymakers are discussing. This complements the official data; it does not replace statistical evidence.</p></div>
+    <div className="news-meta">
+      <span>Last checked · {generated}</span>
+      <b className={`risk-pill ${news?.status ?? "partial"}`}>{news?.status ?? "loading"}</b>
+      <small>{news?.queryWindow ?? "Past seven days"} · fetched from public RSS/search feeds</small>
+    </div>
+    <div className="news-toolbar">
+      <label><span>Topic</span><select value={topic} onChange={(event) => setTopic(event.currentTarget.value)}>{topics.map((item) => <option key={item}>{item}</option>)}</select></label>
+      <label><span>Source</span><select value={source} onChange={(event) => setSource(event.currentTarget.value)}>{sources.map((item) => <option key={item}>{item}</option>)}</select></label>
+    </div>
+    {!news ? <div className="news-empty">Loading latest economy headlines…</div> : !filtered.length ? <div className="news-empty">No matching headlines found for this filter.</div> : <>
+      {featured && <article className="news-featured">
+        <div><span>{featured.topics.join(" · ")}</span><h3>{featured.title}</h3><p>{featured.summary || "Open the source article for the full context."}</p></div>
+        <aside><strong>{featured.source}</strong><time>{formatDate(featured.publishedAt.slice(0, 10))}</time><a href={featured.link} target="_blank" rel="noreferrer">Read source ↗</a></aside>
+      </article>}
+      <div className="news-grid">{filtered.slice(1, 12).map((item) => <article key={item.link} className="news-card">
+        <div>{item.topics.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div>
+        <h3><a href={item.link} target="_blank" rel="noreferrer">{item.title}</a></h3>
+        <p>{item.summary || "Open the article for details."}</p>
+        <footer><b>{item.source}</b><time>{formatDate(item.publishedAt.slice(0, 10))}</time></footer>
+      </article>)}</div>
+      <div className="news-sources"><p>{news.refreshPolicy}</p>{news.sources.map((item) => <a key={item.id} href={item.url} target="_blank" rel="noreferrer"><span className={`risk-pill ${item.status}`}>{item.status}</span>{item.label}</a>)}</div>
+      <p className="deep-disclaimer">{news.disclaimer}</p>
+    </>}
+  </div></section>;
+}
+
 function ExternalChart({ points, metric }: { points: TradePoint[]; metric: "balance" | "exports" | "imports" }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hovered, setHovered] = useState<{ point: TradePoint; left: number; top: number; tooltipLeft: number } | null>(null);
@@ -1373,7 +1457,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#news": "/news", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1436,6 +1520,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
         </aside>
         <div className="snapshot-completion">
           <a href="/brief"><span>Latest brief</span><strong>{dashboard?.latestBrief?.headline ?? "Monthly brief loading"}</strong><small>What changed, possible reasons, watch list and decision context.</small></a>
+          <a href="/news"><span>Latest headlines</span><strong>Malaysia economy news</strong><small>Fresh headlines on inflation, BNM, ringgit, Bursa, GDP, trade and jobs.</small></a>
           <a href="/risk"><span>Risk heatmap</span><strong>{dashboard?.riskHeatmap ? `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Rule-based scores for prices, jobs, rates, FX, bonds, Bursa, GDP and trade.</small></a>
         </div>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
@@ -1452,6 +1537,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       </>}
 
       {section === "brief" && <BriefSection dashboard={dashboard} />}
+
+      {section === "news" && <NewsSection />}
 
       {section === "risk" && <RiskHeatmapSection dashboard={dashboard} />}
 
