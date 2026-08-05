@@ -96,6 +96,60 @@ function Header({ active }: { active: DashboardSection }) {
   );
 }
 
+type PictureVariant = "city" | "prices" | "trade" | "markets" | "household" | "research";
+
+const pictureCopy: Record<PictureVariant, { title: string; caption: string; aria: string }> = {
+  city: {
+    title: "Malaysia macro dashboard",
+    caption: "Prices, jobs, rates and growth in one public view.",
+    aria: "Illustration of Malaysia's economy with city blocks and dashboard signals",
+  },
+  prices: {
+    title: "Inflation basket",
+    caption: "Household prices, CPI categories and purchasing power.",
+    aria: "Illustration of a household inflation basket with price bars",
+  },
+  trade: {
+    title: "External sector",
+    caption: "Exports, imports, the ringgit and trade balance.",
+    aria: "Illustration of port cranes, containers and exchange-rate signals",
+  },
+  markets: {
+    title: "Financial markets",
+    caption: "Bursa, bonds, policy rates and market pressure.",
+    aria: "Illustration of market charts and financial conditions",
+  },
+  household: {
+    title: "Decision context",
+    caption: "Savings, borrowing, jobs and business planning scenarios.",
+    aria: "Illustration of households and companies using economic data",
+  },
+  research: {
+    title: "Statistical evidence",
+    caption: "Forecasts, structural shifts and reproducible methodology.",
+    aria: "Illustration of statistical tests, charts and research notes",
+  },
+};
+
+function EditorialPicture({ variant }: { variant: PictureVariant }) {
+  const copy = pictureCopy[variant];
+  return (
+    <figure className={`editorial-picture ${variant}`} role="img" aria-label={copy.aria}>
+      <div className="picture-scene" aria-hidden="true">
+        <i className="shape one" />
+        <i className="shape two" />
+        <i className="shape three" />
+        <i className="shape four" />
+      </div>
+      <figcaption><strong>{copy.title}</strong><span>{copy.caption}</span></figcaption>
+    </figure>
+  );
+}
+
+function PictureStrip({ pictures }: { pictures: PictureVariant[] }) {
+  return <div className="picture-strip">{pictures.map((picture) => <EditorialPicture key={picture} variant={picture} />)}</div>;
+}
+
 type MetricId = "headline" | "core" | "opr" | "unemployment" | "fx" | "mgs";
 type Metric = { id: MetricId; label: string; value: string; detail: string; period: string; tone: string; status?: string };
 type RangeKey = "1Y" | "3Y" | "5Y" | "10Y" | "ALL" | "CUSTOM";
@@ -952,6 +1006,7 @@ function BriefSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const risk = dashboard?.riskHeatmap;
   return <section className="section brief-section page-section" id="brief"><div className="shell">
     <div className="section-heading"><div><span className="section-number">02 / Brief</span><h2>Latest economic brief</h2></div><p>A concise monthly reading of what changed, why it may have happened, what to watch next, and what it could mean for households and companies.</p></div>
+    <PictureStrip pictures={["city", "prices", "markets"]} />
     {!brief ? <div className="brief-empty">The latest brief will appear when the version-seven dataset is available.</div> : <>
       <div className="brief-hero"><div><span className="brief-label">Generated briefing</span><h3>{brief.headline}</h3><p>Last refreshed {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${brief.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : brief.status === "fresh" ? "Latest data included" : "Some inputs cached"}</em></div>
       <div className="brief-grid">
@@ -975,6 +1030,7 @@ function RiskHeatmapSection({ dashboard }: { dashboard: DashboardPayload | null 
   }, [risk]);
   return <section className="section risk-section page-section" id="risk"><div className="shell">
     <div className="section-heading light"><div><span className="section-number">03 / Risk heatmap</span><h2>Where pressure is building</h2></div><p>Each score is rule-based and auditable. It is a monitoring screen, not a forecast or investment signal.</p></div>
+    <PictureStrip pictures={["prices", "markets", "trade"]} />
     {!risk ? <div className="risk-empty">The risk heatmap will appear when the version-seven dataset is available.</div> : <>
       <div className="risk-overview"><article><span>Overall screen</span><strong>{risk.overallScore.toFixed(1)}</strong><b className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</b></article><div><p>{risk.summary}</p><small>{risk.method}</small></div></div>
       <div className="risk-groups">{grouped.map(([group, items]) => <section key={group}><h3>{group}</h3>{items.map((item) => <article key={item.id} className={`risk-card ${item.level}`}><div><span>{item.label}</span><strong>{item.score}</strong></div><p>{item.evidence}</p><small>{item.rule}</small><em>{item.watch}</em></article>)}</section>)}</div>
@@ -1020,6 +1076,7 @@ function NewsSection() {
 
   return <section className="section news-section page-section" id="news"><div className="shell">
     <div className="section-heading"><div><span className="section-number">03 / News</span><h2>Latest Malaysia economy headlines</h2></div><p>Recent headlines that may help explain what markets and policymakers are discussing. This complements the official data; it does not replace statistical evidence.</p></div>
+    <PictureStrip pictures={["city", "trade", "markets"]} />
     <div className="news-meta">
       <span>Last checked · {generated}</span>
       <b className={`risk-pill ${news?.status ?? "partial"}`}>{news?.status ?? "loading"}</b>
@@ -1115,6 +1172,7 @@ function ExternalSectorSection({ dashboard }: { dashboard: DashboardPayload | nu
   }, [external, range]);
   return <section className="section external-section page-section" id="external"><div className="shell">
     <div className="section-heading"><div><span className="section-number">07 / External sector</span><h2>Trade, exports and imported-cost pressure</h2></div><p>Goods trade helps explain how external demand, the ringgit and imported costs can flow through the Malaysian economy.</p></div>
+    <PictureStrip pictures={["trade", "markets", "prices"]} />
     {!external ? <div className="external-empty">External-sector data will appear when the version-seven dataset is available.</div> : <>
       <div className="external-summary"><article><span>Exports</span><strong>RM {external.summary.exports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.exportsYoY)} year on year</small></article><article><span>Imports</span><strong>RM {external.summary.imports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.importsYoY)} year on year</small></article><article><span>Trade balance</span><strong className={external.summary.balance >= 0 ? "up" : "down"}>RM {external.summary.balance > 0 ? "+" : ""}{external.summary.balance.toFixed(1)}bn</strong><small>Latest month · {formatDate(external.summary.latestDate)}</small></article><article><span>12-month balance</span><strong>RM {external.summary.last12Balance > 0 ? "+" : ""}{external.summary.last12Balance.toFixed(1)}bn</strong><small>{external.summary.tradeReading}</small></article></div>
       <div className="external-toolbar"><div role="group" aria-label="Choose trade chart measure">{(["balance", "exports", "imports"] as const).map((item) => <button key={item} className={metric === item ? "active" : ""} onClick={() => setMetric(item)}>{item === "balance" ? "Trade balance" : item[0].toUpperCase() + item.slice(1)}</button>)}</div><div role="group" aria-label="Choose trade chart time frame">{(["3Y", "5Y", "ALL"] as const).map((item) => <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item === "ALL" ? "All history" : item}</button>)}</div></div>
@@ -1136,6 +1194,7 @@ function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload |
   useEffect(() => { if (structure && year == null) setYear(structure.latestYear); }, [structure, year]);
   return <section className="section structure-section page-section" id="structure"><div className="shell">
     <div className="section-heading"><div><span className="section-number">06 / Growth drivers</span><h2>What drives Malaysia&apos;s economic value?</h2></div><p>Choose a year to compare the production side of GDP with the expenditure side: consumption, investment, exports, imports and inventories.</p></div>
+    <PictureStrip pictures={["city", "trade", "household"]} />
     {!structure || !selectedYear ? <div className="structure-empty">Economic-sector data will appear when the version-five dataset is available.</div> : <>
       <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><div className="driver-view-switch" role="group" aria-label="Choose GDP view"><button className={view === "production" ? "active" : ""} onClick={() => setView("production")}>Production side</button><button className={view === "expenditure" ? "active" : ""} onClick={() => setView("expenditure")}>Expenditure side</button></div><p><span className={`structure-status ${growth?.status ?? structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : growth?.status === "fresh" || structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
       {view === "production" && <div className="structure-overview">
@@ -1245,6 +1304,7 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const summary = market?.summary;
   return <section className="section market-section" id="bursa"><div className="shell">
     <div className="section-heading light"><div><span className="section-number">08 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
+    <PictureStrip pictures={["markets", "city", "research"]} />
     {!market || !summary ? <div className="market-empty">Market history will appear when the version-three dataset is available.</div> : <>
       <div className="market-overview">
         <article className="market-quote"><span>FTSE Bursa Malaysia KLCI</span><strong>{summary.latest.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><div><b className={summary.change1D >= 0 ? "positive" : "negative"}>{signedPercent(summary.change1D)}</b><small>latest trading day · {formatDate(summary.latestDate)}</small></div><em className={`market-status ${market.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : market.status === "fresh" ? "Delayed data · refreshed" : "Delayed data · cached"}</em></article>
@@ -1278,6 +1338,7 @@ function HouseholdPressureSection({ dashboard }: { dashboard: DashboardPayload |
   const household: HouseholdPressure | undefined = dashboard?.householdPressure;
   return <section className="section deep-section household-section page-section" id="household"><div className="shell">
     <div className="section-heading"><div><span className="section-number">10 / Households</span><h2>Household pressure monitor</h2></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
+    <PictureStrip pictures={["household", "prices", "markets"]} />
     {!household ? <div className="deep-empty">Household pressure analysis will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>Overall household pressure</span><strong>{household.overallScore.toFixed(1)}</strong><b className={`risk-pill ${household.overallLevel}`}>{levelLabel(household.overallLevel)}</b></div><p>{household.summary}</p></div>
       <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
@@ -1391,6 +1452,7 @@ function DriversSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const gap = decomposition?.reconciliationGap ?? headline - estimatedTotal;
   return <section className="section shell page-section" id="drivers">
     <div className="section-heading"><div><span className="section-number">05 / Drivers</span><h2>What contributes to inflation</h2></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
+    <PictureStrip pictures={["prices", "household", "research"]} />
     <div className="driver-summary"><article><span>Headline inflation</span><strong>{headline.toFixed(2)}%</strong></article><article><span>Weighted division estimate</span><strong>{estimatedTotal.toFixed(2)} pp</strong></article><article><span>Chain-index gap</span><strong>{gap > 0 ? "+" : ""}{gap.toFixed(2)} pp</strong></article></div>
     <div className="driver-view-switch" role="group" aria-label="Choose driver measure"><button className={view === "contribution" ? "active" : ""} onClick={() => setView("contribution")}>Weighted contribution</button><button className={view === "rate" ? "active" : ""} onClick={() => setView("rate")}>Category inflation rate</button></div>
     <div className="drivers-layout">
@@ -1428,6 +1490,7 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
   const cards = guide?.audiences[audience] ?? [];
   return <section className="section decision-section page-section" id="decisions"><div className="shell">
     <div className="section-heading"><div><span className="section-number">09 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
+    <PictureStrip pictures={["household", "markets", "research"]} />
     {!guide ? <div className="decision-empty">The decision guide will appear when the version-four dataset is available.</div> : <>
       <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={guide.status}>{guide.status === "fresh" ? "Latest signals incorporated" : "Some inputs use cached data"}</em></div>
       <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
@@ -1499,6 +1562,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <div><span className="section-number">01 / Snapshot</span><h2>Malaysia’s economy at a glance</h2></div>
           <p>Track the latest signals across prices, interest rates, jobs, the ringgit and government bonds—with official data and clear explanations.</p>
         </div>
+        <PictureStrip pictures={["city", "prices", "markets"]} />
         <div className="snapshot-meta">
           <span>Last successful refresh · {updatedAt}</span>
           <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
@@ -1548,6 +1612,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
             <div><span className="section-number">04 / Forecast</span><h2>Three months ahead</h2></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
+          <PictureStrip pictures={["research", "prices", "markets"]} />
           <div className="forecast-layout">
             <div className="forecast-card">
               <div className="forecast-scale"><span>−1%</span><span>0%</span><span>1%</span><span>2%</span><span>3%</span><span>4%</span><span>5%</span></div>
@@ -1611,6 +1676,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
           <div className="method-intro"><span className="section-number">11 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <PictureStrip pictures={["research", "trade", "city"]} />
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
             <li><span>02</span><div><h3>Align</h3><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>
