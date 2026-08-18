@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-08-13T07:02:12Z",
+  "calculatedAt": "2026-08-18T05:59:44Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -15,11 +15,11 @@
     "headline": {
       "indicatorId": "headline",
       "status": "fresh",
-      "calculatedAt": "2026-07-17T07:36:19Z",
+      "calculatedAt": "2026-08-18T05:59:44Z",
       "sample": {
         "start": "1981-01-01",
-        "end": "2026-06-01",
-        "observations": 546,
+        "end": "2026-07-01",
+        "observations": 547,
         "frequency": "Monthly",
         "minimumSegmentMonths": 24,
         "confidence": "standard"
@@ -29,28 +29,28 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 0,
-        "bic": -550.202427
+        "bic": -552.219668
       },
       "diagnostics": {
-        "adfStatistic": -4.428316,
-        "adfPValue": 0.00026439,
+        "adfStatistic": -4.42905,
+        "adfPValue": 0.0002636,
         "adfLags": 13,
-        "cusumStatistic": 0.470403,
-        "cusumPValue": 0.9798027
+        "cusumStatistic": 0.469701,
+        "cusumPValue": 0.98010724
       },
       "warnings": [],
       "candidates": [],
       "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "9c0662f456ead5ab51cd0afcadc68481503c38259688e0ce49c90fbc7923cf14"
+      "seriesFingerprint": "e4e203b378988b244d6b4f5074896d76ef775626c95e952315260b3934e7fe22"
     },
     "core": {
       "indicatorId": "core",
       "status": "fresh",
-      "calculatedAt": "2026-07-17T07:36:19Z",
+      "calculatedAt": "2026-08-18T05:59:44Z",
       "sample": {
         "start": "2019-01-01",
-        "end": "2026-06-01",
-        "observations": 90,
+        "end": "2026-07-01",
+        "observations": 91,
         "frequency": "Monthly",
         "minimumSegmentMonths": 24,
         "confidence": "standard"
@@ -60,14 +60,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 1,
-        "bic": -246.465549
+        "bic": -250.514111
       },
       "diagnostics": {
-        "adfStatistic": -2.142429,
-        "adfPValue": 0.22779941,
+        "adfStatistic": -2.160174,
+        "adfPValue": 0.2210161,
         "adfLags": 5,
-        "cusumStatistic": 0.786465,
-        "cusumPValue": 0.5663121
+        "cusumStatistic": 0.794624,
+        "cusumPValue": 0.55291311
       },
       "warnings": [
         "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
@@ -79,32 +79,32 @@
             "preStart": "2019-02-01",
             "preEnd": "2021-10-01",
             "postStart": "2021-11-01",
-            "postEnd": "2026-06-01",
+            "postEnd": "2026-07-01",
             "preObservations": 33,
-            "postObservations": 56
+            "postObservations": 57
           },
           "chow": {
-            "fStatistic": 7.064903,
+            "fStatistic": 7.206974,
             "dfNumerator": 3,
-            "dfDenominator": 83,
-            "pRaw": 0.00027511,
-            "pHolm": 0.00027511
+            "dfDenominator": 84,
+            "pRaw": 0.0002313,
+            "pHolm": 0.0002313
           },
           "hacWald": {
-            "statistic": 10.080908,
+            "statistic": 10.214085,
             "df": 3,
-            "pValue": 9.83e-06,
+            "pValue": 8.35e-06,
             "maxLags": 12
           },
           "regimeComparison": {
             "preMean": 1.012121,
-            "postMean": 2.3625,
-            "absoluteChange": 1.350379,
-            "percentChange": 133.4207,
+            "postMean": 2.352632,
+            "absoluteChange": 1.34051,
+            "percentChange": 132.4456,
             "preAnnualTrend": -0.229011,
-            "postAnnualTrend": -0.231183,
-            "annualTrendChange": -0.002172,
-            "standardisedMeanChange": 1.872949
+            "postAnnualTrend": -0.231475,
+            "annualTrendChange": -0.002465,
+            "standardisedMeanChange": 1.863597
           },
           "nearbyEvents": [
             {
@@ -120,8 +120,8 @@
           "statusLabel": "Supported structural shift"
         }
       ],
-      "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.35 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "699921ce3d706695cfd15c160338b85b6ebcce8b9e9f83f76bb2626a73804d43"
+      "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.34 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "3e1a7dd6170cdb664e20a8ca372bafbe95239207b9c4e1e9e16bcd3172858918"
     },
     "unemployment": {
       "indicatorId": "unemployment",

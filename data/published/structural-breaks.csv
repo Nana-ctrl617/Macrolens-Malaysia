@@ -1,5 +1,5 @@
 indicator,break_period,status,chow_f,chow_df_numerator,chow_df_denominator,chow_p_raw,chow_p_holm,hac_wald,hac_p,pre_mean,post_mean,absolute_change,pre_annual_trend,post_annual_trend,standardised_mean_change,nearby_events
-core,2021-11-01,Supported structural shift,7.064903,3,83,0.00027511,0.00027511,10.080908,9.83e-06,1.012121,2.3625,1.350379,-0.229011,-0.231183,1.872949,OPR changed to 2.00%
+core,2021-11-01,Supported structural shift,7.206974,3,84,0.0002313,0.0002313,10.214085,8.35e-06,1.012121,2.352632,1.34051,-0.229011,-0.231475,1.863597,OPR changed to 2.00%
 unemployment,2013-08-01,Supported structural shift,11.298198,3,116,1.48e-06,1.48e-06,25.150991,0.0,3.109524,3.25875,0.149226,-0.070788,0.059339,0.685841,
 unemployment,2020-04-01,Supported structural shift,30.930818,3,98,0.0,0.0,25.13705,0.0,3.25875,4.620833,1.362083,0.059339,-0.433565,5.540803,OPR changed to 2.50% | Nationwide Movement Control Order began | OPR changed to 2.00% | OPR changed to 2.75% | OPR changed to 1.75%
 unemployment,2022-04-01,Supported structural shift,37.749498,3,69,0.0,0.0,55.984406,0.0,4.620833,3.286275,-1.334559,-0.433565,-0.214697,-4.677761,OPR changed to 2.00% | OPR changed to 2.25% | OPR changed to 2.50%
