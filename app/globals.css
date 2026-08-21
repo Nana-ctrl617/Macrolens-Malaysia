@@ -597,13 +597,15 @@ th { font-weight:900; }
   z-index:-1;
 }
 .editorial-picture figcaption {
+  flex:1 1 auto;
+  width:100%;
   position:relative;
   z-index:2;
   padding:14px 16px 16px;
   display:grid;
   gap:5px;
   text-shadow:0 1px 1px rgba(0,0,0,.35);
-  background:linear-gradient(135deg,rgba(9,18,17,.98),rgba(20,34,33,.94));
+  background:#071110;
   border-top:1px solid rgba(255,255,255,.1);
 }
 .editorial-picture strong {
@@ -707,6 +709,15 @@ th { font-weight:900; }
 .editorial-picture.markets { background-image:url("/editorial/markets.jpg"); background-position:center 52%; }
 .editorial-picture.household { background-image:url("/editorial/household.jpg"); background-position:center 48%; }
 .editorial-picture.research { background-image:url("/editorial/research.jpg"); background-position:center 46%; }
+.editorial-picture.city,
+.editorial-picture.prices,
+.editorial-picture.trade,
+.editorial-picture.markets,
+.editorial-picture.household,
+.editorial-picture.research {
+  background-image:none!important;
+  background-position:center;
+}
 
 /* Denser, more colourful news cards */
 .news-section .news-grid {
