@@ -1083,8 +1083,18 @@ function NewsSection() {
       <small>{news?.queryWindow ?? "Past seven days"} · fetched from public RSS/search feeds</small>
     </div>
     <div className="news-toolbar">
-      <label><span>Topic</span><select value={topic} onChange={(event) => setTopic(event.currentTarget.value)}>{topics.map((item) => <option key={item}>{item}</option>)}</select></label>
-      <label><span>Source</span><select value={source} onChange={(event) => setSource(event.currentTarget.value)}>{sources.map((item) => <option key={item}>{item}</option>)}</select></label>
+      <div className="news-filter-group">
+        <span>Topic</span>
+        <div role="group" aria-label="Filter news by topic">
+          {topics.map((item) => <button key={item} type="button" className={topic === item ? "active" : ""} aria-pressed={topic === item} onClick={() => setTopic(item)}>{item}</button>)}
+        </div>
+      </div>
+      <div className="news-filter-group">
+        <span>Source</span>
+        <div role="group" aria-label="Filter news by source">
+          {sources.map((item) => <button key={item} type="button" className={source === item ? "active" : ""} aria-pressed={source === item} onClick={() => setSource(item)}>{item}</button>)}
+        </div>
+      </div>
     </div>
     {!news ? <div className="news-empty">Loading latest economy headlines…</div> : !filtered.length ? <div className="news-empty">No matching headlines found for this filter.</div> : <>
       {featured && <article className="news-featured">
