@@ -30,6 +30,16 @@ const feeds = [
     label: "Malaysia trade and growth",
     url: "https://news.google.com/rss/search?q=Malaysia%20exports%20OR%20GDP%20OR%20trade%20when:7d&hl=en-MY&gl=MY&ceid=MY:en",
   },
+  {
+    id: "bing-malaysia-economy",
+    label: "Bing Malaysia economy",
+    url: "https://www.bing.com/news/search?q=Malaysia%20economy%20ringgit%20exports%20GDP&format=rss",
+  },
+  {
+    id: "bing-malaysia-markets",
+    label: "Bing Malaysia markets",
+    url: "https://www.bing.com/news/search?q=Malaysia%20inflation%20BNM%20ringgit%20Bursa&format=rss",
+  },
 ];
 
 const topicRules = [
@@ -97,7 +107,7 @@ function relevanceScore(item: RawNewsItem) {
 function isEconomyRelated(item: RawNewsItem) {
   const text = `${item.title} ${item.summary} ${item.source}`;
   if (!economyRelated.test(text)) return false;
-  if (nonMalaysiaDesk.test(item.title) && !malaysiaSpecific.test(text)) return false;
+  if (nonMalaysiaDesk.test(item.title)) return false;
   return malaysiaSpecific.test(text) || /bernama/i.test(item.source);
 }
 
@@ -157,7 +167,9 @@ export async function GET() {
     if (feed.id === "bernama-english") {
       for (const item of parsedItems.filter((candidate) => {
         const text = `${candidate.title} ${candidate.summary}`;
-        return !excludedBernamaDesk.test(candidate.title) && (economyRelated.test(text) || localDevelopmentTerms.test(text) || malaysiaSpecific.test(text));
+        return !excludedBernamaDesk.test(candidate.title)
+          && malaysiaSpecific.test(text)
+          && (economyRelated.test(text) || localDevelopmentTerms.test(text));
       }).slice(0, 24)) {
         const topics = topicsFor(item);
         feedFallbackItems.set(item.link, { ...item, topics, relevanceScore: Math.max(1, relevanceScore(item) - 2) });
