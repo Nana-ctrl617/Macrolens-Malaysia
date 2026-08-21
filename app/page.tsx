@@ -1091,7 +1091,7 @@ function NewsSection() {
         <div><span>{featured.topics.join(" · ")}</span><h3>{featured.title}</h3><p>{featured.summary || "Open the source article for the full context."}</p></div>
         <aside><strong>{featured.source}</strong><time>{formatDate(featured.publishedAt.slice(0, 10))}</time><a href={featured.link} target="_blank" rel="noreferrer">Read source ↗</a></aside>
       </article>}
-      <div className="news-grid">{filtered.slice(1, 12).map((item) => <article key={item.link} className="news-card">
+      <div className="news-grid">{filtered.slice(1, 25).map((item, index) => <article key={item.link} className={`news-card tone-${index % 6}`}>
         <div>{item.topics.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div>
         <h3><a href={item.link} target="_blank" rel="noreferrer">{item.title}</a></h3>
         <p>{item.summary || "Open the article for details."}</p>
