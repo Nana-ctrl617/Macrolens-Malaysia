@@ -46,6 +46,7 @@ const economyRelated = /economy|economic|business|ringgit|usd\/myr|currency|fore
 const localDevelopmentTerms = /entrepreneurs?|SMEs?|small and medium|agrobank|halal ecosystem|bumiputera economic|economic participation|development agenc|finance|financing|bank|income|welfare|permanent status/i;
 const malaysiaSpecific = /malaysia|malaysian|ringgit|usd\/myr|bursa|klci|\bBNM\b|bank negara|OPR|putrajaya|kuala lumpur|mof|dosm/i;
 const nonMalaysiaDesk = /^(world|sports|crime|courts|asean|politics)\s*:/i;
+const excludedBernamaDesk = /^(world|sports|crime|courts|asean)\s*:/i;
 
 function decodeXml(value: string) {
   return value
@@ -156,8 +157,8 @@ export async function GET() {
     if (feed.id === "bernama-english") {
       for (const item of parsedItems.filter((candidate) => {
         const text = `${candidate.title} ${candidate.summary}`;
-        return !nonMalaysiaDesk.test(candidate.title) && (economyRelated.test(text) || localDevelopmentTerms.test(text));
-      }).slice(0, 6)) {
+        return !excludedBernamaDesk.test(candidate.title) && (economyRelated.test(text) || localDevelopmentTerms.test(text) || malaysiaSpecific.test(text));
+      }).slice(0, 24)) {
         const topics = topicsFor(item);
         feedFallbackItems.set(item.link, { ...item, topics, relevanceScore: Math.max(1, relevanceScore(item) - 2) });
       }
@@ -167,11 +168,14 @@ export async function GET() {
 
   let ordered = [...items.values()]
     .sort((a, b) => b.relevanceScore - a.relevanceScore || Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    .slice(0, 12);
-  if (!ordered.length && feedFallbackItems.size) {
-    ordered = [...feedFallbackItems.values()]
+    .slice(0, 24);
+  if (feedFallbackItems.size && ordered.length < 12) {
+    const seen = new Set(ordered.map((item) => item.link));
+    const topUp = [...feedFallbackItems.values()]
       .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-      .slice(0, 6);
+      .filter((item) => !seen.has(item.link))
+      .slice(0, 24 - ordered.length);
+    ordered = [...ordered, ...topUp];
   }
   if (!ordered.length) {
     ordered = [{
