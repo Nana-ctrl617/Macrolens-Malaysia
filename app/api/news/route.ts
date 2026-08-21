@@ -179,7 +179,7 @@ export async function GET() {
   });
 
   let ordered = [...items.values()]
-    .sort((a, b) => b.relevanceScore - a.relevanceScore || Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || b.relevanceScore - a.relevanceScore)
     .slice(0, 24);
   if (feedFallbackItems.size && ordered.length < 12) {
     const seen = new Set(ordered.map((item) => item.link));
@@ -189,6 +189,9 @@ export async function GET() {
       .slice(0, 24 - ordered.length);
     ordered = [...ordered, ...topUp];
   }
+  ordered = ordered
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || b.relevanceScore - a.relevanceScore)
+    .slice(0, 24);
   if (!ordered.length) {
     ordered = [{
       title: "Live economy headline feeds are temporarily unavailable",
