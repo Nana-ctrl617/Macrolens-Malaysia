@@ -902,3 +902,49 @@ th { font-weight:900; }
 .growth-downloads span { color:var(--teal); font-size:11px; }
 @media(max-width:900px){ .growth-detail-grid,.growth-method-grid,.growth-card-grid,.growth-events-card{grid-template-columns:1fr}.contribution-row{grid-template-columns:1fr}.contribution-row div{height:14px}.growth-brief-card p{font-size:18px} }
 @media(max-width:600px){ .growth-brief-card,.structure-trend-card,.structure-contribution-card,.growth-sector-card,.growth-events-card{padding:18px}.sector-chip-row button,.growth-downloads a{font-size:13px}.growth-sector-card dl{grid-template-columns:1fr} }
+
+/* Professional neutral background for Growth Drivers */
+.structure-section {
+  background:
+    radial-gradient(circle at 12% 0%,rgba(28,107,97,.055),transparent 34%),
+    linear-gradient(180deg,#f6f8f9 0%,#eef2f4 100%);
+}
+.structure-section .section-heading {
+  border-bottom-color:#1b2a2f;
+}
+.structure-toolbar,
+.structure-chart,
+.structure-reading,
+.structure-analysis,
+.structure-table-wrap,
+.structure-notes,
+.growth-brief-card,
+.structure-trend-card,
+.structure-contribution-card,
+.growth-method-grid article,
+.growth-sector-card,
+.growth-events-card,
+.growth-downloads {
+  border-color:#d7dde1;
+  background:#ffffff;
+  box-shadow:0 12px 30px rgba(24,35,33,.045);
+}
+.structure-highlights article,
+.growth-events-card article,
+.sector-legend button,
+.sector-chip-row button,
+.contribution-row div {
+  background:#f3f5f6;
+  border-color:#dce2e5;
+}
+.sector-legend button:hover,
+.sector-legend button.active,
+.sector-chip-row button.active,
+.sector-chip-row button:hover {
+  background:#e8f0ef;
+  border-color:#aabbb9;
+}
+.structure-table-wrap th {
+  background:#e9eef1;
+  color:#334047;
+}
