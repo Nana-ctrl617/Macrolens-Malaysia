@@ -671,3 +671,31 @@ th { font-weight:900; }
   .editorial-picture { min-height:156px; }
   .editorial-picture strong { font-size:19px; }
 }
+
+/* Realistic photo refresh for editorial panels */
+.editorial-picture {
+  background-color:#111f1c;
+  background-size:cover;
+  background-position:center;
+}
+.editorial-picture::before {
+  z-index:0;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.14) 45%,rgba(0,0,0,.82) 100%),
+    linear-gradient(90deg,rgba(0,0,0,.2),transparent 55%);
+}
+.editorial-picture::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  border:1px solid rgba(255,255,255,.08);
+  pointer-events:none;
+}
+.picture-scene { display:none; }
+.editorial-picture.city { background-image:url("/editorial/city.jpg"); }
+.editorial-picture.prices { background-image:url("/editorial/prices.jpg"); }
+.editorial-picture.trade { background-image:url("/editorial/trade.jpg"); }
+.editorial-picture.markets { background-image:url("/editorial/markets.jpg"); background-position:center 52%; }
+.editorial-picture.household { background-image:url("/editorial/household.jpg"); background-position:center 48%; }
+.editorial-picture.research { background-image:url("/editorial/research.jpg"); background-position:center 46%; }
