@@ -1643,6 +1643,20 @@ function DataHealthSection({ dashboard }: { dashboard: DashboardPayload | null }
   </div></section>;
 }
 
+const forecastModelDescriptions: Record<string, string> = {
+  "Seasonal naive": "Uses the same month from the previous year as a simple benchmark. It is the minimum standard the statistical models should beat.",
+  SARIMA: "Uses inflation's own past pattern, trend and seasonality. It does not use extra economic variables.",
+  ARIMAX: "Uses inflation history plus lagged macro variables such as core inflation, exchange rates and policy rates.",
+};
+
+const forecastMisunderstandings = [
+  "The forecast is not a promise; it is a statistical estimate based on available data.",
+  "A lower RMSE does not mean the model is always right; it means it performed better on the tested historical windows.",
+  "ARIMAX associations do not prove causation, even when the model uses economic variables.",
+  "Prediction intervals matter more than the exact point estimate because uncertainty grows quickly.",
+  "Official data revisions can change future model results and backtest scores.",
+];
+
 function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardPayload | null; forecastPoints: Array<{ month: string; value: number }> }) {
   const [coreDelta, setCoreDelta] = useState(0);
   const [fxDelta, setFxDelta] = useState(0);
@@ -1652,7 +1666,12 @@ function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardP
   const effect = coreDelta * coefficients.core + fxDelta * coefficients.fx + oprDelta * coefficients.opr;
   const reset = () => { setCoreDelta(0); setFxDelta(0); setOprDelta(0); };
   return <section className="scenario-explorer" aria-labelledby="scenario-title">
-    <div className="scenario-heading"><div><span>Interactive sensitivity</span><h3 id="scenario-title">Stress the forecast assumptions</h3></div><button onClick={reset}>Reset assumptions</button></div>
+    <div className="scenario-heading"><div><span>Sensitivity overlay</span><h3 id="scenario-title">Stress the forecast assumptions</h3><p>These sliders do not change the official forecast above. They show how the published central path could shift under a separate historical-association overlay.</p></div><button onClick={reset}>Reset assumptions</button></div>
+    <div className="scenario-definitions" aria-label="Sensitivity variable definitions">
+      <article><span>Core inflation</span><p>Underlying inflation pressure after selected volatile or administered-price items are removed.</p></article>
+      <article><span>USD/MYR</span><p>The ringgit exchange rate against the US dollar; changes can affect imported costs with a lag.</p></article>
+      <article><span>OPR</span><p>Bank Negara Malaysia&apos;s Overnight Policy Rate, a policy setting that influences borrowing conditions over time.</p></article>
+    </div>
     <div className="scenario-layout">
       <div className="scenario-controls">
         <label><span>Core inflation change <b>{coreDelta > 0 ? "+" : ""}{coreDelta.toFixed(1)} pp</b></span><input aria-label="Core inflation change" type="range" min="-1" max="1" step="0.1" value={coreDelta} onInput={(event) => setCoreDelta(Number(event.currentTarget.value))} /></label>
@@ -1660,7 +1679,7 @@ function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardP
         <label><span>OPR change <b>{oprDelta > 0 ? "+" : ""}{oprDelta.toFixed(2)} pp</b></span><input aria-label="OPR change" type="range" min="-1" max="1" step="0.25" value={oprDelta} onInput={(event) => setOprDelta(Number(event.currentTarget.value))} /></label>
       </div>
       <div className="scenario-result">
-        <span>Association-based overlay</span><strong>{effect > 0 ? "+" : ""}{effect.toFixed(2)} pp</strong><p>Estimated shift relative to the published central path.</p>
+        <span>Association-based overlay</span><strong>{effect > 0 ? "+" : ""}{effect.toFixed(2)} pp</strong><p>Estimated shift relative to the published central path. It is an illustrative sensitivity result, not a new official forecast.</p>
         <div>{forecastPoints.map((point) => <article key={point.month}><small>{point.month}</small><b>{(point.value + effect).toFixed(2)}%</b></article>)}</div>
       </div>
     </div>
@@ -1778,6 +1797,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   const liveHistoryLabels = headlinePoints.filter((_, index) => index === 0 || index === headlinePoints.length - 1 || index % Math.max(1, Math.floor(headlinePoints.length / 6)) === 0).map((point) => formatDate(point.date));
   const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? forecasts;
   const liveModels = dashboard?.forecast.models ?? models;
+  const selectedForecastModel = liveModels.find((model) => model.selected) ?? liveModels[0];
+  const finalForecast = liveForecasts.at(-1);
   const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
 
   return (
@@ -1841,6 +1862,12 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
           <PictureStrip pictures={["research", "prices", "markets"]} />
+          <div className="forecast-guide">
+            <div><span>How to read this page</span><h3>Start with the range, then read the point estimate.</h3><p>This is a three-month headline inflation forecast. It is not a forecast for individual stocks, the ringgit, or the next OPR decision.</p></div>
+            <article><strong>Central forecast</strong><p>The model&apos;s best estimate for each future month.</p></article>
+            <article><strong>80% and 95% intervals</strong><p>Uncertainty ranges. The 95% interval is wider because it is designed to cover more possible outcomes.</p></article>
+            <article><strong>Wider range</strong><p>More uncertainty. Treat the exact number as less important when the interval is wide.</p></article>
+          </div>
           <div className="forecast-layout">
             <div className="forecast-card">
               <div className="forecast-scale"><span>−1%</span><span>0%</span><span>1%</span><span>2%</span><span>3%</span><span>4%</span><span>5%</span></div>
@@ -1866,14 +1893,40 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
                 <div className={model.selected ? "model-row selected" : "model-row"} key={model.name}>
                   <div><strong>{model.name}</strong>{model.selected && <span>Selected</span>}</div>
                   <div className="model-bar"><i style={{ width: `${(model.rmse / .6) * 100}%` }} /></div>
-                  <b>{model.rmse.toFixed(2)}</b>
+                  <b>{model.rmse.toFixed(2)}<small>RMSE</small></b>
+                  <em>{model.mae.toFixed(2)} MAE</em>
                 </div>
               ))}
-              <small>RMSE in percentage points · {dashboard?.forecast.backtestWindows ?? 12} identical rolling windows · Lower is better</small>
+              <small><b>RMSE</b> means typical forecast error size in percentage points. <b>MAE</b> means average absolute error. Scores use {dashboard?.forecast.backtestWindows ?? 12} identical rolling backtest windows; lower is better. {selectedForecastModel?.name ?? dashboard?.forecast.selectedModel ?? "The selected model"} is selected because it has the lowest tested error.</small>
             </aside>
           </div>
+          <div className="forecast-explain-grid">
+            <article><span>Central forecast</span><strong>{finalForecast ? `${finalForecast.value.toFixed(2)}%` : "Loading"}</strong><p>The single line estimate for the last forecast month. It is useful, but should not be read alone.</p></article>
+            <article><span>80% interval</span><strong>{finalForecast ? `${finalForecast.low80.toFixed(2)}% to ${finalForecast.high80.toFixed(2)}%` : "Loading"}</strong><p>A narrower uncertainty band. Outcomes outside this range are still possible.</p></article>
+            <article><span>95% interval</span><strong>{finalForecast ? `${finalForecast.low95.toFixed(2)}% to ${finalForecast.high95.toFixed(2)}%` : "Loading"}</strong><p>A wider prediction interval. It should contain the 80% interval.</p></article>
+            <article><span>Why three months only?</span><strong>Short horizon</strong><p>Inflation can change when policy, administered prices, commodity costs or exchange rates move. Shorter horizons are easier to explain responsibly.</p></article>
+            <article><span>What can make it wrong?</span><strong>New shocks</strong><p>Unexpected subsidy changes, global commodity moves, exchange-rate swings, data revisions or one-off price changes can shift the path.</p></article>
+          </div>
           <div className="forecast-takeaway"><span>Model reading</span><p>{dashboard?.narratives.forecast ?? "Loading the latest model interpretation."}</p></div>
+          <div className="forecast-method-panel">
+            <div><span>Forecast method in simple steps</span><h3>How the page turns data into a forecast</h3></div>
+            <ol>
+              <li><b>Collect official data.</b><p>Use monthly inflation and related macro variables from the dashboard payload.</p></li>
+              <li><b>Compare models fairly.</b><p>Seasonal naive, SARIMA and ARIMAX are tested over the same rolling historical windows.</p></li>
+              <li><b>Select the lowest-error model.</b><p>The chosen model is the one with the best backtest performance, mainly lowest RMSE.</p></li>
+              <li><b>Forecast three months ahead.</b><p>Show the central forecast for each future month.</p></li>
+              <li><b>Show uncertainty.</b><p>Display 80% and 95% prediction intervals and explain the limits.</p></li>
+            </ol>
+          </div>
+          <div className="forecast-model-notes">
+            {liveModels.map((model) => <article key={model.name}><span>{model.name}</span><p>{forecastModelDescriptions[model.name] ?? "Forecast candidate evaluated using the same rolling backtest windows."}</p></article>)}
+          </div>
           <ScenarioExplorer dashboard={dashboard} forecastPoints={liveForecasts} />
+          <div className="forecast-misunderstandings">
+            <span>Common misunderstandings</span>
+            <h3>What this forecast does not mean</h3>
+            <ul>{forecastMisunderstandings.map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>
         </div>
       </section>}
 

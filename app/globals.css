@@ -963,6 +963,168 @@ th { font-weight:900; }
 @media(max-width:900px){ .sector-composition-grid{grid-template-columns:1fr} }
 @media(max-width:600px){ .sector-composition-panel{padding:18px}.sector-composition-grid ul{grid-template-columns:1fr} }
 
+/* Forecast explanation upgrade */
+.forecast-guide,
+.forecast-explain-grid,
+.forecast-method-panel,
+.forecast-model-notes,
+.forecast-misunderstandings,
+.scenario-definitions {
+  margin-bottom:16px;
+}
+.forecast-guide {
+  display:grid;
+  grid-template-columns:1.35fr repeat(3,1fr);
+  gap:12px;
+}
+.forecast-guide>div,
+.forecast-guide article,
+.forecast-explain-grid article,
+.forecast-method-panel,
+.forecast-model-notes article,
+.forecast-misunderstandings,
+.scenario-definitions article {
+  border:1px solid #354942;
+  background:#20332f;
+  color:#dfe8e5;
+}
+.forecast-guide>div,
+.forecast-guide article,
+.forecast-explain-grid article,
+.forecast-model-notes article,
+.forecast-misunderstandings,
+.scenario-definitions article {
+  padding:20px;
+}
+.forecast-guide span,
+.forecast-explain-grid span,
+.forecast-method-panel span,
+.forecast-model-notes span,
+.forecast-misunderstandings>span,
+.scenario-definitions span {
+  display:block;
+  color:#f08a68;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:12px;
+  font-weight:900;
+}
+.forecast-guide h3,
+.forecast-method-panel h3,
+.forecast-misunderstandings h3 {
+  margin:7px 0 8px;
+  color:#fff;
+  font-size:26px;
+  line-height:1.15;
+}
+.forecast-guide strong,
+.forecast-explain-grid strong {
+  display:block;
+  color:#fff;
+  font-size:21px;
+  line-height:1.2;
+}
+.forecast-guide p,
+.forecast-explain-grid p,
+.forecast-method-panel p,
+.forecast-model-notes p,
+.forecast-misunderstandings li,
+.scenario-heading p,
+.scenario-definitions p {
+  margin:7px 0 0;
+  color:#c4d0cc;
+  font-size:14px;
+  line-height:1.6;
+}
+.forecast-explain-grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+.forecast-explain-grid article {
+  min-height:172px;
+}
+.forecast-method-panel {
+  padding:24px;
+  border-radius:0;
+}
+.forecast-method-panel ol {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin:18px 0 0;
+  padding:0;
+  list-style:none;
+}
+.forecast-method-panel li {
+  padding:15px;
+  border:1px solid #354942;
+  background:#172824;
+}
+.forecast-method-panel b {
+  display:block;
+  color:#fff;
+  font-size:15px;
+}
+.forecast-model-notes {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.model-card .model-row {
+  grid-template-columns:112px 1fr 48px 62px;
+}
+.model-row b {
+  display:grid;
+  gap:2px;
+  color:#fff;
+}
+.model-row b small {
+  color:#9db0aa;
+  font-size:10px;
+  font-weight:900;
+}
+.model-row em {
+  color:#c5d1cd;
+  font-size:12px;
+  font-style:normal;
+  font-weight:900;
+  text-align:right;
+}
+.model-card>small b {
+  color:#e4efeb;
+}
+.scenario-heading {
+  align-items:flex-start;
+}
+.scenario-definitions {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.forecast-misunderstandings {
+  margin-top:16px;
+}
+.forecast-misunderstandings ul {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px 22px;
+  margin:14px 0 0;
+  padding-left:20px;
+}
+.forecast-misunderstandings li::marker {
+  color:#f08a68;
+}
+@media(max-width:1050px){
+  .forecast-guide,.forecast-explain-grid,.forecast-method-panel ol,.forecast-model-notes,.scenario-definitions{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+  .forecast-guide,.forecast-explain-grid,.forecast-method-panel ol,.forecast-model-notes,.scenario-definitions,.forecast-misunderstandings ul{grid-template-columns:1fr}
+  .model-card .model-row{grid-template-columns:1fr; gap:7px}
+  .model-row em{text-align:left}
+}
+
 /* Professional neutral background for Growth Drivers */
 .structure-section {
   background:

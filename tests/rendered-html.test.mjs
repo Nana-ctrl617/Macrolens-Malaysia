@@ -71,6 +71,18 @@ test("renders each dashboard section on its own route", async () => {
   }
 });
 
+test("forecast route explains model output and limitations", async () => {
+  const response = await render("/forecast");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Central forecast/);
+  assert.match(html, /Prediction intervals?|80% and 95% intervals/);
+  assert.match(html, /RMSE/);
+  assert.match(html, /Rolling backtest|rolling historical windows/i);
+  assert.match(html, /Sensitivity overlay/);
+  assert.match(html, /not a promise/);
+});
+
 test("serves the embedded MGS history without an external request", async () => {
   const response = await render("/api/indicator?id=mgs");
   assert.equal(response.status, 200);
