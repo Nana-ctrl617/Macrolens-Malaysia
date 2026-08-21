@@ -110,7 +110,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.monthlyReport.sections.length >= 5);
   assert.equal(body.externalSector.summary.tradeReading.includes("exports") || body.externalSector.summary.tradeReading.includes("imports") || body.externalSector.summary.tradeReading.includes("balanced"), true);
   assert.equal(body.categories.length, 13);
-  assert.equal(body.categories.reduce((sum, item) => sum + item.weight, 0), 100);
+  assert.ok(Math.abs(body.categories.reduce((sum, item) => sum + item.weight, 0) - 100) < 1e-9);
   assert.equal(body.cpiDecomposition.weightReferenceYear, 2022);
   assert.equal(typeof body.forecast.scenario.coefficients.fx, "number");
   assert.ok(body.dataOperations.releaseLog.length > 0);
