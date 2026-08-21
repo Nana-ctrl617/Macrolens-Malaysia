@@ -857,6 +857,45 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
 
 const sectorColours = ["#d95c3f", "#1d746b", "#e5a83c", "#274653", "#7b6fa6", "#8f9c91"];
 
+const growthEventNotes = [
+  { year: 2015, title: "GST implementation", note: "Useful context when comparing nominal sector values because tax and price systems can affect current-price readings." },
+  { year: 2018, title: "GST zero-rating and SST introduction", note: "A tax-system transition year; treat nominal changes around this period carefully." },
+  { year: 2020, title: "Nationwide MCO / COVID shock", note: "A major activity shock. Sector changes around 2020 show timing, not proof of causation." },
+  { year: 2022, title: "Reopening recovery", note: "Services, mobility-linked demand and external trade normalisation can make comparisons with 2020–2021 unusual." },
+  { year: 2024, title: "Targeted diesel-subsidy implementation", note: "Relevant context for transport, business costs and current-price sector readings." },
+];
+
+function formatRm(value: number) {
+  return `RM ${value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn`;
+}
+
+function buildProductionCsv(year: number, sectors: EconomicSector[]) {
+  const rows = [["year", "rank", "sector", "share_percent", "value_rm_bn", "nominal_change_percent", "share_of_annual_rm_change_percent"]];
+  sectors.forEach((sector) => rows.push([
+    String(year),
+    String(sector.rank),
+    sector.name,
+    sector.share.toFixed(2),
+    sector.value.toFixed(1),
+    sector.changeYoY == null ? "" : sector.changeYoY.toFixed(2),
+    sector.growthContribution == null ? "" : sector.growthContribution.toFixed(2),
+  ]));
+  return `data:text/csv;charset=utf-8,${encodeURIComponent(rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\n"))}`;
+}
+
+function buildDemandCsv(year: number, components: { id: string; name: string; share: number; value: number; changeYoY: number | null; signedContribution: number | null }[]) {
+  const rows = [["year", "component", "share_percent", "value_rm_bn", "nominal_change_percent", "contribution_to_gdp_change_percent"]];
+  components.forEach((component) => rows.push([
+    String(year),
+    component.name,
+    component.share.toFixed(2),
+    component.value.toFixed(1),
+    component.changeYoY == null ? "" : component.changeYoY.toFixed(2),
+    component.signedContribution == null ? "" : component.signedContribution.toFixed(2),
+  ]));
+  return `data:text/csv;charset=utf-8,${encodeURIComponent(rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\n"))}`;
+}
+
 function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selected, setSelected] = useState(0);
@@ -908,6 +947,94 @@ function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
     <small>Hover, tap, use the legend, or press arrow keys to inspect a sector.</small>
     <div className="sector-legend" aria-label="GDP sector legend">{sectors.map((sector, index) => <button key={sector.id} className={selected === index ? "active" : ""} onClick={() => setSelected(index)}><i style={{ background: sectorColours[index] }} /><span>{sector.name}</span><b>{sector.share.toFixed(2)}%</b></button>)}</div>
   </div>;
+}
+
+function SectorShareTrend({ years }: { years: Array<{ year: number; sectors: EconomicSector[] }> }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [activeId, setActiveId] = useState(years.at(-1)?.sectors[0]?.id ?? "");
+  const [hovered, setHovered] = useState<{ year: number; share: number; left: number; top: number; tooltipLeft: number } | null>(null);
+  const sectorList = years.at(-1)?.sectors ?? [];
+  const selected = sectorList.find((sector) => sector.id === activeId) ?? sectorList[0];
+
+  useEffect(() => {
+    if (!activeId && sectorList[0]) setActiveId(sectorList[0].id);
+  }, [activeId, sectorList]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = canvas?.parentElement;
+    if (!canvas || !container || !selected || years.length < 2) return;
+    const draw = () => {
+      const width = Math.max(container.clientWidth, 320), height = 320, ratio = window.devicePixelRatio || 1;
+      canvas.width = width * ratio; canvas.height = height * ratio; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
+      const context = canvas.getContext("2d"); if (!context) return;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, width, height);
+      const padding = { top: 28, right: 22, bottom: 42, left: 56 };
+      const points = years.map((item) => ({ year: item.year, share: item.sectors.find((sector) => sector.id === selected.id)?.share ?? 0 }));
+      const min = Math.max(0, Math.min(...points.map((point) => point.share)) - 3);
+      const max = Math.min(100, Math.max(...points.map((point) => point.share)) + 3);
+      const chartWidth = width - padding.left - padding.right, chartHeight = height - padding.top - padding.bottom;
+      const x = (index: number) => padding.left + index / (points.length - 1) * chartWidth;
+      const y = (value: number) => padding.top + (max - value) / Math.max(max - min, 1) * chartHeight;
+      context.font = "700 13px DM Sans, sans-serif";
+      for (let index = 0; index < 5; index += 1) {
+        const value = max - index / 4 * (max - min), yPosition = padding.top + index / 4 * chartHeight;
+        context.strokeStyle = "rgba(24,35,33,.1)"; context.beginPath(); context.moveTo(padding.left, yPosition); context.lineTo(width - padding.right, yPosition); context.stroke();
+        context.fillStyle = "#65716c"; context.fillText(`${value.toFixed(0)}%`, 10, yPosition + 4);
+      }
+      context.beginPath(); points.forEach((point, index) => index ? context.lineTo(x(index), y(point.share)) : context.moveTo(x(index), y(point.share)));
+      context.strokeStyle = sectorColours[Math.max(0, sectorList.findIndex((sector) => sector.id === selected.id)) % sectorColours.length]; context.lineWidth = 3; context.lineJoin = "round"; context.stroke();
+      points.forEach((point, index) => { context.beginPath(); context.arc(x(index), y(point.share), 4, 0, Math.PI * 2); context.fillStyle = "#fffdf7"; context.fill(); context.strokeStyle = "#15221f"; context.lineWidth = 1.4; context.stroke(); });
+      [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach((index) => {
+        const label = String(points[index].year), measured = context.measureText(label).width; context.fillStyle = "#65716c";
+        context.fillText(label, index === 0 ? x(index) : index === points.length - 1 ? x(index) - measured : x(index) - measured / 2, height - 14);
+      });
+    };
+    draw(); const observer = new ResizeObserver(draw); observer.observe(container); return () => observer.disconnect();
+  }, [years, selected, sectorList]);
+
+  const showPoint = (clientX: number) => {
+    const canvas = canvasRef.current; if (!canvas || !selected || years.length < 2) return;
+    const bounds = canvas.getBoundingClientRect(), padding = { top: 28, right: 22, bottom: 42, left: 56 };
+    const chartWidth = bounds.width - padding.left - padding.right;
+    const pointer = Math.min(bounds.width - padding.right, Math.max(padding.left, clientX - bounds.left));
+    const index = Math.min(years.length - 1, Math.max(0, Math.round((pointer - padding.left) / chartWidth * (years.length - 1))));
+    const points = years.map((item) => ({ year: item.year, share: item.sectors.find((sector) => sector.id === selected.id)?.share ?? 0 }));
+    const min = Math.max(0, Math.min(...points.map((point) => point.share)) - 3), max = Math.min(100, Math.max(...points.map((point) => point.share)) + 3);
+    const left = padding.left + index / (years.length - 1) * chartWidth;
+    const top = padding.top + (max - points[index].share) / Math.max(max - min, 1) * (320 - padding.top - padding.bottom);
+    setHovered({ ...points[index], left: canvas.offsetLeft + left, top: canvas.offsetTop + top, tooltipLeft: canvas.offsetLeft + Math.min(bounds.width - 90, Math.max(90, left)) });
+  };
+
+  if (!selected) return null;
+  const firstShare = years[0].sectors.find((sector) => sector.id === selected.id)?.share ?? selected.share;
+  const latestShare = years.at(-1)?.sectors.find((sector) => sector.id === selected.id)?.share ?? selected.share;
+  return <article className="structure-trend-card">
+    <div className="structure-subheading"><span>Share over time</span><h3>{selected.name}: {firstShare.toFixed(1)}% → {latestShare.toFixed(1)}%</h3><p>Shows how one sector&apos;s share of nominal GDP changed across available annual observations.</p></div>
+    <div className="sector-chip-row" role="group" aria-label="Choose sector trend">{sectorList.map((sector, index) => <button key={sector.id} className={selected.id === sector.id ? "active" : ""} onClick={() => setActiveId(sector.id)}><i style={{ background: sectorColours[index % sectorColours.length] }} />{sector.name}</button>)}</div>
+    <div className="structure-line-chart">
+      <canvas ref={canvasRef} role="img" tabIndex={0} aria-label={`${selected.name} share of Malaysian nominal GDP over time`} onPointerMove={(event) => showPoint(event.clientX)} onPointerDown={(event) => showPoint(event.clientX)} onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)} />
+      {hovered && <><i className="chart-hover-line" style={{ left: hovered.left }} /><i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} /><div className="chart-tooltip light" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}><span>{hovered.year}</span><strong>{hovered.share.toFixed(2)}%</strong></div></>}
+    </div>
+  </article>;
+}
+
+function GrowthContributionBars({ items, title, subtitle }: { items: Array<{ id: string; name: string; contribution: number | null; change: number | null }>; title: string; subtitle: string }) {
+  const valid = items.filter((item) => item.contribution != null);
+  const max = Math.max(...valid.map((item) => Math.abs(item.contribution ?? 0)), 1);
+  return <article className="structure-contribution-card">
+    <div className="structure-subheading"><span>Growth contribution</span><h3>{title}</h3><p>{subtitle}</p></div>
+    <div className="contribution-bars">{items.map((item, index) => {
+      const value = item.contribution;
+      const width = value == null ? 0 : Math.max(3, Math.abs(value) / max * 100);
+      return <div className="contribution-row" key={item.id}>
+        <span>{item.name}</span>
+        <div><i className={(value ?? 0) < 0 ? "negative" : "positive"} style={{ width: `${width}%`, background: sectorColours[index % sectorColours.length] }} /></div>
+        <b>{value == null ? "—" : `${value > 0 ? "+" : ""}${value.toFixed(1)}%`}</b>
+        <small>{item.change == null ? "YoY n/a" : `${item.change > 0 ? "+" : ""}${item.change.toFixed(1)}% YoY`}</small>
+      </div>;
+    })}</div>
+  </article>;
 }
 
 const mechanismNotes: Record<MetricId, Array<{ title: string; copy: string }>> = {
@@ -1204,15 +1331,22 @@ function ExternalSectorSection({ dashboard }: { dashboard: DashboardPayload | nu
 function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const structure = dashboard?.economicStructure;
   const growth = dashboard?.growthDrivers;
+  const sectorDeepDive = dashboard?.sectorDeepDive;
   const [year, setYear] = useState<number | null>(null);
   const [view, setView] = useState<"production" | "expenditure">("production");
   const selectedYear = structure?.years.find((item) => item.year === year) ?? structure?.years.at(-1);
   const selectedDemandYear = growth?.demand.years.find((item) => item.year === year) ?? growth?.demand.years.at(-1);
+  const matchingEvents = growthEventNotes.filter((event) => selectedYear && Math.abs(event.year - selectedYear.year) <= 1);
+  const demandAvailable = !!selectedDemandYear?.components.length;
+  const productionCsv = selectedYear ? buildProductionCsv(selectedYear.year, selectedYear.sectors) : "#";
+  const demandCsv = selectedDemandYear ? buildDemandCsv(selectedDemandYear.year, selectedDemandYear.components) : "#";
+  const oneMinuteReading = selectedYear ? `${selectedYear.summary.largestSector} is the largest production sector at ${selectedYear.summary.largestShare.toFixed(1)}% of nominal GDP. ${selectedYear.summary.fastestGrowth == null ? "A prior-year growth comparison is not available for this selected year." : `${selectedYear.summary.fastestGrowingSector} shows the fastest current-price increase at ${selectedYear.summary.fastestGrowth > 0 ? "+" : ""}${selectedYear.summary.fastestGrowth.toFixed(1)}%.`} ${selectedDemandYear ? `On the spending side, the latest classification is ${selectedDemandYear.summary.demandType.toLowerCase()}, led by ${selectedDemandYear.summary.largestGrowthDriver}.` : "Expenditure-side detail is not available for this selected year."}` : "";
   useEffect(() => { if (structure && year == null) setYear(structure.latestYear); }, [structure, year]);
   return <section className="section structure-section page-section" id="structure"><div className="shell">
     <div className="section-heading"><div><span className="section-number">06 / Growth drivers</span><h2>What drives Malaysia&apos;s economic value?</h2></div><p>Choose a year to compare the production side of GDP with the expenditure side: consumption, investment, exports, imports and inventories.</p></div>
     <PictureStrip pictures={["city", "trade", "household"]} />
     {!structure || !selectedYear ? <div className="structure-empty">Economic-sector data will appear when the version-five dataset is available.</div> : <>
+      <div className="growth-brief-card"><span>One-minute conclusion</span><p>{oneMinuteReading}</p><small>Current-price GDP is useful for economic value and sector size. It is not the same as real output growth after removing price effects.</small></div>
       <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><div className="driver-view-switch" role="group" aria-label="Choose GDP view"><button className={view === "production" ? "active" : ""} onClick={() => setView("production")}>Production side</button><button className={view === "expenditure" ? "active" : ""} onClick={() => setView("expenditure")}>Expenditure side</button></div><p><span className={`structure-status ${growth?.status ?? structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : growth?.status === "fresh" || structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
       {view === "production" && <div className="structure-overview">
         <EconomicDonut sectors={selectedYear.sectors} />
@@ -1220,7 +1354,32 @@ function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload |
       </div>}
       {view === "expenditure" && selectedDemandYear && <div className="demand-view"><div className="structure-reading"><span className="mini-label">Expenditure view · {selectedDemandYear.year}</span><h3>RM {selectedDemandYear.total.toLocaleString("en-MY", { maximumFractionDigits: 1 })} billion</h3><p className="structure-definition">{growth?.summary}</p><div className="structure-highlights"><article><span>Largest component</span><strong>{selectedDemandYear.summary.largestComponent}</strong><small>{selectedDemandYear.summary.largestShare.toFixed(1)}% of GDP</small></article><article><span>Main annual driver</span><strong>{selectedDemandYear.summary.largestGrowthDriver}</strong><small>{selectedDemandYear.summary.largestContribution == null ? "Prior-year comparison unavailable" : `${selectedDemandYear.summary.largestContribution > 0 ? "+" : ""}${selectedDemandYear.summary.largestContribution.toFixed(1)}% of GDP change`}</small></article><article><span>Reading</span><strong>{selectedDemandYear.summary.demandType}</strong><small>Current-price expenditure screen</small></article></div></div></div>}
       <div className="structure-analysis"><span>What drove the year</span><p>{view === "production" ? selectedYear.narrative : selectedDemandYear?.narrative ?? "Expenditure-side GDP is not available for this selected year."}</p></div>
+      <div className="growth-detail-grid">
+        <SectorShareTrend years={structure.years} />
+        <GrowthContributionBars
+          title={view === "production" ? `Sector contribution · ${selectedYear.year}` : `Spending contribution · ${selectedDemandYear?.year ?? selectedYear.year}`}
+          subtitle={view === "production" ? "Shows which sectors added the largest share of the annual nominal GDP change." : "Shows which expenditure components contributed most to the annual current-price GDP change."}
+          items={view === "production" ? selectedYear.sectors.map((sector) => ({ id: sector.id, name: sector.name, contribution: sector.growthContribution, change: sector.changeYoY })) : (selectedDemandYear?.components ?? []).map((component) => ({ id: component.id, name: component.name, contribution: component.signedContribution, change: component.changeYoY }))}
+        />
+      </div>
+      <div className="growth-method-grid">
+        <article><span>Nominal vs real GDP</span><p>This page uses current-price GDP, so values reflect both output volume and price changes. For “real growth”, use constant-price GDP when that official series is added.</p></article>
+        <article><span>Production vs expenditure</span><p>Production asks which industries create value. Expenditure asks who buys the output: households, government, investors or foreign buyers.</p></article>
+        <article><span>How to read contribution</span><p>A high contribution means that sector or spending component explains a large share of the annual RM change. It is descriptive, not a causal estimate.</p></article>
+      </div>
       {view === "production" ? <div className="structure-table-wrap"><table><thead><tr><th>Rank</th><th>Sector</th><th>Share</th><th>Value</th><th>Nominal change</th><th>Share of annual RM change</th></tr></thead><tbody>{selectedYear.sectors.map((sector, index) => <tr key={sector.id}><td>{sector.rank}</td><td><i style={{ background: sectorColours[index] }} /><strong>{sector.name}</strong></td><td>{sector.share.toFixed(2)}%</td><td>RM {sector.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(sector.changeYoY ?? 0) < 0 ? "down" : "up"}>{sector.changeYoY == null ? "—" : `${sector.changeYoY > 0 ? "+" : ""}${sector.changeYoY.toFixed(2)}%`}</td><td>{sector.growthContribution == null ? "—" : `${sector.growthContribution > 0 ? "+" : ""}${sector.growthContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div> : <div className="structure-table-wrap"><table><thead><tr><th>Component</th><th>Share of GDP</th><th>Value</th><th>Nominal change</th><th>Contribution to GDP change</th></tr></thead><tbody>{(selectedDemandYear?.components ?? []).map((component) => <tr key={component.id}><td><strong>{component.name}</strong></td><td>{component.share.toFixed(2)}%</td><td>RM {component.value.toLocaleString("en-MY", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}bn</td><td className={(component.changeYoY ?? 0) < 0 ? "down" : "up"}>{component.changeYoY == null ? "—" : `${component.changeYoY > 0 ? "+" : ""}${component.changeYoY.toFixed(2)}%`}</td><td>{component.signedContribution == null ? "—" : `${component.signedContribution > 0 ? "+" : ""}${component.signedContribution.toFixed(1)}%`}</td></tr>)}</tbody></table></div>}
+      <div className="growth-card-grid">{selectedYear.sectors.map((sector, index) => {
+        const deep = sectorDeepDive?.sectors.find((item) => item.id === sector.id);
+        return <article key={sector.id} className="growth-sector-card">
+          <span>{sector.name}</span>
+          <div><strong>{sector.share.toFixed(1)}%</strong><b>{formatRm(sector.value)}</b></div>
+          <p>{deep?.narrative ?? `${sector.name} accounts for ${sector.share.toFixed(1)}% of nominal GDP in ${selectedYear.year}.`}</p>
+          <dl><div><dt>YoY change</dt><dd>{sector.changeYoY == null ? "—" : signedPercent(sector.changeYoY)}</dd></div><div><dt>Contribution</dt><dd>{sector.growthContribution == null ? "—" : `${sector.growthContribution.toFixed(1)}%`}</dd></div><div><dt>Watch</dt><dd>{deep?.exportLink ?? "Domestic demand and price effects"}</dd></div><div><dt>Market link</dt><dd>{deep?.marketLink ?? "Broad macro exposure"}</dd></div></dl>
+          <i style={{ background: sectorColours[index % sectorColours.length] }} />
+        </article>;
+      })}</div>
+      <div className="growth-events-card"><div><span>Context near selected year</span><h3>{matchingEvents.length ? "Relevant historical markers" : "No nearby event marker in the catalogue"}</h3><p>Event notes provide context only. They do not prove that the event caused the GDP change.</p></div>{matchingEvents.length ? matchingEvents.map((event) => <article key={event.title}><time>{event.year}</time><strong>{event.title}</strong><p>{event.note}</p></article>) : <article><time>{selectedYear.year}</time><strong>Statistical reading only</strong><p>The page reports the official GDP structure without adding an unsupported explanation for this year.</p></article>}</div>
+      <div className="growth-downloads"><a href={productionCsv} download={`macrolens-production-gdp-${selectedYear.year}.csv`}><span>CSV</span>Download selected production table</a>{demandAvailable && <a href={demandCsv} download={`macrolens-expenditure-gdp-${selectedDemandYear.year}.csv`}><span>CSV</span>Download selected expenditure table</a>}<a href={structure.datasetUrl} target="_blank" rel="noreferrer"><span>Source</span>Official production CSV</a>{growth?.demand.datasetUrl && <a href={growth.demand.datasetUrl} target="_blank" rel="noreferrer"><span>Source</span>Official expenditure CSV</a>}</div>
       <div className="structure-notes"><p><b>Important distinction.</b> {structure.note}</p><p>{structure.message} · Retrieved {formatDate(structure.retrievedAt.slice(0, 10))}</p><div><a href={structure.sourceUrl} target="_blank" rel="noreferrer">Official dataset and methodology ↗</a><a href={structure.datasetUrl} target="_blank" rel="noreferrer">Download source CSV ↗</a></div></div>
     </>}
   </div></section>;
