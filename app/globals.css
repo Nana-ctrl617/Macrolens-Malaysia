@@ -903,6 +903,66 @@ th { font-weight:900; }
 @media(max-width:900px){ .growth-detail-grid,.growth-method-grid,.growth-card-grid,.growth-events-card{grid-template-columns:1fr}.contribution-row{grid-template-columns:1fr}.contribution-row div{height:14px}.growth-brief-card p{font-size:18px} }
 @media(max-width:600px){ .growth-brief-card,.structure-trend-card,.structure-contribution-card,.growth-sector-card,.growth-events-card{padding:18px}.sector-chip-row button,.growth-downloads a{font-size:13px}.growth-sector-card dl{grid-template-columns:1fr} }
 
+.sector-composition-panel {
+  margin-top:14px;
+  padding:22px;
+  border:1px solid #cfd6cc;
+  border-radius:18px;
+  background:#fffdf7;
+}
+.sector-composition-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.sector-composition-grid article {
+  position:relative;
+  padding:18px 18px 18px 22px;
+  border:1px solid #d9ded8;
+  border-radius:16px;
+  background:#f7f5ee;
+}
+.sector-composition-grid article>i {
+  position:absolute;
+  inset:0 auto 0 0;
+  width:6px;
+}
+.sector-composition-grid span {
+  display:block;
+  color:#111f1c;
+  font-size:20px;
+  font-weight:900;
+}
+.sector-composition-grid p {
+  margin:7px 0 11px;
+  color:#3b4844;
+  font-size:14px;
+  line-height:1.55;
+}
+.sector-composition-grid ul {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px 16px;
+  margin:0 0 13px;
+  padding-left:18px;
+  color:#24312d;
+  font-size:14px;
+  line-height:1.45;
+}
+.sector-composition-grid li::marker {
+  color:var(--rust);
+}
+.sector-composition-grid small {
+  display:block;
+  padding-top:11px;
+  border-top:1px solid #dce2dd;
+  color:#5c6863;
+  font-size:13px;
+  line-height:1.45;
+}
+@media(max-width:900px){ .sector-composition-grid{grid-template-columns:1fr} }
+@media(max-width:600px){ .sector-composition-panel{padding:18px}.sector-composition-grid ul{grid-template-columns:1fr} }
+
 /* Professional neutral background for Growth Drivers */
 .structure-section {
   background:
@@ -923,6 +983,7 @@ th { font-weight:900; }
 .structure-contribution-card,
 .growth-method-grid article,
 .growth-sector-card,
+.sector-composition-panel,
 .growth-events-card,
 .growth-downloads {
   border-color:#d7dde1;
@@ -931,6 +992,7 @@ th { font-weight:900; }
 }
 .structure-highlights article,
 .growth-events-card article,
+.sector-composition-grid article,
 .sector-legend button,
 .sector-chip-row button,
 .contribution-row div {

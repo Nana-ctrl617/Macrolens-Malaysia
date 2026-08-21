@@ -857,6 +857,45 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
 
 const sectorColours = ["#d95c3f", "#1d746b", "#e5a83c", "#274653", "#7b6fa6", "#8f9c91"];
 
+const sectorCompositionNotes: Record<string, { title: string; short: string; includes: string[]; watch: string }> = {
+  services: {
+    title: "Services",
+    short: "Activity where firms and institutions mainly provide services rather than physical goods.",
+    includes: ["Wholesale and retail trade", "Food & beverages and accommodation", "Transport and storage", "Information and communication", "Finance, insurance, real estate and business services", "Government, education, health and other services"],
+    watch: "This sector is often linked to household spending, tourism, wages, credit conditions and digital activity.",
+  },
+  manufacturing: {
+    title: "Manufacturing",
+    short: "Factory and processing activity that turns raw materials or components into finished or semi-finished goods.",
+    includes: ["Electrical and electronics products", "Petroleum, chemical, rubber and plastic products", "Food, beverages and tobacco", "Transport equipment and machinery", "Wood, furniture, paper and printing", "Textiles, wearing apparel and other manufactured goods"],
+    watch: "This sector is sensitive to export demand, semiconductor cycles, input costs, exchange rates and global supply chains.",
+  },
+  agriculture: {
+    title: "Agriculture",
+    short: "Farm, plantation, forestry and fishing-related production.",
+    includes: ["Oil palm and rubber", "Livestock", "Fishing and aquaculture", "Forestry and logging", "Other crops"],
+    watch: "Weather, commodity prices, labour supply and global food demand can matter.",
+  },
+  "mining-quarrying": {
+    title: "Mining and quarrying",
+    short: "Extraction of natural resources from land or offshore fields.",
+    includes: ["Crude oil and condensate", "Natural gas", "Metal ores", "Stone, sand and quarry products"],
+    watch: "Energy prices, production volumes and global commodity demand can move the current-price value strongly.",
+  },
+  construction: {
+    title: "Construction",
+    short: "Building and civil-engineering activity.",
+    includes: ["Residential buildings", "Non-residential buildings", "Civil engineering and infrastructure", "Specialised construction work"],
+    watch: "Interest rates, public infrastructure, property demand and material costs are important context.",
+  },
+  "import-duties": {
+    title: "Import duties",
+    short: "Taxes and duties on imported goods that are included when reconciling GDP at purchasers' prices.",
+    includes: ["Customs duties", "Import-related taxes recorded in GDP reconciliation"],
+    watch: "This is not an industry like services or manufacturing; it is a tax/reconciliation item.",
+  },
+};
+
 const growthEventNotes = [
   { year: 2015, title: "GST implementation", note: "Useful context when comparing nominal sector values because tax and price systems can affect current-price readings." },
   { year: 2018, title: "GST zero-rating and SST introduction", note: "A tax-system transition year; treat nominal changes around this period carefully." },
@@ -1378,6 +1417,19 @@ function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload |
           <i style={{ background: sectorColours[index % sectorColours.length] }} />
         </article>;
       })}</div>
+      <div className="sector-composition-panel">
+        <div className="structure-subheading"><span>What is inside each sector?</span><h3>Broad GDP sectors are groups of many activities</h3><p>These descriptions explain the usual production-side meaning of each category. The chart still uses the official aggregate sector totals above.</p></div>
+        <div className="sector-composition-grid">{selectedYear.sectors.map((sector, index) => {
+          const note = sectorCompositionNotes[sector.id] ?? { title: sector.name, short: "Official production-side GDP category.", includes: ["See the official dataset methodology for the detailed classification."], watch: "Interpret as a broad economic category." };
+          return <article key={sector.id}>
+            <i style={{ background: sectorColours[index % sectorColours.length] }} />
+            <span>{note.title}</span>
+            <p>{note.short}</p>
+            <ul>{note.includes.map((item) => <li key={item}>{item}</li>)}</ul>
+            <small>{note.watch}</small>
+          </article>;
+        })}</div>
+      </div>
       <div className="growth-events-card"><div><span>Context near selected year</span><h3>{matchingEvents.length ? "Relevant historical markers" : "No nearby event marker in the catalogue"}</h3><p>Event notes provide context only. They do not prove that the event caused the GDP change.</p></div>{matchingEvents.length ? matchingEvents.map((event) => <article key={event.title}><time>{event.year}</time><strong>{event.title}</strong><p>{event.note}</p></article>) : <article><time>{selectedYear.year}</time><strong>Statistical reading only</strong><p>The page reports the official GDP structure without adding an unsupported explanation for this year.</p></article>}</div>
       <div className="growth-downloads"><a href={productionCsv} download={`macrolens-production-gdp-${selectedYear.year}.csv`}><span>CSV</span>Download selected production table</a>{demandAvailable && <a href={demandCsv} download={`macrolens-expenditure-gdp-${selectedDemandYear.year}.csv`}><span>CSV</span>Download selected expenditure table</a>}<a href={structure.datasetUrl} target="_blank" rel="noreferrer"><span>Source</span>Official production CSV</a>{growth?.demand.datasetUrl && <a href={growth.demand.datasetUrl} target="_blank" rel="noreferrer"><span>Source</span>Official expenditure CSV</a>}</div>
       <div className="structure-notes"><p><b>Important distinction.</b> {structure.note}</p><p>{structure.message} · Retrieved {formatDate(structure.retrievedAt.slice(0, 10))}</p><div><a href={structure.sourceUrl} target="_blank" rel="noreferrer">Official dataset and methodology ↗</a><a href={structure.datasetUrl} target="_blank" rel="noreferrer">Download source CSV ↗</a></div></div>
