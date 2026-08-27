@@ -1,41 +1,41 @@
 {
   "schemaVersion": 8,
-  "generatedAt": "2026-08-26T06:04:06Z",
+  "generatedAt": "2026-08-27T16:47:32Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-07-01",
       "message": "Official source validated"
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-07-01",
       "message": "Official source validated"
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-06-01",
       "message": "Official source validated"
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-05-07",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-03-01",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "stale",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2026-07-21",
       "message": "Using last valid data: RuntimeError"
     }
@@ -5631,7 +5631,7 @@
       {
         "name": "ARIMAX",
         "rmse": 0.1794,
-        "mae": 0.1433,
+        "mae": 0.1432,
         "selected": true
       }
     ],
@@ -5654,11 +5654,11 @@
       },
       {
         "date": "2026-10-01",
-        "value": 1.733,
+        "value": 1.734,
         "low80": 1.363,
-        "high80": 2.103,
-        "low95": 1.167,
-        "high95": 2.299
+        "high80": 2.104,
+        "low95": 1.168,
+        "high95": 2.3
       }
     ],
     "scenario": {
@@ -5670,9 +5670,9 @@
         "opr": 2.75
       },
       "coefficients": {
-        "core": 0.846568,
-        "fx": -0.144492,
-        "opr": -0.481342
+        "core": 0.846957,
+        "fx": -0.14451,
+        "opr": -0.484363
       },
       "warning": "A sensitivity overlay based on historical ARIMAX associations. It is not the selected forecast unless ARIMAX wins the backtest, and it does not identify causal effects."
     },
@@ -6366,7 +6366,7 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-08-26T06:04:06Z",
+    "retrievedAt": "2026-08-27T16:47:32Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -6382,10 +6382,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-08-26",
-          "value": 1683.09
-        },
         {
           "date": "2016-08-29",
           "value": 1681.6
@@ -16156,31 +16152,31 @@
         },
         {
           "date": "2026-08-26",
-          "value": 1748.4399
+          "value": 1748.54
         }
       ]
     },
     "summary": {
-      "latest": 1748.44,
+      "latest": 1748.54,
       "latestDate": "2026-08-26",
       "change1D": 0.7,
       "return1M": 2.79,
       "return3M": 2.91,
       "returnYtd": 4.07,
-      "return1Y": 10.55,
-      "annualizedVolatility1Y": 9.14,
+      "return1Y": 10.56,
+      "annualizedVolatility1Y": 9.15,
       "maxDrawdown1Y": -6.46,
       "high52w": 1771.25,
       "low52w": 1575.12
     },
     "narratives": {
-      "performance": "The FBM KLCI gained 10.6% over the latest year, with 9.1% annualised volatility and a 6.5% maximum drawdown during that window.",
+      "performance": "The FBM KLCI gained 10.6% over the latest year, with 9.2% annualised volatility and a 6.5% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-08-26T06:04:06Z",
+    "retrievedAt": "2026-08-27T16:47:32Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17021,10 +17017,10 @@
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -17865,7 +17861,7 @@
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-08-26T06:04:06Z",
+      "retrievedAt": "2026-08-27T16:47:32Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -18764,7 +18760,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-08-26T06:04:06Z",
+    "retrievedAt": "2026-08-27T16:47:32Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -21005,7 +21001,7 @@
   },
   "balancePayments": {
     "status": "fresh",
-    "retrievedAt": "2026-08-26T06:04:06Z",
+    "retrievedAt": "2026-08-27T16:47:32Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
@@ -23010,7 +23006,7 @@
     "message": "Official quarterly BOP component balances validated"
   },
   "householdPressure": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "overallScore": 36.0,
     "overallLevel": "low",
@@ -23077,7 +23073,7 @@
     "disclaimer": "Educational household-pressure screen only. It is not personalised financial, investment, property, tax, legal or career advice."
   },
   "sectorDeepDive": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "year": 2025,
     "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
@@ -23160,7 +23156,7 @@
     "limitations": "Sector screens describe broad economic structure. They do not forecast company earnings or identify investable stocks."
   },
   "macroTimeline": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "entries": [
       {
@@ -23294,7 +23290,7 @@
     "limitations": "Structural-break candidates are exploratory and may change after official data revisions."
   },
   "riskHeatmap": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "overallScore": 35.0,
     "overallLevel": "low",
@@ -23403,7 +23399,7 @@
     ]
   },
   "latestBrief": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "period": "2026-07-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.8% and core inflation at 1.8%.",
@@ -23430,7 +23426,7 @@
     "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice."
   },
   "decisionGuide": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.8% headline inflation, a 2.75% OPR, 3.0% unemployment and a +10.6% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -23498,7 +23494,7 @@
           "theme": "Stocks and long-term investing",
           "stance": "Avoid chasing",
           "title": "Use goals and diversification, not the latest index move",
-          "evidence": "The FBM KLCI's latest one-year price return is +10.6% and its measured one-year volatility is 9.1%.",
+          "evidence": "The FBM KLCI's latest one-year price return is +10.6% and its measured one-year volatility is 9.2%.",
           "actions": [
             "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
             "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
@@ -23662,7 +23658,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-08-26T06:04:06Z",
+    "lastSuccessfulRefresh": "2026-08-27T16:47:32Z",
     "vintageCount": 3,
     "latestVintagePeriod": "2026-07",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -23705,7 +23701,7 @@
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "dataHealth": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "schemaVersion": 8,
     "overallHealth": "partial",
     "sourceCount": 10,
@@ -23714,77 +23710,77 @@
       {
         "id": "headline",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-07-01",
         "message": "Official source validated"
       },
       {
         "id": "core",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-07-01",
         "message": "Official source validated"
       },
       {
         "id": "unemployment",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-06-01",
         "message": "Official source validated"
       },
       {
         "id": "opr",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-05-07",
         "message": "Official source validated"
       },
       {
         "id": "fx",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-03-01",
         "message": "Official source validated"
       },
       {
         "id": "mgs",
         "status": "stale",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-07-21",
         "message": "Using last valid data: RuntimeError"
       },
       {
         "id": "market",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-08-26",
         "message": "Delayed daily prices validated"
       },
       {
         "id": "economicStructure",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2025-12-31",
         "message": "Official quarterly observations validated; only complete calendar years are published"
       },
       {
         "id": "externalSector",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-04-01",
         "message": "Official monthly trade headline data validated"
       },
       {
         "id": "balancePayments",
         "status": "fresh",
-        "retrievedAt": "2026-08-26T06:04:06Z",
+        "retrievedAt": "2026-08-27T16:47:32Z",
         "observationPeriod": "2026-04-01",
         "message": "Official quarterly BOP component balances validated"
       }
     ],
     "refresh": {
       "schedule": "Daily at 13:45 Malaysia time",
-      "lastSuccessfulRefresh": "2026-08-26T06:04:06Z",
+      "lastSuccessfulRefresh": "2026-08-27T16:47:32Z",
       "vintageCount": 3,
       "latestVintagePeriod": "2026-07",
       "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -23824,7 +23820,7 @@
     "summary": "9 of 10 source groups are fresh in the latest generated payload."
   },
   "monthlyReport": {
-    "generatedAt": "2026-08-26T06:04:06Z",
+    "generatedAt": "2026-08-27T16:47:32Z",
     "title": "MacroLens Malaysia monthly research brief",
     "period": "2026-07-01",
     "sections": [
