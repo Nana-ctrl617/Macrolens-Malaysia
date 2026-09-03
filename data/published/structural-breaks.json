@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-08-18T05:59:44Z",
+  "calculatedAt": "2026-09-03T10:04:32Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -15,7 +15,7 @@
     "headline": {
       "indicatorId": "headline",
       "status": "fresh",
-      "calculatedAt": "2026-08-18T05:59:44Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "1981-01-01",
         "end": "2026-07-01",
@@ -41,12 +41,12 @@
       "warnings": [],
       "candidates": [],
       "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "e4e203b378988b244d6b4f5074896d76ef775626c95e952315260b3934e7fe22"
+      "seriesFingerprint": "8fcb5179a748353cee5f90d5cbbeb12525cf11a7db0032553980ecb9ee74a6c6"
     },
     "core": {
       "indicatorId": "core",
       "status": "fresh",
-      "calculatedAt": "2026-08-18T05:59:44Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "2019-01-01",
         "end": "2026-07-01",
@@ -121,12 +121,12 @@
         }
       ],
       "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.34 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "3e1a7dd6170cdb664e20a8ca372bafbe95239207b9c4e1e9e16bcd3172858918"
+      "seriesFingerprint": "92a35275a5b232c9fa673e47b490cb654a180bdc88280d3a0225182627c01793"
     },
     "unemployment": {
       "indicatorId": "unemployment",
       "status": "fresh",
-      "calculatedAt": "2026-08-13T07:02:12Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "2010-01-01",
         "end": "2026-06-01",
@@ -332,16 +332,16 @@
         }
       ],
       "narrative": "The latest supported parameter shift is estimated near 2022-04. The adjacent-regime mean was 1.33 units lower; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "c7e8f5350c11e86847ce556f67b680e217363f273e1d9b267537af875c3e953d"
+      "seriesFingerprint": "c6d93bd60a7319ffe4c85091a28c031fed519cd72eb994de0471bd94e3847922"
     },
     "opr": {
       "indicatorId": "opr",
       "status": "fresh",
-      "calculatedAt": "2026-07-17T04:51:03Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "2010-01-01",
-        "end": "2026-05-01",
-        "observations": 197,
+        "end": "2026-09-01",
+        "observations": 201,
         "frequency": "Monthly",
         "minimumSegmentMonths": 24,
         "confidence": "standard"
@@ -351,14 +351,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 3,
-        "bic": -1028.889452
+        "bic": -1055.168674
       },
       "diagnostics": {
-        "adfStatistic": -2.118732,
-        "adfPValue": 0.23704946,
+        "adfStatistic": -2.139911,
+        "adfPValue": 0.22877167,
         "adfLags": 2,
-        "cusumStatistic": 1.324547,
-        "cusumPValue": 0.05986104
+        "cusumStatistic": 1.331323,
+        "cusumPValue": 0.05774506
       },
       "warnings": [
         "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
@@ -502,32 +502,32 @@
             "preStart": "2020-05-01",
             "preEnd": "2022-04-01",
             "postStart": "2022-05-01",
-            "postEnd": "2026-05-01",
+            "postEnd": "2026-09-01",
             "preObservations": 24,
-            "postObservations": 49
+            "postObservations": 53
           },
           "chow": {
-            "fStatistic": 36.254236,
+            "fStatistic": 39.221033,
             "dfNumerator": 3,
-            "dfDenominator": 67,
+            "dfDenominator": 71,
             "pRaw": 0.0,
             "pHolm": 0.0
           },
           "hacWald": {
-            "statistic": 494.879849,
+            "statistic": 553.495355,
             "df": 3,
             "pValue": 0.0,
             "maxLags": 12
           },
           "regimeComparison": {
             "preMean": 1.770833,
-            "postMean": 2.821429,
-            "absoluteChange": 1.050595,
-            "percentChange": 59.3277,
+            "postMean": 2.816038,
+            "absoluteChange": 1.045204,
+            "percentChange": 59.0233,
             "preAnnualTrend": -0.057391,
-            "postAnnualTrend": 0.085408,
-            "annualTrendChange": 0.142799,
-            "standardisedMeanChange": 4.866219
+            "postAnnualTrend": 0.060716,
+            "annualTrendChange": 0.118107,
+            "standardisedMeanChange": 4.964171
           },
           "nearbyEvents": [
             {
@@ -568,12 +568,12 @@
         }
       ],
       "narrative": "The latest supported parameter shift is estimated near 2022-05. The adjacent-regime mean was 1.05 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "5c01edc9aec6b033d155f5d7b910d8d71d0a2bc1179b872158bd738ea7da82bb"
+      "seriesFingerprint": "ce3eb23f2486df1f75f995d0fd8bfbc6100f3ab8a8d93a776c4b81ae94227f2c"
     },
     "fx": {
       "indicatorId": "fx",
       "status": "fresh",
-      "calculatedAt": "2026-07-17T04:51:03Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "1997-01-01",
         "end": "2026-03-01",
@@ -646,12 +646,12 @@
         }
       ],
       "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.70 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "743325dc594d305ec12a441a7f500d50c44d9bbfd1e6135cb4cf7ccdd18bd453"
+      "seriesFingerprint": "fbdbfa4c0801ef8a2210409cd8229544b531da6b304b3c02bb0b69468b3d4e1d"
     },
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-07-22T09:18:33Z",
+      "calculatedAt": "2026-09-03T10:04:32Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-07-01",
@@ -680,7 +680,7 @@
       ],
       "candidates": [],
       "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "6dcdd919c8d07b23f42c4bed6160bb38a92c106e9d07a9f944ec9572f914fe29"
+      "seriesFingerprint": "5378ecda6865f8697cdfff6b60328641ea6a27a839ce9aa11b73f4130a8e5546"
     }
   }
 }
