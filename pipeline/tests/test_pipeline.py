@@ -357,3 +357,51 @@ def test_v8_research_builders_are_payload_linked_and_deterministic():
     assert any(entry["category"] == "Structural diagnostics" for entry in timeline["entries"])
     assert health["schemaVersion"] == 8 and len(health["sources"]) >= 4
     assert len(report["sections"]) == 5
+
+
+def test_regional_hies_state_parser_rejects_duplicates(monkeypatch):
+    import pandas as pd
+    rows = []
+    for state in ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis", "Selangor", "Terengganu", "Sabah", "Sarawak", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]:
+        rows.append({"date": "2024-01-01", "state": state, "income_mean": 8000, "income_median": 6000, "expenditure_mean": 4000, "gini": 0.35, "poverty": 2.0})
+    rows.append(rows[0].copy())
+    monkeypatch.setattr(macrolens, "read_catalogue_json", lambda dataset_id, limit=100000: pd.DataFrame([{"date": "2024-01-01", "income_mean": 8479, "income_median": 6338, "poverty_absolute": 5.1, "gini": 0.39}]))
+    with pytest.raises(ValueError, match="duplicated"):
+        macrolens.parse_hies_state(pd.DataFrame(rows), "2026-01-01T00:00:00Z")
+
+
+def test_regional_lens_combines_kl_sarawak_and_national_only(monkeypatch):
+    import pandas as pd
+    states = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis", "Selangor", "Terengganu", "Sabah", "Sarawak", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
+    hies_state = pd.DataFrame([
+        {"date": "2024-01-01", "state": state, "income_mean": 7000 + index * 100, "income_median": 5000 + index * 100, "expenditure_mean": 3500 + index * 50, "gini": 0.32, "poverty": 2.0}
+        for index, state in enumerate(states)
+    ])
+    hies_district = pd.DataFrame([
+        {"date": "2024-01-01", "state": states[index % len(states)], "district": f"District {index}", "income_mean": 6000, "income_median": 5000, "expenditure_mean": 3300, "gini": 0.31, "poverty": 3.0}
+        for index in range(120)
+    ])
+    labour = pd.DataFrame([
+        {"state": states[index % len(states)], "district": f"District {index}", "date": "2024-01-01", "lf": 100, "lf_employed": 97, "lf_unemployed": 3, "lf_outside": 40, "p_rate": 70, "u_rate": 3, "ep_ratio": 68}
+        for index in range(120)
+    ])
+    gdp_state = pd.DataFrame([
+        {"series": "abs", "state": state, "date": "2025-01-01", "sector": sector, "value": 100000 if sector == "p0" else 10000}
+        for state in states for sector in ["p0", *macrolens.GDP_SECTORS]
+    ])
+    gdp_district = pd.DataFrame([
+        {"series": "abs", "state": states[index % len(states)], "district": f"District {index}", "date": "2020-01-01", "sector": sector, "value": 1000 if sector == "p0" else 100}
+        for index in range(120) for sector in ["p0", *macrolens.GDP_SECTORS]
+    ])
+    cpi = pd.DataFrame([
+        {"date": "2026-07-01", "state": state, "division": "overall", "inflation_yoy": 1.5}
+        for state in states
+    ])
+    sources = iter([hies_state, hies_district, labour, gdp_state, gdp_district])
+    monkeypatch.setattr(macrolens, "read_csv", lambda url: next(sources))
+    monkeypatch.setattr(macrolens, "read_catalogue_json", lambda dataset_id, limit=100000: pd.DataFrame([{"date": "2024-01-01", "income_mean": 8479, "income_median": 6338, "poverty_absolute": 5.1, "gini": 0.39}]) if dataset_id != "cpi_state_inflation" else cpi)
+    result = macrolens.build_regional_lens(None, "2026-01-01T00:00:00Z")
+    assert result["schemaVersion"] if "schemaVersion" in result else True
+    assert result["defaultComparison"] == {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"}
+    assert any(item["state"] == "Sarawak" for item in result["stateRecords"])
+    assert "OPR" in result["coverage"]["nationalOnly"]

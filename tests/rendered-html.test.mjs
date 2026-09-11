@@ -28,6 +28,7 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Latest headlines/);
   assert.match(html, /Risk heatmap/);
   assert.match(html, /Households/);
+  assert.match(html, /Regional Lens/);
   assert.match(html, /Data health/);
   assert.doesNotMatch(html, /Malaysia inflation monitor|See the pressure|Read the direction/);
   assert.match(html, /Structural shifts/);
@@ -52,6 +53,7 @@ test("renders each dashboard section on its own route", async () => {
     ["/external", "Trade, exports and imported-cost pressure", "External sector"],
     ["/bop", "External financing position", "BOP"],
     ["/household", "Household pressure monitor", "Households"],
+    ["/regional", "How different are Malaysia(?:'|&#x27;)s states and districts", "Regional Lens"],
     ["/sectors", "How sectors connect to markets and external demand", "Sectors"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
@@ -97,7 +99,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 8);
+  assert.equal(body.schemaVersion, 9);
   assert.equal(body.usingFallback, true);
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
@@ -120,6 +122,9 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.macroTimeline.entries.length >= 5);
   assert.ok(body.dataHealth.sources.length >= 8);
   assert.ok(body.monthlyReport.sections.length >= 5);
+  assert.ok(body.regionalLens.stateRecords.length >= 15);
+  assert.ok(body.regionalLens.districtRecords.length >= 100);
+  assert.ok(body.regionalLens.coverage.nationalOnly.includes("OPR"));
   assert.equal(body.externalSector.summary.tradeReading.includes("exports") || body.externalSector.summary.tradeReading.includes("imports") || body.externalSector.summary.tradeReading.includes("balanced"), true);
   assert.equal(body.categories.length, 13);
   assert.ok(Math.abs(body.categories.reduce((sum, item) => sum + item.weight, 0) - 100) < 1e-9);
@@ -132,10 +137,29 @@ test("serves the versioned dashboard endpoint used by the browser app", async ()
   const response = await render("/api/dashboard-v7");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 8);
+  assert.equal(body.schemaVersion, 9);
   assert.ok(body.latestBrief.headline);
   assert.ok(body.riskHeatmap.items.length >= 9);
   assert.ok(body.householdPressure.components.length >= 5);
+  assert.ok(body.regionalLens.stateRecords.length >= 15);
+});
+
+test("serves regional comparisons as CSV and JSON", async () => {
+  const page = await render("/regional");
+  assert.equal(page.status, 200);
+  const html = await page.text();
+  assert.match(html, /Regional Lens/);
+  assert.match(html, /schema-nine dataset is available|How different are Malaysia/);
+  const csvResponse = await render("/api/regional-lens?format=csv");
+  assert.equal(csvResponse.status, 200);
+  assert.match(csvResponse.headers.get("content-disposition"), /regional-lens\.csv/);
+  assert.match(await csvResponse.text(), /level,state,district,date,income_mean/);
+  const jsonResponse = await render("/api/regional-lens?format=json");
+  assert.equal(jsonResponse.status, 200);
+  const body = await jsonResponse.json();
+  assert.ok(body.stateRecords.some((item) => item.state === "Sarawak"));
+  assert.ok(body.coverage.nationalOnly.includes("Bursa Malaysia benchmark"));
+  assert.match(body.disclaimer, /not a personal cost-of-living calculator/i);
 });
 
 test("serves the generated monthly report endpoint", async () => {

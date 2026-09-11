@@ -45,6 +45,19 @@ TRADE_HEADLINE_SOURCE_URL = "https://data.gov.my/data-catalogue/trade_headline"
 BOP_BALANCE_URL = "https://storage.dosm.gov.my/bop/bop_balance.csv"
 BOP_BALANCE_SOURCE_URL = "https://data.gov.my/data-catalogue/bop_balance"
 CPI_WEIGHTS_SOURCE_URL = "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"
+REGIONAL_JSON = ROOT / "data" / "published" / "regional-lens.json"
+REGIONAL_CSV = ROOT / "data" / "published" / "regional-lens.csv"
+HIES_STATE_URL = "https://storage.dosm.gov.my/hies/hies_state.csv"
+HIES_STATE_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_state"
+HIES_DISTRICT_URL = "https://storage.dosm.gov.my/hies/hies_district.csv"
+HIES_DISTRICT_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_district"
+LFS_DISTRICT_URL = "https://storage.dosm.gov.my/labour/lfs_district.csv"
+LFS_DISTRICT_SOURCE_URL = "https://data.gov.my/data-catalogue/lfs_district"
+GDP_STATE_REAL_URL = "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv"
+GDP_STATE_REAL_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_state_real_supply"
+GDP_DISTRICT_REAL_URL = "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv"
+GDP_DISTRICT_REAL_SOURCE_URL = "https://data.gov.my/data-catalogue/gdp_district_real_supply"
+CPI_STATE_SOURCE_URL = "https://data.gov.my/data-catalogue/cpi_state_inflation"
 GDP_SECTORS = {
     "p1": "Agriculture",
     "p2": "Mining and quarrying",
@@ -500,6 +513,291 @@ def build_growth_drivers(previous: dict | None, retrieved: str, production: dict
         ),
         "message": message,
     }
+
+
+def read_catalogue_json(dataset_id: str, limit: int = 100000) -> pd.DataFrame:
+    payload = get(f"https://api.data.gov.my/data-catalogue?id={dataset_id}&limit={limit}").json()
+    rows = payload if isinstance(payload, list) else payload.get("data", [])
+    return pd.DataFrame(rows)
+
+
+def _latest_rows(frame: pd.DataFrame, keys: list[str], date_col: str = "date") -> pd.DataFrame:
+    frame = frame.copy()
+    frame[date_col] = pd.to_datetime(frame[date_col], errors="raise")
+    frame = frame.sort_values(date_col)
+    return frame.groupby(keys, as_index=False, sort=True).tail(1)
+
+
+def _safe_float(value) -> float | None:
+    if value is None or pd.isna(value):
+        return None
+    number = float(value)
+    return round(number, 4) if math.isfinite(number) else None
+
+
+def _regional_status(*parts: dict) -> str:
+    return "fresh" if all(part.get("status") == "fresh" for part in parts) else "partial"
+
+
+def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"date", "state", "income_mean", "income_median", "expenditure_mean", "gini", "poverty"}
+    if not required.issubset(frame.columns):
+        raise ValueError("State HIES source structure changed")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    for column in ["income_mean", "income_median", "expenditure_mean", "gini", "poverty"]:
+        selected[column] = pd.to_numeric(selected[column], errors="raise")
+    if selected.empty or selected.duplicated(["date", "state"]).any():
+        raise ValueError("State HIES source is empty or duplicated")
+    if (selected[["income_mean", "income_median", "expenditure_mean"]] <= 0).any().any() or (selected["poverty"] < 0).any():
+        raise ValueError("State HIES source contains implausible values")
+    latest_date = selected["date"].max()
+    latest = selected[selected["date"].eq(latest_date)].copy()
+    if latest["state"].nunique() < 16:
+        raise ValueError("State HIES source has incomplete latest geography coverage")
+    income_national = read_catalogue_json("hh_income")
+    poverty_national = read_catalogue_json("hh_poverty")
+    gini_national = read_catalogue_json("hh_inequality")
+    income_national = income_national.assign(date=pd.to_datetime(income_national["date"], errors="raise")).sort_values("date") if not income_national.empty else income_national
+    poverty_national = poverty_national.assign(date=pd.to_datetime(poverty_national["date"], errors="raise")).sort_values("date") if not poverty_national.empty else poverty_national
+    gini_national = gini_national.assign(date=pd.to_datetime(gini_national["date"], errors="raise")).sort_values("date") if not gini_national.empty else gini_national
+    national = {
+        "incomeMean": _safe_float(income_national["income_mean"].iloc[-1]) if not income_national.empty else None,
+        "incomeMedian": _safe_float(income_national["income_median"].iloc[-1]) if not income_national.empty else None,
+        "poverty": _safe_float(poverty_national["poverty_absolute"].iloc[-1]) if not poverty_national.empty else None,
+        "gini": _safe_float(gini_national["gini"].iloc[-1]) if not gini_national.empty else None,
+        "expenditureMean": _safe_float(latest["expenditure_mean"].mean()),
+    }
+    records = []
+    for row in latest.sort_values("state").itertuples(index=False):
+        income = float(row.income_median)
+        spending = float(row.expenditure_mean)
+        records.append({
+            "state": str(row.state),
+            "date": row.date.strftime("%Y-%m-%d"),
+            "incomeMean": round(float(row.income_mean), 2),
+            "incomeMedian": round(income, 2),
+            "expenditureMean": round(spending, 2),
+            "incomeMinusExpenditure": round(income - spending, 2),
+            "incomeToExpenditureRatio": round(income / spending, 3) if spending else None,
+            "poverty": round(float(row.poverty), 2),
+            "gini": round(float(row.gini), 3),
+        })
+    kl = next((item for item in records if item["state"] == "W.P. Kuala Lumpur"), records[0])
+    sarawak = next((item for item in records if item["state"] == "Sarawak"), records[0])
+    highest_income = max(records, key=lambda item: item["incomeMedian"])
+    highest_spend = max(records, key=lambda item: item["expenditureMean"])
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": latest_date.strftime("%Y-%m-%d"),
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": HIES_STATE_SOURCE_URL,
+        "datasetUrl": HIES_STATE_URL,
+        "frequency": "Survey years",
+        "records": records,
+        "national": national,
+        "narrative": (
+            f"KL has a higher median household income than Sarawak, but it also records higher mean household spending. "
+            f"In the latest HIES data, {highest_income['state']} has the highest median income while {highest_spend['state']} has the highest mean expenditure."
+        ),
+        "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
+    }
+
+
+def parse_hies_district(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"date", "state", "district", "income_mean", "income_median", "expenditure_mean", "gini", "poverty"}
+    if not required.issubset(frame.columns):
+        raise ValueError("District HIES source structure changed")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    for column in ["income_mean", "income_median", "expenditure_mean", "gini", "poverty"]:
+        selected[column] = pd.to_numeric(selected[column], errors="raise")
+    if selected.empty or selected.duplicated(["date", "state", "district"]).any():
+        raise ValueError("District HIES source is empty or duplicated")
+    latest = selected[selected["date"].eq(selected["date"].max())]
+    if len(latest) < 100:
+        raise ValueError("District HIES source has insufficient latest coverage")
+    records = []
+    for row in latest.sort_values(["state", "district"]).itertuples(index=False):
+        spending = float(row.expenditure_mean)
+        income = float(row.income_median)
+        records.append({
+            "state": str(row.state),
+            "district": str(row.district),
+            "date": row.date.strftime("%Y-%m-%d"),
+            "incomeMean": round(float(row.income_mean), 2),
+            "incomeMedian": round(income, 2),
+            "expenditureMean": round(spending, 2),
+            "incomeMinusExpenditure": round(income - spending, 2),
+            "incomeToExpenditureRatio": round(income / spending, 3) if spending else None,
+            "poverty": round(float(row.poverty), 2),
+            "gini": round(float(row.gini), 3),
+        })
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": HIES_DISTRICT_SOURCE_URL, "datasetUrl": HIES_DISTRICT_URL, "records": records, "message": "Latest district HIES data validated"}
+
+
+def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"state", "district", "date", "lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"}
+    if not required.issubset(frame.columns):
+        raise ValueError("District labour-force source structure changed")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    for column in ["lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"]:
+        selected[column] = pd.to_numeric(selected[column], errors="coerce")
+    if selected.empty or selected.duplicated(["date", "state", "district"]).any():
+        raise ValueError("District labour-force source is empty or duplicated")
+    latest = selected[selected["date"].eq(selected["date"].max())].dropna(subset=["lf", "lf_unemployed", "u_rate"])
+    district_records = [
+        {"state": str(row.state), "district": str(row.district), "date": row.date.strftime("%Y-%m-%d"), "labourForce": round(float(row.lf), 2), "unemploymentRate": round(float(row.u_rate), 2), "participationRate": _safe_float(row.p_rate), "employmentPopulationRatio": _safe_float(row.ep_ratio)}
+        for row in latest.sort_values(["state", "district"]).itertuples(index=False)
+    ]
+    state_records = []
+    for state, state_frame in latest.groupby("state", sort=True):
+        lf = float(state_frame["lf"].sum())
+        unemployed = float(state_frame["lf_unemployed"].sum())
+        employed = float(state_frame["lf_employed"].sum())
+        state_records.append({
+            "state": str(state),
+            "date": latest["date"].max().strftime("%Y-%m-%d"),
+            "labourForce": round(lf, 2),
+            "unemploymentRate": round(unemployed / lf * 100, 2) if lf else None,
+            "employmentPopulationRatio": round(employed / (lf + float(state_frame["lf_outside"].sum())) * 100, 2) if "lf_outside" in state_frame else None,
+        })
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": LFS_DISTRICT_SOURCE_URL, "datasetUrl": LFS_DISTRICT_URL, "stateRecords": state_records, "districtRecords": district_records, "message": "District labour-force data validated and aggregated to state level"}
+
+
+def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, retrieved: str) -> dict:
+    required_state = {"series", "state", "date", "sector", "value"}
+    required_district = {"series", "state", "district", "date", "sector", "value"}
+    if not required_state.issubset(state_frame.columns) or not required_district.issubset(district_frame.columns):
+        raise ValueError("Regional GDP source structure changed")
+    def prepare(frame: pd.DataFrame, keys: list[str]) -> list[dict]:
+        selected = frame[frame["series"].eq("abs")].copy()
+        selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+        selected["value"] = pd.to_numeric(selected["value"], errors="coerce")
+        selected = selected[selected["sector"].isin({"p0", *GDP_SECTORS})].dropna(subset=["value"])
+        latest = selected[selected["date"].eq(selected["date"].max())]
+        rows = []
+        for group_keys, group in latest.groupby(keys, sort=True):
+            group_key_values = (group_keys,) if isinstance(group_keys, str) else group_keys
+            totals = group.groupby("sector")["value"].sum()
+            if "p0" not in totals or totals["p0"] <= 0:
+                continue
+            sectors = []
+            for code, name in GDP_SECTORS.items():
+                value = float(totals.get(code, 0))
+                sectors.append({"id": code, "name": name, "value": round(value / 1000, 3), "share": round(value / float(totals["p0"]) * 100, 2)})
+            sectors.sort(key=lambda item: item["share"], reverse=True)
+            row = {key: str(value) for key, value in zip(keys, group_key_values)}
+            row.update({"date": group["date"].max().strftime("%Y-%m-%d"), "total": round(float(totals["p0"]) / 1000, 3), "largestSector": sectors[0]["name"], "largestSectorShare": sectors[0]["share"], "sectors": sectors})
+            rows.append(row)
+        return rows
+    states = [row for row in prepare(state_frame, ["state"]) if row["state"] != "Supra"]
+    districts = prepare(district_frame, ["state", "district"])
+    if len(states) < 15 or len(districts) < 100:
+        raise ValueError("Regional GDP source has insufficient latest coverage")
+    latest_date = max(row["date"] for row in states)
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest_date, "sourceUrl": GDP_STATE_REAL_SOURCE_URL, "datasetUrl": GDP_STATE_REAL_URL, "districtSourceUrl": GDP_DISTRICT_REAL_SOURCE_URL, "districtDatasetUrl": GDP_DISTRICT_REAL_URL, "stateRecords": states, "districtRecords": districts, "message": "Latest annual real GDP by state and district validated"}
+
+
+def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
+    required = {"date", "state", "division", "inflation_yoy"}
+    if not required.issubset(frame.columns):
+        raise ValueError("State CPI source structure changed")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    selected["inflation_yoy"] = pd.to_numeric(selected["inflation_yoy"], errors="coerce")
+    selected = selected[selected["division"].eq("overall")].dropna(subset=["inflation_yoy"])
+    latest = selected[selected["date"].eq(selected["date"].max())]
+    if latest["state"].nunique() < 16:
+        raise ValueError("State CPI source has incomplete latest coverage")
+    records = [{"state": str(row.state), "date": row.date.strftime("%Y-%m-%d"), "headlineInflation": round(float(row.inflation_yoy), 2)} for row in latest.sort_values("state").itertuples(index=False)]
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "source": "Department of Statistics Malaysia via data.gov.my", "sourceUrl": CPI_STATE_SOURCE_URL, "records": records, "message": "Latest state headline CPI inflation validated"}
+
+
+def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
+    try:
+        hies_state = parse_hies_state(read_csv(HIES_STATE_URL), retrieved)
+        hies_district = parse_hies_district(read_csv(HIES_DISTRICT_URL), retrieved)
+        labour = parse_regional_labour(read_csv(LFS_DISTRICT_URL), retrieved)
+        gdp = parse_regional_gdp(read_csv(GDP_STATE_REAL_URL), read_csv(GDP_DISTRICT_REAL_URL), retrieved)
+        cpi = parse_state_cpi(read_catalogue_json("cpi_state_inflation"), retrieved)
+        records = []
+        labour_by_state = {item["state"]: item for item in labour["stateRecords"]}
+        gdp_by_state = {item["state"]: item for item in gdp["stateRecords"]}
+        cpi_by_state = {item["state"]: item for item in cpi["records"]}
+        national = hies_state["national"]
+        for item in hies_state["records"]:
+            state = item["state"]
+            gdp_item = gdp_by_state.get(state, {})
+            labour_item = labour_by_state.get(state, {})
+            cpi_item = cpi_by_state.get(state, {})
+            records.append({
+                **item,
+                "headlineInflation": cpi_item.get("headlineInflation"),
+                "inflationPeriod": cpi_item.get("date"),
+                "unemploymentRate": labour_item.get("unemploymentRate"),
+                "labourPeriod": labour_item.get("date"),
+                "realGdp": gdp_item.get("total"),
+                "gdpPeriod": gdp_item.get("date"),
+                "largestSector": gdp_item.get("largestSector"),
+                "largestSectorShare": gdp_item.get("largestSectorShare"),
+                "sectorShares": gdp_item.get("sectors", []),
+                "vsNational": {
+                    "incomeMedian": round(item["incomeMedian"] - national["incomeMedian"], 2) if national.get("incomeMedian") is not None else None,
+                    "incomeMean": round(item["incomeMean"] - national["incomeMean"], 2) if national.get("incomeMean") is not None else None,
+                    "poverty": round(item["poverty"] - national["poverty"], 2) if national.get("poverty") is not None else None,
+                    "gini": round(item["gini"] - national["gini"], 3) if national.get("gini") is not None else None,
+                    "expenditureMean": round(item["expenditureMean"] - national["expenditureMean"], 2) if national.get("expenditureMean") is not None else None,
+                },
+            })
+        kl = next((item for item in records if item["state"] == "W.P. Kuala Lumpur"), records[0])
+        sarawak = next((item for item in records if item["state"] == "Sarawak"), records[0])
+        return {
+            "status": _regional_status(hies_state, hies_district, labour, gdp, cpi),
+            "generatedAt": retrieved,
+            "defaultComparison": {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"},
+            "coverage": {
+                "state": "State and federal-territory coverage is available for household income, expenditure, poverty, inequality, CPI inflation, labour-force aggregation and real GDP by sector.",
+                "district": "District coverage is available where DOSM publishes district income, expenditure, poverty, inequality, labour-force and real GDP data. CPI is state-level only.",
+                "nationalOnly": ["OPR", "10-year MGS", "USD/MYR", "Bursa Malaysia benchmark", "Balance of payments"],
+            },
+            "sources": {
+                "hiesState": hies_state,
+                "hiesDistrict": hies_district,
+                "labour": labour,
+                "gdp": gdp,
+                "cpi": cpi,
+            },
+            "stateRecords": records,
+            "districtRecords": hies_district["records"],
+            "districtLabourRecords": labour["districtRecords"],
+            "districtGdpRecords": gdp["districtRecords"],
+            "summaryCards": [
+                {"label": "KL median income gap", "value": f"RM {kl['vsNational']['incomeMedian']:+,.0f}", "detail": "Compared with the Malaysia median household income benchmark."},
+                {"label": "Sarawak median income gap", "value": f"RM {sarawak['vsNational']['incomeMedian']:+,.0f}", "detail": "Compared with the Malaysia median household income benchmark."},
+                {"label": "KL spending pressure", "value": f"RM {kl['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
+                {"label": "Sarawak spending pressure", "value": f"RM {sarawak['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
+            ],
+            "narratives": {
+                "headline": "Regional living-cost pressure is not the same across Malaysia.",
+                "comparison": hies_state["narrative"],
+                "district": "District data can show within-state differences, but coverage is survey-based and not available for every monthly indicator.",
+                "nationalOnly": "Some financial indicators are national by design: BNM policy rates, government-bond yields, the ringgit and Bursa benchmarks do not have separate district values.",
+            },
+            "downloads": [{"label": "Regional CSV", "href": "/api/regional-lens?format=csv"}, {"label": "Regional JSON", "href": "/api/regional-lens?format=json"}],
+            "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice.",
+        }
+    except Exception as error:
+        old = (previous or {}).get("regionalLens")
+        if old and old.get("stateRecords"):
+            retained = copy.deepcopy(old)
+            retained["status"] = "stale"
+            retained["generatedAt"] = retrieved
+            retained["message"] = f"Using last valid regional data: {type(error).__name__}"
+            return retained
+        raise
 
 
 def parse_trade_headline(frame: pd.DataFrame, retrieved: str) -> dict:
@@ -1614,15 +1912,16 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     growth_drivers = build_growth_drivers(previous, retrieved, economic_structure)
     external_sector = build_external_sector(previous, retrieved)
     balance_payments = build_balance_payments(previous, retrieved)
+    regional_lens = build_regional_lens(previous, retrieved)
     risk_heatmap = build_risk_heatmap(series, market_data, growth_drivers, external_sector, retrieved)
     latest_brief = build_latest_brief(series, forecast_data, market_data, growth_drivers, external_sector, risk_heatmap, retrieved)
     household_pressure = build_household_pressure(series, market_data, risk_heatmap, retrieved)
     sector_deep_dive = build_sector_deep_dive(growth_drivers, market_data, external_sector, retrieved)
     macro_timeline = build_macro_timeline(series, structural_data, market_data, retrieved)
     payload = {
-        "schemaVersion": 8,
+        "schemaVersion": 9,
         "generatedAt": retrieved,
-        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" and balance_payments["status"] == "fresh" else "partial",
+        "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" and balance_payments["status"] == "fresh" and regional_lens["status"] == "fresh" else "partial",
         "sources": sources,
         "series": series,
         "categories": categories,
@@ -1634,6 +1933,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "growthDrivers": growth_drivers,
         "externalSector": external_sector,
         "balancePayments": balance_payments,
+        "regionalLens": regional_lens,
         "householdPressure": household_pressure,
         "sectorDeepDive": sector_deep_dive,
         "macroTimeline": macro_timeline,
@@ -1662,6 +1962,8 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         baseline.get("externalSector", {}).pop("retrievedAt", None)
         candidate.get("balancePayments", {}).pop("retrievedAt", None)
         baseline.get("balancePayments", {}).pop("retrievedAt", None)
+        candidate.get("regionalLens", {}).pop("generatedAt", None)
+        baseline.get("regionalLens", {}).pop("generatedAt", None)
         candidate.get("growthDrivers", {}).pop("generatedAt", None)
         baseline.get("growthDrivers", {}).pop("generatedAt", None)
         candidate.get("riskHeatmap", {}).pop("generatedAt", None)
@@ -1720,6 +2022,53 @@ def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+    regional = payload.get("regionalLens", {})
+    regional_json = json.dumps(regional, indent=2, ensure_ascii=False) + "\n"
+    REGIONAL_JSON.parent.mkdir(parents=True, exist_ok=True)
+    if not REGIONAL_JSON.exists() or REGIONAL_JSON.read_text(encoding="utf-8") != regional_json:
+        REGIONAL_JSON.write_text(regional_json, encoding="utf-8")
+    regional_rows = []
+    for item in regional.get("stateRecords", []):
+        regional_rows.append({
+            "level": "state",
+            "state": item.get("state"),
+            "district": "",
+            "date": item.get("date"),
+            "income_mean": item.get("incomeMean"),
+            "income_median": item.get("incomeMedian"),
+            "expenditure_mean": item.get("expenditureMean"),
+            "income_minus_expenditure": item.get("incomeMinusExpenditure"),
+            "income_to_expenditure_ratio": item.get("incomeToExpenditureRatio"),
+            "poverty": item.get("poverty"),
+            "gini": item.get("gini"),
+            "headline_inflation": item.get("headlineInflation"),
+            "unemployment_rate": item.get("unemploymentRate"),
+            "real_gdp_rm_billion": item.get("realGdp"),
+            "largest_sector": item.get("largestSector"),
+        })
+    for item in regional.get("districtRecords", []):
+        regional_rows.append({
+            "level": "district",
+            "state": item.get("state"),
+            "district": item.get("district"),
+            "date": item.get("date"),
+            "income_mean": item.get("incomeMean"),
+            "income_median": item.get("incomeMedian"),
+            "expenditure_mean": item.get("expenditureMean"),
+            "income_minus_expenditure": item.get("incomeMinusExpenditure"),
+            "income_to_expenditure_ratio": item.get("incomeToExpenditureRatio"),
+            "poverty": item.get("poverty"),
+            "gini": item.get("gini"),
+            "headline_inflation": "",
+            "unemployment_rate": "",
+            "real_gdp_rm_billion": "",
+            "largest_sector": "",
+        })
+    regional_fields = ["level", "state", "district", "date", "income_mean", "income_median", "expenditure_mean", "income_minus_expenditure", "income_to_expenditure_ratio", "poverty", "gini", "headline_inflation", "unemployment_rate", "real_gdp_rm_billion", "largest_sector"]
+    with REGIONAL_CSV.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=regional_fields)
+        writer.writeheader()
+        writer.writerows(regional_rows)
     return changed
 
 

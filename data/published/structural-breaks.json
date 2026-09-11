@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-09-03T10:04:32Z",
+  "calculatedAt": "2026-09-11T06:46:04Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -15,7 +15,7 @@
     "headline": {
       "indicatorId": "headline",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "1981-01-01",
         "end": "2026-07-01",
@@ -46,7 +46,7 @@
     "core": {
       "indicatorId": "core",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "2019-01-01",
         "end": "2026-07-01",
@@ -126,7 +126,7 @@
     "unemployment": {
       "indicatorId": "unemployment",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "2010-01-01",
         "end": "2026-06-01",
@@ -337,7 +337,7 @@
     "opr": {
       "indicatorId": "opr",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "2010-01-01",
         "end": "2026-09-01",
@@ -573,7 +573,7 @@
     "fx": {
       "indicatorId": "fx",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "1997-01-01",
         "end": "2026-03-01",
@@ -651,7 +651,7 @@
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-09-03T10:04:32Z",
+      "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-07-01",

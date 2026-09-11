@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, MacroTimeline, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
+import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, MacroTimeline, RegionalLens, RegionalStateRecord, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Full CPI basket, year on year", period: "May 2026", tone: "rust" },
@@ -43,7 +43,7 @@ const fallbackCategories = [
   { code: "10", name: "Education", value: 2.0, weight: 1.3 },
 ].map((item) => ({ ...item, contribution: Number((item.weight * item.value / 100).toFixed(3)) }));
 
-export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
+export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "regional" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
 
 const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
   { id: "snapshot", label: "Snapshot", href: "/" },
@@ -56,6 +56,7 @@ const navigation: Array<{ id: DashboardSection; label: string; href: string }> =
   { id: "external", label: "External sector", href: "/external" },
   { id: "bop", label: "BOP", href: "/bop" },
   { id: "household", label: "Households", href: "/household" },
+  { id: "regional", label: "Regional Lens", href: "/regional" },
   { id: "sectors", label: "Sectors", href: "/sectors" },
   { id: "bursa", label: "Bursa", href: "/bursa" },
   { id: "decisions", label: "Decision guide", href: "/decisions" },
@@ -1597,6 +1598,95 @@ function BalancePaymentsSection({ dashboard }: { dashboard: DashboardPayload | n
   </div></section>;
 }
 
+const regionalMetricCopy: Record<string, { label: string; unit: string; description: string }> = {
+  incomeMedian: { label: "Median household income", unit: "RM", description: "The middle household income. Half of households earn above it and half below it." },
+  incomeMean: { label: "Mean household income", unit: "RM", description: "Average monthly household income. This can be pulled upward by very high-income households." },
+  expenditureMean: { label: "Mean household expenditure", unit: "RM", description: "Average monthly household spending, useful as a broad living-cost pressure proxy." },
+  incomeMinusExpenditure: { label: "Income minus expenditure", unit: "RM", description: "Median income less mean expenditure. It is a rough affordability buffer, not household savings." },
+  incomeToExpenditureRatio: { label: "Income-to-expenditure ratio", unit: "x", description: "Higher means median income is larger relative to average spending pressure." },
+  poverty: { label: "Absolute poverty rate", unit: "%", description: "Share of households below DOSM's poverty line income." },
+  gini: { label: "Gini coefficient", unit: "", description: "Income inequality indicator. Higher values mean income is less equally distributed." },
+  headlineInflation: { label: "Headline inflation", unit: "%", description: "State-level year-on-year CPI inflation where available." },
+  unemploymentRate: { label: "Unemployment rate", unit: "%", description: "Labour-force unemployment rate, aggregated from official district data for states." },
+  realGdp: { label: "Real GDP", unit: "RM billion", description: "Annual economic output at constant 2015 prices." },
+};
+
+function regionalFormat(value: number | null | undefined, unit: string) {
+  if (value == null || Number.isNaN(value)) return "n/a";
+  if (unit === "RM") return `RM ${value.toLocaleString("en-MY", { maximumFractionDigits: 0 })}`;
+  if (unit === "RM billion") return `RM ${value.toLocaleString("en-MY", { maximumFractionDigits: 1 })}b`;
+  if (unit === "%") return `${value.toFixed(1)}%`;
+  if (unit === "x") return `${value.toFixed(2)}x`;
+  return value.toFixed(3);
+}
+
+function getRegionalMetric(item: RegionalStateRecord, metric: string) {
+  const value = item[metric as keyof RegionalStateRecord];
+  return typeof value === "number" ? value : null;
+}
+
+function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null }) {
+  const regional: RegionalLens | undefined = dashboard?.regionalLens;
+  const [level, setLevel] = useState<"state" | "district">("state");
+  const [primary, setPrimary] = useState("W.P. Kuala Lumpur");
+  const [secondary, setSecondary] = useState("Sarawak");
+  const [metric, setMetric] = useState("incomeMedian");
+  const [view, setView] = useState<"chart" | "table">("chart");
+  const metricInfo = regionalMetricCopy[metric] ?? regionalMetricCopy.incomeMedian;
+  const stateRecords = regional?.stateRecords ?? [];
+  const districtRecords = regional?.districtRecords ?? [];
+  const states = stateRecords.map((item) => item.state);
+  const primaryState = stateRecords.find((item) => item.state === primary) ?? stateRecords[0];
+  const secondaryState = stateRecords.find((item) => item.state === secondary) ?? stateRecords.find((item) => item.state === "Sarawak") ?? stateRecords[1];
+  const rankedStates = [...stateRecords]
+    .map((item) => ({ ...item, selectedValue: getRegionalMetric(item, metric) }))
+    .filter((item) => item.selectedValue != null)
+    .sort((a, b) => (b.selectedValue ?? 0) - (a.selectedValue ?? 0));
+  const districtSample = districtRecords.filter((item) => level === "district" ? item.state === primary : true).slice(0, 24);
+  const maxValue = Math.max(...rankedStates.map((item) => Math.abs(item.selectedValue ?? 0)), 1);
+  return <section className="section deep-section regional-section page-section" id="regional"><div className="shell">
+    <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h2>How different are Malaysia&apos;s states and districts?</h2></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
+    <PictureStrip pictures={["city", "household", "trade"]} />
+    {!regional ? <div className="deep-empty">Regional Lens will appear when the schema-nine dataset is available.</div> : <>
+      <div className="regional-hero">
+        <div>
+          <span>{regional.narratives.headline}</span>
+          <h3>{regional.narratives.comparison}</h3>
+          <p>{regional.disclaimer}</p>
+        </div>
+        <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
+      </div>
+      <div className="regional-summary-grid">
+        {regional.summaryCards.map((card) => <article key={card.label}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p></article>)}
+      </div>
+      <div className="regional-controls">
+        <label><span>Geography</span><select value={level} onChange={(event) => setLevel(event.target.value as "state" | "district")}><option value="state">State / federal territory</option><option value="district">District where available</option></select></label>
+        <label><span>Main region</span><select value={primary} onChange={(event) => setPrimary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
+        <label><span>Compare with</span><select value={secondary} onChange={(event) => setSecondary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
+        <label><span>Metric</span><select value={metric} onChange={(event) => setMetric(event.target.value)}>{Object.entries(regionalMetricCopy).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}</select></label>
+        <div className="segmented small"><button className={view === "chart" ? "active" : ""} onClick={() => setView("chart")}>Chart</button><button className={view === "table" ? "active" : ""} onClick={() => setView("table")}>Table</button></div>
+      </div>
+      <div className="regional-comparison">
+        {[primaryState, secondaryState].filter(Boolean).map((item) => <article key={item.state}><span>{item.state}</span><strong>{regionalFormat(getRegionalMetric(item, metric), metricInfo.unit)}</strong><p>{metricInfo.description}</p><small>Income data {formatDate(item.date)} · CPI {item.inflationPeriod ? formatDate(item.inflationPeriod) : "n/a"} · GDP {item.gdpPeriod ? formatDate(item.gdpPeriod) : "n/a"}</small></article>)}
+      </div>
+      {view === "chart" ? <div className="regional-bars" role="img" aria-label={`${metricInfo.label} by state`}>
+        {rankedStates.map((item) => <div key={item.state} className={`regional-bar ${item.state === primary || item.state === secondary ? "selected" : ""}`} tabIndex={0}>
+          <span>{item.state}</span>
+          <i style={{ width: `${Math.max(6, Math.abs(item.selectedValue ?? 0) / maxValue * 100)}%` }} />
+          <b>{regionalFormat(item.selectedValue, metricInfo.unit)}</b>
+          <em>{metricInfo.label} · {item.largestSector ? `largest sector: ${item.largestSector}` : "official regional data"}</em>
+        </div>)}
+      </div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>State</th><th>{metricInfo.label}</th><th>Median income</th><th>Expenditure</th><th>Poverty</th><th>Unemployment</th><th>Largest sector</th></tr></thead><tbody>{rankedStates.map((item) => <tr key={item.state}><td>{item.state}</td><td>{regionalFormat(item.selectedValue, metricInfo.unit)}</td><td>{regionalFormat(item.incomeMedian, "RM")}</td><td>{regionalFormat(item.expenditureMean, "RM")}</td><td>{regionalFormat(item.poverty, "%")}</td><td>{regionalFormat(item.unemploymentRate, "%")}</td><td>{item.largestSector ?? "n/a"}</td></tr>)}</tbody></table></div>}
+      <div className="regional-lower-grid">
+        <article className="deep-card"><span>District view</span><h3>{level === "district" ? `${primary} districts` : "District data exists, but not for every indicator"}</h3><p>{regional.narratives.district}</p><div className="mini-rank-list">{districtSample.map((item) => <div key={`${item.state}-${item.district}`}><span>{item.district}</span><b>{regionalFormat(item.incomeMedian, "RM")}</b><small>poverty {regionalFormat(item.poverty, "%")}</small></div>)}</div></article>
+        <article className="deep-card"><span>National-only indicators</span><h3>Some signals should not be split by state.</h3><p>{regional.narratives.nationalOnly}</p><div className="badge-row">{regional.coverage.nationalOnly.map((item) => <span key={item}>{item}</span>)}</div></article>
+        <article className="deep-card"><span>Sector mix</span><h3>{primaryState?.state ?? "Selected region"} is most exposed to {primaryState?.largestSector ?? "available sectors"}.</h3><p>State GDP helps explain why regions may react differently to trade, commodity, tourism, construction or services conditions.</p><div className="mini-rank-list">{(primaryState?.sectorShares ?? []).slice(0, 5).map((sector) => <div key={sector.id}><span>{sector.name}</span><b>{sector.share.toFixed(1)}%</b><small>{regionalFormat(sector.value, "RM billion")}</small></div>)}</div></article>
+      </div>
+      <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p></div>
+    </>}
+  </div></section>;
+}
+
 function SectorDeepDiveSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const deep: SectorDeepDive | undefined = dashboard?.sectorDeepDive;
   return <section className="section deep-section sectors-section page-section" id="sectors"><div className="shell">
@@ -1767,7 +1857,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
   useEffect(() => {
     if (section !== "snapshot") return;
-    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#news": "/news", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
+    const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#news": "/news", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#regional": "/regional", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
     const target = legacyRoutes[window.location.hash];
     if (target) window.location.replace(target);
   }, [section]);
@@ -1835,6 +1925,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <a href="/brief"><span>Latest brief</span><strong>{dashboard?.latestBrief?.headline ?? "Monthly brief loading"}</strong><small>What changed, possible reasons, watch list and decision context.</small></a>
           <a href="/news"><span>Latest headlines</span><strong>Malaysia economy news</strong><small>Fresh headlines on inflation, BNM, ringgit, Bursa, GDP, trade and jobs.</small></a>
           <a href="/risk"><span>Risk heatmap</span><strong>{dashboard?.riskHeatmap ? `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Rule-based scores for prices, jobs, rates, FX, bonds, Bursa, GDP and trade.</small></a>
+          <a href="/regional"><span>Regional Lens</span><strong>{dashboard?.regionalLens ? "KL, Sarawak and every state" : "Regional data loading"}</strong><small>Compare income, spending pressure, poverty, jobs, CPI and sector mix by place.</small></a>
         </div>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
@@ -1939,6 +2030,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       {section === "bop" && <BalancePaymentsSection dashboard={dashboard} />}
 
       {section === "household" && <HouseholdPressureSection dashboard={dashboard} />}
+
+      {section === "regional" && <RegionalLensSection dashboard={dashboard} />}
 
       {section === "sectors" && <SectorDeepDiveSection dashboard={dashboard} />}
 

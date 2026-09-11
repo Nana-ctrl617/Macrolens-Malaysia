@@ -137,6 +137,30 @@ export type SectorDeepDive = {
   generatedAt: string; status: "fresh" | "partial"; year: number; summary: string;
   sectors: Array<{ id: string; name: string; share: number; value: number; changeYoY: number | null; growthContribution: number | null; riskLevel: "low" | "moderate" | "high"; exportLink: string; marketLink: string; narrative: string }>;
 };
+export type RegionalStateRecord = {
+  state: string; date: string; incomeMean: number; incomeMedian: number; expenditureMean: number;
+  incomeMinusExpenditure: number; incomeToExpenditureRatio: number | null; poverty: number; gini: number;
+  headlineInflation?: number | null; inflationPeriod?: string | null; unemploymentRate?: number | null;
+  labourPeriod?: string | null; realGdp?: number | null; gdpPeriod?: string | null; largestSector?: string | null;
+  largestSectorShare?: number | null; sectorShares?: Array<{ id: string; name: string; value: number; share: number }>;
+  vsNational?: { incomeMedian: number | null; incomeMean: number | null; poverty: number | null; gini: number | null; expenditureMean: number | null };
+};
+export type RegionalDistrictRecord = {
+  state: string; district: string; date: string; incomeMean: number; incomeMedian: number; expenditureMean: number;
+  incomeMinusExpenditure: number; incomeToExpenditureRatio: number | null; poverty: number; gini: number;
+};
+export type RegionalLens = {
+  status: "fresh" | "partial" | "stale"; generatedAt: string;
+  defaultComparison: { primary: string; secondary: string };
+  coverage: { state: string; district: string; nationalOnly: string[] };
+  stateRecords: RegionalStateRecord[]; districtRecords: RegionalDistrictRecord[];
+  districtLabourRecords?: Array<{ state: string; district: string; date: string; labourForce: number; unemploymentRate: number | null; participationRate?: number | null; employmentPopulationRatio?: number | null }>;
+  districtGdpRecords?: Array<{ state: string; district: string; date: string; total: number; largestSector: string; largestSectorShare: number; sectors: Array<{ id: string; name: string; value: number; share: number }> }>;
+  summaryCards: Array<{ label: string; value: string; detail: string }>;
+  narratives: { headline: string; comparison: string; district: string; nationalOnly: string };
+  downloads: Array<{ label: string; href: string }>;
+  disclaimer: string;
+};
 export type MacroTimeline = {
   generatedAt: string; status: "fresh" | "partial"; entries: Array<{ date: string; title: string; category: string; source: string; sourceUrl: string; type?: string; evidence: string; interpretation?: string }>;
   note: string;
@@ -183,6 +207,7 @@ export type DashboardPayload = {
   balancePayments?: BalancePayments;
   householdPressure?: HouseholdPressure;
   sectorDeepDive?: SectorDeepDive;
+  regionalLens?: RegionalLens;
   macroTimeline?: MacroTimeline;
   dataHealth?: DataHealth;
   monthlyReport?: MonthlyReport;
@@ -240,7 +265,12 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && (candidate.dataHealth?.sources?.length ?? 0) >= 8
     && (candidate.monthlyReport?.sections?.length ?? 0) >= 5
   );
-  return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 8)
+  const regionalValid = candidate.schemaVersion < 9 || (
+    (candidate.regionalLens?.stateRecords?.length ?? 0) >= 15
+    && (candidate.regionalLens?.districtRecords?.length ?? 0) >= 100
+    && !!candidate.regionalLens?.coverage?.nationalOnly?.includes("OPR")
+  );
+  return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 9)
     && structuralValid
     && marketValid
     && decisionValid
@@ -248,6 +278,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && researchValid
     && completionValid
     && deepValid
+    && regionalValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)
