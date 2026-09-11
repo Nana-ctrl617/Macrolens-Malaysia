@@ -775,8 +775,8 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
             "districtLabourRecords": labour["districtRecords"],
             "districtGdpRecords": gdp["districtRecords"],
             "summaryCards": [
-                {"label": "KL median income gap", "value": f"RM {kl['vsNational']['incomeMedian']:+,.0f}", "detail": "Compared with the Malaysia median household income benchmark."},
-                {"label": "Sarawak median income gap", "value": f"RM {sarawak['vsNational']['incomeMedian']:+,.0f}", "detail": "Compared with the Malaysia median household income benchmark."},
+                {"label": "KL median income", "value": f"RM {kl['incomeMedian']:,.0f}", "detail": f"RM {kl['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
+                {"label": "Sarawak median income", "value": f"RM {sarawak['incomeMedian']:,.0f}", "detail": f"RM {sarawak['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
                 {"label": "KL spending pressure", "value": f"RM {kl['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
                 {"label": "Sarawak spending pressure", "value": f"RM {sarawak['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
             ],
