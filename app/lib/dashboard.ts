@@ -289,7 +289,7 @@ export async function getDashboard(): Promise<DashboardPayload> {
   const local = fallback as DashboardPayload;
   const url = process.env.DASHBOARD_DATA_URL || DEFAULT_URL;
   try {
-    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
     const remote: unknown = await response.json();
     if (!isDashboard(remote)) throw new Error("Remote dashboard schema is invalid");
