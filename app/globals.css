@@ -1192,9 +1192,9 @@ th { font-weight:900; }
 }
 .regional-hero {
   display:grid;
-  grid-template-columns:1fr auto;
+  grid-template-columns:1fr;
   gap:22px;
-  align-items:end;
+  align-items:start;
   padding:26px;
   border-radius:18px;
   margin:18px 0 14px;
@@ -1214,9 +1214,9 @@ th { font-weight:900; }
 }
 .regional-hero h3 {
   margin:8px 0 9px;
-  font-size:clamp(28px,4vw,48px);
-  line-height:1.04;
-  max-width:980px;
+  font-size:clamp(24px,2.7vw,34px);
+  line-height:1.14;
+  max-width:780px;
 }
 .regional-hero p,
 .regional-method p {
@@ -1225,10 +1225,14 @@ th { font-weight:900; }
   line-height:1.6;
   margin:0;
 }
+.regional-hero p + p {
+  margin-top:10px;
+}
 .regional-downloads {
   display:flex;
   gap:9px;
   flex-wrap:wrap;
+  justify-content:flex-start;
 }
 .regional-downloads a {
   padding:10px 13px;
@@ -1449,6 +1453,11 @@ th { font-weight:900; }
 @media(max-width:1050px){
   .regional-summary-grid,.regional-controls,.regional-lower-grid{grid-template-columns:1fr 1fr}
   .regional-controls .segmented{align-self:stretch}
+}
+@media(min-width:1180px){
+  .regional-hero {
+    grid-template-columns:minmax(0,1fr) auto;
+  }
 }
 @media(max-width:700px){
   .regional-hero,.regional-summary-grid,.regional-controls,.regional-comparison,.regional-lower-grid{grid-template-columns:1fr}

@@ -598,8 +598,8 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
         "records": records,
         "national": national,
         "narrative": (
-            f"KL has a higher median household income than Sarawak, but it also records higher mean household spending. "
-            f"In the latest HIES data, {highest_income['state']} has the highest median income while {highest_spend['state']} has the highest mean expenditure."
+            f"KL's median household income is above Sarawak's, but its mean household spending is also higher. "
+            f"Latest HIES ranks {highest_income['state']} highest for median income and {highest_spend['state']} highest for mean expenditure."
         ),
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
     }

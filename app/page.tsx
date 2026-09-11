@@ -1651,7 +1651,8 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
       <div className="regional-hero">
         <div>
           <span>{regional.narratives.headline}</span>
-          <h3>{regional.narratives.comparison}</h3>
+          <h3>Regional income and spending can tell different stories.</h3>
+          <p>{regional.narratives.comparison}</p>
           <p>{regional.disclaimer}</p>
         </div>
         <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
