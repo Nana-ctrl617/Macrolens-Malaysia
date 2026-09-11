@@ -1620,6 +1620,11 @@ function regionalFormat(value: number | null | undefined, unit: string) {
   return value.toFixed(3);
 }
 
+function regionalRmGap(value: number | null | undefined) {
+  if (value == null || Number.isNaN(value)) return "n/a";
+  return `RM ${value >= 0 ? "+" : ""}${value.toLocaleString("en-MY", { maximumFractionDigits: 0 })}`;
+}
+
 function getRegionalMetric(item: RegionalStateRecord, metric: string) {
   const value = item[metric as keyof RegionalStateRecord];
   return typeof value === "number" ? value : null;
@@ -1644,6 +1649,18 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
     .sort((a, b) => (b.selectedValue ?? 0) - (a.selectedValue ?? 0));
   const districtSample = districtRecords.filter((item) => level === "district" ? item.state === primary : true).slice(0, 24);
   const maxValue = Math.max(...rankedStates.map((item) => Math.abs(item.selectedValue ?? 0)), 1);
+  const incomeGroups = regional?.incomeGroups;
+  const primaryIncomeGroups = incomeGroups?.stateGroups.find((item) => item.state === primary)?.groups ?? [];
+  const secondaryIncomeGroups = incomeGroups?.stateGroups.find((item) => item.state === secondary)?.groups ?? [];
+  const nationalIncomeGroups = incomeGroups?.nationalGroups ?? [];
+  const incomeGroupRows = ["b40", "m40", "t20"].map((id) => ({
+    id,
+    label: nationalIncomeGroups.find((item) => item.id === id)?.label ?? id.toUpperCase(),
+    primary: primaryIncomeGroups.find((item) => item.id === id),
+    secondary: secondaryIncomeGroups.find((item) => item.id === id),
+    national: nationalIncomeGroups.find((item) => item.id === id),
+  })).filter((item) => item.primary || item.secondary || item.national);
+  const maxIncomeGroupValue = Math.max(...incomeGroupRows.flatMap((row) => [row.primary?.meanIncome ?? 0, row.secondary?.meanIncome ?? 0, row.national?.meanIncome ?? 0]), 1);
   return <section className="section deep-section regional-section page-section" id="regional"><div className="shell">
     <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h2>How different are Malaysia&apos;s states and districts?</h2></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
     <PictureStrip pictures={["city", "household", "trade"]} />
@@ -1660,6 +1677,30 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
       <div className="regional-summary-grid">
         {regional.summaryCards.map((card) => <article key={card.label}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p></article>)}
       </div>
+      {incomeGroupRows.length ? <div className="income-group-panel">
+        <div className="income-group-heading">
+          <div>
+            <span>Income distribution</span>
+            <h3>B40, M40 and T20 income comparison</h3>
+            <p>{regional.narratives.incomeGroups ?? incomeGroups?.note}</p>
+          </div>
+          <small>{incomeGroups?.observationPeriod ? `Survey year ${new Date(incomeGroups.observationPeriod).getFullYear()}` : "Official percentile data"}</small>
+        </div>
+        <div className="income-group-grid">
+          {incomeGroupRows.map((row) => <article key={row.id}>
+            <span>{row.label}</span>
+            <div className="income-group-bars">
+              {[{ label: primary, item: row.primary, tone: "primary" }, { label: secondary, item: row.secondary, tone: "secondary" }, { label: "Malaysia", item: row.national, tone: "national" }].map((entry) => <div key={entry.label} className={`income-group-row ${entry.tone}`}>
+                <b>{entry.label}</b>
+                <i style={{ width: `${Math.max(5, ((entry.item?.meanIncome ?? 0) / maxIncomeGroupValue) * 100)}%` }} />
+                <strong>{regionalFormat(entry.item?.meanIncome, "RM")}</strong>
+                <em>{entry.item?.vsNationalMean == null ? "Benchmark" : `${regionalRmGap(entry.item.vsNationalMean)} vs Malaysia ${row.label}`}</em>
+              </div>)}
+            </div>
+          </article>)}
+        </div>
+        <p className="income-group-note">{incomeGroups?.note}</p>
+      </div> : null}
       <div className="regional-controls">
         <label><span>Geography</span><select value={level} onChange={(event) => setLevel(event.target.value as "state" | "district")}><option value="state">State / federal territory</option><option value="district">District where available</option></select></label>
         <label><span>Main region</span><select value={primary} onChange={(event) => setPrimary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>

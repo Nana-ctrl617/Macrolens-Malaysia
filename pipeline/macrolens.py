@@ -51,6 +51,9 @@ HIES_STATE_URL = "https://storage.dosm.gov.my/hies/hies_state.csv"
 HIES_STATE_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_state"
 HIES_DISTRICT_URL = "https://storage.dosm.gov.my/hies/hies_district.csv"
 HIES_DISTRICT_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_district"
+HIES_STATE_PERCENTILE_URL = "https://storage.dosm.gov.my/hies/hies_state_percentile.csv"
+HIES_NATIONAL_PERCENTILE_URL = "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv"
+HIES_STATE_PERCENTILE_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_state_percentile"
 LFS_DISTRICT_URL = "https://storage.dosm.gov.my/labour/lfs_district.csv"
 LFS_DISTRICT_SOURCE_URL = "https://data.gov.my/data-catalogue/lfs_district"
 GDP_STATE_REAL_URL = "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv"
@@ -637,6 +640,74 @@ def parse_hies_district(frame: pd.DataFrame, retrieved: str) -> dict:
     return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": HIES_DISTRICT_SOURCE_URL, "datasetUrl": HIES_DISTRICT_URL, "records": records, "message": "Latest district HIES data validated"}
 
 
+def _income_group_from_percentiles(frame: pd.DataFrame, group_id: str, label: str, start: int, end: int) -> dict:
+    group = frame[frame["percentile"].between(start, end)]
+    means = group[group["variable"].eq("mean")]["income"].dropna()
+    medians = group[group["variable"].eq("median")]["income"].dropna()
+    minimums = group[group["variable"].eq("minimum")]["income"].dropna()
+    maximums = group[group["variable"].eq("maximum")]["income"].dropna()
+    if means.empty:
+        raise ValueError(f"Income percentile source missing {label} mean values")
+    return {
+        "id": group_id,
+        "label": label,
+        "percentileRange": f"{start}-{end}",
+        "meanIncome": round(float(means.mean()), 2),
+        "medianIncome": round(float(medians.median()), 2) if not medians.empty else None,
+        "minIncome": round(float(minimums.min()), 2) if not minimums.empty else None,
+        "maxIncome": round(float(maximums.max()), 2) if not maximums.empty else None,
+    }
+
+
+def parse_hies_income_groups(state_frame: pd.DataFrame, national_frame: pd.DataFrame, retrieved: str) -> dict:
+    state_required = {"date", "state", "percentile", "variable", "income"}
+    national_required = {"date", "percentile", "variable", "income"}
+    if not state_required.issubset(state_frame.columns) or not national_required.issubset(national_frame.columns):
+        raise ValueError("Income percentile source structure changed")
+    state = state_frame[list(state_required)].copy()
+    national = national_frame[list(national_required)].copy()
+    state["date"] = pd.to_datetime(state["date"], errors="raise")
+    national["date"] = pd.to_datetime(national["date"], errors="raise")
+    for frame in (state, national):
+        frame["percentile"] = pd.to_numeric(frame["percentile"], errors="raise")
+        frame["income"] = pd.to_numeric(frame["income"], errors="coerce")
+    if state.empty or national.empty:
+        raise ValueError("Income percentile source is empty")
+    if state.duplicated(["date", "state", "percentile", "variable"]).any() or national.duplicated(["date", "percentile", "variable"]).any():
+        raise ValueError("Income percentile source contains duplicate rows")
+    latest_date = min(state["date"].max(), national["date"].max())
+    latest_state = state[state["date"].eq(latest_date)].copy()
+    latest_national = national[national["date"].eq(latest_date)].copy()
+    if latest_state["state"].nunique() < 16 or latest_state["percentile"].nunique() < 100 or latest_national["percentile"].nunique() < 100:
+        raise ValueError("Income percentile source has incomplete latest coverage")
+    groups = [("b40", "B40", 1, 40), ("m40", "M40", 41, 80), ("t20", "T20", 81, 100)]
+    national_groups = [_income_group_from_percentiles(latest_national, group_id, label, start, end) for group_id, label, start, end in groups]
+    national_by_id = {item["id"]: item for item in national_groups}
+    state_groups = []
+    for state_name, state_part in latest_state.groupby("state"):
+        grouped = []
+        for group_id, label, start, end in groups:
+            item = _income_group_from_percentiles(state_part, group_id, label, start, end)
+            benchmark = national_by_id[group_id]["meanIncome"]
+            item["vsNationalMean"] = round(item["meanIncome"] - benchmark, 2)
+            grouped.append(item)
+        state_groups.append({"state": str(state_name), "date": latest_date.strftime("%Y-%m-%d"), "groups": grouped})
+    return {
+        "status": "fresh",
+        "retrievedAt": retrieved,
+        "observationPeriod": latest_date.strftime("%Y-%m-%d"),
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": HIES_STATE_PERCENTILE_SOURCE_URL,
+        "stateDatasetUrl": HIES_STATE_PERCENTILE_URL,
+        "nationalDatasetUrl": HIES_NATIONAL_PERCENTILE_URL,
+        "frequency": "Survey years",
+        "nationalGroups": national_groups,
+        "stateGroups": sorted(state_groups, key=lambda item: item["state"]),
+        "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
+        "message": "Latest state and national income-percentile data validated",
+    }
+
+
 def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
     required = {"state", "district", "date", "lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"}
     if not required.issubset(frame.columns):
@@ -720,6 +791,7 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
     try:
         hies_state = parse_hies_state(read_csv(HIES_STATE_URL), retrieved)
         hies_district = parse_hies_district(read_csv(HIES_DISTRICT_URL), retrieved)
+        income_groups = parse_hies_income_groups(read_csv(HIES_STATE_PERCENTILE_URL), read_csv(HIES_NATIONAL_PERCENTILE_URL), retrieved)
         labour = parse_regional_labour(read_csv(LFS_DISTRICT_URL), retrieved)
         gdp = parse_regional_gdp(read_csv(GDP_STATE_REAL_URL), read_csv(GDP_DISTRICT_REAL_URL), retrieved)
         cpi = parse_state_cpi(read_catalogue_json("cpi_state_inflation"), retrieved)
@@ -766,6 +838,7 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
             "sources": {
                 "hiesState": hies_state,
                 "hiesDistrict": hies_district,
+                "incomeGroups": income_groups,
                 "labour": labour,
                 "gdp": gdp,
                 "cpi": cpi,
@@ -774,6 +847,7 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
             "districtRecords": hies_district["records"],
             "districtLabourRecords": labour["districtRecords"],
             "districtGdpRecords": gdp["districtRecords"],
+            "incomeGroups": income_groups,
             "summaryCards": [
                 {"label": "KL median income", "value": f"RM {kl['incomeMedian']:,.0f}", "detail": f"RM {kl['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
                 {"label": "Sarawak median income", "value": f"RM {sarawak['incomeMedian']:,.0f}", "detail": f"RM {sarawak['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
@@ -783,6 +857,7 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
             "narratives": {
                 "headline": "Regional living-cost pressure is not the same across Malaysia.",
                 "comparison": hies_state["narrative"],
+                "incomeGroups": "B40, M40 and T20 comparisons show whether a high-income state is broad-based or concentrated at the top of the distribution.",
                 "district": "District data can show within-state differences, but coverage is survey-based and not available for every monthly indicator.",
                 "nationalOnly": "Some financial indicators are national by design: BNM policy rates, government-bond yields, the ringgit and Bursa benchmarks do not have separate district values.",
             },
@@ -2045,6 +2120,9 @@ def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
             "unemployment_rate": item.get("unemploymentRate"),
             "real_gdp_rm_billion": item.get("realGdp"),
             "largest_sector": item.get("largestSector"),
+            "income_group": "",
+            "income_group_mean": "",
+            "income_group_vs_national_mean": "",
         })
     for item in regional.get("districtRecords", []):
         regional_rows.append({
@@ -2063,8 +2141,54 @@ def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
             "unemployment_rate": "",
             "real_gdp_rm_billion": "",
             "largest_sector": "",
+            "income_group": "",
+            "income_group_mean": "",
+            "income_group_vs_national_mean": "",
         })
-    regional_fields = ["level", "state", "district", "date", "income_mean", "income_median", "expenditure_mean", "income_minus_expenditure", "income_to_expenditure_ratio", "poverty", "gini", "headline_inflation", "unemployment_rate", "real_gdp_rm_billion", "largest_sector"]
+    for state_group in regional.get("incomeGroups", {}).get("stateGroups", []):
+        for group in state_group.get("groups", []):
+            regional_rows.append({
+                "level": "state_income_group",
+                "state": state_group.get("state"),
+                "district": "",
+                "date": state_group.get("date"),
+                "income_mean": "",
+                "income_median": "",
+                "expenditure_mean": "",
+                "income_minus_expenditure": "",
+                "income_to_expenditure_ratio": "",
+                "poverty": "",
+                "gini": "",
+                "headline_inflation": "",
+                "unemployment_rate": "",
+                "real_gdp_rm_billion": "",
+                "largest_sector": "",
+                "income_group": group.get("label"),
+                "income_group_mean": group.get("meanIncome"),
+                "income_group_vs_national_mean": group.get("vsNationalMean"),
+            })
+    for group in regional.get("incomeGroups", {}).get("nationalGroups", []):
+        regional_rows.append({
+            "level": "national_income_group",
+            "state": "Malaysia",
+            "district": "",
+            "date": regional.get("incomeGroups", {}).get("observationPeriod"),
+            "income_mean": "",
+            "income_median": "",
+            "expenditure_mean": "",
+            "income_minus_expenditure": "",
+            "income_to_expenditure_ratio": "",
+            "poverty": "",
+            "gini": "",
+            "headline_inflation": "",
+            "unemployment_rate": "",
+            "real_gdp_rm_billion": "",
+            "largest_sector": "",
+            "income_group": group.get("label"),
+            "income_group_mean": group.get("meanIncome"),
+            "income_group_vs_national_mean": 0,
+        })
+    regional_fields = ["level", "state", "district", "date", "income_mean", "income_median", "expenditure_mean", "income_minus_expenditure", "income_to_expenditure_ratio", "poverty", "gini", "headline_inflation", "unemployment_rate", "real_gdp_rm_billion", "largest_sector", "income_group", "income_group_mean", "income_group_vs_national_mean"]
     with REGIONAL_CSV.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=regional_fields)
         writer.writeheader()

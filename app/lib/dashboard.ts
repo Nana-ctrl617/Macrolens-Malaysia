@@ -149,6 +149,16 @@ export type RegionalDistrictRecord = {
   state: string; district: string; date: string; incomeMean: number; incomeMedian: number; expenditureMean: number;
   incomeMinusExpenditure: number; incomeToExpenditureRatio: number | null; poverty: number; gini: number;
 };
+export type RegionalIncomeGroup = {
+  id: "b40" | "m40" | "t20"; label: string; percentileRange: string; meanIncome: number;
+  medianIncome?: number | null; minIncome?: number | null; maxIncome?: number | null; vsNationalMean?: number | null;
+};
+export type RegionalIncomeGroups = {
+  status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string; source: string; sourceUrl: string;
+  stateDatasetUrl: string; nationalDatasetUrl: string; frequency: string; note: string; message: string;
+  nationalGroups: RegionalIncomeGroup[];
+  stateGroups: Array<{ state: string; date: string; groups: RegionalIncomeGroup[] }>;
+};
 export type RegionalLens = {
   status: "fresh" | "partial" | "stale"; generatedAt: string;
   defaultComparison: { primary: string; secondary: string };
@@ -156,8 +166,9 @@ export type RegionalLens = {
   stateRecords: RegionalStateRecord[]; districtRecords: RegionalDistrictRecord[];
   districtLabourRecords?: Array<{ state: string; district: string; date: string; labourForce: number; unemploymentRate: number | null; participationRate?: number | null; employmentPopulationRatio?: number | null }>;
   districtGdpRecords?: Array<{ state: string; district: string; date: string; total: number; largestSector: string; largestSectorShare: number; sectors: Array<{ id: string; name: string; value: number; share: number }> }>;
+  incomeGroups?: RegionalIncomeGroups;
   summaryCards: Array<{ label: string; value: string; detail: string }>;
-  narratives: { headline: string; comparison: string; district: string; nationalOnly: string };
+  narratives: { headline: string; comparison: string; incomeGroups?: string; district: string; nationalOnly: string };
   downloads: Array<{ label: string; href: string }>;
   disclaimer: string;
 };
@@ -268,6 +279,8 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const regionalValid = candidate.schemaVersion < 9 || (
     (candidate.regionalLens?.stateRecords?.length ?? 0) >= 15
     && (candidate.regionalLens?.districtRecords?.length ?? 0) >= 100
+    && (candidate.regionalLens?.incomeGroups?.nationalGroups?.length ?? 0) >= 3
+    && (candidate.regionalLens?.incomeGroups?.stateGroups?.length ?? 0) >= 15
     && !!candidate.regionalLens?.coverage?.nationalOnly?.includes("OPR")
   );
   return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 9)

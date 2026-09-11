@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 process.env.DASHBOARD_DATA_URL = "http://127.0.0.1:9/dashboard.json";
@@ -124,6 +125,8 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.ok(body.monthlyReport.sections.length >= 5);
   assert.ok(body.regionalLens.stateRecords.length >= 15);
   assert.ok(body.regionalLens.districtRecords.length >= 100);
+  assert.ok(body.regionalLens.incomeGroups.nationalGroups.length >= 3);
+  assert.ok(body.regionalLens.incomeGroups.stateGroups.length >= 15);
   assert.ok(body.regionalLens.coverage.nationalOnly.includes("OPR"));
   assert.equal(body.externalSector.summary.tradeReading.includes("exports") || body.externalSector.summary.tradeReading.includes("imports") || body.externalSector.summary.tradeReading.includes("balanced"), true);
   assert.equal(body.categories.length, 13);
@@ -150,14 +153,24 @@ test("serves regional comparisons as CSV and JSON", async () => {
   const html = await page.text();
   assert.match(html, /Regional Lens/);
   assert.match(html, /schema-nine dataset is available|How different are Malaysia/);
+  const pageBundle = readdirSync("dist/client/assets").find((file) => /^page-.*\.js$/.test(file));
+  assert.ok(pageBundle);
+  const pageJs = readFileSync(`dist/client/assets/${pageBundle}`, "utf8");
+  assert.match(pageJs, /Income distribution/);
+  assert.match(pageJs, /B40/);
+  assert.match(pageJs, /M40/);
+  assert.match(pageJs, /T20/);
   const csvResponse = await render("/api/regional-lens?format=csv");
   assert.equal(csvResponse.status, 200);
   assert.match(csvResponse.headers.get("content-disposition"), /regional-lens\.csv/);
-  assert.match(await csvResponse.text(), /level,state,district,date,income_mean/);
+  const csvBody = await csvResponse.text();
+  assert.match(csvBody, /level,state,district,date,income_mean/);
+  assert.match(csvBody, /state_income_group/);
   const jsonResponse = await render("/api/regional-lens?format=json");
   assert.equal(jsonResponse.status, 200);
   const body = await jsonResponse.json();
   assert.ok(body.stateRecords.some((item) => item.state === "Sarawak"));
+  assert.ok(body.incomeGroups.nationalGroups.some((item) => item.label === "B40"));
   assert.ok(body.coverage.nationalOnly.includes("Bursa Malaysia benchmark"));
   assert.match(body.disclaimer, /not a personal cost-of-living calculator/i);
 });

@@ -1264,6 +1264,109 @@ th { font-weight:900; }
   font-size:15px;
   line-height:1.5;
 }
+.income-group-panel {
+  margin:0 0 14px;
+  padding:22px;
+  border:1px solid #d2dce1;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 14px 32px rgba(24,35,43,.055);
+}
+.income-group-heading {
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+.income-group-heading span,
+.income-group-grid article>span {
+  display:block;
+  color:#b7352d;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:12px;
+  font-weight:900;
+}
+.income-group-heading h3 {
+  margin:7px 0 6px;
+  font-size:clamp(24px,3vw,36px);
+  line-height:1.12;
+}
+.income-group-heading p,
+.income-group-note {
+  margin:0;
+  color:#3f4c48;
+  font-size:16px;
+  line-height:1.55;
+}
+.income-group-heading small {
+  flex:0 0 auto;
+  padding:9px 12px;
+  border-radius:999px;
+  background:#e7f0ef;
+  color:#075f63;
+  font-weight:900;
+}
+.income-group-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.income-group-grid article {
+  padding:16px;
+  border:1px solid #dbe4e8;
+  background:#f8fafb;
+  border-radius:15px;
+}
+.income-group-bars {
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.income-group-row {
+  display:grid;
+  grid-template-columns:110px 1fr 108px;
+  gap:10px;
+  align-items:center;
+  position:relative;
+  padding:9px 0;
+}
+.income-group-row b,
+.income-group-row strong {
+  position:relative;
+  z-index:1;
+  font-size:14px;
+  font-weight:900;
+}
+.income-group-row strong {
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.income-group-row i {
+  height:18px;
+  border-radius:999px;
+  background:#0b6f6b;
+  min-width:5px;
+}
+.income-group-row.secondary i {
+  background:#d95a41;
+}
+.income-group-row.national i {
+  background:#96a4aa;
+}
+.income-group-row em {
+  grid-column:2 / 4;
+  color:#5a6662;
+  font-size:13px;
+  font-style:normal;
+}
+.income-group-note {
+  margin-top:14px;
+  padding-top:13px;
+  border-top:1px solid #e3e8eb;
+  font-size:14px;
+}
 .regional-controls {
   display:grid;
   grid-template-columns:1fr 1fr 1fr 1.2fr auto;
@@ -1452,6 +1555,8 @@ th { font-weight:900; }
 }
 @media(max-width:1050px){
   .regional-summary-grid,.regional-controls,.regional-lower-grid{grid-template-columns:1fr 1fr}
+  .income-group-grid{grid-template-columns:1fr}
+  .income-group-heading{display:grid}
   .regional-controls .segmented{align-self:stretch}
 }
 @media(min-width:1180px){
@@ -1461,6 +1566,9 @@ th { font-weight:900; }
 }
 @media(max-width:700px){
   .regional-hero,.regional-summary-grid,.regional-controls,.regional-comparison,.regional-lower-grid{grid-template-columns:1fr}
+  .income-group-row{grid-template-columns:1fr}
+  .income-group-row strong{text-align:left}
+  .income-group-row em{grid-column:auto}
   .regional-bar{grid-template-columns:1fr}
   .regional-bar b{text-align:left}
   .regional-hero{padding:21px}

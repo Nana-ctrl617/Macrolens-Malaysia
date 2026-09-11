@@ -370,6 +370,40 @@ def test_regional_hies_state_parser_rejects_duplicates(monkeypatch):
         macrolens.parse_hies_state(pd.DataFrame(rows), "2026-01-01T00:00:00Z")
 
 
+def income_percentile_fixture(states):
+    import pandas as pd
+    rows = []
+    for state_index, state in enumerate(states):
+        for percentile in range(1, 101):
+            rows.append({"date": "2024-01-01", "state": state, "percentile": percentile, "variable": "mean", "income": 1000 + state_index * 100 + percentile * 20})
+            rows.append({"date": "2024-01-01", "state": state, "percentile": percentile, "variable": "median", "income": 980 + state_index * 100 + percentile * 20})
+            rows.append({"date": "2024-01-01", "state": state, "percentile": percentile, "variable": "minimum", "income": 900 + state_index * 100 + percentile * 20})
+            rows.append({"date": "2024-01-01", "state": state, "percentile": percentile, "variable": "maximum", "income": 1100 + state_index * 100 + percentile * 20})
+    return pd.DataFrame(rows)
+
+
+def national_percentile_fixture():
+    import pandas as pd
+    rows = []
+    for percentile in range(1, 101):
+        rows.append({"date": "2024-01-01", "percentile": percentile, "variable": "mean", "income": 1200 + percentile * 20})
+        rows.append({"date": "2024-01-01", "percentile": percentile, "variable": "median", "income": 1180 + percentile * 20})
+        rows.append({"date": "2024-01-01", "percentile": percentile, "variable": "minimum", "income": 1100 + percentile * 20})
+        rows.append({"date": "2024-01-01", "percentile": percentile, "variable": "maximum", "income": 1300 + percentile * 20})
+    return pd.DataFrame(rows)
+
+
+def test_regional_income_group_parser_builds_b40_m40_t20():
+    states = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis", "Selangor", "Terengganu", "Sabah", "Sarawak", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
+    result = macrolens.parse_hies_income_groups(income_percentile_fixture(states), national_percentile_fixture(), "2026-01-01T00:00:00Z")
+    assert result["status"] == "fresh"
+    assert [item["id"] for item in result["nationalGroups"]] == ["b40", "m40", "t20"]
+    kl = next(item for item in result["stateGroups"] if item["state"] == "W.P. Kuala Lumpur")
+    assert len(kl["groups"]) == 3
+    assert kl["groups"][0]["meanIncome"] < kl["groups"][2]["meanIncome"]
+    assert isinstance(kl["groups"][0]["vsNationalMean"], float)
+
+
 def test_regional_lens_combines_kl_sarawak_and_national_only(monkeypatch):
     import pandas as pd
     states = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis", "Selangor", "Terengganu", "Sabah", "Sarawak", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
@@ -381,6 +415,8 @@ def test_regional_lens_combines_kl_sarawak_and_national_only(monkeypatch):
         {"date": "2024-01-01", "state": states[index % len(states)], "district": f"District {index}", "income_mean": 6000, "income_median": 5000, "expenditure_mean": 3300, "gini": 0.31, "poverty": 3.0}
         for index in range(120)
     ])
+    income_state = income_percentile_fixture(states)
+    income_national = national_percentile_fixture()
     labour = pd.DataFrame([
         {"state": states[index % len(states)], "district": f"District {index}", "date": "2024-01-01", "lf": 100, "lf_employed": 97, "lf_unemployed": 3, "lf_outside": 40, "p_rate": 70, "u_rate": 3, "ep_ratio": 68}
         for index in range(120)
@@ -397,11 +433,12 @@ def test_regional_lens_combines_kl_sarawak_and_national_only(monkeypatch):
         {"date": "2026-07-01", "state": state, "division": "overall", "inflation_yoy": 1.5}
         for state in states
     ])
-    sources = iter([hies_state, hies_district, labour, gdp_state, gdp_district])
+    sources = iter([hies_state, hies_district, income_state, income_national, labour, gdp_state, gdp_district])
     monkeypatch.setattr(macrolens, "read_csv", lambda url: next(sources))
     monkeypatch.setattr(macrolens, "read_catalogue_json", lambda dataset_id, limit=100000: pd.DataFrame([{"date": "2024-01-01", "income_mean": 8479, "income_median": 6338, "poverty_absolute": 5.1, "gini": 0.39}]) if dataset_id != "cpi_state_inflation" else cpi)
     result = macrolens.build_regional_lens(None, "2026-01-01T00:00:00Z")
     assert result["schemaVersion"] if "schemaVersion" in result else True
     assert result["defaultComparison"] == {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"}
     assert any(item["state"] == "Sarawak" for item in result["stateRecords"])
+    assert len(result["incomeGroups"]["nationalGroups"]) == 3
     assert "OPR" in result["coverage"]["nationalOnly"]
