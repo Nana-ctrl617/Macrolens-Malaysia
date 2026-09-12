@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "generatedAt": "2026-09-11T09:59:43Z",
+  "generatedAt": "2026-09-12T09:34:06Z",
   "defaultComparison": {
     "primary": "W.P. Kuala Lumpur",
     "secondary": "Sarawak"
@@ -19,7 +19,7 @@
   "sources": {
     "hiesState": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -215,7 +215,7 @@
     },
     "hiesDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -2169,7 +2169,7 @@
     },
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -2788,7 +2788,7 @@
     },
     "labour": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
       "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -4288,7 +4288,7 @@
     },
     "gdp": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -12428,7 +12428,7 @@
     },
     "cpi": {
       "status": "fresh",
-      "retrievedAt": "2026-09-11T09:59:43Z",
+      "retrievedAt": "2026-09-12T09:34:06Z",
       "observationPeriod": "2026-07-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
@@ -24305,7 +24305,7 @@
   ],
   "incomeGroups": {
     "status": "fresh",
-    "retrievedAt": "2026-09-11T09:59:43Z",
+    "retrievedAt": "2026-09-12T09:34:06Z",
     "observationPeriod": "2024-01-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
