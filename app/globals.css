@@ -1241,6 +1241,83 @@ th { font-weight:900; }
   font-weight:900;
   font-size:14px;
 }
+.regional-source-panel {
+  display:grid;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);
+  gap:18px;
+  margin:0 0 14px;
+  padding:20px;
+  border:1px solid #cbd8dd;
+  background:#f8fbfb;
+  box-shadow:0 14px 32px rgba(24,35,43,.045);
+}
+.regional-source-panel>div:first-child>span {
+  display:block;
+  color:#b7352d;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:13px;
+  font-weight:900;
+}
+.regional-source-panel h3 {
+  margin:8px 0;
+  font-size:28px;
+  line-height:1.1;
+}
+.regional-source-panel p {
+  margin:0;
+  color:#40504c;
+  font-size:16px;
+  line-height:1.55;
+}
+.regional-source-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.regional-source-grid details {
+  border:1px solid #d6e0e4;
+  background:#fff;
+  padding:12px;
+}
+.regional-source-grid summary {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  cursor:pointer;
+  color:#111a18;
+  font-size:15px;
+  font-weight:900;
+  list-style:none;
+}
+.regional-source-grid summary::-webkit-details-marker { display:none; }
+.regional-source-grid summary span { color:#111a18; letter-spacing:0; text-transform:none; font-size:15px; }
+.regional-source-grid p {
+  margin:10px 0 4px;
+  font-size:15px;
+  line-height:1.45;
+}
+.regional-source-grid small {
+  display:block;
+  color:#5e6b67;
+  font-size:13px;
+  line-height:1.45;
+}
+.regional-source-grid details div {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.regional-source-grid a,
+.income-group-note a,
+.regional-comparison a {
+  color:#075f63;
+  font-weight:900;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
 .regional-summary-grid {
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -1263,6 +1340,13 @@ th { font-weight:900; }
   color:#4b5753;
   font-size:15px;
   line-height:1.5;
+}
+.regional-summary-grid small {
+  display:block;
+  margin-top:12px;
+  color:#5d6a66;
+  font-size:13px;
+  line-height:1.4;
 }
 .income-group-panel {
   margin:0 0 14px;
@@ -1555,6 +1639,7 @@ th { font-weight:900; }
 }
 @media(max-width:1050px){
   .regional-summary-grid,.regional-controls,.regional-lower-grid{grid-template-columns:1fr 1fr}
+  .regional-source-panel{grid-template-columns:1fr}
   .income-group-grid{grid-template-columns:1fr}
   .income-group-heading{display:grid}
   .regional-controls .segmented{align-self:stretch}
@@ -1566,6 +1651,9 @@ th { font-weight:900; }
 }
 @media(max-width:700px){
   .regional-hero,.regional-summary-grid,.regional-controls,.regional-comparison,.regional-lower-grid{grid-template-columns:1fr}
+  .regional-source-grid{grid-template-columns:1fr}
+  .regional-source-panel{padding:16px}
+  .regional-source-panel h3{font-size:24px}
   .income-group-row{grid-template-columns:1fr}
   .income-group-row strong{text-align:left}
   .income-group-row em{grid-column:auto}

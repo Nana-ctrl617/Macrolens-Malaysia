@@ -1630,6 +1630,17 @@ function getRegionalMetric(item: RegionalStateRecord, metric: string) {
   return typeof value === "number" ? value : null;
 }
 
+function sourceDate(value: string | null | undefined) {
+  return value ? formatDate(value.slice(0, 10)) : "latest available";
+}
+
+function regionalMetricSource(metric: string) {
+  if (metric === "headlineInflation") return "cpi";
+  if (metric === "unemploymentRate") return "labour";
+  if (metric === "realGdp") return "gdp";
+  return "hiesState";
+}
+
 function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const regional: RegionalLens | undefined = dashboard?.regionalLens;
   const [level, setLevel] = useState<"state" | "district">("state");
@@ -1640,6 +1651,12 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
   const metricInfo = regionalMetricCopy[metric] ?? regionalMetricCopy.incomeMedian;
   const stateRecords = regional?.stateRecords ?? [];
   const districtRecords = regional?.districtRecords ?? [];
+  const regionalSources = regional?.sources ?? {};
+  const hiesSource = regionalSources.hiesState;
+  const districtSource = regionalSources.hiesDistrict;
+  const labourSource = regionalSources.labour;
+  const gdpSource = regionalSources.gdp;
+  const cpiSource = regionalSources.cpi;
   const states = stateRecords.map((item) => item.state);
   const primaryState = stateRecords.find((item) => item.state === primary) ?? stateRecords[0];
   const secondaryState = stateRecords.find((item) => item.state === secondary) ?? stateRecords.find((item) => item.state === "Sarawak") ?? stateRecords[1];
@@ -1661,6 +1678,18 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
     national: nationalIncomeGroups.find((item) => item.id === id),
   })).filter((item) => item.primary || item.secondary || item.national);
   const maxIncomeGroupValue = Math.max(...incomeGroupRows.flatMap((row) => [row.primary?.meanIncome ?? 0, row.secondary?.meanIncome ?? 0, row.national?.meanIncome ?? 0]), 1);
+  const activeSourceKey = regionalMetricSource(metric);
+  const activeSource = regionalSources[activeSourceKey];
+  const activeSourceName = activeSourceKey === "cpi" ? "DOSM state CPI" : activeSourceKey === "labour" ? "DOSM labour force" : activeSourceKey === "gdp" ? "DOSM state GDP" : "DOSM HIES household survey";
+  const activeSourceUrl = activeSource?.sourceUrl ?? activeSource?.datasetUrl ?? "https://data.gov.my/";
+  const sourceCards = [
+    { label: "Income, expenditure, poverty and Gini", source: "DOSM Household Income & Expenditure Survey (HIES)", period: hiesSource?.observationPeriod, retrieved: hiesSource?.retrievedAt, catalogue: hiesSource?.sourceUrl, csv: hiesSource?.datasetUrl, status: hiesSource?.status },
+    { label: "B40, M40 and T20 income", source: incomeGroups?.source ?? "DOSM HIES percentile income", period: incomeGroups?.observationPeriod, retrieved: incomeGroups?.retrievedAt, catalogue: incomeGroups?.sourceUrl, csv: incomeGroups?.stateDatasetUrl, extraCsv: incomeGroups?.nationalDatasetUrl, status: incomeGroups?.status },
+    { label: "District income and poverty", source: "DOSM HIES district dataset", period: districtSource?.observationPeriod, retrieved: districtSource?.retrievedAt, catalogue: districtSource?.sourceUrl, csv: districtSource?.datasetUrl, status: districtSource?.status },
+    { label: "Unemployment and labour force", source: "DOSM labour force by district/state", period: labourSource?.observationPeriod, retrieved: labourSource?.retrievedAt, catalogue: labourSource?.sourceUrl, csv: labourSource?.datasetUrl, status: labourSource?.status },
+    { label: "State and district GDP by sector", source: "DOSM real GDP supply-side datasets", period: gdpSource?.observationPeriod, retrieved: gdpSource?.retrievedAt, catalogue: gdpSource?.sourceUrl, csv: gdpSource?.datasetUrl, extraCatalogue: gdpSource?.districtSourceUrl, extraCsv: gdpSource?.districtDatasetUrl, status: gdpSource?.status },
+    { label: "State inflation", source: "DOSM state CPI inflation", period: cpiSource?.observationPeriod, retrieved: cpiSource?.retrievedAt, catalogue: cpiSource?.sourceUrl, status: cpiSource?.status },
+  ].filter((item) => item.catalogue || item.csv || item.period);
   return <section className="section deep-section regional-section page-section" id="regional"><div className="shell">
     <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h2>How different are Malaysia&apos;s states and districts?</h2></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
     <PictureStrip pictures={["city", "household", "trade"]} />
@@ -1674,8 +1703,28 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
         </div>
         <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
       </div>
+      <div className="regional-source-panel" aria-label="Regional Lens data sources for assignment citation">
+        <div>
+          <span>Data sources for assignment</span>
+          <h3>Every regional number is tied to an official source.</h3>
+          <p>Hover on the cards for a quick source note, or open the source links below when you need to cite or download the original data.</p>
+        </div>
+        <div className="regional-source-grid">
+          {sourceCards.map((source) => <details key={source.label}>
+            <summary><span>{source.label}</span><b className={`risk-pill ${source.status ?? "fresh"}`}>{source.status ?? "source"}</b></summary>
+            <p>{source.source}</p>
+            <small>Observation period: {sourceDate(source.period)} · Retrieved: {sourceDate(source.retrieved)}</small>
+            <div>
+              {source.catalogue ? <a href={source.catalogue} target="_blank" rel="noreferrer">Catalogue ↗</a> : null}
+              {source.csv ? <a href={source.csv} target="_blank" rel="noreferrer">Source CSV ↗</a> : null}
+              {source.extraCatalogue ? <a href={source.extraCatalogue} target="_blank" rel="noreferrer">District catalogue ↗</a> : null}
+              {source.extraCsv ? <a href={source.extraCsv} target="_blank" rel="noreferrer">Extra CSV ↗</a> : null}
+            </div>
+          </details>)}
+        </div>
+      </div>
       <div className="regional-summary-grid">
-        {regional.summaryCards.map((card) => <article key={card.label}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p></article>)}
+        {regional.summaryCards.map((card) => <article key={card.label} title={`Source for this number: DOSM HIES household survey. Observation period ${sourceDate(hiesSource?.observationPeriod)}.`}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p><small>Source: DOSM HIES · {sourceDate(hiesSource?.observationPeriod)}</small></article>)}
       </div>
       {incomeGroupRows.length ? <div className="income-group-panel">
         <div className="income-group-heading">
@@ -1690,7 +1739,7 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
           {incomeGroupRows.map((row) => <article key={row.id}>
             <span>{row.label}</span>
             <div className="income-group-bars">
-              {[{ label: primary, item: row.primary, tone: "primary" }, { label: secondary, item: row.secondary, tone: "secondary" }, { label: "Malaysia", item: row.national, tone: "national" }].map((entry) => <div key={entry.label} className={`income-group-row ${entry.tone}`}>
+              {[{ label: primary, item: row.primary, tone: "primary" }, { label: secondary, item: row.secondary, tone: "secondary" }, { label: "Malaysia", item: row.national, tone: "national" }].map((entry) => <div key={entry.label} className={`income-group-row ${entry.tone}`} title={`Source for this number: DOSM HIES percentile income data. ${row.label} means percentile range ${entry.item?.percentileRange ?? "available"}; observation period ${sourceDate(incomeGroups?.observationPeriod)}.`}>
                 <b>{entry.label}</b>
                 <i style={{ width: `${Math.max(5, ((entry.item?.meanIncome ?? 0) / maxIncomeGroupValue) * 100)}%` }} />
                 <strong>{regionalFormat(entry.item?.meanIncome, "RM")}</strong>
@@ -1699,7 +1748,7 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
             </div>
           </article>)}
         </div>
-        <p className="income-group-note">{incomeGroups?.note}</p>
+        <p className="income-group-note">{incomeGroups?.note} <a href={incomeGroups?.sourceUrl} target="_blank" rel="noreferrer">Catalogue ↗</a> <a href={incomeGroups?.stateDatasetUrl} target="_blank" rel="noreferrer">State CSV ↗</a> <a href={incomeGroups?.nationalDatasetUrl} target="_blank" rel="noreferrer">Malaysia CSV ↗</a></p>
       </div> : null}
       <div className="regional-controls">
         <label><span>Geography</span><select value={level} onChange={(event) => setLevel(event.target.value as "state" | "district")}><option value="state">State / federal territory</option><option value="district">District where available</option></select></label>
@@ -1709,22 +1758,22 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
         <div className="segmented small"><button className={view === "chart" ? "active" : ""} onClick={() => setView("chart")}>Chart</button><button className={view === "table" ? "active" : ""} onClick={() => setView("table")}>Table</button></div>
       </div>
       <div className="regional-comparison">
-        {[primaryState, secondaryState].filter(Boolean).map((item) => <article key={item.state}><span>{item.state}</span><strong>{regionalFormat(getRegionalMetric(item, metric), metricInfo.unit)}</strong><p>{metricInfo.description}</p><small>Income data {formatDate(item.date)} · CPI {item.inflationPeriod ? formatDate(item.inflationPeriod) : "n/a"} · GDP {item.gdpPeriod ? formatDate(item.gdpPeriod) : "n/a"}</small></article>)}
+        {[primaryState, secondaryState].filter(Boolean).map((item) => <article key={item.state} title={`Source for this selected metric: ${activeSourceName}. Observation period ${sourceDate(activeSource?.observationPeriod)}.`}><span>{item.state}</span><strong>{regionalFormat(getRegionalMetric(item, metric), metricInfo.unit)}</strong><p>{metricInfo.description}</p><small>Source: <a href={activeSourceUrl} target="_blank" rel="noreferrer">{activeSourceName} ↗</a> · data period {sourceDate(activeSource?.observationPeriod)}</small></article>)}
       </div>
       {view === "chart" ? <div className="regional-bars" role="img" aria-label={`${metricInfo.label} by state`}>
         {rankedStates.map((item) => <div key={item.state} className={`regional-bar ${item.state === primary || item.state === secondary ? "selected" : ""}`} tabIndex={0}>
           <span>{item.state}</span>
           <i style={{ width: `${Math.max(6, Math.abs(item.selectedValue ?? 0) / maxValue * 100)}%` }} />
           <b>{regionalFormat(item.selectedValue, metricInfo.unit)}</b>
-          <em>{metricInfo.label} · {item.largestSector ? `largest sector: ${item.largestSector}` : "official regional data"}</em>
+          <em>{metricInfo.label} · Source: {activeSourceName} · {item.largestSector ? `largest sector: ${item.largestSector}` : "official regional data"}</em>
         </div>)}
-      </div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>State</th><th>{metricInfo.label}</th><th>Median income</th><th>Expenditure</th><th>Poverty</th><th>Unemployment</th><th>Largest sector</th></tr></thead><tbody>{rankedStates.map((item) => <tr key={item.state}><td>{item.state}</td><td>{regionalFormat(item.selectedValue, metricInfo.unit)}</td><td>{regionalFormat(item.incomeMedian, "RM")}</td><td>{regionalFormat(item.expenditureMean, "RM")}</td><td>{regionalFormat(item.poverty, "%")}</td><td>{regionalFormat(item.unemploymentRate, "%")}</td><td>{item.largestSector ?? "n/a"}</td></tr>)}</tbody></table></div>}
+      </div> : <div className="table-wrap"><table className="data-table"><caption>Source for selected metric: {activeSourceName}; observation period {sourceDate(activeSource?.observationPeriod)}.</caption><thead><tr><th>State</th><th>{metricInfo.label}</th><th>Median income</th><th>Expenditure</th><th>Poverty</th><th>Unemployment</th><th>Largest sector</th></tr></thead><tbody>{rankedStates.map((item) => <tr key={item.state}><td>{item.state}</td><td title={`Source: ${activeSourceName}`}>{regionalFormat(item.selectedValue, metricInfo.unit)}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.incomeMedian, "RM")}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.expenditureMean, "RM")}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.poverty, "%")}</td><td title="Source: DOSM labour force dataset">{regionalFormat(item.unemploymentRate, "%")}</td><td title="Source: DOSM state GDP dataset">{item.largestSector ?? "n/a"}</td></tr>)}</tbody></table></div>}
       <div className="regional-lower-grid">
         <article className="deep-card"><span>District view</span><h3>{level === "district" ? `${primary} districts` : "District data exists, but not for every indicator"}</h3><p>{regional.narratives.district}</p><div className="mini-rank-list">{districtSample.map((item) => <div key={`${item.state}-${item.district}`}><span>{item.district}</span><b>{regionalFormat(item.incomeMedian, "RM")}</b><small>poverty {regionalFormat(item.poverty, "%")}</small></div>)}</div></article>
         <article className="deep-card"><span>National-only indicators</span><h3>Some signals should not be split by state.</h3><p>{regional.narratives.nationalOnly}</p><div className="badge-row">{regional.coverage.nationalOnly.map((item) => <span key={item}>{item}</span>)}</div></article>
         <article className="deep-card"><span>Sector mix</span><h3>{primaryState?.state ?? "Selected region"} is most exposed to {primaryState?.largestSector ?? "available sectors"}.</h3><p>State GDP helps explain why regions may react differently to trade, commodity, tourism, construction or services conditions.</p><div className="mini-rank-list">{(primaryState?.sectorShares ?? []).slice(0, 5).map((sector) => <div key={sector.id}><span>{sector.name}</span><b>{sector.share.toFixed(1)}%</b><small>{regionalFormat(sector.value, "RM billion")}</small></div>)}</div></article>
       </div>
-      <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p></div>
+      <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p><p>For school assignments, use the “Data sources for assignment” links above together with the downloaded CSV/JSON. The dashboard is a cleaned presentation layer; the linked DOSM/data.gov.my files are the original sources.</p></div>
     </>}
   </div></section>;
 }

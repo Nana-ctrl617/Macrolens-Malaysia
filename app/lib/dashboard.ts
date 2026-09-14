@@ -159,10 +159,16 @@ export type RegionalIncomeGroups = {
   nationalGroups: RegionalIncomeGroup[];
   stateGroups: Array<{ state: string; date: string; groups: RegionalIncomeGroup[] }>;
 };
+export type RegionalSourceMetadata = {
+  status?: string; retrievedAt?: string; observationPeriod?: string; sourceUrl?: string; datasetUrl?: string;
+  stateDatasetUrl?: string; nationalDatasetUrl?: string; districtSourceUrl?: string; districtDatasetUrl?: string;
+  frequency?: string; message?: string;
+};
 export type RegionalLens = {
   status: "fresh" | "partial" | "stale"; generatedAt: string;
   defaultComparison: { primary: string; secondary: string };
   coverage: { state: string; district: string; nationalOnly: string[] };
+  sources?: Record<string, RegionalSourceMetadata>;
   stateRecords: RegionalStateRecord[]; districtRecords: RegionalDistrictRecord[];
   districtLabourRecords?: Array<{ state: string; district: string; date: string; labourForce: number; unemploymentRate: number | null; participationRate?: number | null; employmentPopulationRatio?: number | null }>;
   districtGdpRecords?: Array<{ state: string; district: string; date: string; total: number; largestSector: string; largestSectorShare: number; sectors: Array<{ id: string; name: string; value: number; share: number }> }>;

@@ -160,6 +160,9 @@ test("serves regional comparisons as CSV and JSON", async () => {
   assert.match(pageJs, /B40/);
   assert.match(pageJs, /M40/);
   assert.match(pageJs, /T20/);
+  assert.match(pageJs, /Data sources for assignment/);
+  assert.match(pageJs, /Source for this number/);
+  assert.match(pageJs, /Source CSV/);
   const csvResponse = await render("/api/regional-lens?format=csv");
   assert.equal(csvResponse.status, 200);
   assert.match(csvResponse.headers.get("content-disposition"), /regional-lens\.csv/);
