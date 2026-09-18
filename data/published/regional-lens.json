@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "generatedAt": "2026-09-17T10:24:46Z",
+  "generatedAt": "2026-09-18T10:02:12Z",
   "defaultComparison": {
     "primary": "W.P. Kuala Lumpur",
     "secondary": "Sarawak"
@@ -19,7 +19,7 @@
   "sources": {
     "hiesState": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
+      "retrievedAt": "2026-09-18T10:02:12Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -215,7 +215,7 @@
     },
     "hiesDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
+      "retrievedAt": "2026-09-18T10:02:12Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -2169,7 +2169,7 @@
     },
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
+      "retrievedAt": "2026-09-18T10:02:12Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -2788,7 +2788,7 @@
     },
     "labour": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
+      "retrievedAt": "2026-09-18T10:02:12Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
       "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -4288,7 +4288,7 @@
     },
     "gdp": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
+      "retrievedAt": "2026-09-18T10:02:12Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -12428,90 +12428,90 @@
     },
     "cpi": {
       "status": "fresh",
-      "retrievedAt": "2026-09-17T10:24:46Z",
-      "observationPeriod": "2026-07-01",
+      "retrievedAt": "2026-09-18T10:02:12Z",
+      "observationPeriod": "2026-08-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
       "records": [
         {
           "state": "Johor",
-          "date": "2026-07-01",
-          "headlineInflation": 2.1
+          "date": "2026-08-01",
+          "headlineInflation": 2.3
         },
         {
           "state": "Kedah",
-          "date": "2026-07-01",
+          "date": "2026-08-01",
           "headlineInflation": 2.3
         },
         {
           "state": "Kelantan",
-          "date": "2026-07-01",
-          "headlineInflation": 0.9
+          "date": "2026-08-01",
+          "headlineInflation": 1.1
         },
         {
           "state": "Melaka",
-          "date": "2026-07-01",
-          "headlineInflation": 1.8
+          "date": "2026-08-01",
+          "headlineInflation": 2.0
         },
         {
           "state": "Negeri Sembilan",
-          "date": "2026-07-01",
+          "date": "2026-08-01",
           "headlineInflation": 2.5
         },
         {
           "state": "Pahang",
-          "date": "2026-07-01",
+          "date": "2026-08-01",
           "headlineInflation": 2.3
         },
         {
           "state": "Perak",
-          "date": "2026-07-01",
+          "date": "2026-08-01",
           "headlineInflation": 1.2
         },
         {
           "state": "Perlis",
-          "date": "2026-07-01",
-          "headlineInflation": 1.3
+          "date": "2026-08-01",
+          "headlineInflation": 1.2
         },
         {
           "state": "Pulau Pinang",
-          "date": "2026-07-01",
-          "headlineInflation": 1.6
+          "date": "2026-08-01",
+          "headlineInflation": 1.7
         },
         {
           "state": "Sabah",
-          "date": "2026-07-01",
-          "headlineInflation": 1.9
+          "date": "2026-08-01",
+          "headlineInflation": 1.8
         },
         {
           "state": "Sarawak",
-          "date": "2026-07-01",
-          "headlineInflation": 0.3
+          "date": "2026-08-01",
+          "headlineInflation": 0.5
         },
         {
           "state": "Selangor",
-          "date": "2026-07-01",
-          "headlineInflation": 1.8
+          "date": "2026-08-01",
+          "headlineInflation": 2.1
         },
         {
           "state": "Terengganu",
-          "date": "2026-07-01",
-          "headlineInflation": 1.8
+          "date": "2026-08-01",
+          "headlineInflation": 1.2
         },
         {
           "state": "W.P. Kuala Lumpur",
-          "date": "2026-07-01",
-          "headlineInflation": 2.2
+          "date": "2026-08-01",
+          "headlineInflation": 2.1
         },
         {
           "state": "W.P. Labuan",
-          "date": "2026-07-01",
-          "headlineInflation": 2.0
+          "date": "2026-08-01",
+          "headlineInflation": 2.3
         },
         {
           "state": "W.P. Putrajaya",
-          "date": "2026-07-01",
-          "headlineInflation": 1.8
+          "date": "2026-08-01",
+          "headlineInflation": 2.0
         }
       ],
       "message": "Latest state headline CPI inflation validated"
@@ -12528,8 +12528,8 @@
       "incomeToExpenditureRatio": 1.301,
       "poverty": 2.5,
       "gini": 0.348,
-      "headlineInflation": 2.1,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.3,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 2.34,
       "labourPeriod": "2024-01-01",
       "realGdp": 170.947,
@@ -12593,7 +12593,7 @@
       "poverty": 8.4,
       "gini": 0.334,
       "headlineInflation": 2.3,
-      "inflationPeriod": "2026-07-01",
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 2.54,
       "labourPeriod": "2024-01-01",
       "realGdp": 56.303,
@@ -12656,8 +12656,8 @@
       "incomeToExpenditureRatio": 1.067,
       "poverty": 11.5,
       "gini": 0.356,
-      "headlineInflation": 0.9,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 1.1,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 3.58,
       "labourPeriod": "2024-01-01",
       "realGdp": 29.776,
@@ -12720,8 +12720,8 @@
       "incomeToExpenditureRatio": 1.109,
       "poverty": 3.0,
       "gini": 0.337,
-      "headlineInflation": 1.8,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.0,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 1.6,
       "labourPeriod": "2024-01-01",
       "realGdp": 50.286,
@@ -12785,7 +12785,7 @@
       "poverty": 4.0,
       "gini": 0.343,
       "headlineInflation": 2.5,
-      "inflationPeriod": "2026-07-01",
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 3.16,
       "labourPeriod": "2024-01-01",
       "realGdp": 55.767,
@@ -12849,7 +12849,7 @@
       "poverty": 5.9,
       "gini": 0.319,
       "headlineInflation": 2.3,
-      "inflationPeriod": "2026-07-01",
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 2.02,
       "labourPeriod": "2024-01-01",
       "realGdp": 70.962,
@@ -12913,7 +12913,7 @@
       "poverty": 6.9,
       "gini": 0.298,
       "headlineInflation": 1.2,
-      "inflationPeriod": "2026-07-01",
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 3.57,
       "labourPeriod": "2024-01-01",
       "realGdp": 91.529,
@@ -12976,8 +12976,8 @@
       "incomeToExpenditureRatio": 1.212,
       "poverty": 3.6,
       "gini": 0.334,
-      "headlineInflation": 1.3,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 1.2,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 6.676,
@@ -13040,8 +13040,8 @@
       "incomeToExpenditureRatio": 1.263,
       "poverty": 1.9,
       "gini": 0.311,
-      "headlineInflation": 1.6,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 1.7,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 2.0,
       "labourPeriod": "2024-01-01",
       "realGdp": 130.283,
@@ -13104,8 +13104,8 @@
       "incomeToExpenditureRatio": 1.379,
       "poverty": 17.7,
       "gini": 0.405,
-      "headlineInflation": 1.9,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 1.8,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 7.56,
       "labourPeriod": "2024-01-01",
       "realGdp": 88.774,
@@ -13168,8 +13168,8 @@
       "incomeToExpenditureRatio": 1.286,
       "poverty": 8.4,
       "gini": 0.361,
-      "headlineInflation": 0.3,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 0.5,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 3.34,
       "labourPeriod": "2024-01-01",
       "realGdp": 153.511,
@@ -13232,8 +13232,8 @@
       "incomeToExpenditureRatio": 1.476,
       "poverty": 0.9,
       "gini": 0.332,
-      "headlineInflation": 1.8,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.1,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 2.28,
       "labourPeriod": "2024-01-01",
       "realGdp": 460.114,
@@ -13296,8 +13296,8 @@
       "incomeToExpenditureRatio": 1.27,
       "poverty": 5.8,
       "gini": 0.263,
-      "headlineInflation": 1.8,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 1.2,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": 3.09,
       "labourPeriod": "2024-01-01",
       "realGdp": 40.597,
@@ -13360,8 +13360,8 @@
       "incomeToExpenditureRatio": 1.321,
       "poverty": 1.0,
       "gini": 0.375,
-      "headlineInflation": 2.2,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.1,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 265.104,
@@ -13424,8 +13424,8 @@
       "incomeToExpenditureRatio": 1.642,
       "poverty": 2.0,
       "gini": 0.327,
-      "headlineInflation": 2.0,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.3,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 8.7,
@@ -13488,8 +13488,8 @@
       "incomeToExpenditureRatio": 1.172,
       "poverty": 0.2,
       "gini": 0.324,
-      "headlineInflation": 1.8,
-      "inflationPeriod": "2026-07-01",
+      "headlineInflation": 2.0,
+      "inflationPeriod": "2026-08-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 14.366,
@@ -24305,7 +24305,7 @@
   ],
   "incomeGroups": {
     "status": "fresh",
-    "retrievedAt": "2026-09-17T10:24:46Z",
+    "retrievedAt": "2026-09-18T10:02:12Z",
     "observationPeriod": "2024-01-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
