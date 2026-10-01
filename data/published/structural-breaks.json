@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-09-21T11:05:16Z",
+  "calculatedAt": "2026-10-01T11:47:49Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -573,11 +573,11 @@
     "fx": {
       "indicatorId": "fx",
       "status": "fresh",
-      "calculatedAt": "2026-09-11T06:46:04Z",
+      "calculatedAt": "2026-10-01T11:47:49Z",
       "sample": {
         "start": "1997-01-01",
-        "end": "2026-03-01",
-        "observations": 351,
+        "end": "2026-09-01",
+        "observations": 357,
         "frequency": "Monthly",
         "minimumSegmentMonths": 24,
         "confidence": "standard"
@@ -587,14 +587,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 1,
-        "bic": -1585.877529
+        "bic": -1617.250157
       },
       "diagnostics": {
-        "adfStatistic": -2.948616,
-        "adfPValue": 0.03997973,
+        "adfStatistic": -2.965328,
+        "adfPValue": 0.03826167,
         "adfLags": 0,
-        "cusumStatistic": 0.975245,
-        "cusumPValue": 0.29748574
+        "cusumStatistic": 0.973449,
+        "cusumPValue": 0.29955461
       },
       "warnings": [],
       "candidates": [
@@ -604,32 +604,32 @@
             "preStart": "1997-02-01",
             "preEnd": "2014-08-01",
             "postStart": "2014-09-01",
-            "postEnd": "2026-03-01",
+            "postEnd": "2026-09-01",
             "preObservations": 211,
-            "postObservations": 139
+            "postObservations": 145
           },
           "chow": {
-            "fStatistic": 9.110105,
+            "fStatistic": 9.14747,
             "dfNumerator": 3,
-            "dfDenominator": 344,
-            "pRaw": 8.11e-06,
-            "pHolm": 8.11e-06
+            "dfDenominator": 350,
+            "pRaw": 7.65e-06,
+            "pHolm": 7.65e-06
           },
           "hacWald": {
-            "statistic": 8.017708,
+            "statistic": 8.063822,
             "df": 3,
-            "pValue": 3.525e-05,
+            "pValue": 3.293e-05,
             "maxLags": 12
           },
           "regimeComparison": {
             "preMean": 3.516387,
-            "postMean": 4.212905,
-            "absoluteChange": 0.696518,
-            "percentChange": 19.8078,
+            "postMean": 4.205495,
+            "absoluteChange": 0.689108,
+            "percentChange": 19.597,
             "preAnnualTrend": -0.036844,
-            "postAnnualTrend": 0.048257,
-            "annualTrendChange": 0.085101,
-            "standardisedMeanChange": 2.13426
+            "postAnnualTrend": 0.039001,
+            "annualTrendChange": 0.075845,
+            "standardisedMeanChange": 2.124018
           },
           "nearbyEvents": [
             {
@@ -645,8 +645,8 @@
           "statusLabel": "Supported structural shift"
         }
       ],
-      "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.70 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "fbdbfa4c0801ef8a2210409cd8229544b531da6b304b3c02bb0b69468b3d4e1d"
+      "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.69 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e"
     },
     "mgs": {
       "indicatorId": "mgs",
