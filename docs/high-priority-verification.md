@@ -36,4 +36,16 @@ This release fixes the three high-priority findings in the 5 October review: dat
 
 The production build is tested by the rendered-route harness. The installed local `vinext start` preview did not serve bundled assets, so browser interaction checks used the supported development preview; production requires a separate live smoke check after deployment. The repository-wide TypeScript check has unrelated dormant Cloudflare worker scaffold errors; the application-scoped check covers all application code and passes. These are not claims of certified screen-reader compliance or newly calibrated statistical models.
 
-Release is gated on synchronizing the corrected public GitHub artifact, packaging the exact tested source, a successful Sites deployment, and public API/visual smoke checks. The deployment version/commit and final live results are recorded after publication.
+## Release evidence
+
+- GitHub implementation/data commit: `d46539a`. The public raw artifact was checked after the push; it contains the verified RM5,566 national benchmark and conservative input-health metadata.
+- Sites version **52**, source commit `a915e3de97a8a3f4058b87a269ead2451be8d328`.
+- Deployment `appgdep_6ac35cc040388191be94f8cb2069a2fa` returned `succeeded` at 2026-10-05 08:16 UTC, preserving the existing public audience and URL.
+- Public `/api/dashboard` confirms schema 9, national expenditure RM5,566, stale OPR/MGS with unknown last successful retrieval and separately preserved attempts, partial Forecast input health and partial Risk status.
+- Public `/health`, `/forecast`, `/regional`, `/structural?indicator=core` and `/news` return HTTP 200. Browser verification confirms the actual Data Health table, risk input warning, observation/status labels, headline-first News and real publisher attribution.
+- Public news at verification contains two eligible articles, both dated 2 October 2026, newest first within the stated 28 September–5 October window. Google feeds return HTTP 503 and Bernama supplies undated items; these failures are exposed instead of filling the page with out-of-window or invented stories. Local fixture coverage is not a guarantee of a minimum live article count.
+- The existing daily GitHub workflow remains unchanged. No manual workflow dispatch was performed; no authenticated dispatch connector was available in this session.
+- The source workflow committed and pushed the tested source successfully, but its packager depends on unavailable Bash on this Windows host. Packaging was recovered using the same supplied `prepare-site-build.cjs` validation/staging logic and native Windows tar, preserving the unchanged built output and matching hosting manifest. The archive was accepted by Sites.
+- Live screenshot: `outputs/macrolens-priority-live.jpg` in the parent task workspace. This screenshot shows the published source-health audit, not a local preview.
+
+The release does not resolve the upstream OPR/MGS availability problems or redesign the medium-priority statistical models. Their saved observations remain available and visibly labelled.

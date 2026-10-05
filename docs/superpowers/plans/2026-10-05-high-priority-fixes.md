@@ -60,9 +60,9 @@
 
 - [x] Run Python tests, all new Node tests, TypeScript checks and the production build against the final source.
 - [x] Run one batched desktop/mobile browser inspection of Snapshot, Risk, Forecast, Health, Regional and News; fix only observed scope defects, then confirm once.
-- [ ] Synchronise changed files to GitHub preserving any newer automated observations; push the pipeline, trigger the existing workflow if supported, and verify the validated public artifact.
-- [ ] Package with the Sites source helper using its opening result and unchanged built output; save and deploy the returned commit/archive to the existing public project. Confirm `succeeded`, open the public URL and smoke-check corrected statuses and news window.
-- [ ] Record tests, release version, live verification and remaining limits. No medium-priority statistical claims are silently upgraded.
+- [x] Synchronise changed files to GitHub preserving any newer automated observations; push the pipeline and verify the validated public artifact. Manual dispatch was not supported by an authenticated connector; the existing daily workflow is unchanged.
+- [x] Push the exact tested source with the Sites source helper. Recover its Windows Bash-only packaging failure using the supplied build-preparation helper and native tar. Deploy version 52; confirm `succeeded`, then smoke-check public statuses, routes and news window.
+- [x] Record tests, release version, live verification and remaining limits in `docs/high-priority-verification.md`. No medium-priority statistical claims are silently upgraded.
 
 ## Execution note
 
@@ -70,5 +70,5 @@ The user has explicitly requested implementation, so execute now using bounded p
 
 ## Verification checkpoint
 
-Final checks: 40 Python tests, 23 Node regressions, 16 production-rendered tests, application TypeScript check and production build passed. Browser checks confirmed focus containment/restoration, indicator-preserving diagnostics, conservative badges, readable Risk labels, full-width mobile Regional controls and headline-first News. The previous critique established the defects; red-test console output is not part of this retained record. Deployment and public artifact checks remain pending.
+Final checks: 40 Python tests, 23 Node regressions, 16 production-rendered tests, application TypeScript check and production build passed. Browser checks confirmed focus containment/restoration, indicator-preserving diagnostics, conservative badges, readable Risk labels, full-width mobile Regional controls and headline-first News. The previous critique established the defects; red-test console output is not part of this retained record. GitHub artifact verification and Sites version 52 deployment/public smoke checks passed; upstream OPR/MGS and some news feeds remain unavailable and are honestly marked.
 
