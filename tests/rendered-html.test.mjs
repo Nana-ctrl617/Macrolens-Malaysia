@@ -25,6 +25,8 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Malaysia(?:'|&#x27;|’|&rsquo;)s economy at a glance/);
   assert.match(html, /prices, interest rates, jobs, the ringgit and government bonds/);
   assert.match(html, /Last successful refresh/);
+  assert.match(html, /Educational analysis, not investment advice\./);
+  assert.doesNotMatch(html, /Applied statistics × financial economics/);
   assert.match(html, /Latest brief/);
   assert.match(html, /Latest headlines/);
   assert.match(html, /Risk heatmap/);
@@ -70,6 +72,8 @@ test("renders each dashboard section on its own route", async () => {
     const html = await response.text();
     assert.match(html, new RegExp(heading));
     assert.match(html, new RegExp(`aria-current="page" href="${path}">${activeLabel}`));
+    assert.match(html, /Educational analysis, not investment advice\./);
+    assert.doesNotMatch(html, /Applied statistics × financial economics/);
     assert.doesNotMatch(html, /<h1>See the pressure/);
   }
 });

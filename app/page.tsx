@@ -2111,7 +2111,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       <footer className="shell">
         <div className="brand"><img className="brand-logo" src="/macrolens-logo.png" alt="" width="30" height="30" /><span>MacroLens Malaysia</span></div>
-        <p>Applied statistics × financial economics · Educational analysis, not investment advice.</p>
+        <p>Educational analysis, not investment advice.</p>
         <div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div>
       </footer>
       {selectedMetric && <IndicatorDetail metric={selectedMetric} dashboard={dashboard} onClose={() => setSelectedMetric(null)} />}
