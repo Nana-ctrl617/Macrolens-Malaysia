@@ -69,8 +69,11 @@ for (const size of sizes) {
       for (let index = 0; index < await canvases.count(); index++) {
         const canvas = canvases.nth(index);
         if (!await canvas.isVisible()) continue;
-        await canvas.evaluate(el => el.scrollIntoView({block:'center'}));
+        await canvas.scrollIntoViewIfNeeded();
+        await canvas.evaluate(el => el.scrollIntoView({block:'center',inline:'center'}));
         await canvas.focus();
+        await canvas.scrollIntoViewIfNeeded();
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         assert.equal(await canvas.evaluate(el => el === document.activeElement), true);
         assert.ok((await canvas.getAttribute('aria-describedby'))?.trim(), 'chart needs linked instructions/status');
         const descriptions = (await canvas.getAttribute('aria-describedby')).split(/\s+/);
@@ -82,15 +85,39 @@ for (const size of sizes) {
         await canvas.press('End');
         const last = await status.innerText();
         assert.ok(first && last, 'first and last values must be announced');
-        const box = await canvas.boundingBox();
-        const inspectY = Math.min(size.height-10,Math.max(150,box.y+box.height/2));
+        const box = await canvas.evaluate(el => { const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; });
+        const viewportHeight = await page.evaluate(() => window.innerHeight);
+        const visibleTop = Math.max(0,box.y), visibleBottom = Math.min(viewportHeight,box.y+box.height);
+        assert.ok(visibleBottom>visibleTop,`chart must be scrolled into the visible viewport before pointer/touch inspection (${JSON.stringify({box,viewportHeight,scrollY:await page.evaluate(()=>window.scrollY)})})`);
+        const inspectY = visibleTop + (visibleBottom-visibleTop)/2;
         // The rightmost point is clamped to the last real observation.
         const isDonut = await canvas.evaluate(el => !!el.closest('[data-chart-kind="donut"]'));
         if (!isDonut) {
-          await page.mouse.move(box.x + box.width - 1, inspectY);
+          // Inspect the last plotted point inside the graph, not the canvas's
+          // trailing padding where touch hit-testing can land on adjacent UI.
+          const plotRightInset = await canvas.evaluate(el => Math.min(24,el.clientWidth*.08));
+          // Use the endpoint itself: on narrow daily charts, a one-pixel
+          // inset can be closer to the previous trading day than the last one.
+          const lastPointX = box.x + box.width - plotRightInset;
+          // Sticky navigation may cover the top edge of the canvas after it is
+          // scrolled into view, especially in a 320x225 reflow viewport. Find
+          // an actually visible point on the plotted endpoint rather than
+          // assuming the geometric viewport midpoint is unobstructed.
+          const pointerY = await page.evaluate(({x,top,bottom}) => {
+            const hits=[];
+            for(let y=Math.ceil(top);y<Math.floor(bottom);y+=2) {
+              if(document.elementFromPoint(x,y)?.tagName==='CANVAS') hits.push(y);
+            }
+            return hits.length ? hits[Math.floor(hits.length/2)] : null;
+          },{x:lastPointX,top:visibleTop,bottom:visibleBottom});
+          const pointerTarget = await page.evaluate(({x,y}) => { const el=y==null?null:document.elementFromPoint(x,y); return {tag:el?.tagName??'none',text:el?.textContent?.trim().slice(0,80),label:el?.getAttribute('aria-label'),className:typeof el?.className==='string'?el.className:''}; },{x:lastPointX,y:pointerY});
+          assert.equal(pointerTarget.tag,'CANVAS',`the plotted endpoint must be touchable in the visible chart area (${JSON.stringify({pointerTarget,lastPointX,pointerY,box,viewportHeight,scrollY:await page.evaluate(()=>window.scrollY)})})`);
+          await page.mouse.move(lastPointX, pointerY);
           assert.equal(await status.innerText(), last, 'pointer and keyboard must read the same last observation');
-          await page.touchscreen.tap(box.x + box.width - 1, inspectY);
-          assert.equal(await status.innerText(), last, 'tap and keyboard must read the same last observation');
+          const tapTarget = await page.evaluate(({x,y}) => document.elementFromPoint(x,y)?.tagName ?? 'none',{x:lastPointX,y:pointerY});
+          assert.equal(tapTarget,'CANVAS',`touch must hit the inspected chart, not adjacent UI (hit ${tapTarget} at ${lastPointX}, ${pointerY})`);
+          await page.touchscreen.tap(lastPointX, pointerY);
+          assert.equal(await status.innerText(), last, `tap and keyboard must read the same last observation (tap ${lastPointX}, ${pointerY})`);
         } else {
           await canvas.press('Home'); const first=await status.innerText();
           const shares=fixture.growthDrivers.production.years.at(-1).sectors;
@@ -120,17 +147,30 @@ for (const size of sizes) {
         const charts = page.locator(selector);
         for (let index=0;index<await charts.count();index++) {
           const chart=charts.nth(index);
-          await chart.evaluate(el=>el.scrollIntoView({block:'center'}));
+          await chart.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
           await chart.focus();
           const ids=(await chart.getAttribute('aria-describedby')).split(/\s+/);
           const status=page.locator(`[id=${JSON.stringify(ids.find(id=>id.endsWith('-live')))}]`);
           await chart.press('Home'); assert.ok(await status.textContent());
           await chart.press('End'); const last=await status.textContent();
-          const box=await chart.locator('svg').boundingBox();
-          const y=Math.min(size.height-10,Math.max(150,box.y+box.height/2));
-          await page.mouse.move(box.x+box.width-1,y);
+          const box=await chart.locator('svg').evaluate(el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height};});
+          const viewportHeight=await page.evaluate(()=>window.innerHeight);
+          const visibleTop=Math.max(0,box.y),visibleBottom=Math.min(viewportHeight,box.y+box.height);
+          assert.ok(visibleBottom>visibleTop,`SVG chart must be visible before pointer/touch inspection (${JSON.stringify({selector,box,viewportHeight,scrollY:await page.evaluate(()=>window.scrollY)})})`);
+          const x=box.x+box.width-1;
+          const y=await page.evaluate(({x,top,bottom,selector})=>{
+            const hits=[];
+            for(let y=Math.ceil(top);y<Math.floor(bottom);y+=2) {
+              if(document.elementFromPoint(x,y)?.closest(selector)) hits.push(y);
+            }
+            return hits.length?hits[Math.floor(hits.length/2)]:null;
+          },{x,top:visibleTop,bottom:visibleBottom,selector});
+          const touchTarget=await page.evaluate(({x,y,selector})=>y!=null&&document.elementFromPoint(x,y)?.closest(selector)!=null,{x,y,selector});
+          assert.equal(touchTarget,true,`SVG chart must have an unobstructed touch point at its right edge (${JSON.stringify({selector,box,viewportHeight,scrollY:await page.evaluate(()=>window.scrollY),x,y})})`);
+          await page.mouse.move(x,y);
           assert.equal(await status.textContent(),last,'SVG pointer/keyboard parity');
-          await page.touchscreen.tap(box.x+box.width-1,y);
+          await page.touchscreen.tap(x,y);
           assert.equal(await status.textContent(),last,'SVG touch/keyboard parity');
           await chart.press('Escape'); assert.equal(await chart.evaluate(el=>el===document.activeElement),true);
           item.canvasChecks++;
