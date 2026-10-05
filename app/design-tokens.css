@@ -1,0 +1,172 @@
+/* Single colour owner for the compact dashboard. Layout remains in its view CSS. */
+:root {
+  --font-sans: Arial, Helvetica, "Segoe UI", system-ui, sans-serif;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Light research surfaces and readable content. */
+  --surface-page: #f3f6f8;
+  --surface-card: #ffffff;
+  --surface-subtle: #edf2f4;
+  --surface-hover: #f0f6f5;
+  --surface-navigation: #fbfcfa;
+  --surface-selected: #e8f0ec;
+  --surface-disabled: #f1f4f5;
+  --surface-track: #e4eaee;
+  --text-primary: #17252b;
+  --text-secondary: #52636b;
+  --text-label: #374f59;
+  --text-disabled: #6c7980;
+  --text-on-accent: #ffffff;
+  --border-default: #d5dfe4;
+  --border-control: #b9c8cf;
+  --border-strong: #8b9fa8;
+  --border-selected: #b8cdc3;
+  --accent-interactive: #16665c;
+  --accent-interactive-hover: #134e45;
+  --accent-editorial: #c73b2d;
+  --accent-selection: #1e3744;
+  --selection-background: #cde3d8;
+  --scrollbar-thumb: #97aaa2;
+
+  /* Dark analytical pages. These do not override the light-panel aliases below. */
+  --surface-dark-page: #111f1c;
+  --surface-dark-panel: #203530;
+  --surface-dark-panel-alt: #20332f;
+  --surface-dark-control: #243d32;
+  --surface-dark-selected: #263f35;
+  --surface-dark-selection-inverse: #dcefe6;
+  --surface-dark-hover: #20382d;
+  --surface-dark-disclosure: #172a22;
+  --surface-dark-plot: #132622;
+  --surface-dark-tooltip: #101e1a;
+  --text-on-dark: #eef7f4;
+  --text-secondary-on-dark: #c8d9d1;
+  --text-link-on-dark: #a1e0cb;
+  --text-accent-on-dark: #ffc1a6;
+  --border-on-dark: #526d63;
+  --border-control-on-dark: #627d71;
+  --track-on-dark: #344d44;
+
+  /* Data availability is not an economic pressure classification. */
+  --source-fresh-text: #155c53;
+  --source-fresh-background: #e4efed;
+  --source-stale-text: #80561d;
+  --source-stale-background: #fff1d6;
+  --source-fallback-text: var(--source-stale-text);
+  --source-fallback-background: var(--source-stale-background);
+  --source-unavailable-text: #374f59;
+  --source-unavailable-background: #edf2f4;
+  --source-unavailable-border: #8b9fa8;
+  --source-error-text: #9c3c24;
+  --source-error-background: #f8e0d8;
+  --notice-warning-background: #fff7e7;
+  --notice-warning-border: #a98b48;
+
+  /* Rule-based pressure labels, independent of source freshness. */
+  --pressure-low: #1c6b61;
+  --pressure-moderate: #8a5b0a;
+  --pressure-high: #ab452c;
+  --pressure-low-background: #dfefe9;
+  --pressure-moderate-background: #fbefd6;
+  --pressure-high-background: #f8e0d8;
+  --pressure-low-on-dark: #a1e0cb;
+  --pressure-moderate-on-dark: #f5d288;
+  --pressure-high-on-dark: #ffb7a3;
+  --pressure-low-background-on-dark: #244b3f;
+  --pressure-moderate-background-on-dark: #4f4228;
+  --pressure-high-background-on-dark: #55362c;
+
+  /* Categorical colours identify series/topics, never good or bad outcomes. */
+  --category-1: #d95c3f;
+  --category-2: #1d746b;
+  --category-3: #9a6b16;
+  --category-4: #274653;
+  --category-5: #7b6fa6;
+  --category-6: #5d7564;
+  --series-headline: #c73b2d;
+  --series-core: #16665c;
+  --series-unemployment: #1e3744;
+  --series-opr: #275f91;
+  --series-fx: #716092;
+  --series-mgs: #8b6518;
+  --chart-series-primary: #27877c;
+  --chart-series-selected: #c45336;
+  --chart-series-negative: #b7442b;
+  --chart-series-neutral: #213d4a;
+  --chart-bop-series: #1c6b61;
+  --chart-snapshot-series: #16665c;
+  --chart-snapshot-selected: #c73b2d;
+  --chart-model-default: #91bcb0;
+  --chart-model-selected: #f09573;
+  --chart-market-line: #53c4a7;
+  --chart-market-negative: #ef8769;
+  --chart-text-light: #52636b;
+  --chart-grid-light: #dfe6ea;
+  --chart-zero-light: #81949e;
+  --chart-text-dark: #d5e1db;
+  --chart-grid-dark: rgba(255,255,255,.18);
+  --chart-fill-light: rgba(199,59,45,.18);
+  --chart-fill-dark: rgba(83,196,167,.3);
+  --chart-zero-dark: #bdcbc6;
+  --chart-interval-95: #6f9e8e;
+  --chart-interval-80: #b7dacf;
+  --chart-forecast-point: #111f1c;
+  --chart-forecast-stem: #f07852;
+  --chart-selection-light: #15221f;
+  --chart-selection-dark: #f2faf6;
+  --chart-break-supported: #c73b2d;
+  --chart-break-possible: #946a22;
+  --chart-break-unsupported: #69736e;
+  --chart-interval-border: #20332f;
+  --focus-ring-light: #145f9e;
+  --focus-ring-dark: #76dbe2;
+  --chart-focus: var(--focus-ring-light);
+  --focus-ring: var(--chart-focus);
+
+  --news-topic-1: #c73b2d;
+  --news-topic-1-background: #fff1e9;
+  --news-topic-1-border: #e4baaa;
+  --news-topic-2: #16665c;
+  --news-topic-2-background: #eaf7f3;
+  --news-topic-2-border: #a8d4ca;
+  --news-topic-3: #1e5a8a;
+  --news-topic-3-background: #edf5ff;
+  --news-topic-3-border: #b6cde5;
+  --news-topic-4: #8a5b0a;
+  --news-topic-4-background: #fff6dd;
+  --news-topic-4-border: #e4cb8c;
+  --news-topic-5: #6e4fb0;
+  --news-topic-5-background: #f4efff;
+  --news-topic-5-border: #c8b8eb;
+  --news-topic-6: #2b6f36;
+  --news-topic-6-background: #eef8ed;
+  --news-topic-6-border: #b7d8b6;
+
+  /* Compatibility aliases: their light meaning also protects nested light charts. */
+  --paper: var(--surface-page);
+  --surface-panel: var(--surface-card);
+  --card: var(--surface-card);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --line: var(--border-default);
+  --teal: var(--accent-interactive);
+  --rust: var(--accent-editorial);
+  --navy: var(--accent-selection);
+  --dark: var(--surface-dark-page);
+  --status-low: var(--pressure-low);
+  --status-moderate: var(--pressure-moderate);
+  --status-high: var(--pressure-high);
+  --status-unavailable: var(--source-unavailable-text);
+}
+
+:is(#risk,#forecast,#bursa,#bop,#timeline,#health) {
+  --chart-focus: var(--focus-ring-dark);
+}
+
+/* These components deliberately remain light even within a dark route. */
+:is(.series-trend-panel,.bop-visual) {
+  --chart-focus: var(--focus-ring-light);
+}

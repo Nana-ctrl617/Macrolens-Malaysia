@@ -1,0 +1,298 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\USER\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\node_modules\\.pnpm\\@playwright+test@1.62.1\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--project=phone-390",
+      "--grep",
+      "release gate browser negative control"
+    ],
+    "configFile": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\playwright.config.ts",
+    "rootDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "target": "Exact built production Worker on local port 4185",
+      "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+      "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+      "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+      "workerOwnership": "Release-gate owned production Worker",
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "phone-390",
+        "name": "phone-390",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "tablet-768",
+        "name": "tablet-768",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "desktop-1280",
+        "name": "desktop-1280",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "viewport-reflow-200-equivalent",
+        "name": "viewport-reflow-200-equivalent",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "viewport-reflow-400-equivalent",
+        "name": "viewport-reflow-400-equivalent",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "text-200-at-1280",
+        "name": "text-200-at-1280",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/outputs/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "target": "Exact built production Worker on local port 4185",
+          "reflow": "200%/400% viewport-equivalent reflow, not actual browser or OS zoom",
+          "textEnlargement": "Separate 200% computed text enlargement at 1280 CSS pixels",
+          "forcedColours": "Chromium forced-colours media emulation, not physical Windows high-contrast or screen-reader certification",
+          "workerOwnership": "Release-gate owned production Worker",
+          "actualWorkers": 1
+        },
+        "id": "forced-colours-390",
+        "name": "forced-colours-390",
+        "testDir": "C:/Users/USER/Documents/Codex/2026-07-16/can/work/macrolens-compact-dashboard-source/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "outputs/browser-release.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "dashboard.spec.ts",
+      "file": "dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "release gate browser negative control",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "phone-390",
+              "projectName": "phone-390",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2152,
+                  "error": {
+                    "message": "Error: Deliberate required browser assertion: a failure must block the release gate.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"1\"\u001b[39m",
+                    "stack": "Error: Deliberate required browser assertion: a failure must block the release gate.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"1\"\u001b[39m\n    at C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\tests\\browser\\dashboard.spec.ts:42:134",
+                    "location": {
+                      "file": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\tests\\browser\\dashboard.spec.ts",
+                      "column": 134,
+                      "line": 42
+                    },
+                    "snippet": "  40 |   await installFixture(context, await dashboardFixture());\n  41 |   await ready(page, \"/\");\n> 42 |   expect(process.env.PLAYWRIGHT_INJECT_FAILURE, \"Deliberate required browser assertion: a failure must block the release gate.\").not.toBe(\"1\");\n     |                                                                                                                                      ^\n  43 | });\n  44 |\n  45 | test(\"news topic and source filters intersect, announce counts and recover from no matches\", async ({ page, context }, info) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\tests\\browser\\dashboard.spec.ts",
+                        "column": 134,
+                        "line": 42
+                      },
+                      "message": "Error: Deliberate required browser assertion: a failure must block the release gate.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"1\"\u001b[39m\n\n  40 |   await installFixture(context, await dashboardFixture());\n  41 |   await ready(page, \"/\");\n> 42 |   expect(process.env.PLAYWRIGHT_INJECT_FAILURE, \"Deliberate required browser assertion: a failure must block the release gate.\").not.toBe(\"1\");\n     |                                                                                                                                      ^\n  43 | });\n  44 |\n  45 | test(\"news topic and source filters intersect, announce counts and recover from no matches\", async ({ page, context }, info) => {\n    at C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\tests\\browser\\dashboard.spec.ts:42:134"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T13:49:14.091Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\outputs\\playwright-results\\dashboard-release-gate-browser-negative-control-phone-390\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\outputs\\playwright-results\\dashboard-release-gate-browser-negative-control-phone-390\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\outputs\\playwright-results\\dashboard-release-gate-browser-negative-control-phone-390\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\USER\\Documents\\Codex\\2026-07-16\\can\\work\\macrolens-compact-dashboard-source\\tests\\browser\\dashboard.spec.ts",
+                    "column": 134,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-bbbce8748020aa8e9b06",
+          "file": "dashboard.spec.ts",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-05T13:49:12.955Z",
+    "duration": 3797.756,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

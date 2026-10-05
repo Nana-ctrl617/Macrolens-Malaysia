@@ -1,0 +1,182 @@
+{
+  "browser": "151.0.7922.34",
+  "at": "2026-10-05T12:51:11.204Z",
+  "checks": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(23, 37, 43)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/forecast",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgba(0, 0, 0, 0)",
+        "text": "rgb(238, 247, 244)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/risk",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgba(0, 0, 0, 0)",
+        "text": "rgb(238, 247, 244)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/bop",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(23, 37, 43)",
+        "focus": "#145f9e"
+      },
+      "chart": null
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/regional",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": null
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "route": "/",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(23, 37, 43)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "route": "/forecast",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgba(0, 0, 0, 0)",
+        "text": "rgb(238, 247, 244)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "route": "/risk",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": {
+        "background": "rgba(0, 0, 0, 0)",
+        "text": "rgb(238, 247, 244)"
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "route": "/bop",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(23, 37, 43)",
+        "focus": "#145f9e"
+      },
+      "chart": null
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "route": "/regional",
+      "background": "rgb(243, 246, 248)",
+      "font": "Arial, Helvetica, \"Segoe UI\", system-ui, sans-serif",
+      "surface": "#f3f6f8",
+      "text": "#17252b",
+      "focus": "#145f9e",
+      "overflow": false,
+      "panel": null,
+      "chart": null
+    }
+  ]
+}

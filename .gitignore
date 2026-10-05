@@ -40,6 +40,8 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /outputs/
+/playwright-report/
+/test-results/
 /work/
 
 # python

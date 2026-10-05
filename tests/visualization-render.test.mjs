@@ -6,6 +6,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { viewSource, appSource } from './source-owners.mjs';
 
 const require = createRequire(import.meta.url);
 const moduleUrls = new Map();
@@ -103,7 +104,8 @@ test("BOP renders signed published flows and accounting caveat", async () => {
   assert.match(html, /billion/);
   assert.match(html, /accounting/i);
   assert.ok(html.includes(data.sourceUrl.replaceAll("&", "&amp;")));
-  assert.match(html, /<table/);
+  assert.match(html, /View exact quarterly balances as a table/);
+  assert.doesNotMatch(html, /<table/, 'closed history must not mount its table');
 });
 
 test("BOP missing balance is unavailable, not a fabricated zero", async () => {
@@ -116,11 +118,10 @@ test("BOP missing balance is unavailable, not a fabricated zero", async () => {
 });
 
 test("all five integrations retain progressive detail and preserve data pipeline", () => {
-  const source = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const name of ["RiskScoreVisual", "SeriesTrendPanel", "BalancePaymentsVisual", "ModelErrorVisual"]) assert.ok(source.includes(`<${name}`));
-  assert.match(source, /Read the economic brief/);
-  assert.match(source, /All signals, scoring rules and observation periods/);
-  assert.match(source, /Household scenario checks/);
-  assert.match(source, /Exact model-error table/);
-  assert.match(source, /InputHealthNotice/);
+  for (const [owner,name] of [['Risk',"RiskScoreVisual"], ['Brief',"SeriesTrendPanel"], ['Bop',"BalancePaymentsVisual"], ['Forecast',"ModelErrorVisual"]]) assert.ok(viewSource(owner).includes(`<${name}`), `${owner} integrates ${name}`);
+  assert.match(viewSource('Brief'), /Read the economic brief/);
+  assert.match(viewSource('Risk'), /All signals, scoring rules and observation periods/);
+  assert.match(viewSource('Household'), /Household scenario checks/);
+  assert.match(viewSource('Forecast'), /Exact model-error table/);
+  for (const owner of ['Brief','Risk','Forecast','Household']) assert.match(viewSource(owner), /InputHealthNotice/);
 });

@@ -1,5 +1,4 @@
-import { DashboardPage } from "@/app/page";
+import DashboardShell from "@/app/components/DashboardShell";
+import HealthView from "@/app/views/HealthView";
 
-export default function DataHealthPage() {
-  return <DashboardPage section="health" />;
-}
+export default function HealthPage() { return <DashboardShell section="health"><HealthView /></DashboardShell>; }

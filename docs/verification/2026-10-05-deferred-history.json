@@ -1,0 +1,96 @@
+{
+  "browser": "151.0.7922.34",
+  "at": "2026-10-05T13:37:06.291Z",
+  "checks": [
+    {
+      "route": "/",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "indicator:headline",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/brief",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "indicator:headline",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/forecast",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "forecast-audit",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/bop",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "bop-history",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/regional",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "regional-districts",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/structure",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "gdp-years",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/external",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "external-history",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/structural",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "indicator:core",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    },
+    {
+      "route": "/bursa",
+      "initialHistoryRequests": 0,
+      "explicitRequests": [
+        {
+          "id": "market-history",
+          "artifactId": "501566abd57f46a7daf29a8381264032f7063126beb919fe81413bd0f308b91f"
+        }
+      ]
+    }
+  ]
+}

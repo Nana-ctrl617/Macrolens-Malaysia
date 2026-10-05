@@ -1,12 +1,12 @@
 /* Compact, results-first Forecast view. Values and statistical logic are unchanged. */
 #forecast.compact-forecast {
-  --forecast-space-sm: 8px;
-  --forecast-space-md: 16px;
-  --forecast-space-lg: 24px;
-  --forecast-space-xl: 32px;
-  --forecast-text: #eef5f2;
-  --forecast-muted: #bfcec8;
-  --forecast-border: #465e55;
+  --forecast-space-sm: var(--space-sm);
+  --forecast-space-md: var(--space-md);
+  --forecast-space-lg: var(--space-lg);
+  --forecast-space-xl: var(--space-xl);
+  --forecast-text: var(--text-on-dark);
+  --forecast-muted: var(--text-secondary-on-dark);
+  --forecast-border: var(--border-on-dark);
   color: var(--forecast-text);
 }
 
@@ -76,13 +76,11 @@
 #forecast .range95 {
   top: 28px;
   height: 8px;
-  background: #5a8173;
 }
 
 #forecast .range80 {
   top: 25px;
   height: 14px;
-  background: #9abdaf;
 }
 
 #forecast .forecast-point {
@@ -92,7 +90,7 @@
 
 #forecast .forecast-point span {
   top: -20px;
-  color: #ffc1a6;
+  color: var(--text-accent-on-dark);
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
@@ -109,8 +107,6 @@
   line-height: 1.5;
 }
 
-#forecast .key95 { background: #5a8173; }
-#forecast .key80 { background: #9abdaf; }
 
 #forecast .forecast-chart-tooltip {
   display:none;
@@ -120,10 +116,10 @@
   z-index:20;
   width:min(280px,75vw);
   padding:12px 16px;
-  border:1px solid #8bad9e;
+  border:1px solid var(--border-control-on-dark);
   border-radius:4px;
-  background:#101e1a;
-  color:#eef5f2;
+  background:var(--surface-dark-tooltip);
+  color:var(--text-on-dark);
   font-size:14px;
   font-style:normal;
   line-height:1.55;
@@ -184,12 +180,12 @@
 }
 
 #forecast .forecast-score-table tr.selected {
-  background: #263f35;
+  background: var(--surface-dark-selected);
 }
 
 #forecast .forecast-score-table th span {
   display: block;
-  color: #ffc1a6;
+  color: var(--text-accent-on-dark);
   font-size: 12px;
   font-weight: 600;
 }
@@ -225,7 +221,7 @@
 }
 
 #forecast .forecast-explain-grid span {
-  color: #ffc1a6;
+  color: var(--text-accent-on-dark);
   font-size: 14px;
   text-transform: none;
   letter-spacing: 0;
@@ -255,7 +251,7 @@
 }
 
 #forecast .forecast-takeaway span {
-  color: #ffc1a6;
+  color: var(--text-accent-on-dark);
   font-size: 14px;
   text-transform: none;
   letter-spacing: 0;
@@ -264,7 +260,7 @@
 #forecast .forecast-disclosure {
   margin: var(--forecast-space-md) 0;
   border: 1px solid var(--forecast-border);
-  background: #172a22;
+  background: var(--surface-dark-disclosure);
 }
 
 #forecast .forecast-disclosure > summary {
@@ -277,15 +273,15 @@
 }
 
 #forecast .forecast-disclosure > summary::marker {
-  color: #9abdaf;
+  color: var(--text-link-on-dark);
 }
 
 #forecast .forecast-disclosure > summary:hover {
-  background: #20382d;
+  background: var(--surface-dark-hover);
 }
 
 #forecast .forecast-disclosure > summary:focus-visible {
-  outline: 2px solid #9abdaf;
+  outline:2px solid var(--chart-focus);
   outline-offset: -4px;
 }
 

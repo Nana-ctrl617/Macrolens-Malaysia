@@ -5695,39 +5695,99 @@
   "forecast": {
     "selectedModel": "SARIMA",
     "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages",
-    "backtestWindows": 12,
+    "backtestWindows": 19,
     "models": [
       {
         "name": "Seasonal naive",
-        "rmse": 0.5061,
-        "mae": 0.4389,
+        "rmse": 0.539,
+        "mae": 0.4737,
         "selected": false,
         "eligible": true,
-        "successfulWindows": 12,
+        "successfulWindows": 19,
         "failedWindows": 0,
         "fallbackCount": 0,
+        "metricsByHorizon": [
+          {
+            "horizon": 1,
+            "count": 19,
+            "mae": 0.4526,
+            "rmse": 0.5231
+          },
+          {
+            "horizon": 2,
+            "count": 19,
+            "mae": 0.4737,
+            "rmse": 0.539
+          },
+          {
+            "horizon": 3,
+            "count": 19,
+            "mae": 0.4947,
+            "rmse": 0.5544
+          }
+        ],
         "scoreBasis": "Identical complete three-month windows"
       },
       {
         "name": "SARIMA",
-        "rmse": 0.2042,
-        "mae": 0.1656,
+        "rmse": 0.187,
+        "mae": 0.1539,
         "selected": true,
         "eligible": true,
-        "successfulWindows": 12,
+        "successfulWindows": 19,
         "failedWindows": 0,
         "fallbackCount": 0,
+        "metricsByHorizon": [
+          {
+            "horizon": 1,
+            "count": 19,
+            "mae": 0.1217,
+            "rmse": 0.1431
+          },
+          {
+            "horizon": 2,
+            "count": 19,
+            "mae": 0.1629,
+            "rmse": 0.1977
+          },
+          {
+            "horizon": 3,
+            "count": 19,
+            "mae": 0.177,
+            "rmse": 0.213
+          }
+        ],
         "scoreBasis": "Identical complete three-month windows"
       },
       {
         "name": "ARIMAX",
-        "rmse": null,
-        "mae": null,
+        "rmse": 0.0796,
+        "mae": 0.0651,
         "selected": false,
         "eligible": false,
-        "successfulWindows": 0,
-        "failedWindows": 12,
+        "successfulWindows": 2,
+        "failedWindows": 17,
         "fallbackCount": 0,
+        "metricsByHorizon": [
+          {
+            "horizon": 1,
+            "count": 2,
+            "mae": 0.0731,
+            "rmse": 0.0731
+          },
+          {
+            "horizon": 2,
+            "count": 2,
+            "mae": 0.0727,
+            "rmse": 0.1022
+          },
+          {
+            "horizon": 3,
+            "count": 2,
+            "mae": 0.0495,
+            "rmse": 0.0567
+          }
+        ],
         "scoreBasis": "Successful fits only; not eligible for selection"
       }
     ],
@@ -5762,6 +5822,13 @@
       "method": "Pseudo-real-time rolling-origin evaluation",
       "horizonMonths": 3,
       "origins": [
+        "2024-11-01",
+        "2024-12-01",
+        "2025-01-01",
+        "2025-02-01",
+        "2025-03-01",
+        "2025-04-01",
+        "2025-05-01",
         "2025-06-01",
         "2025-07-01",
         "2025-08-01",
@@ -5775,7 +5842,1149 @@
         "2026-04-01",
         "2026-05-01"
       ],
+      "originPolicy": "All eligible monthly origins in the latest 36 folds; minimum 36 training observations and three consecutive observed target months.",
       "windows": [
+        {
+          "origin": "2024-11-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2024-11-01",
+          "trainingObservations": 36,
+          "targets": [
+            "2024-12-01",
+            "2025-01-01",
+            "2025-02-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2024-12-01",
+                  "actual": 1.7,
+                  "predicted": 1.5,
+                  "error": -0.2,
+                  "low80": -0.284785,
+                  "high80": 3.284785,
+                  "low95": -1.228689,
+                  "high95": 4.228689,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-01-01",
+                  "actual": 1.7,
+                  "predicted": 1.5,
+                  "error": -0.2,
+                  "low80": -1.024068,
+                  "high80": 4.024068,
+                  "low95": -2.358949,
+                  "high95": 5.358949,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.8,
+                  "error": 0.3,
+                  "low80": -1.291339,
+                  "high80": 4.891339,
+                  "low95": -2.926228,
+                  "high95": 6.526228,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2024-12-01",
+                  "actual": 1.7,
+                  "predicted": 1.800369,
+                  "error": 0.100369,
+                  "low80": 1.634178,
+                  "high80": 1.96656,
+                  "low95": 1.546202,
+                  "high95": 2.054536,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-01-01",
+                  "actual": 1.7,
+                  "predicted": 1.792302,
+                  "error": 0.092302,
+                  "low80": 1.576476,
+                  "high80": 2.008129,
+                  "low95": 1.462224,
+                  "high95": 2.122381,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.711044,
+                  "error": 0.211044,
+                  "low80": 1.462986,
+                  "high80": 1.959102,
+                  "low95": 1.331672,
+                  "high95": 2.090416,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2024-12-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2024-12-01",
+          "trainingObservations": 37,
+          "targets": [
+            "2025-01-01",
+            "2025-02-01",
+            "2025-03-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-01-01",
+                  "actual": 1.7,
+                  "predicted": 1.5,
+                  "error": -0.2,
+                  "low80": -0.2644,
+                  "high80": 3.2644,
+                  "low95": -1.197523,
+                  "high95": 4.197523,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.8,
+                  "error": 0.3,
+                  "low80": -0.695239,
+                  "high80": 4.295239,
+                  "low95": -2.014874,
+                  "high95": 5.614874,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": -1.256031,
+                  "high80": 4.856031,
+                  "low95": -2.872247,
+                  "high95": 6.472247,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-01-01",
+                  "actual": 1.7,
+                  "predicted": 1.696057,
+                  "error": -0.003943,
+                  "low80": 1.531546,
+                  "high80": 1.860569,
+                  "low95": 1.444459,
+                  "high95": 1.947656,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.616942,
+                  "error": 0.116942,
+                  "low80": 1.399402,
+                  "high80": 1.834482,
+                  "low95": 1.284244,
+                  "high95": 1.94964,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.611594,
+                  "error": 0.211594,
+                  "low80": 1.359602,
+                  "high80": 1.863586,
+                  "low95": 1.226205,
+                  "high95": 1.996983,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2025-01-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2025-01-01",
+          "trainingObservations": 38,
+          "targets": [
+            "2025-02-01",
+            "2025-03-01",
+            "2025-04-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.8,
+                  "error": 0.3,
+                  "low80": 0.055842,
+                  "high80": 3.544158,
+                  "low95": -0.866575,
+                  "high95": 4.466575,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": -0.666612,
+                  "high80": 4.266612,
+                  "low95": -1.971107,
+                  "high95": 5.571107,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": -1.22097,
+                  "high80": 4.82097,
+                  "low95": -2.818644,
+                  "high95": 6.418644,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-02-01",
+                  "actual": 1.5,
+                  "predicted": 1.620722,
+                  "error": 0.120722,
+                  "low80": 1.45953,
+                  "high80": 1.781913,
+                  "low95": 1.3742,
+                  "high95": 1.867243,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.615346,
+                  "error": 0.215346,
+                  "low80": 1.402293,
+                  "high80": 1.828399,
+                  "low95": 1.289509,
+                  "high95": 1.941183,
+                  "covered80": false,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.610544,
+                  "error": 0.210544,
+                  "low80": 1.363804,
+                  "high80": 1.857284,
+                  "low95": 1.233187,
+                  "high95": 1.9879,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2025-02-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2025-02-01",
+          "trainingObservations": 39,
+          "targets": [
+            "2025-03-01",
+            "2025-04-01",
+            "2025-05-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": 0.087082,
+                  "high80": 3.512918,
+                  "low95": -0.818814,
+                  "high95": 4.418814,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": -0.622432,
+                  "high80": 4.222432,
+                  "low95": -1.903562,
+                  "high95": 5.503562,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 2.0,
+                  "error": 0.8,
+                  "low80": -0.966861,
+                  "high80": 4.966861,
+                  "low95": -2.535919,
+                  "high95": 6.535919,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-03-01",
+                  "actual": 1.4,
+                  "predicted": 1.499559,
+                  "error": 0.099559,
+                  "low80": 1.338963,
+                  "high80": 1.660155,
+                  "low95": 1.253949,
+                  "high95": 1.74517,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.494494,
+                  "error": 0.094494,
+                  "low80": 1.282862,
+                  "high80": 1.706125,
+                  "low95": 1.170831,
+                  "high95": 1.818156,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 1.439206,
+                  "error": 0.239206,
+                  "low80": 1.193744,
+                  "high80": 1.684669,
+                  "low95": 1.063804,
+                  "high95": 1.814609,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2025-03-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2025-03-01",
+          "trainingObservations": 40,
+          "targets": [
+            "2025-04-01",
+            "2025-05-01",
+            "2025-06-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.8,
+                  "error": 0.4,
+                  "low80": 0.117826,
+                  "high80": 3.482174,
+                  "low95": -0.77181,
+                  "high95": 4.37181,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 2.0,
+                  "error": 0.8,
+                  "low80": -0.378953,
+                  "high80": 4.378953,
+                  "low95": -1.637089,
+                  "high95": 5.637089,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 2.0,
+                  "error": 0.9,
+                  "low80": -0.913611,
+                  "high80": 4.913611,
+                  "low95": -2.454506,
+                  "high95": 6.454506,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-04-01",
+                  "actual": 1.4,
+                  "predicted": 1.397066,
+                  "error": -0.002934,
+                  "low80": 1.237785,
+                  "high80": 1.556347,
+                  "low95": 1.153467,
+                  "high95": 1.640665,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 1.341424,
+                  "error": 0.141424,
+                  "low80": 1.129026,
+                  "high80": 1.553823,
+                  "low95": 1.016589,
+                  "high95": 1.66626,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 1.336921,
+                  "error": 0.236921,
+                  "low80": 1.089137,
+                  "high80": 1.584705,
+                  "low95": 0.957968,
+                  "high95": 1.715874,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2025-04-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2025-04-01",
+          "trainingObservations": 41,
+          "targets": [
+            "2025-05-01",
+            "2025-06-01",
+            "2025-07-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 2.0,
+                  "error": 0.8,
+                  "low80": 0.346972,
+                  "high80": 3.653028,
+                  "low95": -0.52725,
+                  "high95": 4.52725,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 2.0,
+                  "error": 0.9,
+                  "low80": -0.337734,
+                  "high80": 4.337734,
+                  "low95": -1.574071,
+                  "high95": 5.574071,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-07-01",
+                  "actual": 1.2,
+                  "predicted": 2.0,
+                  "error": 0.8,
+                  "low80": -0.863128,
+                  "high80": 4.863128,
+                  "low95": -2.377325,
+                  "high95": 6.377325,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-05-01",
+                  "actual": 1.2,
+                  "predicted": 1.344299,
+                  "error": 0.144299,
+                  "low80": 1.187888,
+                  "high80": 1.50071,
+                  "low95": 1.105089,
+                  "high95": 1.583509,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 1.339815,
+                  "error": 0.239815,
+                  "low80": 1.131312,
+                  "high80": 1.548319,
+                  "low95": 1.020937,
+                  "high95": 1.658693,
+                  "covered80": false,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-07-01",
+                  "actual": 1.2,
+                  "predicted": 1.335744,
+                  "error": 0.135744,
+                  "low80": 1.092544,
+                  "high80": 1.578944,
+                  "low95": 0.963802,
+                  "high95": 1.707686,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
+        {
+          "origin": "2025-05-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2025-05-01",
+          "trainingObservations": 42,
+          "targets": [
+            "2025-06-01",
+            "2025-07-01",
+            "2025-08-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 2.0,
+                  "error": 0.9,
+                  "low80": 0.375352,
+                  "high80": 3.624648,
+                  "low95": -0.483861,
+                  "high95": 4.483861,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-07-01",
+                  "actual": 1.2,
+                  "predicted": 2.0,
+                  "error": 0.8,
+                  "low80": -0.297599,
+                  "high80": 4.297599,
+                  "low95": -1.51271,
+                  "high95": 5.51271,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-08-01",
+                  "actual": 1.3,
+                  "predicted": 1.9,
+                  "error": 0.6,
+                  "low80": -0.913973,
+                  "high80": 4.713973,
+                  "low95": -2.402173,
+                  "high95": 6.202173,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-06-01",
+                  "actual": 1.1,
+                  "predicted": 1.198859,
+                  "error": 0.098859,
+                  "low80": 1.041802,
+                  "high80": 1.355916,
+                  "low95": 0.958661,
+                  "high95": 1.439057,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-07-01",
+                  "actual": 1.2,
+                  "predicted": 1.19231,
+                  "error": -0.00769,
+                  "low80": 0.983651,
+                  "high80": 1.400968,
+                  "low95": 0.873194,
+                  "high95": 1.511426,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2025-08-01",
+                  "actual": 1.3,
+                  "predicted": 1.212612,
+                  "error": -0.087388,
+                  "low80": 0.968827,
+                  "high80": 1.456397,
+                  "low95": 0.839775,
+                  "high95": 1.585449,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "calibration-warmup"
+        },
         {
           "origin": "2025-06-01",
           "trainingStart": "2021-12-01",
@@ -5804,7 +7013,15 @@
                   "low95": -0.443614,
                   "high95": 4.443614,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -5817,7 +7034,15 @@
                   "low95": -1.555792,
                   "high95": 5.355792,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -5830,7 +7055,15 @@
                   "low95": -2.432464,
                   "high95": 6.032464,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -5844,40 +7077,64 @@
                   "horizon": 1,
                   "date": "2025-07-01",
                   "actual": 1.2,
-                  "predicted": 1.093753,
-                  "error": -0.106247,
-                  "low80": 0.937821,
-                  "high80": 1.249686,
-                  "low95": 0.855275,
-                  "high95": 1.332232,
+                  "predicted": 1.093759,
+                  "error": -0.106241,
+                  "low80": 0.937834,
+                  "high80": 1.249683,
+                  "low95": 0.855293,
+                  "high95": 1.332224,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.112348,
-                  "error": -0.187652,
-                  "low80": 0.902499,
-                  "high80": 1.322196,
-                  "low95": 0.791412,
-                  "high95": 1.433283,
+                  "predicted": 1.112374,
+                  "error": -0.187626,
+                  "low80": 0.902524,
+                  "high80": 1.322224,
+                  "low95": 0.791437,
+                  "high95": 1.433311,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2025-09-01",
                   "actual": 1.5,
-                  "predicted": 1.131535,
-                  "error": -0.368465,
-                  "low80": 0.884875,
-                  "high80": 1.378196,
-                  "low95": 0.7543,
-                  "high95": 1.50877,
+                  "predicted": 1.131582,
+                  "error": -0.368418,
+                  "low80": 0.884915,
+                  "high80": 1.37825,
+                  "low95": 0.754337,
+                  "high95": 1.508827,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -5888,7 +7145,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "calibration-warmup"
         },
         {
           "origin": "2025-07-01",
@@ -5918,7 +7176,15 @@
                   "low95": -0.504336,
                   "high95": 4.304336,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -5931,7 +7197,15 @@
                   "low95": -1.600245,
                   "high95": 5.200245,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -5944,7 +7218,15 @@
                   "low95": -2.264433,
                   "high95": 6.064433,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -5958,14 +7240,22 @@
                   "horizon": 1,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.216662,
-                  "error": -0.083338,
+                  "predicted": 1.216663,
+                  "error": -0.083337,
                   "low80": 1.061549,
                   "high80": 1.371776,
-                  "low95": 0.979436,
-                  "high95": 1.453888,
+                  "low95": 0.979437,
+                  "high95": 1.453889,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -5978,7 +7268,15 @@
                   "low95": 0.921265,
                   "high95": 1.553721,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -5989,9 +7287,17 @@
                   "low80": 0.964413,
                   "high80": 1.44806,
                   "low95": 0.836399,
-                  "high95": 1.576073,
+                  "high95": 1.576074,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6002,7 +7308,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "calibration-warmup"
         },
         {
           "origin": "2025-08-01",
@@ -6032,7 +7339,15 @@
                   "low95": -0.566587,
                   "high95": 4.166587,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6045,7 +7360,15 @@
                   "low95": -1.446859,
                   "high95": 5.246859,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6058,7 +7381,15 @@
                   "low95": -2.299048,
                   "high95": 5.899048,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6075,37 +7406,61 @@
                   "predicted": 1.320287,
                   "error": -0.179713,
                   "low80": 1.166587,
-                  "high80": 1.473986,
+                  "high80": 1.473987,
                   "low95": 1.085223,
-                  "high95": 1.55535,
+                  "high95": 1.555351,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.289527,
-                  "error": -0.010473,
-                  "low80": 1.082729,
-                  "high80": 1.496326,
-                  "low95": 0.973257,
-                  "high95": 1.605798,
+                  "predicted": 1.289529,
+                  "error": -0.010471,
+                  "low80": 1.082731,
+                  "high80": 1.496327,
+                  "low95": 0.973258,
+                  "high95": 1.605799,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.311613,
-                  "error": -0.088387,
-                  "low80": 1.06935,
-                  "high80": 1.553877,
-                  "low95": 0.941104,
-                  "high95": 1.682123,
+                  "predicted": 1.311616,
+                  "error": -0.088384,
+                  "low80": 1.069353,
+                  "high80": 1.553878,
+                  "low95": 0.941107,
+                  "high95": 1.682124,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6116,7 +7471,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "calibration-warmup"
         },
         {
           "origin": "2025-09-01",
@@ -6146,7 +7502,15 @@
                   "low95": -0.43371,
                   "high95": 4.23371,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6159,7 +7523,15 @@
                   "low95": -1.500365,
                   "high95": 5.100365,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6172,7 +7544,15 @@
                   "low95": -2.342105,
                   "high95": 5.742105,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6186,40 +7566,64 @@
                   "horizon": 1,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.469662,
-                  "error": 0.169662,
-                  "low80": 1.31356,
-                  "high80": 1.625763,
-                  "low95": 1.230925,
-                  "high95": 1.708398,
+                  "predicted": 1.469647,
+                  "error": 0.169647,
+                  "low80": 1.313536,
+                  "high80": 1.625759,
+                  "low95": 1.230896,
+                  "high95": 1.708399,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.488457,
-                  "error": 0.088457,
-                  "low80": 1.275601,
-                  "high80": 1.701313,
-                  "low95": 1.162922,
-                  "high95": 1.813992,
+                  "predicted": 1.48844,
+                  "error": 0.08844,
+                  "low80": 1.275575,
+                  "high80": 1.701305,
+                  "low95": 1.162891,
+                  "high95": 1.813988,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.507984,
-                  "error": -0.092016,
-                  "low80": 1.258221,
-                  "high80": 1.757747,
-                  "low95": 1.126004,
-                  "high95": 1.889963,
+                  "predicted": 1.507964,
+                  "error": -0.092036,
+                  "low80": 1.258192,
+                  "high80": 1.757737,
+                  "low95": 1.125971,
+                  "high95": 1.889958,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6230,7 +7634,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "calibration-warmup"
         },
         {
           "origin": "2025-10-01",
@@ -6260,7 +7665,15 @@
                   "low95": -0.49921,
                   "high95": 4.09921,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6273,7 +7686,15 @@
                   "low95": -1.551573,
                   "high95": 4.951573,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6286,7 +7707,15 @@
                   "low95": -2.282348,
                   "high95": 5.682348,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6300,40 +7729,64 @@
                   "horizon": 1,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.330721,
-                  "error": -0.069279,
-                  "low80": 1.173057,
-                  "high80": 1.488385,
-                  "low95": 1.089595,
-                  "high95": 1.571847,
+                  "predicted": 1.330719,
+                  "error": -0.069281,
+                  "low80": 1.173056,
+                  "high80": 1.488383,
+                  "low95": 1.089594,
+                  "high95": 1.571845,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.354741,
-                  "error": -0.245259,
-                  "low80": 1.146003,
-                  "high80": 1.563479,
-                  "low95": 1.035504,
+                  "predicted": 1.354739,
+                  "error": -0.245261,
+                  "low80": 1.146001,
+                  "high80": 1.563478,
+                  "low95": 1.035501,
                   "high95": 1.673978,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-01-01",
                   "actual": 1.6,
-                  "predicted": 1.351845,
-                  "error": -0.248155,
-                  "low80": 1.108724,
+                  "predicted": 1.351844,
+                  "error": -0.248156,
+                  "low80": 1.108721,
                   "high80": 1.594967,
-                  "low95": 0.980023,
+                  "low95": 0.98002,
                   "high95": 1.723668,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6344,7 +7797,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "calibration-warmup"
         },
         {
           "origin": "2025-11-01",
@@ -6374,7 +7828,27 @@
                   "low95": -0.567648,
                   "high95": 3.967648,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 0.9,
+                    "high80": 2.5,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6387,7 +7861,26 @@
                   "low95": -1.506938,
                   "high95": 4.906938,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 10,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 0.9,
+                    "high80": 2.5,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6400,7 +7893,25 @@
                   "low95": -2.427681,
                   "high95": 5.427681,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 9,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 0.7,
+                    "high80": 2.3,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6417,11 +7928,31 @@
                   "predicted": 1.417838,
                   "error": -0.182162,
                   "low80": 1.26179,
-                  "high80": 1.573886,
-                  "low95": 1.179184,
-                  "high95": 1.656493,
+                  "high80": 1.573885,
+                  "low95": 1.179183,
+                  "high95": 1.656492,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 1.248191,
+                    "high80": 1.587485,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6432,9 +7963,28 @@
                   "low80": 1.20823,
                   "high80": 1.617642,
                   "low95": 1.099865,
-                  "high95": 1.726007,
+                  "high95": 1.726006,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 10,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 1.173121,
+                    "high80": 1.652751,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6443,11 +7993,29 @@
                   "predicted": 1.463267,
                   "error": 0.063267,
                   "low80": 1.225748,
-                  "high80": 1.700787,
+                  "high80": 1.700786,
                   "low95": 1.100013,
-                  "high95": 1.826522,
+                  "high95": 1.826521,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 9,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01"
+                    ],
+                    "low80": 1.224061,
+                    "high80": 1.702473,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6458,7 +8026,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2025-12-01",
@@ -6488,7 +8057,28 @@
                   "low95": -0.542873,
                   "high95": 3.942873,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 0.9,
+                    "high80": 2.5,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6501,7 +8091,27 @@
                   "low95": -1.671901,
                   "high95": 4.671901,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 0.7,
+                    "high80": 2.3,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6514,7 +8124,26 @@
                   "low95": -2.484769,
                   "high95": 5.284769,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 10,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6531,37 +8160,97 @@
                   "predicted": 1.5824,
                   "error": -0.0176,
                   "low80": 1.424012,
-                  "high80": 1.740788,
-                  "low95": 1.340167,
+                  "high80": 1.740787,
+                  "low95": 1.340166,
                   "high95": 1.824633,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 1.412753,
+                    "high80": 1.752047,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-02-01",
                   "actual": 1.4,
-                  "predicted": 1.627098,
-                  "error": 0.227098,
-                  "low80": 1.417028,
-                  "high80": 1.837167,
-                  "low95": 1.305824,
-                  "high95": 1.948372,
+                  "predicted": 1.627096,
+                  "error": 0.227096,
+                  "low80": 1.417027,
+                  "high80": 1.837166,
+                  "low95": 1.305822,
+                  "high95": 1.94837,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 1.387281,
+                    "high80": 1.866911,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.645185,
-                  "error": -0.054815,
-                  "low80": 1.400976,
-                  "high80": 1.889393,
-                  "low95": 1.2717,
-                  "high95": 2.01867,
+                  "predicted": 1.645182,
+                  "error": -0.054818,
+                  "low80": 1.400973,
+                  "high80": 1.889392,
+                  "low95": 1.271697,
+                  "high95": 2.018668,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 10,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01"
+                    ],
+                    "low80": 1.405976,
+                    "high80": 1.884388,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6572,7 +8261,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2026-01-01",
@@ -6602,7 +8292,29 @@
                   "low95": -0.718823,
                   "high95": 3.718823,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 0.7,
+                    "high80": 2.3,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6615,7 +8327,28 @@
                   "low95": -1.73789,
                   "high95": 4.53789,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6628,7 +8361,27 @@
                   "low95": -2.443115,
                   "high95": 5.243115,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6647,22 +8400,65 @@
                   "low80": 1.487109,
                   "high80": 1.79966,
                   "low95": 1.404382,
-                  "high95": 1.882387,
+                  "high95": 1.882388,
                   "covered80": false,
-                  "covered95": false
+                  "covered95": false,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 1.463672,
+                    "high80": 1.823098,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.660699,
-                  "error": -0.039301,
-                  "low80": 1.452823,
-                  "high80": 1.868576,
+                  "predicted": 1.6607,
+                  "error": -0.0393,
+                  "low80": 1.452822,
+                  "high80": 1.868577,
                   "low95": 1.342779,
-                  "high95": 1.978619,
+                  "high95": 1.97862,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 1.415439,
+                    "high80": 1.905961,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6671,11 +8467,31 @@
                   "predicted": 1.651408,
                   "error": -0.248592,
                   "low80": 1.409553,
-                  "high80": 1.893263,
-                  "low95": 1.281523,
-                  "high95": 2.021293,
+                  "high80": 1.893264,
+                  "low95": 1.281522,
+                  "high95": 2.021295,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 11,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01"
+                    ],
+                    "low80": 1.412202,
+                    "high80": 1.890614,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6686,7 +8502,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2026-02-01",
@@ -6716,7 +8533,30 @@
                   "low95": -0.795471,
                   "high95": 3.595471,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6729,7 +8569,29 @@
                   "low95": -1.704865,
                   "high95": 4.504865,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6742,7 +8604,28 @@
                   "low95": -2.602667,
                   "high95": 5.002667,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 0.4,
+                    "high80": 2.0,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6763,7 +8646,30 @@
                   "low95": 1.19031,
                   "high95": 1.685446,
                   "covered80": false,
-                  "covered95": false
+                  "covered95": false,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 1.268231,
+                    "high80": 1.607525,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6774,9 +8680,31 @@
                   "low80": 1.224851,
                   "high80": 1.653515,
                   "low95": 1.111391,
-                  "high95": 1.766976,
+                  "high95": 1.766975,
                   "covered80": false,
-                  "covered95": false
+                  "covered95": false,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 1.193922,
+                    "high80": 1.684444,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6789,7 +8717,28 @@
                   "low95": 1.111927,
                   "high95": 1.874624,
                   "covered80": false,
-                  "covered95": false
+                  "covered95": false,
+                  "recalibrated": {
+                    "calibrationCount": 12,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01"
+                    ],
+                    "low80": 1.24512,
+                    "high80": 1.741432,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6800,7 +8749,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2026-03-01",
@@ -6830,7 +8780,31 @@
                   "low95": -0.785219,
                   "high95": 3.585219,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 0.6,
+                    "high80": 2.2,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6843,7 +8817,30 @@
                   "low95": -1.890367,
                   "high95": 4.290367,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 0.4,
+                    "high80": 2.0,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6856,7 +8853,29 @@
                   "low95": -2.684911,
                   "high95": 4.884911,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 0.3,
+                    "high80": 1.9,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6870,40 +8889,109 @@
                   "horizon": 1,
                   "date": "2026-04-01",
                   "actual": 1.9,
-                  "predicted": 1.650111,
-                  "error": -0.249889,
-                  "low80": 1.482865,
-                  "high80": 1.817357,
-                  "low95": 1.39433,
-                  "high95": 1.905892,
+                  "predicted": 1.650115,
+                  "error": -0.249885,
+                  "low80": 1.482868,
+                  "high80": 1.817362,
+                  "low95": 1.394334,
+                  "high95": 1.905896,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 1.470402,
+                    "high80": 1.829828,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.696016,
-                  "error": -0.303984,
-                  "low80": 1.487372,
-                  "high80": 1.90466,
-                  "low95": 1.376922,
-                  "high95": 2.015109,
+                  "predicted": 1.696022,
+                  "error": -0.303978,
+                  "low80": 1.487378,
+                  "high80": 1.904667,
+                  "low95": 1.376928,
+                  "high95": 2.015117,
                   "covered80": false,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 1.456207,
+                    "high80": 1.935837,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.715013,
-                  "error": -0.184987,
-                  "low80": 1.477841,
-                  "high80": 1.952185,
-                  "low95": 1.35229,
-                  "high95": 2.077736,
+                  "predicted": 1.715022,
+                  "error": -0.184978,
+                  "low80": 1.477849,
+                  "high80": 1.952195,
+                  "low95": 1.352297,
+                  "high95": 2.077746,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 13,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01"
+                    ],
+                    "low80": 1.466866,
+                    "high80": 1.963178,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6914,7 +9002,8 @@
               "fallbackModel": null,
               "points": []
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2026-04-01",
@@ -6944,7 +9033,32 @@
                   "low95": -0.983025,
                   "high95": 3.383025,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 16,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 0.4,
+                    "high80": 2.0,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -6957,7 +9071,31 @@
                   "low95": -1.987264,
                   "high95": 4.187264,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 0.3,
+                    "high80": 1.9,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -6970,7 +9108,30 @@
                   "low95": -2.58111,
                   "high95": 4.98111,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 0.4,
+                    "high80": 2.0,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -6984,51 +9145,188 @@
                   "horizon": 1,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.921469,
-                  "error": -0.078531,
-                  "low80": 1.749702,
-                  "high80": 2.093236,
-                  "low95": 1.658774,
-                  "high95": 2.184164,
+                  "predicted": 1.921467,
+                  "error": -0.078533,
+                  "low80": 1.7497,
+                  "high80": 2.093234,
+                  "low95": 1.658772,
+                  "high95": 2.184163,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 16,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 1.739305,
+                    "high80": 2.103629,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.927131,
-                  "error": 0.027131,
-                  "low80": 1.700903,
-                  "high80": 2.153358,
+                  "predicted": 1.927129,
+                  "error": 0.027129,
+                  "low80": 1.700902,
+                  "high80": 2.153356,
                   "low95": 1.581145,
-                  "high95": 2.273116,
+                  "high95": 2.273113,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 1.687314,
+                    "high80": 2.166944,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.880487,
-                  "error": 0.080487,
-                  "low80": 1.61871,
-                  "high80": 2.142265,
-                  "low95": 1.480133,
-                  "high95": 2.280842,
+                  "predicted": 1.880485,
+                  "error": 0.080485,
+                  "low80": 1.618709,
+                  "high80": 2.142262,
+                  "low95": 1.480132,
+                  "high95": 2.280838,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 14,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01"
+                    ],
+                    "low80": 1.641279,
+                    "high80": 2.119691,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
             {
               "name": "ARIMAX",
-              "status": "failed",
-              "failureReason": "ValueError: Model fit did not converge",
+              "status": "success",
+              "failureReason": null,
               "fallbackModel": null,
-              "points": []
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2026-05-01",
+                  "actual": 2.0,
+                  "predicted": 1.926947,
+                  "error": -0.073053,
+                  "low80": 1.693119,
+                  "high80": 2.160775,
+                  "low95": 1.569338,
+                  "high95": 2.284555,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2026-06-01",
+                  "actual": 1.9,
+                  "predicted": 1.899149,
+                  "error": -0.000851,
+                  "low80": 1.569285,
+                  "high80": 2.229013,
+                  "low95": 1.394665,
+                  "high95": 2.403632,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2026-07-01",
+                  "actual": 1.8,
+                  "predicted": 1.877076,
+                  "error": 0.077076,
+                  "low80": 1.499001,
+                  "high80": 2.255152,
+                  "low95": 1.29886,
+                  "high95": 2.455293,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         },
         {
           "origin": "2026-05-01",
@@ -7058,7 +9356,33 @@
                   "low95": -1.094897,
                   "high95": 3.294897,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 17,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 0.3,
+                    "high80": 1.9,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
@@ -7071,7 +9395,32 @@
                   "low95": -1.904053,
                   "high95": 4.304053,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 16,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 0.4,
+                    "high80": 2.0,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
@@ -7084,7 +9433,31 @@
                   "low95": -2.501673,
                   "high95": 5.101673,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 0.5,
+                    "high80": 2.1,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
@@ -7098,60 +9471,207 @@
                   "horizon": 1,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.99989,
-                  "error": 0.09989,
-                  "low80": 1.829596,
-                  "high80": 2.170185,
-                  "low95": 1.739448,
-                  "high95": 2.260333,
+                  "predicted": 1.999899,
+                  "error": 0.099899,
+                  "low80": 1.829607,
+                  "high80": 2.170191,
+                  "low95": 1.73946,
+                  "high95": 2.260338,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 17,
+                    "calibrationTargets": [
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 1.756514,
+                    "high80": 2.243284,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.948027,
-                  "error": 0.148027,
-                  "low80": 1.720369,
-                  "high80": 2.175685,
-                  "low95": 1.599854,
-                  "high95": 2.2962,
+                  "predicted": 1.948047,
+                  "error": 0.148047,
+                  "low80": 1.720397,
+                  "high80": 2.175696,
+                  "low95": 1.599887,
+                  "high95": 2.296206,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 16,
+                    "calibrationTargets": [
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 1.702786,
+                    "high80": 2.193308,
+                    "low95": null,
+                    "high95": null
+                  }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-08-01",
                   "actual": 1.9,
-                  "predicted": 1.898771,
-                  "error": -0.001229,
-                  "low80": 1.634156,
-                  "high80": 2.163387,
-                  "low95": 1.494077,
-                  "high95": 2.303466,
+                  "predicted": 1.898801,
+                  "error": -0.001199,
+                  "low80": 1.634197,
+                  "high80": 2.163405,
+                  "low95": 1.494124,
+                  "high95": 2.303478,
                   "covered80": true,
-                  "covered95": true
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 15,
+                    "calibrationTargets": [
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01"
+                    ],
+                    "low80": 1.650645,
+                    "high80": 2.146957,
+                    "low95": null,
+                    "high95": null
+                  }
                 }
               ]
             },
             {
               "name": "ARIMAX",
-              "status": "failed",
-              "failureReason": "ValueError: Model fit did not converge",
+              "status": "success",
+              "failureReason": null,
               "fallbackModel": null,
-              "points": []
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2026-06-01",
+                  "actual": 1.9,
+                  "predicted": 1.973102,
+                  "error": 0.073102,
+                  "low80": 1.741442,
+                  "high80": 2.204762,
+                  "low95": 1.618809,
+                  "high95": 2.327395,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2026-07-01",
+                  "actual": 1.8,
+                  "predicted": 1.944546,
+                  "error": 0.144546,
+                  "low80": 1.617026,
+                  "high80": 2.272066,
+                  "low95": 1.443647,
+                  "high95": 2.445445,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2026-08-01",
+                  "actual": 1.9,
+                  "predicted": 1.921861,
+                  "error": 0.021861,
+                  "low80": 1.546234,
+                  "high80": 2.297488,
+                  "low95": 1.347389,
+                  "high95": 2.496333,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
             }
-          ]
+          ],
+          "evaluationPhase": "held-out-evaluation"
         }
       ],
       "candidateEligibility": [
         {
           "name": "Seasonal naive",
           "eligible": true,
-          "successfulWindows": 12,
+          "successfulWindows": 19,
           "failedWindows": 0,
           "origins": [
+            "2024-11-01",
+            "2024-12-01",
+            "2025-01-01",
+            "2025-02-01",
+            "2025-03-01",
+            "2025-04-01",
+            "2025-05-01",
             "2025-06-01",
             "2025-07-01",
             "2025-08-01",
@@ -7170,9 +9690,16 @@
         {
           "name": "SARIMA",
           "eligible": true,
-          "successfulWindows": 12,
+          "successfulWindows": 19,
           "failedWindows": 0,
           "origins": [
+            "2024-11-01",
+            "2024-12-01",
+            "2025-01-01",
+            "2025-02-01",
+            "2025-03-01",
+            "2025-04-01",
+            "2025-05-01",
             "2025-06-01",
             "2025-07-01",
             "2025-08-01",
@@ -7191,9 +9718,16 @@
         {
           "name": "ARIMAX",
           "eligible": false,
-          "successfulWindows": 0,
-          "failedWindows": 12,
+          "successfulWindows": 2,
+          "failedWindows": 17,
           "origins": [
+            "2024-11-01",
+            "2024-12-01",
+            "2025-01-01",
+            "2025-02-01",
+            "2025-03-01",
+            "2025-04-01",
+            "2025-05-01",
             "2025-06-01",
             "2025-07-01",
             "2025-08-01",
@@ -7208,6 +9742,13 @@
             "2026-05-01"
           ],
           "failedOrigins": [
+            "2024-11-01",
+            "2024-12-01",
+            "2025-01-01",
+            "2025-02-01",
+            "2025-03-01",
+            "2025-04-01",
+            "2025-05-01",
             "2025-06-01",
             "2025-07-01",
             "2025-08-01",
@@ -7217,9 +9758,7 @@
             "2025-12-01",
             "2026-01-01",
             "2026-02-01",
-            "2026-03-01",
-            "2026-04-01",
-            "2026-05-01"
+            "2026-03-01"
           ]
         }
       ],
@@ -7227,121 +9766,482 @@
         {
           "name": "Seasonal naive",
           "eligible": true,
-          "covered80": 36,
-          "total80": 36,
+          "covered80": 57,
+          "total80": 57,
           "coverage80": 1.0,
-          "covered95": 36,
-          "total95": 36,
+          "covered95": 57,
+          "total95": 57,
           "coverage95": 1.0,
+          "meanWidth80": 4.342041,
+          "meanWidth95": 6.638378,
           "byHorizon": [
             {
               "horizon": 1,
-              "covered80": 12,
-              "total80": 12,
+              "covered80": 19,
+              "total80": 19,
               "coverage80": 1.0,
-              "covered95": 12,
-              "total95": 12,
-              "coverage95": 1.0
+              "covered95": 19,
+              "total95": 19,
+              "coverage95": 1.0,
+              "meanWidth80": 3.141653,
+              "meanWidth95": 4.803151
             },
             {
               "horizon": 2,
-              "covered80": 12,
-              "total80": 12,
+              "covered80": 19,
+              "total80": 19,
               "coverage80": 1.0,
-              "covered95": 12,
-              "total95": 12,
-              "coverage95": 1.0
+              "covered95": 19,
+              "total95": 19,
+              "coverage95": 1.0,
+              "meanWidth80": 4.442968,
+              "meanWidth95": 6.792681
             },
             {
               "horizon": 3,
-              "covered80": 12,
-              "total80": 12,
+              "covered80": 19,
+              "total80": 19,
               "coverage80": 1.0,
-              "covered95": 12,
-              "total95": 12,
-              "coverage95": 1.0
+              "covered95": 19,
+              "total95": 19,
+              "coverage95": 1.0,
+              "meanWidth80": 5.441502,
+              "meanWidth95": 8.319302
             }
           ]
         },
         {
           "name": "SARIMA",
           "eligible": true,
-          "covered80": 21,
-          "total80": 36,
-          "coverage80": 0.583333,
-          "covered95": 32,
-          "total95": 36,
-          "coverage95": 0.888889,
+          "covered80": 40,
+          "total80": 57,
+          "coverage80": 0.701754,
+          "covered95": 53,
+          "total95": 57,
+          "coverage95": 0.929825,
+          "meanWidth80": 0.412805,
+          "meanWidth95": 0.631331,
           "byHorizon": [
             {
               "horizon": 1,
-              "covered80": 6,
-              "total80": 12,
-              "coverage80": 0.5,
-              "covered95": 10,
-              "total95": 12,
-              "coverage95": 0.833333
+              "covered80": 13,
+              "total80": 19,
+              "coverage80": 0.684211,
+              "covered95": 17,
+              "total95": 19,
+              "coverage95": 0.894737,
+              "meanWidth80": 0.320594,
+              "meanWidth95": 0.490306
             },
             {
               "horizon": 2,
-              "covered80": 7,
-              "total80": 12,
-              "coverage80": 0.583333,
-              "covered95": 11,
-              "total95": 12,
-              "coverage95": 0.916667
+              "covered80": 12,
+              "total80": 19,
+              "coverage80": 0.631579,
+              "covered95": 18,
+              "total95": 19,
+              "coverage95": 0.947368,
+              "meanWidth80": 0.424436,
+              "meanWidth95": 0.649118
             },
             {
               "horizon": 3,
-              "covered80": 8,
-              "total80": 12,
-              "coverage80": 0.666667,
-              "covered95": 11,
-              "total95": 12,
-              "coverage95": 0.916667
+              "covered80": 15,
+              "total80": 19,
+              "coverage80": 0.789474,
+              "covered95": 18,
+              "total95": 19,
+              "coverage95": 0.947368,
+              "meanWidth80": 0.493385,
+              "meanWidth95": 0.754567
             }
           ]
         },
         {
           "name": "ARIMAX",
           "eligible": false,
-          "covered80": 0,
-          "total80": 0,
-          "coverage80": null,
-          "covered95": 0,
-          "total95": 0,
-          "coverage95": null,
+          "covered80": 6,
+          "total80": 6,
+          "coverage80": 1.0,
+          "covered95": 6,
+          "total95": 6,
+          "coverage95": 1.0,
+          "meanWidth80": 0.625525,
+          "meanWidth95": 0.956658,
           "byHorizon": [
             {
               "horizon": 1,
-              "covered80": 0,
-              "total80": 0,
-              "coverage80": null,
-              "covered95": 0,
-              "total95": 0,
-              "coverage95": null
+              "covered80": 2,
+              "total80": 2,
+              "coverage80": 1.0,
+              "covered95": 2,
+              "total95": 2,
+              "coverage95": 1.0,
+              "meanWidth80": 0.465488,
+              "meanWidth95": 0.711902
             },
             {
               "horizon": 2,
-              "covered80": 0,
-              "total80": 0,
-              "coverage80": null,
-              "covered95": 0,
-              "total95": 0,
-              "coverage95": null
+              "covered80": 2,
+              "total80": 2,
+              "coverage80": 1.0,
+              "covered95": 2,
+              "total95": 2,
+              "coverage95": 1.0,
+              "meanWidth80": 0.657384,
+              "meanWidth95": 1.005383
             },
             {
               "horizon": 3,
-              "covered80": 0,
-              "total80": 0,
-              "coverage80": null,
-              "covered95": 0,
-              "total95": 0,
-              "coverage95": null
+              "covered80": 2,
+              "total80": 2,
+              "coverage80": 1.0,
+              "covered95": 2,
+              "total95": 2,
+              "coverage95": 1.0,
+              "meanWidth80": 0.753702,
+              "meanWidth95": 1.152689
             }
           ]
         }
       ],
+      "calibrationExperiment": {
+        "status": "experimental",
+        "method": "Rolling absolute forecast-error quantiles by model and horizon; each held-out origin uses only targets observed strictly before that origin.",
+        "warmupOrigins": [
+          "2024-11-01",
+          "2024-12-01",
+          "2025-01-01",
+          "2025-02-01",
+          "2025-03-01",
+          "2025-04-01",
+          "2025-05-01",
+          "2025-06-01",
+          "2025-07-01",
+          "2025-08-01",
+          "2025-09-01",
+          "2025-10-01"
+        ],
+        "evaluationOrigins": [
+          "2025-11-01",
+          "2025-12-01",
+          "2026-01-01",
+          "2026-02-01",
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01"
+        ],
+        "minimumSampleRule": "Finite-sample order statistic at rank ceil((n+1) × nominal coverage); range unavailable when the rank exceeds the number of prior errors. This requires at least 4 prior errors for 80% and 19 for 95%.",
+        "byModelHorizon": [
+          {
+            "model": "Seasonal naive",
+            "horizon": 1,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 2.894397
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 1.6
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "Seasonal naive",
+            "horizon": 1,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 4.42513
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "Seasonal naive",
+            "horizon": 2,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 4.093294
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 1.6
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "Seasonal naive",
+            "horizon": 2,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 6.258079
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "Seasonal naive",
+            "horizon": 3,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 5.013241
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 1.6
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "Seasonal naive",
+            "horizon": 3,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 1.0,
+              "meanWidth": 7.66455
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 1,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.428571,
+              "meanWidth": 0.326255
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 0.428571,
+              "meanWidth": 0.36969
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 1,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.714286,
+              "meanWidth": 0.498964
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 2,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.571429,
+              "meanWidth": 0.42843
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 0.714286,
+              "meanWidth": 0.484298
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 2,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.857143,
+              "meanWidth": 0.655227
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 3,
+            "nominalCoverage": 80,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.714286,
+              "meanWidth": 0.496139
+            },
+            "recalibrated": {
+              "count": 7,
+              "coverage": 0.714286,
+              "meanWidth": 0.486083
+            },
+            "unavailableCalibrationPoints": 0
+          },
+          {
+            "model": "SARIMA",
+            "horizon": 3,
+            "nominalCoverage": 95,
+            "evaluationPoints": 7,
+            "uncalibrated": {
+              "count": 7,
+              "coverage": 0.857143,
+              "meanWidth": 0.75878
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 7
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 1,
+            "nominalCoverage": 80,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 0.465488
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 1,
+            "nominalCoverage": 95,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 0.711902
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 2,
+            "nominalCoverage": 80,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 0.657384
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 2,
+            "nominalCoverage": 95,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 1.005383
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 3,
+            "nominalCoverage": 80,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 0.753702
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          },
+          {
+            "model": "ARIMAX",
+            "horizon": 3,
+            "nominalCoverage": 95,
+            "evaluationPoints": 2,
+            "uncalibrated": {
+              "count": 2,
+              "coverage": 1.0,
+              "meanWidth": 1.152689
+            },
+            "recalibrated": {
+              "count": 0,
+              "coverage": null,
+              "meanWidth": null
+            },
+            "unavailableCalibrationPoints": 2
+          }
+        ],
+        "warning": "Experimental comparison only. Rolling forecast errors are serially dependent and overlapping, so these ranges do not have a distribution-free or guaranteed coverage claim. They do not change the published forecast intervals or model selection."
+      },
       "fallbackCount": 0,
       "errorDefinition": "predicted minus actual, percentage points",
       "eligibilityRule": "Every candidate attempts the same origins. Selection requires successful fits and all three targets at every origin; failed fits are not replaced or scored as that candidate.",
@@ -7366,6 +10266,26 @@
     },
     "status": "partial",
     "calculationStatus": "fresh",
+    "calculatedAt": "2026-10-05T15:11:50Z",
+    "vintageLedger": {
+      "version": 1,
+      "status": "waiting",
+      "freshSourceCount": 0,
+      "requiredSourceCount": 6,
+      "sourceSnapshotCount": 0,
+      "revisedSourcePeriodCount": 0,
+      "prospectiveForecastCount": 0,
+      "capturedOutcomeCount": 0,
+      "pendingForecastTargetCount": 0,
+      "firstSnapshotAt": null,
+      "lastSnapshotAt": null,
+      "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
+    },
+    "recomputation": {
+      "mode": "offline",
+      "sourceRefresh": false,
+      "note": "Forecast and affected text recalculated from the saved validated series; official observations, source status and retrieval timestamps are unchanged."
+    },
     "inputHealth": {
       "status": "partial",
       "staleInputs": [
@@ -52808,7 +55728,8 @@
         "opr"
       ],
       "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
-    }
+    },
+    "calculatedAt": "2026-10-05T15:11:50Z"
   },
   "decisionGuide": {
     "generatedAt": "2026-10-05T12:36:25Z",
@@ -53146,7 +56067,8 @@
       ],
       "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
     },
-    "status": "partial"
+    "status": "partial",
+    "calculatedAt": "2026-10-05T15:11:50Z"
   },
   "dataHealth": {
     "generatedAt": "2026-10-05T12:36:25Z",

@@ -8,13 +8,20 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 const modules = new Map();
-const stateHarness = { values: [], cursor: 0 };
+const stateHarness = { values: [], refs: [], cursor: 0, refCursor: 0 };
 globalThis.__historyQualityState = stateHarness;
 const reactUrl = pathToFileURL(require.resolve("react")).href;
 const hooksUrl = `data:text/javascript;base64,${Buffer.from(`
   export * from ${JSON.stringify(reactUrl)};
   export const useId = () => "history-test";
   export const useMemo = (calculate) => calculate();
+  export const useEffect = () => {};
+  export const useRef = (initial) => {
+    const state = globalThis.__historyQualityState;
+    const index = state.refCursor++;
+    if (!(index in state.refs)) state.refs[index] = {current: initial};
+    return state.refs[index];
+  };
   export const useState = (initial) => {
     const state = globalThis.__historyQualityState;
     const index = state.cursor++;
@@ -54,8 +61,9 @@ const rows = (tree) => (html(tree).match(/<th scope="row"/g) ?? []).length;
 
 async function harness(input = [series]) {
   stateHarness.values = [];
+  stateHarness.refs = [];
   const Trend = await component();
-  const render = () => { stateHarness.cursor = 0; return Trend({ series: input }); };
+  const render = () => { stateHarness.cursor = 0; stateHarness.refCursor = 0; return Trend({ series: input }); };
   const chooseAll = () => { const tree = render(); find(tree, "button", (item) => item.props.children === "All history").props.onClick(); return render(); };
   const open = () => { const tree = render(); find(tree, "details").props.onToggle({ currentTarget: { open: true } }); return render(); };
   return { render, chooseAll, open };

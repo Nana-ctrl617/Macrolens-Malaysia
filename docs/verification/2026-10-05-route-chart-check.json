@@ -1,0 +1,582 @@
+{
+  "at": "2026-10-05T13:21:29.702Z",
+  "browser": "151.0.7922.34",
+  "environment": "Isolated headless Chromium; production Worker; saved fixture; no external requests",
+  "checks": [
+    {
+      "size": "phone",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "phone",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "phone",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "phone",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "tablet",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "tablet",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "tablet",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "desktop",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "desktop",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "desktop",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-reflow",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "400-percent-reflow",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/",
+      "canvasChecks": 1,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/brief",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        28,
+        28,
+        28,
+        28,
+        28,
+        28
+      ]
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/risk",
+      "canvasChecks": 0,
+      "liveRegions": 1,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/structure",
+      "canvasChecks": 2,
+      "liveRegions": 4,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/external",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/bop",
+      "canvasChecks": 1,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": [
+        28,
+        28,
+        28,
+        28,
+        28,
+        28,
+        28,
+        28
+      ]
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/bursa",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/forecast",
+      "canvasChecks": 0,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/regional",
+      "canvasChecks": 0,
+      "liveRegions": 2,
+      "overflow": false,
+      "axisFonts": []
+    },
+    {
+      "size": "200-percent-text",
+      "route": "/structural",
+      "canvasChecks": 1,
+      "liveRegions": 3,
+      "overflow": false,
+      "axisFonts": []
+    }
+  ],
+  "failures": []
+}

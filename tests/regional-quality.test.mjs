@@ -55,6 +55,19 @@ test("district comparison joins only exact state and district keys", () => {
   assert.equal(district.metrics.realGdp.sourceUrl, regional.sources.gdp.districtSourceUrl);
 });
 
+test("state and district GDP provenance use independent source clocks and status", () => {
+  const regional = payload().regionalLens;
+  regional.sources.gdpState = { ...regional.sources.gdp, status: "fresh", observationPeriod: "2025-01-01", retrievedAt: "2026-10-05T12:00:00Z" };
+  regional.sources.gdpDistrict = { ...regional.sources.gdp, status: "stale", observationPeriod: "2020-01-01", retrievedAt: "2026-09-01T12:00:00Z", sourceUrl: regional.sources.gdp.districtSourceUrl };
+  const state = buildRegionalRecords(regional, "state").find((row) => row.metrics.realGdp.value != null);
+  const district = buildRegionalRecords(regional, "district").find((row) => row.metrics.realGdp.value != null);
+  assert.equal(state.metrics.realGdp.dataStatus, "fresh");
+  assert.equal(district.metrics.realGdp.dataStatus, "stale");
+  assert.equal(state.metrics.realGdp.retrievedAt, regional.sources.gdpState.retrievedAt);
+  assert.equal(district.metrics.realGdp.retrievedAt, regional.sources.gdpDistrict.retrievedAt);
+  assert.equal(district.metrics.realGdp.sourceUrl, regional.sources.gdp.districtSourceUrl);
+});
+
 test("verified district aliases share one state-scoped geography without changing source records", () => {
   const regional = payload().regionalLens;
   const before = structuredClone(regional);

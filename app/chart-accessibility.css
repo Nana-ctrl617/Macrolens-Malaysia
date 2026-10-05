@@ -1,0 +1,44 @@
+/* Chart interaction is shared across pointer, touch and keyboard. */
+body .dashboard-app :is(a,button,input,select,summary,[tabindex]):focus-visible {
+  outline: 3px solid var(--chart-focus);
+  outline-offset: 3px;
+}
+.chart-inspection-controls { display: grid; gap: .5rem; min-width: 0; padding-block: .75rem; }
+.chart-inspection-controls label { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem 1rem; font-size: 1rem; line-height: 1.5; }
+.chart-inspection-controls input[type="range"] { flex: 1 1 10rem; width: 100%; min-width: 0; min-height: 44px; accent-color: var(--chart-focus); }
+.chart-inspection-status { margin: .5rem 0; min-height: 1.5em; font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+.chart-inspection-help { font-size: .9375rem; line-height: 1.5; margin: .5rem 0; }
+.chart-empty { padding: 1rem; font-size: 1rem; line-height: 1.5; }
+.chart-live-description { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.dashboard-app :is(.detail-chart-wrap,.structural-chart,.sector-share-chart,.external-chart,.market-chart) { min-width: 0; max-width: 100%; }
+.dashboard-app canvas { max-width: 100%; }
+.dashboard-app button.bar-column { border: 0; border-radius: 0; padding: 0; margin: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; min-width: 0; }
+.dashboard-app .bar-column i { background: var(--chart-snapshot-series); }
+.dashboard-app .bar-column[aria-pressed="true"] i { background: var(--chart-snapshot-selected); }
+.dashboard-app :is(.model-error-list li,.regional-bar,.income-group-row)[data-inspected] { box-shadow: inset 3px 0 var(--chart-focus); }
+.regional-observation-note { display: block; line-height: 1.5; overflow-wrap: anywhere; }
+.structural-finding,.evidence-cards,.evidence-cards>* { min-width: 0; overflow-wrap: anywhere; }
+.evidence-cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.bop-selection-line { stroke: var(--text-secondary); stroke-width: 1.5; }
+#forecast .range95, #forecast .key95 { background: var(--chart-interval-95); }
+#forecast .range80, #forecast .key80 { background: var(--chart-interval-80); }
+#forecast .range80 { border: 1px solid var(--chart-interval-border); }
+#forecast .forecast-point { background: var(--chart-forecast-stem); }
+#forecast .forecast-point::before { background: var(--chart-forecast-point); box-shadow: 0 0 0 2px var(--chart-forecast-point); }
+#forecast .keypoint { background: var(--chart-forecast-stem); }
+.category-card.weighted .category-row small { color: var(--text-secondary); }
+.income-group-row.national i { background: var(--text-secondary); }
+#forecast .forecast-chart-tooltip { pointer-events: auto; }
+#forecast button.interval-track { width: 100%; border: 0; padding: 0; margin: 0; background-color: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+@media (max-width: 640px) {
+  .evidence-cards { grid-template-columns: minmax(0,1fr); }
+  .chart-inspection-controls label { align-items: flex-start; }
+  .chart-inspection-controls input[type="range"] { flex-basis: 100%; }
+}
+@media (forced-colors: active) {
+  body .dashboard-app :is(a,button,input,select,summary,[tabindex]):focus-visible { outline-color: Highlight; }
+  .bop-selection-line,.series-trend-guide { stroke: CanvasText; }
+  #forecast .range95 { background: Canvas; border: 2px solid CanvasText; }
+  #forecast .range80 { background: Highlight; border: 1px solid CanvasText; }
+  #forecast .forecast-point { background: CanvasText; }
+}

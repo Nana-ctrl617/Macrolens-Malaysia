@@ -2,15 +2,18 @@ import fallback from "@/data/published/dashboard.json";
 import { normalizeDashboard } from "./dashboard-health";
 import { validateDashboardIntegrity } from "./dashboard-integrity";
 import { createValidatedArtifactCache } from "./validated-artifact-cache";
+import { validateRegionalShape } from "./regional-integrity";
 
 export type InputHealth = { status: "fresh" | "partial" | "fallback"; staleInputs: string[]; note: string };
 
 export type ForecastEvaluation = {
   method: string; horizonMonths: number; origins: string[];
-  windows: Array<{origin:string; trainingStart:string; trainingEnd:string; trainingObservations:number; targets:string[]; models:Array<{name:string; status:string; failureReason:string|null; fallbackModel:string|null; points:Array<{horizon:number;date:string;actual:number;predicted:number;error:number;low80:number;high80:number;low95:number;high95:number;covered80:boolean;covered95:boolean}>}>}>;
-  coverage: Array<{name:string;eligible:boolean;covered80:number;total80:number;coverage80:number|null;covered95:number;total95:number;coverage95:number|null}>;
+  originPolicy?: string;
+  windows: Array<{origin:string; trainingStart:string; trainingEnd:string; trainingObservations:number; targets:string[]; evaluationPhase?:string; models:Array<{name:string; status:string; failureReason:string|null; fallbackModel:string|null; points:Array<{horizon:number;date:string;actual:number;predicted:number;error:number;low80:number;high80:number;low95:number;high95:number;covered80:boolean;covered95:boolean;recalibrated?:{calibrationCount:number;calibrationTargets:string[];low80:number|null;high80:number|null;low95:number|null;high95:number|null}}>}>}>;
+  coverage: Array<{name:string;eligible:boolean;covered80:number;total80:number;coverage80:number|null;covered95:number;total95:number;coverage95:number|null;meanWidth80?:number|null;meanWidth95?:number|null;byHorizon?:Array<{horizon:number;covered80:number;total80:number;coverage80:number|null;covered95:number;total95:number;coverage95:number|null;meanWidth80?:number|null;meanWidth95?:number|null}>}>;
   candidateEligibility: Array<{name:string;eligible:boolean;successfulWindows:number;failedWindows:number;origins:string[];failedOrigins:string[]}>;
   caveats:string[];
+  calibrationExperiment?: {status:string;method:string;warmupOrigins:string[];evaluationOrigins:string[];minimumSampleRule:string;warning:string;byModelHorizon:Array<{model:string;horizon:number;nominalCoverage:number;evaluationPoints:number;uncalibrated:{count:number;coverage:number|null;meanWidth:number|null};recalibrated:{count:number;coverage:number|null;meanWidth:number|null};unavailableCalibrationPoints:number}>};
   scenarioFit?: {status:string;failureReason:string|null};
   finalFit: {requestedModel:string;usedModel:string;fallbackUsed:boolean;failureReason:string|null};
 };
@@ -87,13 +90,15 @@ export type BriefData = {
   disclaimer: string;
 };
 export type RiskItem = {
-  id: string; label: string; group: string; score: number; level: "low" | "moderate" | "high";
+  id: string; label: string; group: string; score: number | null; level: "low" | "moderate" | "high" | "unavailable";
   evidence: string; rule: string; period: string; watch: string;
   dataStatus?: string;
+  unavailableReason?: string | null;
 };
 export type RiskHeatmap = {
-  generatedAt: string; status: "fresh" | "partial"; overallScore: number; overallLevel: "low" | "moderate" | "high";
+  generatedAt: string; status: "fresh" | "partial" | "unavailable"; overallScore: number | null; overallLevel: "low" | "moderate" | "high" | "unavailable";
   summary: string; method: string; items: RiskItem[];
+  availableCount?: number; totalCount?: number; coverageNote?: string;
 };
 export type EconomicSector = {
   id: string; name: string; value: number; share: number; rank: number;
@@ -144,18 +149,18 @@ export type BalancePayments = {
   message: string;
 };
 export type HouseholdPressure = {
-  generatedAt: string; status: "fresh" | "partial"; overallScore: number; overallLevel: "low" | "moderate" | "high";
+  generatedAt: string; status: "fresh" | "partial"; overallScore: number | null; overallLevel: "low" | "moderate" | "high" | "unavailable";
   summary: string; disclaimer: string;
-  components: Array<{ id: string; label: string; score: number; level?: "low" | "moderate" | "high"; evidence: string; watch: string }>;
+  components: Array<{ id: string; label: string; score: number | null; level?: "low" | "moderate" | "high" | "unavailable"; unavailableReason?: string | null; evidence: string; watch: string }>;
   scenarios: Array<{ id?: string; title: string; prompt: string; limit: string }>;
 };
 export type SectorDeepDive = {
   generatedAt: string; status: "fresh" | "partial"; year: number; summary: string;
-  sectors: Array<{ id: string; name: string; share: number; value: number; changeYoY: number | null; growthContribution: number | null; riskLevel: "low" | "moderate" | "high"; exportLink: string; marketLink: string; narrative: string }>;
+  sectors: Array<{ id: string; name: string; share: number; value: number; changeYoY: number | null; growthContribution: number | null; riskLevel: "low" | "moderate" | "high" | "unavailable"; exportLink: string; marketLink: string; narrative: string }>;
 };
 export type RegionalStateRecord = {
-  state: string; date: string; incomeMean: number; incomeMedian: number; expenditureMean: number;
-  incomeMinusExpenditure: number; incomeToExpenditureRatio: number | null; poverty: number; gini: number;
+  state: string; date: string | null; incomeMean: number | null; incomeMedian: number | null; expenditureMean: number | null;
+  incomeMinusExpenditure: number | null; incomeToExpenditureRatio: number | null; poverty: number | null; gini: number | null;
   headlineInflation?: number | null; inflationPeriod?: string | null; unemploymentRate?: number | null;
   labourPeriod?: string | null; realGdp?: number | null; gdpPeriod?: string | null; largestSector?: string | null;
   largestSectorShare?: number | null; sectorShares?: Array<{ id: string; name: string; value: number | null; share: number | null }>;
@@ -170,19 +175,21 @@ export type RegionalIncomeGroup = {
   medianIncome?: number | null; minIncome?: number | null; maxIncome?: number | null; vsNationalMean?: number | null;
 };
 export type RegionalIncomeGroups = {
-  status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string; source: string; sourceUrl: string;
+  status: "fresh" | "stale" | "unavailable"; retrievedAt: string | null; observationPeriod: string | null; source: string; sourceUrl: string;
   stateDatasetUrl: string; nationalDatasetUrl: string; frequency: string; note: string; message: string;
   nationalGroups: RegionalIncomeGroup[];
   stateGroups: Array<{ state: string; date: string; groups: RegionalIncomeGroup[] }>;
 };
 export type RegionalSourceMetadata = {
-  status?: string; retrievedAt?: string; observationPeriod?: string; sourceUrl?: string; datasetUrl?: string;
+  status?: string; retrievedAt?: string | null; observationPeriod?: string | null; sourceUrl?: string; datasetUrl?: string;
   stateDatasetUrl?: string; nationalDatasetUrl?: string; districtSourceUrl?: string; districtDatasetUrl?: string;
   frequency?: string; message?: string;
+  stateSource?: RegionalSourceMetadata; districtSource?: RegionalSourceMetadata; nationalSource?: RegionalSourceMetadata;
   nationalExpenditure?: { status: string; value: number | null; observationPeriod: string; retrievedAt: string | null; sourceUrl: string; page?: number | null; message?: string };
 };
 export type RegionalLens = {
-  status: "fresh" | "partial" | "stale"; generatedAt: string; calculatedAt?: string;
+  status: "fresh" | "partial" | "stale" | "unavailable"; generatedAt: string; calculatedAt?: string;
+  refreshPolicy?: "source-local-v1";
   defaultComparison: { primary: string; secondary: string };
   coverage: { state: string; district: string; nationalOnly: string[] };
   sources?: Record<string, RegionalSourceMetadata>;
@@ -228,10 +235,11 @@ export type DashboardPayload = {
     backtestWindows: number;
     status: string;
     inputHealth?: InputHealth;
-    models: Array<{ name: string; rmse: number | null; mae: number | null; selected: boolean; eligible?: boolean; successfulWindows?: number; failedWindows?: number }>;
+    models: Array<{ name: string; rmse: number | null; mae: number | null; selected: boolean; eligible?: boolean; successfulWindows?: number; failedWindows?: number; metricsByHorizon?:Array<{horizon:number;count:number;mae:number|null;rmse:number|null}> }>;
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
     scenario?: { model: string; lag: string; baseline: Record<"core" | "fx" | "opr", number>; coefficients: Record<"core" | "fx" | "opr", number>; warning: string } | null;
     calculatedAt?: string;
+    vintageLedger?: { version:number; status:"collecting"|"partial"|"waiting"; freshSourceCount:number; requiredSourceCount:number; sourceSnapshotCount:number; revisedSourcePeriodCount:number; prospectiveForecastCount:number; capturedOutcomeCount:number; pendingForecastTargetCount:number; firstSnapshotAt:string|null; lastSnapshotAt:string|null; note:string };
     evaluation?: ForecastEvaluation;
   };
   narratives: { snapshot: string; forecast: string; financial: string };
@@ -305,13 +313,7 @@ function hasDashboardShape(value: unknown): value is DashboardPayload {
     && (candidate.dataHealth?.sources?.length ?? 0) >= 8
     && (candidate.monthlyReport?.sections?.length ?? 0) >= 5
   );
-  const regionalValid = candidate.schemaVersion < 9 || (
-    (candidate.regionalLens?.stateRecords?.length ?? 0) >= 15
-    && (candidate.regionalLens?.districtRecords?.length ?? 0) >= 100
-    && (candidate.regionalLens?.incomeGroups?.nationalGroups?.length ?? 0) >= 3
-    && (candidate.regionalLens?.incomeGroups?.stateGroups?.length ?? 0) >= 15
-    && !!candidate.regionalLens?.coverage?.nationalOnly?.includes("OPR")
-  );
+  const regionalValid = candidate.schemaVersion < 9 || validateRegionalShape(candidate.regionalLens);
   return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 9)
     && structuralValid
     && marketValid

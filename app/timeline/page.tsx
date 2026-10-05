@@ -1,5 +1,4 @@
-import { DashboardPage } from "@/app/page";
+import DashboardShell from "@/app/components/DashboardShell";
+import TimelineView from "@/app/views/TimelineView";
 
-export default function TimelinePage() {
-  return <DashboardPage section="timeline" />;
-}
+export default function TimelinePage() { return <DashboardShell section="timeline"><TimelineView /></DashboardShell>; }

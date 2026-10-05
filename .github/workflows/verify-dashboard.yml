@@ -1,0 +1,57 @@
+name: Verify MacroLens dashboard
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macrolens-verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "11.19.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+      - name: Install locked application dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install pinned pipeline dependencies
+        run: pip install -r pipeline/requirements.txt
+      - name: Install Chromium and operating-system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Validate and test the exact production artifact
+        run: node scripts/release-gate.mjs
+      - name: Preserve release-gate evidence and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macrolens-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/
+            !outputs/.release-gate-key
+            playwright-report/
+            test-results/
+          include-hidden-files: false
+          if-no-files-found: warn
+          retention-days: 14

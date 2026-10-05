@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
+import { viewSource } from './source-owners.mjs';
 
 process.env.DASHBOARD_DATA_URL = "http://127.0.0.1:9/dashboard.json";
 process.env.NEWS_NOW = "2026-07-25T12:00:00Z";
@@ -15,6 +16,30 @@ async function render(path = "/") {
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
+
+function builtViewScripts(name) {
+  const manifest = JSON.parse(readFileSync(new URL('../dist/client/.vite/manifest.json',import.meta.url),'utf8'));
+  const entry = Object.keys(manifest).find(key => key === `app/views/${name}View.tsx` || manifest[key].src === `app/views/${name}View.tsx`);
+  assert.ok(entry, `${name} has its own production client entry`);
+  const seen = new Set();
+  const visit = key => {
+    assert.ok(manifest[key], `Manifest import ${key} exists`);
+    if(seen.has(key))return;
+    seen.add(key);
+    for(const dependency of manifest[key].imports ?? [])visit(dependency);
+  };
+  visit(entry);
+  return [...seen].filter(key=>manifest[key].file.endsWith('.js')).map(key=>readFileSync(new URL(`../dist/client/${manifest[key].file}`,import.meta.url),'utf8')).join('\n');
+}
+
+test('production eager client graphs keep unrelated page implementations out of each route',()=>{
+  const privateMarkers={Snapshot:'snapshot-completion',News:'news-grid',Risk:'risk-table-wrap',Forecast:'forecast-explain-grid',Structure:'structure-subheading',Regional:'regional-hero',Structural:'structural-toolbar'};
+  for(const name of ['Snapshot','Brief','News','Risk','Forecast','Drivers','Structure','External','Bop','Household','Regional','Sectors','Bursa','Decisions','Timeline','Structural','Report','Health','Methodology']){
+    const scripts=builtViewScripts(name);
+    if(privateMarkers[name])assert.ok(scripts.includes(privateMarkers[name]),`${name} retains its own page implementation`);
+    for(const[other,marker]of Object.entries(privateMarkers))if(other!==name)assert.ok(!scripts.includes(marker),`${name} eager graph must not contain ${other} implementation`);
+  }
+});
 
 test("production ships chart-led surfaces and the model-error toggle", async () => {
   const assets = new URL("../dist/client/assets/", import.meta.url);
@@ -122,9 +147,10 @@ test("grouped navigation keeps all direct routes and a labelled mobile menu", as
 });
 
 test("regional presentation preserves data-first order and contained rank lists", () => {
-  const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const page = viewSource('Regional');
   assert.match(page, /import RegionalLensView from ["']@\/app\/components\/RegionalLensView["']/);
-  assert.match(page, /section === "regional" && <RegionalLensView dashboard=\{dashboard\}/);
+  assert.match(page, /<RegionalLensView dashboard=\{dashboard\}/);
+  assert.match(page, /useDashboardData\(/);
   const regional = readFileSync(new URL("../app/components/RegionalLensView.tsx", import.meta.url), "utf8");
   const parts = ['className="regional-meta"', 'className="regional-controls"', 'className="regional-comparison"', 'className="regional-bars"', 'className="income-group-panel"', 'className="regional-lower-grid"', 'className="dashboard-details regional-sources"'];
   const positions = parts.map((part) => regional.indexOf(part));
@@ -198,7 +224,7 @@ test("forecast audit downloads expose the same actuals, models and fitting failu
   assert.equal(audit.usingFallback,true);
   assert.equal(audit.evaluation.finalFit.usedModel,dashboard.forecast.selectedModel);
   const csv = await (await render('/api/forecast-evaluation?format=csv')).text();
-  assert.match(csv,/origin,target_date,horizon_months,model,fit_status,actual,predicted,error_pp/);
+  assert.match(csv,/origin,evaluation_phase,target_date,horizon_months,model,fit_status,actual,predicted,error_pp/);
   assert.equal(csv.trim().split('\n').length,1 + audit.evaluation.windows.length * dashboard.forecast.models.length * 3);
   assert.match(csv,/ARIMAX,failed,,,/);
   assert.equal((await render('/api/forecast-evaluation?format=html')).status,400);
@@ -227,9 +253,7 @@ test("serves regional comparisons as CSV and JSON", async () => {
   const html = await page.text();
   assert.match(html, /Regional Lens/);
   assert.match(html, /How different are Malaysia/);
-  const pageBundle = readdirSync("dist/client/assets").find((file) => /^page-.*\.js$/.test(file));
-  assert.ok(pageBundle);
-  const pageJs = readFileSync(`dist/client/assets/${pageBundle}`, "utf8");
+  const pageJs = builtViewScripts('Regional');
   assert.match(pageJs, /Income distribution/);
   assert.match(pageJs, /B40/);
   assert.match(pageJs, /M40/);

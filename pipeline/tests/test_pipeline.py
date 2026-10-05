@@ -40,7 +40,10 @@ def test_forecast_backtest_uses_complete_identical_origin_windows(monkeypatch):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     result = macrolens.forecast(forecast_fixture())
     evaluation = result["evaluation"]
-    assert len(evaluation["windows"]) == 12
+    assert len(evaluation["windows"]) == 21
+    assert len(evaluation["calibrationExperiment"]["warmupOrigins"]) == 12
+    assert len(evaluation["calibrationExperiment"]["evaluationOrigins"]) == 9
+    assert all(len(score["metricsByHorizon"]) == 3 for score in result["models"])
     assert all(len(fold["targets"]) == 3 for fold in evaluation["windows"])
     assert all(candidate["origins"] == evaluation["origins"] for candidate in evaluation["candidateEligibility"])
     for fold in evaluation["windows"]:
@@ -53,8 +56,8 @@ def test_backtest_coverage_is_measured_from_historical_bounds(monkeypatch):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     _, _, evaluation = macrolens.backtest(forecast_fixture())
     coverage = next(row for row in evaluation["coverage"] if row["name"] == "SARIMA")
-    assert (coverage["covered80"], coverage["total80"]) == (12, 36)
-    assert (coverage["covered95"], coverage["total95"]) == (24, 36)
+    assert (coverage["covered80"], coverage["total80"]) == (21, 63)
+    assert (coverage["covered95"], coverage["total95"]) == (42, 63)
     assert coverage["coverage80"] == pytest.approx(1 / 3, abs=1e-6)
     assert coverage["coverage95"] == pytest.approx(2 / 3, abs=1e-6)
     assert len(coverage["byHorizon"]) == 3
@@ -70,7 +73,7 @@ def test_failed_fit_is_disclosed_and_not_scored_as_candidate(monkeypatch):
     failed = next(score for score in scores if score["name"] == "SARIMA")
     assert failed["eligible"] is False
     assert failed["rmse"] is None and failed["mae"] is None
-    assert failed["failedWindows"] == 12 and failed["fallbackCount"] == 0
+    assert failed["failedWindows"] == 21 and failed["fallbackCount"] == 0
     assert selected != "SARIMA"
     assert all(next(row for row in fold["models"] if row["name"] == "SARIMA")["points"] == [] for fold in evaluation["windows"])
     assert all("RuntimeError" in next(row for row in fold["models"] if row["name"] == "SARIMA")["failureReason"] for fold in evaluation["windows"])
@@ -101,17 +104,63 @@ def test_partially_failed_candidate_is_not_selected_on_easier_successful_folds(m
     scores, selected, evaluation = macrolens.backtest(forecast_fixture())
     sarima = next(row for row in scores if row["name"] == "SARIMA")
     assert sarima["rmse"] is not None
-    assert sarima["successfulWindows"] == 11 and sarima["failedWindows"] == 1
+    assert sarima["successfulWindows"] == 20 and sarima["failedWindows"] == 1
     assert sarima["eligible"] is False and selected != "SARIMA"
     assert all(row["origins"] == evaluation["origins"] for row in evaluation["candidateEligibility"])
 
 
-@pytest.mark.parametrize("count, expected_windows", [(40, 1), (45, 6), (60, 12)])
+@pytest.mark.parametrize("count, expected_windows", [(40, 1), (45, 6), (60, 21), (180, macrolens.BACKTEST_MAX_ORIGINS)])
 def test_backtest_reports_only_available_complete_windows(monkeypatch, count, expected_windows):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     _, _, evaluation = macrolens.backtest(forecast_fixture(count))
     assert len(evaluation["windows"]) == expected_windows
     assert all(len(window["targets"]) == 3 for window in evaluation["windows"])
+
+
+def test_recalibrated_intervals_only_use_pre_origin_errors_and_hold_out_later_origins(monkeypatch):
+    import pandas as pd
+    monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
+    _, _, evaluation = macrolens.backtest(forecast_fixture(100))
+    experiment = evaluation["calibrationExperiment"]
+    assert experiment["status"] == "experimental"
+    assert experiment["warmupOrigins"] == evaluation["origins"][:macrolens.CALIBRATION_WARMUP_ORIGINS]
+    assert experiment["evaluationOrigins"] == evaluation["origins"][macrolens.CALIBRATION_WARMUP_ORIGINS:]
+    assert len(experiment["byModelHorizon"]) == 18
+    for window in evaluation["windows"]:
+        for model in window["models"]:
+            for point in model["points"]:
+                calibrated = point["recalibrated"]
+                assert calibrated["calibrationCount"] == len(calibrated["calibrationTargets"])
+                assert calibrated["calibrationTargets"] == sorted(set(calibrated["calibrationTargets"]))
+                assert all(target < window["origin"] for target in calibrated["calibrationTargets"])
+                if window["evaluationPhase"] == "calibration-warmup":
+                    assert calibrated["low80"] is calibrated["low95"] is None
+                if calibrated["low95"] is not None:
+                    assert calibrated["low95"] <= calibrated["low80"] <= point["predicted"] <= calibrated["high80"] <= calibrated["high95"]
+    first_evaluation = evaluation["windows"][macrolens.CALIBRATION_WARMUP_ORIGINS]
+    point = next(row for row in first_evaluation["models"] if row["name"] == "SARIMA")["points"][0]
+    assert point["recalibrated"]["calibrationCount"] >= 4
+    assert point["recalibrated"]["low80"] is not None
+    assert point["recalibrated"]["low95"] is None
+    assert any(row["recalibrated"]["coverage"] is not None for row in experiment["byModelHorizon"])
+    assert all(row["model"] in {"Seasonal naive", "SARIMA", "ARIMAX"} for row in experiment["byModelHorizon"])
+
+
+def test_policy_rate_uses_last_decision_each_month_then_one_month_lag():
+    import pandas as pd
+    dates = pd.date_range("2025-01-01", periods=8, freq="MS")
+    series = {key: [{"date": date.strftime("%Y-%m-%d"), "value": 2.0} for date in dates] for key in macrolens.SPECS}
+    series["opr"] = [
+        {"date": "2025-01-15", "value": 2.75},
+        {"date": "2025-02-05", "value": 2.50},
+        {"date": "2025-02-20", "value": 2.25},
+        {"date": "2025-04-10", "value": 3.00},
+    ]
+    frame = macrolens.prepare_exog(series, dates)
+    assert frame.loc[pd.Timestamp("2025-02-01"), "opr"] == pytest.approx(2.75)
+    assert frame.loc[pd.Timestamp("2025-03-01"), "opr"] == pytest.approx(2.25)
+    assert frame.loc[pd.Timestamp("2025-04-01"), "opr"] == pytest.approx(2.25)
+    assert frame.loc[pd.Timestamp("2025-05-01"), "opr"] == pytest.approx(3.00)
 
 
 def test_backtest_does_not_invent_target_months_when_calendar_has_gaps(monkeypatch):
@@ -222,10 +271,12 @@ def test_regional_csv_formula_protection_preserves_numeric_negatives(tmp_path, m
     assert next(row for row in rows if row["metric"] == "incomeMinusExpenditure")["value"] == "-250"
 
 
-def test_offline_forecast_recompute_preserves_observations_and_retrieval_metadata(monkeypatch):
+def test_offline_forecast_recompute_preserves_observations_and_retrieval_metadata(monkeypatch, tmp_path):
     import copy
     import json
     previous = json.loads(macrolens.PUBLISHED.read_text(encoding="utf-8"))
+    previous["forecast"].pop("vintageLedger", None)
+    monkeypatch.setattr(macrolens, "VINTAGES", tmp_path / "vintages")
     before = copy.deepcopy(previous)
     forecast = {**copy.deepcopy(previous["forecast"]), "selectedModel": "Seasonal naive", "status": "fresh", "calculationStatus": "fresh"}
     forecast["points"][-1]["value"] = 2.345
@@ -237,6 +288,9 @@ def test_offline_forecast_recompute_preserves_observations_and_retrieval_metadat
         assert result[key] == before[key]
     assert result["forecast"]["calculatedAt"] == "2026-10-05T12:00:00Z"
     assert result["forecast"]["recomputation"]["sourceRefresh"] is False
+    assert result["forecast"]["vintageLedger"]["status"] == "waiting"
+    assert result["forecast"]["vintageLedger"]["sourceSnapshotCount"] == 0
+    assert not (tmp_path / "vintages").exists()
     assert "2.35%" in result["narratives"]["forecast"]
     assert "2.35%" in next(section for section in result["monthlyReport"]["sections"] if section["heading"] == "Forecast")["body"]
 
@@ -347,7 +401,7 @@ def test_total_source_failure_preserves_dashboard_without_claiming_fresh(monkeyp
     def unavailable(*args, **kwargs):
         raise RuntimeError("source unavailable")
 
-    for name in ["fetch_cpi", "fetch_unemployment", "fetch_opr", "fetch_daily_fx", "fetch_mgs", "fetch_klci", "read_csv", "read_catalogue_json", "forecast"]:
+    for name in ["fetch_cpi", "fetch_unemployment", "fetch_opr", "fetch_daily_fx", "fetch_mgs", "fetch_klci", "read_csv", "read_catalogue_json", "get", "forecast"]:
         monkeypatch.setattr(macrolens, name, unavailable)
     monkeypatch.setattr(macrolens, "build_structural_analysis", lambda *args: copy.deepcopy(previous["structuralBreaks"]))
     result = macrolens.build()
@@ -701,6 +755,42 @@ def test_v8_research_builders_are_payload_linked_and_deterministic():
     assert any(entry["category"] == "Structural diagnostics" for entry in timeline["entries"])
     assert health["schemaVersion"] == 8 and len(health["sources"]) >= 4
     assert len(report["sections"]) == 5
+
+
+def test_household_market_pressure_keeps_missing_return_unavailable_and_true_zero_observed():
+    values = {"headline": 1.9, "core": 2.0, "opr": 2.75, "unemployment": 3.1, "fx": 4.4, "mgs": 3.7}
+    series = {key: {"points": sample(80, value=value)} for key, value in values.items()}
+    market = {"status": "fresh", "summary": {"return1Y": None, "latestDate": "2026-01-01"}}
+    risk = {"status": "fresh"}
+    result = macrolens.build_household_pressure(series, market, risk, "2026-01-01T00:00:00Z")
+    wealth = next(item for item in result["components"] if item["id"] == "wealth-risk")
+    assert wealth["score"] is None
+    assert wealth["level"] == "unavailable"
+    assert wealth["unavailableReason"]
+    assert "unavailable" in wealth["evidence"].lower()
+    assert "0.0%" not in wealth["evidence"]
+    assert result["overallScore"] == round(sum(item["score"] for item in result["components"] if item["score"] is not None) / 4, 1)
+    assert result["status"] == "partial"
+
+    market["summary"]["return1Y"] = 0.0
+    zero_result = macrolens.build_household_pressure(series, market, risk, "2026-01-01T00:00:00Z")
+    zero = next(item for item in zero_result["components"] if item["id"] == "wealth-risk")
+    assert zero["score"] == 55
+    assert zero["level"] == "moderate"
+    assert "+0.0%" in zero["evidence"]
+    assert zero_result["status"] == "fresh"
+
+
+def test_sector_deep_dive_does_not_turn_missing_growth_into_zero_or_low_risk():
+    production = macrolens.parse_economic_structure(gdp_structure_fixture(), "2026-01-01T00:00:00Z")
+    latest = production["years"][-1]
+    missing_sectors = [{**sector, "changeYoY": None} for sector in latest["sectors"]]
+    changed_latest = {**latest, "sectors": missing_sectors}
+    growth = {"status": "fresh", "production": {**production, "years": [*production["years"][:-1], changed_latest]}}
+    external = {"summary": {"exportsYoY": None}}
+    result = macrolens.build_sector_deep_dive(growth, {}, external, "2026-01-01T00:00:00Z")
+    assert all(sector["riskLevel"] == "unavailable" for sector in result["sectors"])
+    assert all("comparison is unavailable" in sector["narrative"] for sector in result["sectors"])
 
 
 def test_regional_hies_state_parser_rejects_duplicates(monkeypatch):

@@ -37,6 +37,13 @@ const numeric = (value: unknown): number | null => typeof value === "number" && 
 const text = (value: unknown): string | null => typeof value === "string" && value.trim() ? value : null;
 export const regionalKey = (state: string, district?: string) => district ? normalizeRegionalGeography(state, district).key : state;
 
+export function regionalGdpSource(regional: RegionalLens, level: RegionalLevel): RegionalSourceMetadata | undefined {
+  const sources = regional.sources ?? {};
+  const independent = level === "state" ? sources.gdpState ?? sources.gdp?.stateSource : sources.gdpDistrict ?? sources.gdp?.districtSource;
+  if (independent) return level === "state" ? independent : { ...independent, districtSourceUrl: independent.sourceUrl, districtDatasetUrl: independent.datasetUrl };
+  return sources.gdp;
+}
+
 function observation(value: unknown, unit: string, period: string | null | undefined, source: RegionalSourceMetadata | undefined, sourceLabel: string, cadence: "annual" | "monthly" = "annual", districtGdp = false): RegionalObservation {
   const validated = unit === "sector" || unit === "percentiles" ? text(value) : numeric(value);
   return {
@@ -64,17 +71,18 @@ function indexDistrictRecords<T extends { state: string; district: string }>(rec
 export function buildRegionalRecords(regional: RegionalLens | null | undefined, level: RegionalLevel, options: { includeResidual?: boolean } = {}): RegionalRecord[] {
   if (!regional) return [];
   const sources = regional.sources ?? {};
+  const stateGdp = regionalGdpSource(regional, "state"), districtGdp = regionalGdpSource(regional, "district");
   if (level === "state") return regional.stateRecords.map((state) => {
     const metrics: Record<string, RegionalObservation> = {};
     for (const metric of hiesMetrics) metrics[metric] = observation(state[metric], regionalMetrics[metric].unit, state.date, sources.hiesState, "DOSM state HIES");
     metrics.headlineInflation = observation(state.headlineInflation, "%", state.inflationPeriod ?? sources.cpi?.observationPeriod, sources.cpi, "DOSM state CPI", "monthly");
     metrics.unemploymentRate = observation(state.unemploymentRate, "%", state.labourPeriod ?? sources.labour?.observationPeriod, sources.labour, "DOSM district labour force, aggregated to state");
-    const period = state.gdpPeriod ?? sources.gdp?.observationPeriod;
-    metrics.realGdp = observation(state.realGdp, regionalMetrics.realGdp.unit, period, sources.gdp, "DOSM state real GDP");
-    metrics.largestSector = observation(state.largestSector, "sector", period, sources.gdp, "DOSM state real GDP");
-    metrics.largestSectorShare = observation(state.largestSectorShare, "%", period, sources.gdp, "DOSM state real GDP");
+    const period = state.gdpPeriod ?? stateGdp?.observationPeriod;
+    metrics.realGdp = observation(state.realGdp, regionalMetrics.realGdp.unit, period, stateGdp, "DOSM state real GDP");
+    metrics.largestSector = observation(state.largestSector, "sector", period, stateGdp, "DOSM state real GDP");
+    metrics.largestSectorShare = observation(state.largestSectorShare, "%", period, stateGdp, "DOSM state real GDP");
     const record: RegionalRecord = { key: state.state, level, state: state.state, district: "", label: state.state, metrics, sectorShares: state.sectorShares ?? [] };
-    addSectorMetrics(record, sources.gdp, period, false);
+    addSectorMetrics(record, stateGdp, period, false);
     return record;
   }).sort((a, b) => a.label.localeCompare(b.label));
 
@@ -93,11 +101,11 @@ export function buildRegionalRecords(regional: RegionalLens | null | undefined, 
     metrics.headlineInflation = observation(null, "%", null, undefined, "No official district CPI supplied", "monthly");
     for (const metric of ["unemploymentRate", "participationRate", "employmentPopulationRatio"] as const) metrics[metric] = observation(jobs?.[metric], "%", jobs?.date, sources.labour, "DOSM district labour force");
     metrics.labourForce = observation(jobs?.labourForce, "thousand persons", jobs?.date, sources.labour, "DOSM district labour force");
-    metrics.realGdp = observation(output?.total, regionalMetrics.realGdp.unit, output?.date, sources.gdp, "DOSM district real GDP", "annual", true);
-    metrics.largestSector = observation(output?.largestSector, "sector", output?.date, sources.gdp, "DOSM district real GDP", "annual", true);
-    metrics.largestSectorShare = observation(output?.largestSectorShare, "%", output?.date, sources.gdp, "DOSM district real GDP", "annual", true);
+    metrics.realGdp = observation(output?.total, regionalMetrics.realGdp.unit, output?.date, districtGdp, "DOSM district real GDP", "annual", true);
+    metrics.largestSector = observation(output?.largestSector, "sector", output?.date, districtGdp, "DOSM district real GDP", "annual", true);
+    metrics.largestSectorShare = observation(output?.largestSectorShare, "%", output?.date, districtGdp, "DOSM district real GDP", "annual", true);
     const record: RegionalRecord = { key, level, state: geography.state, district: geography.district, geographyKind: geography.kind, label: `${geography.district}, ${geography.state}`, metrics, sectorShares: output?.sectors ?? [] };
-    addSectorMetrics(record, sources.gdp, output?.date, true);
+    addSectorMetrics(record, districtGdp, output?.date, true);
     return record;
   }).sort((a, b) => a.state.localeCompare(b.state) || a.district.localeCompare(b.district));
 }
@@ -141,7 +149,7 @@ export function regionalExportRows(regional: RegionalLens): RegionalExportRow[] 
   if (groups) {
     const groupSource: RegionalSourceMetadata = { ...groups, datasetUrl: groups.stateDatasetUrl };
     const nationalSource: RegionalSourceMetadata = { ...groups, sourceUrl: groups.nationalDatasetUrl };
-    const addGroups = (level: string, state: string, period: string, records: typeof groups.nationalGroups, source: RegionalSourceMetadata) => {
+    const addGroups = (level: string, state: string, period: string | null, records: typeof groups.nationalGroups, source: RegionalSourceMetadata) => {
       for (const group of records) for (const field of ["meanIncome", "medianIncome", "minIncome", "maxIncome", "vsNationalMean", "percentileRange"] as const) add(level, state, "", `incomeGroup.${group.id}.${field}`, observation(group[field], field === "percentileRange" ? "percentiles" : "RM per household per month", period, source, "DOSM HIES income percentiles"));
     };
     for (const state of groups.stateGroups) addGroups("state_income_group", state.state, state.date, state.groups, groupSource);

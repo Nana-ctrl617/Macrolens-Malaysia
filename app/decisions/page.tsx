@@ -1,5 +1,4 @@
-import { DashboardPage } from "../page";
+import DashboardShell from "@/app/components/DashboardShell";
+import DecisionsView from "@/app/views/DecisionsView";
 
-export default function DecisionsPage() {
-  return <DashboardPage section="decisions" />;
-}
+export default function DecisionsPage() { return <DashboardShell section="decisions"><DecisionsView /></DashboardShell>; }

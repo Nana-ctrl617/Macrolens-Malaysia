@@ -33,6 +33,9 @@ PUBLISHED = ROOT / "data" / "published" / "dashboard.json"
 STRUCTURAL_JSON = ROOT / "data" / "published" / "structural-breaks.json"
 STRUCTURAL_CSV = ROOT / "data" / "published" / "structural-breaks.csv"
 VINTAGES = ROOT / "data" / "vintages"
+VINTAGE_LEDGER = VINTAGES / "ledger-v1"
+BACKTEST_MAX_ORIGINS = 36
+CALIBRATION_WARMUP_ORIGINS = 12
 USER_AGENT = "MacroLens-Malaysia/2.0 (public economics portfolio)"
 BNM_ACCEPT = "application/vnd.BNM.API.v1+json"
 KLCI_URL = "https://query1.finance.yahoo.com/v8/finance/chart/%5EKLSE?range=10y&interval=1d&events=history"
@@ -609,7 +612,20 @@ def _national_survey_value(frame: pd.DataFrame, column: str, period: pd.Timestam
     return _safe_float(matching[column].iloc[0]) if len(matching) == 1 else None
 
 
-def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: dict | None = None) -> dict:
+def _validate_regional_household_values(selected: pd.DataFrame, label: str) -> None:
+    numeric = selected[["income_mean", "income_median", "expenditure_mean", "gini", "poverty"]].to_numpy(dtype=float)
+    if selected["date"].isna().any() or not np.isfinite(numeric).all():
+        raise ValueError(f"{label} HIES source contains missing or non-finite observations")
+    if (selected[["income_mean", "income_median", "expenditure_mean"]] <= 0).any().any():
+        raise ValueError(f"{label} HIES source contains implausible monetary values")
+    if not selected["gini"].between(0, 1).all() or not selected["poverty"].between(0, 100).all():
+        raise ValueError(f"{label} HIES source contains impossible inequality or poverty values")
+    for key in ["state", *(["district"] if "district" in selected.columns else [])]:
+        if not selected[key].map(lambda value: isinstance(value, str) and bool(value.strip())).all():
+            raise ValueError(f"{label} HIES source contains invalid geography names")
+
+
+def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: dict | None = None, national_sources: dict | None = None) -> dict:
     required = {"date", "state", "income_mean", "income_median", "expenditure_mean", "gini", "poverty"}
     if not required.issubset(frame.columns):
         raise ValueError("State HIES source structure changed")
@@ -619,19 +635,22 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: 
         selected[column] = pd.to_numeric(selected[column], errors="raise")
     if selected.empty or selected.duplicated(["date", "state"]).any():
         raise ValueError("State HIES source is empty or duplicated")
-    if (selected[["income_mean", "income_median", "expenditure_mean"]] <= 0).any().any() or (selected["poverty"] < 0).any():
-        raise ValueError("State HIES source contains implausible values")
+    _validate_regional_household_values(selected, "State")
     latest_date = selected["date"].max()
     latest = selected[selected["date"].eq(latest_date)].copy()
     if latest["state"].nunique() < 16:
         raise ValueError("State HIES source has incomplete latest geography coverage")
-    income_national = read_catalogue_json("hh_income")
-    poverty_national = read_catalogue_json("hh_poverty")
-    gini_national = read_catalogue_json("hh_inequality")
+    # Legacy callers may still supply only the survey. The refresh orchestrator
+    # supplies independently validated benchmark artifacts, so a national API
+    # failure never discards a successfully refreshed state survey.
+    if national_sources is None:
+        income_national = read_catalogue_json("hh_income")
+        poverty_national = read_catalogue_json("hh_poverty")
+        gini_national = read_catalogue_json("hh_inequality")
     national_expenditure = national_expenditure or fetch_national_expenditure(latest_date.year, retrieved)
     if national_expenditure.get("observationPeriod") != latest_date.strftime("%Y-%m-%d"):
         national_expenditure = {**national_expenditure, "status": "unavailable", "value": None, "message": "National expenditure survey period does not match the state survey period"}
-    national = {
+    national = _regional_national_values(national_sources, latest_date.strftime("%Y-%m-%d"), national_expenditure) if national_sources is not None else {
         "incomeMean": _national_survey_value(income_national, "income_mean", latest_date),
         "incomeMedian": _national_survey_value(income_national, "income_median", latest_date),
         "poverty": _national_survey_value(poverty_national, "poverty_absolute", latest_date),
@@ -653,12 +672,10 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: 
             "poverty": round(float(row.poverty), 2),
             "gini": round(float(row.gini), 3),
         })
-    kl = next((item for item in records if item["state"] == "W.P. Kuala Lumpur"), records[0])
-    sarawak = next((item for item in records if item["state"] == "Sarawak"), records[0])
     highest_income = max(records, key=lambda item: item["incomeMedian"])
     highest_spend = max(records, key=lambda item: item["expenditureMean"])
     return {
-        "status": _regional_status(national_expenditure),
+        "status": "fresh" if national_sources is not None else _regional_status(national_expenditure),
         "retrievedAt": retrieved,
         "observationPeriod": latest_date.strftime("%Y-%m-%d"),
         "source": "Department of Statistics Malaysia via data.gov.my",
@@ -669,7 +686,6 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: 
         "national": national,
         "nationalExpenditure": national_expenditure,
         "narrative": (
-            f"KL's median household income is above Sarawak's, but its mean household spending is also higher. "
             f"Latest HIES ranks {highest_income['state']} highest for median income and {highest_spend['state']} highest for mean expenditure."
         ),
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
@@ -686,6 +702,7 @@ def parse_hies_district(frame: pd.DataFrame, retrieved: str) -> dict:
         selected[column] = pd.to_numeric(selected[column], errors="raise")
     if selected.empty or selected.duplicated(["date", "state", "district"]).any():
         raise ValueError("District HIES source is empty or duplicated")
+    _validate_regional_household_values(selected, "District")
     latest = selected[selected["date"].eq(selected["date"].max())]
     if len(latest) < 100:
         raise ValueError("District HIES source has insufficient latest coverage")
@@ -783,10 +800,18 @@ def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
     selected = frame[list(required)].copy()
     selected["date"] = pd.to_datetime(selected["date"], errors="raise")
     for column in ["lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"]:
-        selected[column] = pd.to_numeric(selected[column], errors="coerce")
+        selected[column] = pd.to_numeric(selected[column], errors="raise")
     if selected.empty or selected.duplicated(["date", "state", "district"]).any():
         raise ValueError("District labour-force source is empty or duplicated")
+    if selected["date"].isna().any():
+        raise ValueError("District labour-force source has missing observation periods")
+    for column in ["lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"]:
+        values = selected[column].dropna().to_numpy(dtype=float)
+        if not np.isfinite(values).all() or (values < 0).any() or (column in {"p_rate", "u_rate", "ep_ratio"} and (values > 100).any()):
+            raise ValueError("District labour-force source contains impossible observations")
     latest = selected[selected["date"].eq(selected["date"].max())].dropna(subset=["lf", "lf_unemployed", "u_rate"])
+    if latest.empty:
+        raise ValueError("District labour-force source has no usable latest observations")
     district_records = [
         {"state": str(row.state), "district": str(row.district), "date": row.date.strftime("%Y-%m-%d"), "labourForce": round(float(row.lf), 2), "unemploymentRate": round(float(row.u_rate), 2), "participationRate": _safe_float(row.p_rate), "employmentPopulationRatio": _safe_float(row.ep_ratio)}
         for row in latest.sort_values(["state", "district"]).itertuples(index=False)
@@ -828,10 +853,11 @@ def normalize_regional_geography(state: str, district: str) -> dict:
     return {"key": f"{canonical_state}|{canonical_district}", "state": canonical_state, "district": canonical_district, "kind": "residual" if residual else "district"}
 
 
-def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, retrieved: str | None) -> dict:
-    required_state = {"series", "state", "date", "sector", "value"}
-    required_district = {"series", "state", "district", "date", "sector", "value"}
-    if not required_state.issubset(state_frame.columns) or not required_district.issubset(district_frame.columns):
+def parse_regional_gdp_source(frame: pd.DataFrame, retrieved: str | None, *, district: bool = False) -> dict:
+    """Validate one GDP publication independently, including its own period."""
+    keys = ["state", "district"] if district else ["state"]
+    required = {"series", "date", "sector", "value", *keys}
+    if not required.issubset(frame.columns):
         raise ValueError("Regional GDP source structure changed")
     def prepare(frame: pd.DataFrame, keys: list[str]) -> list[dict]:
         selected = frame[frame["series"].eq("abs")].copy()
@@ -879,20 +905,40 @@ def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, 
                         "sectors": sectors, "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"})
             rows.append(row)
         return rows
-    state_rows = prepare(state_frame, ["state"])
-    states = [row for row in state_rows if normalize_regional_geography(row["state"], "")["kind"] != "residual"]
-    state_residuals = [row for row in state_rows if normalize_regional_geography(row["state"], "")["kind"] == "residual"]
-    districts = prepare(district_frame, ["state", "district"])
-    administrative_districts = [row for row in districts if normalize_regional_geography(row["state"], row["district"])["kind"] == "district"]
-    if len(states) < 15 or len(administrative_districts) < 100:
+    rows = prepare(frame, keys)
+    administrative = [row for row in rows if normalize_regional_geography(row["state"], row.get("district", ""))["kind"] != "residual"]
+    residuals = [row for row in rows if normalize_regional_geography(row["state"], row.get("district", ""))["kind"] == "residual"]
+    if len(administrative) < (100 if district else 15):
         raise ValueError("Regional GDP source has insufficient latest coverage")
-    latest_date = max(row["date"] for row in states)
-    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest_date, "sourceUrl": GDP_STATE_REAL_SOURCE_URL, "datasetUrl": GDP_STATE_REAL_URL,
-            "districtSourceUrl": GDP_DISTRICT_REAL_SOURCE_URL, "districtDatasetUrl": GDP_DISTRICT_REAL_URL,
-            "stateRecords": states, "stateResidualRecords": state_residuals, "districtRecords": districts, "administrativeDistrictCount": len(administrative_districts),
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": max(row["date"] for row in administrative),
+            "sourceUrl": GDP_DISTRICT_REAL_SOURCE_URL if district else GDP_STATE_REAL_SOURCE_URL,
+            "datasetUrl": GDP_DISTRICT_REAL_URL if district else GDP_STATE_REAL_URL,
+            "records": rows if district else administrative, "residualRecords": residuals,
+            "administrativeDistrictCount": len(administrative) if district else None,
             "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
             "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
             "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero"}
+
+
+def _regional_source_metadata(source: dict) -> dict:
+    """Metadata aliases do not duplicate full history/record arrays in JSON."""
+    return {key: copy.deepcopy(value) for key, value in source.items() if key not in {"records", "residualRecords", "stateRecords", "districtRecords", "stateResidualRecords", "stateGroups", "nationalGroups"}}
+
+
+def _combine_regional_gdp(state: dict, district: dict) -> dict:
+    return {**_regional_source_metadata(state), "status": _regional_status(state, district),
+            "districtSourceUrl": district.get("sourceUrl", GDP_DISTRICT_REAL_SOURCE_URL),
+            "districtDatasetUrl": district.get("datasetUrl", GDP_DISTRICT_REAL_URL),
+            "stateRecords": state.get("records", []), "stateResidualRecords": state.get("residualRecords", []),
+            "districtRecords": district.get("records", []), "administrativeDistrictCount": district.get("administrativeDistrictCount", 0),
+            "stateSource": _regional_source_metadata(state), "districtSource": _regional_source_metadata(district),
+            "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time"}
+
+
+def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, retrieved: str | None) -> dict:
+    """Compatibility parser for callers with both saved official inputs."""
+    return _combine_regional_gdp(parse_regional_gdp_source(state_frame, retrieved),
+                                 parse_regional_gdp_source(district_frame, retrieved, district=True))
 
 
 def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
@@ -901,7 +947,12 @@ def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
         raise ValueError("State CPI source structure changed")
     selected = frame[list(required)].copy()
     selected["date"] = pd.to_datetime(selected["date"], errors="raise")
-    selected["inflation_yoy"] = pd.to_numeric(selected["inflation_yoy"], errors="coerce")
+    selected["inflation_yoy"] = pd.to_numeric(selected["inflation_yoy"], errors="raise")
+    if selected.empty or selected["date"].isna().any() or selected.duplicated(["date", "state", "division"]).any():
+        raise ValueError("State CPI source has missing or duplicate observations")
+    values = selected["inflation_yoy"].dropna().to_numpy(dtype=float)
+    if not np.isfinite(values).all() or (values < -20).any() or (values > 50).any():
+        raise ValueError("State CPI source contains implausible inflation observations")
     selected = selected[selected["division"].eq("overall")].dropna(subset=["inflation_yoy"])
     latest = selected[selected["date"].eq(selected["date"].max())]
     if latest["state"].nunique() < 16:
@@ -910,104 +961,273 @@ def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
     return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "source": "Department of Statistics Malaysia via data.gov.my", "sourceUrl": CPI_STATE_SOURCE_URL, "records": records, "message": "Latest state headline CPI inflation validated"}
 
 
-def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
+def _regional_has_data(source: dict | None) -> bool:
+    return bool(source and (any(source.get(key) for key in ["records", "stateRecords", "districtRecords", "stateGroups", "nationalGroups"])
+                           or _safe_float(source.get("value")) is not None))
+
+
+def _refresh_regional_source(previous: dict | None, retrieved: str, loader: Callable[[], dict], empty: dict) -> dict:
+    """Fail closed locally; never overwrite this source with an invalid response."""
     try:
-        state_frame = read_csv(HIES_STATE_URL)
-        survey_year = pd.to_datetime(state_frame["date"], errors="raise").max().year
-        previous_national = (previous or {}).get("regionalLens", {}).get("sources", {}).get("hiesState", {}).get("nationalExpenditure")
-        national_expenditure = fetch_national_expenditure(survey_year, retrieved, previous_national)
-        hies_state = parse_hies_state(state_frame, retrieved, national_expenditure)
-        hies_district = parse_hies_district(read_csv(HIES_DISTRICT_URL), retrieved)
-        income_groups = parse_hies_income_groups(read_csv(HIES_STATE_PERCENTILE_URL), read_csv(HIES_NATIONAL_PERCENTILE_URL), retrieved)
-        labour = parse_regional_labour(read_csv(LFS_DISTRICT_URL), retrieved)
-        gdp = parse_regional_gdp(read_csv(GDP_STATE_REAL_URL), read_csv(GDP_DISTRICT_REAL_URL), retrieved)
-        cpi = parse_state_cpi(read_catalogue_json("cpi_state_inflation"), retrieved)
-        for source in [hies_state, hies_district, income_groups, labour, gdp, cpi]:
-            source["lastAttemptAt"] = retrieved
-        records = []
-        labour_by_state = {item["state"]: item for item in labour["stateRecords"]}
-        gdp_by_state = {item["state"]: item for item in gdp["stateRecords"]}
-        cpi_by_state = {item["state"]: item for item in cpi["records"]}
-        national = hies_state["national"]
-        for item in hies_state["records"]:
-            state = item["state"]
-            gdp_item = gdp_by_state.get(state, {})
-            labour_item = labour_by_state.get(state, {})
-            cpi_item = cpi_by_state.get(state, {})
-            records.append({
-                **item,
-                "headlineInflation": cpi_item.get("headlineInflation"),
-                "inflationPeriod": cpi_item.get("date"),
-                "unemploymentRate": labour_item.get("unemploymentRate"),
-                "labourPeriod": labour_item.get("date"),
-                "realGdp": gdp_item.get("total"),
-                "gdpPeriod": gdp_item.get("date"),
-                "largestSector": gdp_item.get("largestSector"),
-                "largestSectorShare": gdp_item.get("largestSectorShare"),
-                "sectorShares": gdp_item.get("sectors", []),
-                "vsNational": {
-                    "incomeMedian": round(item["incomeMedian"] - national["incomeMedian"], 2) if national.get("incomeMedian") is not None else None,
-                    "incomeMean": round(item["incomeMean"] - national["incomeMean"], 2) if national.get("incomeMean") is not None else None,
-                    "poverty": round(item["poverty"] - national["poverty"], 2) if national.get("poverty") is not None else None,
-                    "gini": round(item["gini"] - national["gini"], 3) if national.get("gini") is not None else None,
-                    "expenditureMean": round(item["expenditureMean"] - national["expenditureMean"], 2) if national.get("expenditureMean") is not None else None,
-                },
-            })
-        kl = next((item for item in records if item["state"] == "W.P. Kuala Lumpur"), records[0])
-        sarawak = next((item for item in records if item["state"] == "Sarawak"), records[0])
-        return {
-            "status": _regional_status(hies_state, hies_district, income_groups, labour, gdp, cpi),
-            "generatedAt": retrieved,
-            "defaultComparison": {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"},
-            "coverage": {
-                "state": "State and federal-territory coverage is available for household income, expenditure, poverty, inequality, CPI inflation, labour-force aggregation and real GDP by sector.",
-                "district": "District coverage is available where DOSM publishes district income, expenditure, poverty, inequality, labour-force and real GDP data. CPI is state-level only.",
-                "nationalOnly": ["OPR", "10-year MGS", "USD/MYR", "Bursa Malaysia benchmark", "Balance of payments"],
-            },
-            "sources": {
-                "hiesState": hies_state,
-                "hiesDistrict": hies_district,
-                "incomeGroups": income_groups,
-                "labour": labour,
-                "gdp": gdp,
-                "cpi": cpi,
-            },
-            "stateRecords": records,
-            "districtRecords": hies_district["records"],
-            "districtLabourRecords": labour["districtRecords"],
-            "districtGdpRecords": gdp["districtRecords"],
-            "incomeGroups": income_groups,
-            "summaryCards": [
-                {"label": "KL median income", "value": f"RM {kl['incomeMedian']:,.0f}", "detail": f"RM {kl['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
-                {"label": "Sarawak median income", "value": f"RM {sarawak['incomeMedian']:,.0f}", "detail": f"RM {sarawak['vsNational']['incomeMedian']:+,.0f} vs Malaysia median income of RM {national['incomeMedian']:,.0f}."},
-                {"label": "KL spending pressure", "value": f"RM {kl['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
-                {"label": "Sarawak spending pressure", "value": f"RM {sarawak['expenditureMean']:,.0f}", "detail": "Mean monthly household expenditure in the latest HIES release."},
-            ],
-            "narratives": {
-                "headline": "Regional living-cost pressure is not the same across Malaysia.",
-                "comparison": hies_state["narrative"],
-                "incomeGroups": "B40, M40 and T20 comparisons show whether a high-income state is broad-based or concentrated at the top of the distribution.",
-                "district": "District data can show within-state differences, but coverage is survey-based and not available for every monthly indicator.",
-                "nationalOnly": "Some financial indicators are national by design: BNM policy rates, government-bond yields, the ringgit and Bursa benchmarks do not have separate district values.",
-            },
-            "downloads": [{"label": "Regional CSV", "href": "/api/regional-lens?format=csv"}, {"label": "Regional JSON", "href": "/api/regional-lens?format=json"}],
-            "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice.",
-        }
+        source = loader()
+        if not isinstance(source, dict) or source.get("status") not in {"fresh", "stale", "unavailable"}:
+            raise ValueError("Regional source returned malformed status metadata")
+        if source.get("status") == "fresh" and not _regional_has_data(source):
+            raise ValueError("Regional source returned no validated observations")
+        if source.get("status") == "unavailable":
+            source = {**source, "retrievedAt": None, "observationPeriod": None}
+        return {**source, "lastAttemptAt": retrieved}
     except Exception as error:
-        old = (previous or {}).get("regionalLens")
-        if old and old.get("stateRecords"):
-            retained = copy.deepcopy(old)
-            retained["status"] = "stale"
-            retained["calculationStatus"] = "stale"
-            retained["generatedAt"] = retrieved
-            retained["lastAttemptAt"] = retrieved
-            retained["message"] = f"Using last valid regional data: {type(error).__name__}"
-            for source in retained.get("sources", {}).values():
-                source["status"] = "stale"
-                source["lastAttemptAt"] = retrieved
-                source["message"] = "Regional refresh failed; last validated regional inputs retained"
-            return retained
-        raise
+        reason = f"{type(error).__name__}: source retrieval or validation failed"
+        if _regional_has_data(previous) and previous.get("status") in {"fresh", "stale", "partial"}:
+            return {**copy.deepcopy(previous), "status": "stale", "lastAttemptAt": retrieved,
+                    "failureReason": reason, "message": f"Last valid observations retained; {reason}"}
+        return {**copy.deepcopy(empty), "status": "unavailable", "retrievedAt": None, "observationPeriod": None,
+                "lastAttemptAt": retrieved, "failureReason": reason, "message": f"Unavailable; {reason}; no substitute observations used"}
+
+
+def parse_regional_national_benchmark(frame: pd.DataFrame, retrieved: str, dataset_id: str, fields: dict[str, str]) -> dict:
+    required = {"date", *fields}
+    if frame.empty or not required.issubset(frame.columns):
+        raise ValueError("National household benchmark source structure changed or is empty")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    if selected["date"].isna().any() or selected.duplicated("date").any():
+        raise ValueError("National household benchmark periods are missing or duplicated")
+    for original, field in fields.items():
+        selected[original] = pd.to_numeric(selected[original], errors="raise")
+        values = selected[original].to_numpy(dtype=float)
+        limit = 1 if field == "gini" else 100 if field == "poverty" else 1_000_000
+        if not np.isfinite(values).all() or (values < 0).any() or (values > limit).any():
+            raise ValueError("National household benchmark contains impossible values")
+    records = [{"date": row["date"].strftime("%Y-%m-%d"), **{field: _safe_float(row[original]) for original, field in fields.items()}}
+               for _, row in selected.sort_values("date").iterrows()]
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": records[-1]["date"],
+            "sourceUrl": f"https://data.gov.my/data-catalogue/{dataset_id}", "records": records,
+            "message": "Official national household benchmark validated; comparisons require the same survey period"}
+
+
+def _regional_national_values(sources: dict, period: str | None, expenditure: dict) -> dict:
+    fields = {"incomeMean": "nationalIncome", "incomeMedian": "nationalIncome", "poverty": "nationalPoverty", "gini": "nationalInequality"}
+    result = {}
+    for field, key in fields.items():
+        matching = [row for row in sources.get(key, {}).get("records", []) if row.get("date") == period]
+        result[field] = _safe_float(matching[0].get(field)) if len(matching) == 1 else None
+    result["expenditureMean"] = _safe_float(expenditure.get("value")) if period and expenditure.get("observationPeriod") == period else None
+    return result
+
+
+def parse_regional_percentile_source(frame: pd.DataFrame, retrieved: str, *, state: bool) -> dict:
+    required = {"date", "percentile", "variable", "income", *(["state"] if state else [])}
+    if frame.empty or not required.issubset(frame.columns):
+        raise ValueError("Income percentile source structure changed or is empty")
+    selected = frame[list(required)].copy()
+    selected["date"] = pd.to_datetime(selected["date"], errors="raise")
+    selected["percentile"] = pd.to_numeric(selected["percentile"], errors="raise")
+    selected["income"] = pd.to_numeric(selected["income"], errors="raise")
+    keys = ["date", *(["state"] if state else []), "percentile", "variable"]
+    if selected["date"].isna().any() or selected.duplicated(keys).any():
+        raise ValueError("Income percentile source contains invalid or duplicate rows")
+    if not selected["percentile"].between(1, 100).all() or not selected["percentile"].mod(1).eq(0).all():
+        raise ValueError("Income percentile source has invalid percentile codes")
+    numeric = selected["income"].dropna().to_numpy(dtype=float)
+    if not np.isfinite(numeric).all() or (numeric < 0).any() or not selected["variable"].isin({"mean", "median", "minimum", "maximum"}).all():
+        raise ValueError("Income percentile source has invalid income values or variables")
+    latest = selected[selected["date"].eq(selected["date"].max())]
+    period = latest["date"].max().strftime("%Y-%m-%d")
+    groups = [("b40", "B40", 1, 40), ("m40", "M40", 41, 80), ("t20", "T20", 81, 100)]
+    def aggregate(part):
+        means = part[part["variable"].eq("mean")]
+        if set(means.dropna(subset=["income"])["percentile"]) != set(range(1, 101)):
+            raise ValueError("Income percentile source has incomplete mean-income coverage")
+        return [_income_group_from_percentiles(part, group_id, label, start, end) for group_id, label, start, end in groups]
+    if state:
+        if latest["state"].nunique() < 16:
+            raise ValueError("State income percentile source has incomplete latest geography coverage")
+        records = {"stateGroups": [{"state": str(name), "date": period, "groups": aggregate(part)} for name, part in latest.groupby("state", sort=True)]}
+    else:
+        records = {"nationalGroups": aggregate(latest)}
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": period,
+            "sourceUrl": HIES_STATE_PERCENTILE_SOURCE_URL if state else "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
+            "datasetUrl": HIES_STATE_PERCENTILE_URL if state else HIES_NATIONAL_PERCENTILE_URL,
+            **records, "message": "Official income percentiles validated independently"}
+
+
+def _combine_regional_income_groups(state: dict, national: dict, retrieved: str) -> dict:
+    if state.get("status") != "fresh" or national.get("status") != "fresh":
+        raise ValueError("Both current percentile sources are required for a refreshed income-group comparison")
+    if state.get("observationPeriod") != national.get("observationPeriod"):
+        raise ValueError("State and national percentile survey periods do not match")
+    national_by_id = {item["id"]: item["meanIncome"] for item in national["nationalGroups"]}
+    states = copy.deepcopy(state["stateGroups"])
+    for item in states:
+        for group in item["groups"]:
+            group["vsNationalMean"] = round(group["meanIncome"] - national_by_id[group["id"]], 2)
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": state["observationPeriod"],
+            "source": "Department of Statistics Malaysia via data.gov.my", "sourceUrl": HIES_STATE_PERCENTILE_SOURCE_URL,
+            "stateDatasetUrl": HIES_STATE_PERCENTILE_URL, "nationalDatasetUrl": HIES_NATIONAL_PERCENTILE_URL, "frequency": "Survey years",
+            "stateGroups": states, "nationalGroups": copy.deepcopy(national["nationalGroups"]),
+            "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
+            "message": "State and national income groups refreshed from independently validated, same-period percentile data"}
+
+
+def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
+    old = (previous or {}).get("regionalLens", {})
+    old_sources = old.get("sources", {})
+    sources = {}
+    benchmark_specs = {
+        "nationalIncome": ("hh_income", {"income_mean": "incomeMean", "income_median": "incomeMedian"}),
+        "nationalPoverty": ("hh_poverty", {"poverty_absolute": "poverty"}),
+        "nationalInequality": ("hh_inequality", {"gini": "gini"}),
+    }
+    for key, (dataset_id, fields) in benchmark_specs.items():
+        prior_benchmark = old_sources.get(key)
+        legacy_survey = old_sources.get("hiesState", {})
+        legacy_values = legacy_survey.get("national", {})
+        if prior_benchmark is None and legacy_survey.get("observationPeriod") and all(_safe_float(legacy_values.get(field)) is not None for field in fields.values()):
+            # Version-9 releases originally embedded national benchmarks in
+            # state HIES. Preserve that validated same-period result on upgrade
+            # without claiming a separately measured retrieval clock.
+            prior_benchmark = {"status": legacy_survey.get("status", "stale"),
+                               "retrievedAt": legacy_survey.get("retrievedAt"),
+                               "observationPeriod": legacy_survey["observationPeriod"],
+                               "sourceUrl": f"https://data.gov.my/data-catalogue/{dataset_id}",
+                               "records": [{"date": legacy_survey["observationPeriod"], **{field: legacy_values[field] for field in fields.values()}}],
+                               "retrievalClockBasis": "Shared regional HIES refresh timestamp in the previous payload; not a separately logged benchmark retrieval"}
+        sources[key] = _refresh_regional_source(prior_benchmark, retrieved,
+            lambda dataset_id=dataset_id, fields=fields: parse_regional_national_benchmark(read_catalogue_json(dataset_id), retrieved, dataset_id, fields),
+            {"records": [], "sourceUrl": f"https://data.gov.my/data-catalogue/{dataset_id}"})
+
+    # The report is separate from state HIES. A missing national benchmark must
+    # not stop validated state household records from refreshing.
+    no_expenditure = {"status": "unavailable", "value": None, "observationPeriod": None}
+    hies_state = _refresh_regional_source(old_sources.get("hiesState"), retrieved,
+        lambda: parse_hies_state(read_csv(HIES_STATE_URL), retrieved, no_expenditure, sources),
+        {"records": [], "national": {}, "sourceUrl": HIES_STATE_SOURCE_URL, "datasetUrl": HIES_STATE_URL})
+    sources["hiesState"] = hies_state
+    old_expenditure = old_sources.get("nationalExpenditure") or old_sources.get("hiesState", {}).get("nationalExpenditure")
+    def expenditure_loader():
+        period = hies_state.get("observationPeriod")
+        if not period:
+            raise ValueError("No validated state survey period is available for the national expenditure report")
+        result = fetch_national_expenditure(int(period[:4]), retrieved, old_expenditure)
+        if result.get("status") == "fresh" and (result.get("observationPeriod") != period or _safe_float(result.get("value")) is None):
+            raise ValueError("National expenditure report period or validated value is missing")
+        return result
+    expenditure = _refresh_regional_source(old_expenditure, retrieved, expenditure_loader,
+        {"value": None, "unit": "RM per household per month", "sourceUrl": "https://www.dosm.gov.my/portal-main/release-content/household-expenditure-survey-report"})
+    sources["nationalExpenditure"] = expenditure
+    national = _regional_national_values(sources, hies_state.get("observationPeriod"), expenditure)
+    hies_state["national"] = national
+    hies_state["nationalExpenditure"] = expenditure
+    hies_district = _refresh_regional_source(old_sources.get("hiesDistrict"), retrieved,
+        lambda: parse_hies_district(read_csv(HIES_DISTRICT_URL), retrieved),
+        {"records": [], "sourceUrl": HIES_DISTRICT_SOURCE_URL, "datasetUrl": HIES_DISTRICT_URL})
+    sources["hiesDistrict"] = hies_district
+
+    prior_groups = old_sources.get("incomeGroups") or old.get("incomeGroups")
+    for state, key in [(True, "incomeGroupState"), (False, "incomeGroupNational")]:
+        prior_part = old_sources.get(key)
+        if prior_part is None and prior_groups:
+            array_key = "stateGroups" if state else "nationalGroups"
+            prior_part = {**_regional_source_metadata(prior_groups), array_key: copy.deepcopy(prior_groups.get(array_key, []))}
+        url = HIES_STATE_PERCENTILE_URL if state else HIES_NATIONAL_PERCENTILE_URL
+        sources[key] = _refresh_regional_source(prior_part, retrieved,
+            lambda state=state, url=url: parse_regional_percentile_source(read_csv(url), retrieved, state=state),
+            {"stateGroups" if state else "nationalGroups": [], "datasetUrl": url,
+             "sourceUrl": HIES_STATE_PERCENTILE_SOURCE_URL if state else "https://data.gov.my/data-catalogue/hies_malaysia_percentile"})
+    income_groups = _refresh_regional_source(prior_groups, retrieved,
+        lambda: _combine_regional_income_groups(sources["incomeGroupState"], sources["incomeGroupNational"], retrieved),
+        {"stateGroups": [], "nationalGroups": [], "stateDatasetUrl": HIES_STATE_PERCENTILE_URL,
+         "nationalDatasetUrl": HIES_NATIONAL_PERCENTILE_URL, "sourceUrl": HIES_STATE_PERCENTILE_SOURCE_URL,
+         "note": "Income groups are unavailable until validated state and national percentile inputs have matching survey periods"})
+    sources["incomeGroups"] = income_groups
+
+    labour = _refresh_regional_source(old_sources.get("labour"), retrieved,
+        lambda: parse_regional_labour(read_csv(LFS_DISTRICT_URL), retrieved),
+        {"stateRecords": [], "districtRecords": [], "sourceUrl": LFS_DISTRICT_SOURCE_URL, "datasetUrl": LFS_DISTRICT_URL})
+    sources["labour"] = labour
+    old_gdp = old_sources.get("gdp", {})
+    gdp_parts = {}
+    for district, key in [(False, "gdpState"), (True, "gdpDistrict")]:
+        records_key = "districtRecords" if district else "stateRecords"
+        prior_part = {**copy.deepcopy(old_sources.get(key) or old_gdp.get("districtSource" if district else "stateSource") or _regional_source_metadata(old_gdp)),
+                      "records": copy.deepcopy(old_gdp.get(records_key, [])),
+                      "residualRecords": copy.deepcopy(old_gdp.get("stateResidualRecords", [])) if not district else []}
+        if prior_part["records"]:
+            # Older payloads used the state year for both GDP datasets. Derive
+            # the actual district period from its retained observations.
+            prior_part["observationPeriod"] = max(row["date"] for row in prior_part["records"])
+            prior_part["sourceUrl"] = GDP_DISTRICT_REAL_SOURCE_URL if district else GDP_STATE_REAL_SOURCE_URL
+            prior_part["datasetUrl"] = GDP_DISTRICT_REAL_URL if district else GDP_STATE_REAL_URL
+        url = GDP_DISTRICT_REAL_URL if district else GDP_STATE_REAL_URL
+        part = _refresh_regional_source(prior_part, retrieved,
+            lambda district=district, url=url: parse_regional_gdp_source(read_csv(url), retrieved, district=district),
+            {"records": [], "residualRecords": [], "sourceUrl": GDP_DISTRICT_REAL_SOURCE_URL if district else GDP_STATE_REAL_SOURCE_URL, "datasetUrl": url})
+        gdp_parts[key] = part
+        sources[key] = _regional_source_metadata(part)
+    gdp = _combine_regional_gdp(gdp_parts["gdpState"], gdp_parts["gdpDistrict"])
+    sources["gdp"] = gdp
+    cpi = _refresh_regional_source(old_sources.get("cpi"), retrieved,
+        lambda: parse_state_cpi(read_catalogue_json("cpi_state_inflation"), retrieved),
+        {"records": [], "sourceUrl": CPI_STATE_SOURCE_URL})
+    sources["cpi"] = cpi
+
+    indexes = [{item["state"]: item for item in part.get(field, [])} for part, field in
+               [(hies_state, "records"), (labour, "stateRecords"), (gdp, "stateRecords"), (cpi, "records")]]
+    hies_index, labour_index, gdp_index, cpi_index = indexes
+    states = sorted(set().union(*(set(index) for index in indexes), {row["state"] for row in sources["incomeGroupState"].get("stateGroups", [])}))
+    records = []
+    household_fields = ["incomeMean", "incomeMedian", "expenditureMean", "incomeMinusExpenditure", "incomeToExpenditureRatio", "poverty", "gini"]
+    for state in states:
+        survey, jobs, output, prices = [index.get(state, {}) for index in indexes]
+        comparisons = {field: round(survey[field] - national[field], 3 if field == "gini" else 2)
+                       if _safe_float(survey.get(field)) is not None and _safe_float(national.get(field)) is not None else None
+                       for field in ["incomeMedian", "incomeMean", "poverty", "gini", "expenditureMean"]}
+        records.append({"state": state, "date": survey.get("date"), **{field: survey.get(field) for field in household_fields},
+                        "headlineInflation": prices.get("headlineInflation"), "inflationPeriod": prices.get("date"),
+                        "unemploymentRate": jobs.get("unemploymentRate"), "labourPeriod": jobs.get("date"),
+                        "realGdp": output.get("total"), "gdpPeriod": output.get("date"), "largestSector": output.get("largestSector"),
+                        "largestSectorShare": output.get("largestSectorShare"), "sectorShares": output.get("sectors", []), "vsNational": comparisons})
+    by_state = {row["state"]: row for row in records}
+    summary_cards = []
+    for state, short in [("W.P. Kuala Lumpur", "KL"), ("Sarawak", "Sarawak")]:
+        row = by_state.get(state, {})
+        income = _safe_float(row.get("incomeMedian"))
+        gap = row.get("vsNational", {}).get("incomeMedian")
+        benchmark = national.get("incomeMedian")
+        detail = f"RM {gap:+,.0f} vs Malaysia median income of RM {benchmark:,.0f}." if gap is not None and benchmark is not None else "Same-period national income comparison is unavailable; no substitute benchmark is used."
+        summary_cards.append({"label": f"{short} median income", "value": f"RM {income:,.0f}" if income is not None else "Unavailable", "detail": detail})
+    for state, short in [("W.P. Kuala Lumpur", "KL"), ("Sarawak", "Sarawak")]:
+        spending = _safe_float(by_state.get(state, {}).get("expenditureMean"))
+        summary_cards.append({"label": f"{short} spending pressure", "value": f"RM {spending:,.0f}" if spending is not None else "Unavailable",
+                              "detail": "Mean monthly household expenditure in the latest validated HIES release." if spending is not None else "State household expenditure is unavailable; no value from another geography is substituted."})
+    kl, sarawak = by_state.get("W.P. Kuala Lumpur", {}), by_state.get("Sarawak", {})
+    if all(_safe_float(row.get(field)) is not None for row in [kl, sarawak] for field in ["incomeMedian", "expenditureMean"]):
+        income_direction = "higher than" if kl["incomeMedian"] > sarawak["incomeMedian"] else "lower than" if kl["incomeMedian"] < sarawak["incomeMedian"] else "the same as"
+        spending_direction = "higher than" if kl["expenditureMean"] > sarawak["expenditureMean"] else "lower than" if kl["expenditureMean"] < sarawak["expenditureMean"] else "the same as"
+        comparison = f"KL's median household income is {income_direction} Sarawak's; its mean household spending is {spending_direction} Sarawak's. Compare each source period and freshness before drawing conclusions."
+    else:
+        comparison = "The KL–Sarawak household comparison is unavailable until both states have validated survey observations. Other available regional datasets remain independently usable."
+    independent = [sources[key] for key in [*benchmark_specs, "nationalExpenditure", "hiesState", "hiesDistrict", "incomeGroupState", "incomeGroupNational", "labour", "gdpState", "gdpDistrict", "cpi"]]
+    fresh_count = sum(part.get("status") == "fresh" for part in independent)
+    status = "fresh" if fresh_count == len(independent) and income_groups.get("status") == "fresh" else "partial" if fresh_count else "stale" if records or any(_regional_has_data(part) for part in independent) else "unavailable"
+    return {"refreshPolicy": "source-local-v1", "status": status, "generatedAt": retrieved, "lastAttemptAt": retrieved,
+            "calculationStatus": status if status in {"stale", "unavailable"} else "fresh",
+            "message": f"{fresh_count} of {len(independent)} independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
+            "defaultComparison": {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"},
+            "coverage": {"state": "State and federal-territory availability differs by source; inspect each metric's source status and observation period.",
+                         "district": "District coverage is available where DOSM publishes district income, expenditure, poverty, inequality, labour-force and real GDP data. CPI is state-level only.",
+                         "nationalOnly": ["OPR", "10-year MGS", "USD/MYR", "Bursa Malaysia benchmark", "Balance of payments"]},
+            "sources": sources, "stateRecords": records, "districtRecords": hies_district.get("records", []),
+            "districtLabourRecords": labour.get("districtRecords", []), "districtGdpRecords": gdp.get("districtRecords", []), "incomeGroups": income_groups,
+            "summaryCards": summary_cards,
+            "narratives": {"headline": "Regional living-cost pressure is not the same across Malaysia.", "comparison": comparison,
+                           "incomeGroups": "B40, M40 and T20 comparisons describe household income distribution. Both state and national percentile datasets must be validated for a same-period comparison.",
+                           "district": "District data can show within-state differences, but coverage is survey-based and not available for every monthly indicator.",
+                           "nationalOnly": "Some financial indicators are national by design: BNM policy rates, government-bond yields, the ringgit and Bursa benchmarks do not have separate district values."},
+            "downloads": [{"label": "Regional CSV", "href": "/api/regional-lens?format=csv"}, {"label": "Regional JSON", "href": "/api/regional-lens?format=json"}],
+            "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice."}
 
 
 def parse_trade_headline(frame: pd.DataFrame, retrieved: str) -> dict:
@@ -1192,21 +1412,27 @@ def build_household_pressure(series: dict[str, dict], market: dict, risk: dict, 
     opr = float(series["opr"]["points"][-1]["value"])
     unemployment = float(series["unemployment"]["points"][-1]["value"])
     fx = float(series["fx"]["points"][-1]["value"])
-    market_return = float(market["summary"].get("return1Y") or 0)
+    market_return = _risk_number(market.get("summary", {}).get("return1Y"))
+    available_return = market_return is not None
+    market_level = _heat_level(35 if market_return is not None and market_return > 5 else 55 if market_return is not None and market_return > -5 else 80) if available_return else "unavailable"
     components = [
         {"id": "cost-of-living", "label": "Cost of living", "score": 30 if headline < 2 else 55 if headline < 3 else 80, "evidence": f"Headline inflation is {headline:.1f}% and core inflation is {core:.1f}%.", "watch": "Track your own food, transport, rent and utilities basket rather than relying only on national CPI."},
         {"id": "debt-service", "label": "Debt service", "score": 35 if opr < 2.5 else 60 if opr < 3.25 else 80, "evidence": f"The OPR is {opr:.2f}%, which anchors many floating-rate loan discussions.", "watch": "Stress-test mortgage, hire-purchase and personal-loan instalments before taking new commitments."},
         {"id": "job-income", "label": "Job and income", "score": 25 if unemployment < 4 else 55 if unemployment < 5 else 80, "evidence": f"Unemployment is {unemployment:.1f}%.", "watch": "National unemployment can hide weaker hiring in specific sectors or regions."},
         {"id": "imported-spending", "label": "Imported spending", "score": 30 if fx < 4.2 else 55 if fx < 4.6 else 80, "evidence": f"USD/MYR is RM {fx:.4f}.", "watch": "Foreign-currency subscriptions, travel, imported goods and overseas education can move differently from local CPI."},
-        {"id": "wealth-risk", "label": "Market wealth", "score": 35 if market_return > 5 else 55 if market_return > -5 else 80, "evidence": f"KLCI one-year price return is {market_return:+.1f}%.", "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."},
+        {"id": "wealth-risk", "label": "Market wealth", "score": (35 if market_return > 5 else 55 if market_return > -5 else 80) if available_return else None, "level": market_level, "unavailableReason": None if available_return else "A valid one-year KLCI price return is not available, so this signal is excluded from the household mean.", "evidence": f"KLCI one-year price return is {market_return:+.1f}%." if available_return else "KLCI one-year price return is unavailable; no market-wealth pressure score is assigned.", "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."},
     ]
-    average = round(sum(item["score"] for item in components) / len(components), 1)
+    available_scores = [item["score"] for item in components if item["score"] is not None]
+    average = round(sum(available_scores) / len(available_scores), 1) if available_scores else None
+    summary = (f"Household pressure is {_heat_level(int(average))}, led by {max((item for item in components if item['score'] is not None), key=lambda item: item['score'])['label'].lower()} in the current rule-based screen." if average is not None else "The household pressure summary is unavailable because none of its component scores can be calculated.")
+    if not available_return:
+        summary += " The market-wealth signal is unavailable because a valid one-year KLCI return is missing."
     return {
         "generatedAt": generated_at,
-        "status": risk.get("status", "partial"),
+        "status": "partial" if not available_return else risk.get("status", "partial"),
         "overallScore": average,
-        "overallLevel": _heat_level(int(average)),
-        "summary": f"Household pressure is {_heat_level(int(average))}, led by {max(components, key=lambda item: item['score'])['label'].lower()} in the current rule-based screen.",
+        "overallLevel": _heat_level(int(average)) if average is not None else "unavailable",
+        "summary": summary,
         "components": components,
         "scenarios": [
             {"title": "Variable-rate borrower", "prompt": "If policy-rate pressure remains elevated, check whether repayments still fit after a 50-100 bp stress test.", "limit": "Actual loan pricing depends on lender, tenure, collateral and borrower profile."},
@@ -1225,7 +1451,11 @@ def build_sector_deep_dive(growth_drivers: dict, market: dict, external: dict, g
     for sector in latest_year.get("sectors", []):
         export_link = "high" if sector["id"] in {"p2", "p3", "p1"} else "moderate" if sector["id"] == "p5" else "low"
         market_link = "direct and indirect" if sector["id"] in {"p3", "p5", "p2"} else "mostly indirect"
-        risk_score = 35 + (10 if export_link == "high" and external["summary"].get("exportsYoY", 0) < 0 else 0) + (10 if (sector.get("changeYoY") or 0) < 0 else 0)
+        exports_yoy = _risk_number(external.get("summary", {}).get("exportsYoY"))
+        sector_change = _risk_number(sector.get("changeYoY"))
+        risk_available = sector_change is not None and (export_link != "high" or exports_yoy is not None)
+        risk_score = 35 + (10 if export_link == "high" and exports_yoy < 0 else 0) + (10 if sector_change < 0 else 0) if risk_available else None
+        change_text = f"Its current-price output change is {sector_change:+.1f}%." if sector_change is not None else "Its prior-year current-price output comparison is unavailable."
         sectors.append({
             "id": sector["id"],
             "name": sector["name"],
@@ -1235,8 +1465,8 @@ def build_sector_deep_dive(growth_drivers: dict, market: dict, external: dict, g
             "growthContribution": sector.get("growthContribution"),
             "exportLink": export_link,
             "marketLink": market_link,
-            "riskLevel": _heat_level(risk_score),
-            "narrative": f"{sector['name']} accounts for {sector['share']:.1f}% of nominal GDP in {latest_year.get('year')}. Its current-price output change is {sector.get('changeYoY') if sector.get('changeYoY') is not None else 0:+.1f}% where prior-year comparison is available.",
+            "riskLevel": _heat_level(risk_score) if risk_score is not None else "unavailable",
+            "narrative": f"{sector['name']} accounts for {sector['share']:.1f}% of nominal GDP in {latest_year.get('year')}. {change_text}",
         })
     return {
         "generatedAt": generated_at,
@@ -1266,7 +1496,9 @@ def build_macro_timeline(series: dict[str, dict], structural: dict, market: dict
                     "type": "statistical-break",
                     "evidence": f"Adjusted Chow p {candidate['chow']['pHolm']:.3f}; HAC p {candidate['hacWald']['pValue']:.3f}.",
                 })
-    entries.append({"date": market["summary"]["latestDate"], "title": "Latest Bursa KLCI observation", "category": "Market data", "source": market["benchmark"]["source"], "sourceUrl": market["benchmark"]["sourceUrl"], "type": "latest-observation", "evidence": f"KLCI one-year price return {market['summary'].get('return1Y') or 0:+.1f}%."})
+    market_return = _risk_number(market["summary"].get("return1Y"))
+    market_return_text = f"{market_return:+.1f}%" if market_return is not None else "Unavailable (insufficient valid one-year data)"
+    entries.append({"date": market["summary"]["latestDate"], "title": "Latest Bursa KLCI observation", "category": "Market data", "source": market["benchmark"]["source"], "sourceUrl": market["benchmark"]["sourceUrl"], "type": "latest-observation", "evidence": f"KLCI one-year price return: {market_return_text}."})
     entries.sort(key=lambda item: item["date"])
     return {
         "generatedAt": generated_at,
@@ -1438,6 +1670,13 @@ def validate_points(key: str, points: list[dict]) -> list[dict]:
 def monthly(points: list[dict]) -> pd.Series:
     series = pd.Series({pd.Timestamp(point["date"]): point["value"] for point in points}, dtype=float).sort_index()
     return series.resample("MS").mean().dropna()
+
+
+def monthly_last(points: list[dict], forward_fill: bool = False) -> pd.Series:
+    """Use the last dated observation in each month (needed for policy rates)."""
+    series = pd.Series({pd.Timestamp(point["date"]): point["value"] for point in points}, dtype=float).sort_index()
+    result = series.resample("MS").last()
+    return result.ffill().dropna() if forward_fill else result.dropna()
 
 
 def structural_monthly(key: str, points: list[dict]) -> pd.Series:
@@ -1714,9 +1953,10 @@ def build_structural_analysis(series: dict[str, dict], previous: dict | None, ca
 def prepare_exog(series: dict[str, list[dict]], index: pd.DatetimeIndex) -> pd.DataFrame:
     output = pd.DataFrame(index=index)
     output["core"] = monthly(series["core"]).reindex(index)
-    for key in ("unemployment", "fx", "opr", "mgs"):
+    for key in ("unemployment", "fx", "mgs"):
         values = monthly(series[key]).reindex(index).ffill().shift(1)
         output[key] = values
+    output["opr"] = monthly_last(series["opr"], forward_fill=True).reindex(index).ffill().shift(1)
     return output.ffill().dropna()
 
 
@@ -1769,16 +2009,104 @@ def _forecast_arrays(name: str, y: pd.Series, exog: pd.DataFrame | None, future_
     return central, intervals, model
 
 
+def _absolute_error_quantile(errors: list[float], coverage: float) -> float | None:
+    """Finite-sample absolute-error order statistic; return None if unsupported."""
+    ordered = sorted(float(error) for error in errors)
+    if not ordered or any(not math.isfinite(error) for error in ordered):
+        return None
+    rank = math.ceil((len(ordered) + 1) * coverage)
+    if rank > len(ordered):
+        return None
+    return ordered[rank - 1]
+
+
+def _apply_prequential_recalibration(windows: list[dict]) -> dict:
+    """Add experimental ranges using same-model/horizon errors known before each origin."""
+    origins = [window["origin"] for window in windows]
+    warmup = origins[:CALIBRATION_WARMUP_ORIGINS]
+    evaluation = origins[CALIBRATION_WARMUP_ORIGINS:]
+    for index, window in enumerate(windows):
+        window["evaluationPhase"] = "calibration-warmup" if index < CALIBRATION_WARMUP_ORIGINS else "held-out-evaluation"
+        origin = window["origin"]
+        for model in window["models"]:
+            for point in model["points"]:
+                historical = []
+                if index >= CALIBRATION_WARMUP_ORIGINS:
+                    for prior in windows[:index]:
+                        if prior["origin"] >= origin:
+                            continue
+                        previous_model = next((row for row in prior["models"] if row["name"] == model["name"] and row["status"] == "success"), None)
+                        if not previous_model:
+                            continue
+                        for previous_point in previous_model["points"]:
+                            if previous_point["horizon"] == point["horizon"] and previous_point["date"] < origin:
+                                historical.append(previous_point)
+                targets = [item["date"] for item in historical]
+                errors = [abs(item["error"]) for item in historical]
+                q80 = _absolute_error_quantile(errors, 0.80)
+                q95 = _absolute_error_quantile(errors, 0.95)
+                predicted = float(point["predicted"])
+                if q95 is not None:
+                    q95 = max(q95, q80 if q80 is not None else 0.0)
+                point["recalibrated"] = {
+                    "calibrationCount": len(historical),
+                    "calibrationTargets": targets,
+                    "low80": round(predicted - q80, 6) if q80 is not None else None,
+                    "high80": round(predicted + q80, 6) if q80 is not None else None,
+                    "low95": round(predicted - q95, 6) if q95 is not None else None,
+                    "high95": round(predicted + q95, 6) if q95 is not None else None,
+                }
+    comparison = []
+    for name in ("Seasonal naive", "SARIMA", "ARIMAX"):
+        for horizon in (1, 2, 3):
+            pool = []
+            for window in windows[CALIBRATION_WARMUP_ORIGINS:]:
+                row = next((model for model in window["models"] if model["name"] == name and model["status"] == "success"), None)
+                if row:
+                    pool.extend(point for point in row["points"] if point["horizon"] == horizon)
+            for level in (80, 95):
+                low_key, high_key = (f"low{level}", f"high{level}")
+                raw = [point for point in pool if point.get(low_key) is not None and point.get(high_key) is not None]
+                adjusted = [point for point in pool if point["recalibrated"].get(low_key) is not None and point["recalibrated"].get(high_key) is not None]
+                def interval_stats(points: list[dict], lower: Callable[[dict], float], upper: Callable[[dict], float]) -> dict:
+                    count = len(points)
+                    return {
+                        "count": count,
+                        "coverage": round(sum(lower(point) <= point["actual"] <= upper(point) for point in points) / count, 6) if count else None,
+                        "meanWidth": round(sum(upper(point) - lower(point) for point in points) / count, 6) if count else None,
+                    }
+                comparison.append({
+                    "model": name,
+                    "horizon": horizon,
+                    "nominalCoverage": level,
+                    "evaluationPoints": len(pool),
+                    "uncalibrated": interval_stats(raw, lambda point: point[low_key], lambda point: point[high_key]),
+                    "recalibrated": interval_stats(adjusted, lambda point: point["recalibrated"][low_key], lambda point: point["recalibrated"][high_key]),
+                    "unavailableCalibrationPoints": len(pool) - len(adjusted),
+                })
+    return {
+        "status": "experimental" if evaluation else "insufficient-evaluation-history",
+        "method": "Rolling absolute forecast-error quantiles by model and horizon; each held-out origin uses only targets observed strictly before that origin.",
+        "warmupOrigins": warmup,
+        "evaluationOrigins": evaluation,
+        "minimumSampleRule": "Finite-sample order statistic at rank ceil((n+1) × nominal coverage); range unavailable when the rank exceeds the number of prior errors. This requires at least 4 prior errors for 80% and 19 for 95%.",
+        "byModelHorizon": comparison,
+        "warning": "Experimental comparison only. Rolling forecast errors are serially dependent and overlapping, so these ranges do not have a distribution-free or guaranteed coverage claim. They do not change the published forecast intervals or model selection.",
+    }
+
+
 def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
     y_full = monthly(series["headline"])
     exog_full = prepare_exog(series, y_full.index)
     common = y_full.index.intersection(exog_full.index)
     y_full, exog_full = y_full.loc[common], exog_full.loc[common]
     names = ["Seasonal naive", "SARIMA", "ARIMAX"]
-    # Last origin must leave all three observed targets; retain at most 12 folds.
-    origins = [position for position in range(35, len(y_full) - 3)
-               if y_full.index[position + 1:position + 4].equals(
-                   pd.date_range(y_full.index[position] + pd.offsets.MonthBegin(), periods=3, freq="MS"))][-12:]
+    # Last origin must leave all three observed targets. Retain a documented
+    # reproducible recent cap: 36 origins, rather than the previous 12.
+    eligible_origins = [position for position in range(35, len(y_full) - 3)
+                        if y_full.index[position + 1:position + 4].equals(
+                            pd.date_range(y_full.index[position] + pd.offsets.MonthBegin(), periods=3, freq="MS"))]
+    origins = eligible_origins[-BACKTEST_MAX_ORIGINS:]
     if not origins:
         raise ValueError("At least 36 training months and three complete target months are required")
     windows = []
@@ -1809,6 +2137,7 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
                 failures[name].append(origin_date)
             fold["models"].append(row)
         windows.append(fold)
+    calibration_experiment = _apply_prequential_recalibration(windows)
     scores = []
     origin_dates = [fold["origin"] for fold in windows]
     eligibility = []
@@ -1818,11 +2147,22 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
         eligible = not failures[name] and len(points) == 3 * len(windows)
         actual = [point["actual"] for point in points]
         predicted = [point["predicted"] for point in points]
+        performance_by_horizon = []
+        for horizon in (1, 2, 3):
+            horizon_points = [point for point in points if point["horizon"] == horizon]
+            errors = [point["error"] for point in horizon_points]
+            performance_by_horizon.append({
+                "horizon": horizon,
+                "count": len(errors),
+                "mae": round(float(mean_absolute_error([point["actual"] for point in horizon_points], [point["predicted"] for point in horizon_points])), 4) if errors else None,
+                "rmse": round(float(mean_squared_error([point["actual"] for point in horizon_points], [point["predicted"] for point in horizon_points]) ** 0.5), 4) if errors else None,
+            })
         scores.append({"name": name,
                        "rmse": round(float(mean_squared_error(actual, predicted) ** 0.5), 4) if points else None,
                        "mae": round(float(mean_absolute_error(actual, predicted)), 4) if points else None,
                        "selected": False, "eligible": eligible, "successfulWindows": len(windows) - len(failures[name]),
                        "failedWindows": len(failures[name]), "fallbackCount": 0,
+                       "metricsByHorizon": performance_by_horizon,
                        "scoreBasis": "Identical complete three-month windows" if eligible else "Successful fits only; not eligible for selection"})
         eligibility.append({"name": name, "eligible": eligible, "successfulWindows": len(windows) - len(failures[name]),
                             "failedWindows": len(failures[name]), "origins": origin_dates, "failedOrigins": failures[name]})
@@ -1830,7 +2170,9 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
             numerator80 = sum(point["covered80"] for point in items)
             numerator95 = sum(point["covered95"] for point in items)
             return {"covered80": numerator80, "total80": len(items), "coverage80": round(numerator80 / len(items), 6) if items else None,
-                    "covered95": numerator95, "total95": len(items), "coverage95": round(numerator95 / len(items), 6) if items else None}
+                    "covered95": numerator95, "total95": len(items), "coverage95": round(numerator95 / len(items), 6) if items else None,
+                    "meanWidth80": round(float(np.mean([point["high80"] - point["low80"] for point in items])), 6) if items else None,
+                    "meanWidth95": round(float(np.mean([point["high95"] - point["low95"] for point in items])), 6) if items else None}
         coverage.append({"name": name, "eligible": eligible, **measured(points),
                          "byHorizon": [{"horizon": horizon, **measured([point for point in points if point["horizon"] == horizon])} for horizon in (1, 2, 3)]})
     eligible_scores = [score for score in scores if score["eligible"]]
@@ -1841,7 +2183,9 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
         score["selected"] = score["name"] == selected
     evaluation = {
         "method": "Pseudo-real-time rolling-origin evaluation", "horizonMonths": 3, "origins": origin_dates,
+        "originPolicy": f"All eligible monthly origins in the latest {BACKTEST_MAX_ORIGINS} folds; minimum 36 training observations and three consecutive observed target months.",
         "windows": windows, "candidateEligibility": eligibility, "coverage": coverage,
+        "calibrationExperiment": calibration_experiment,
         "fallbackCount": 0, "errorDefinition": "predicted minus actual, percentage points",
         "eligibilityRule": "Every candidate attempts the same origins. Selection requires successful fits and all three targets at every origin; failed fits are not replaced or scored as that candidate.",
         "caveats": [
@@ -2019,7 +2363,14 @@ def finalize_data_trust(payload: dict) -> dict:
     attach(payload.get("cpiDecomposition", {}), {key: statuses.get(key, "unavailable") for key in ["headline", "core"]})
     statuses["forecast"] = payload.get("forecast", {}).get("status", "unavailable")
     risk_inputs = {**macro, **market_inputs}
-    attach(payload.get("riskHeatmap", {}), risk_inputs)
+    risk_heatmap = payload.get("riskHeatmap", {})
+    for risk_item in risk_heatmap.get("items", []):
+        if risk_item.get("score") is None or risk_item.get("level") == "unavailable":
+            risk_item["dataStatus"] = "unavailable"
+            continue
+        source_key = {"bursa": "market", "growth": "growthDrivers", "trade": "externalSector"}.get(risk_item["id"], risk_item["id"])
+        risk_item["dataStatus"] = risk_inputs.get(source_key, risk_item.get("dataStatus", "unavailable"))
+    attach(risk_heatmap, risk_inputs)
     statuses["riskHeatmap"] = payload.get("riskHeatmap", {}).get("status", "unavailable")
     attach(payload.get("latestBrief", {}), {**risk_inputs, "forecast": statuses["forecast"]})
     attach(payload.get("householdPressure", {}), {**macro, "market": statuses["market"], "riskHeatmap": statuses["riskHeatmap"]})
@@ -2055,15 +2406,56 @@ def narrative(series: dict[str, dict], forecast_data: dict) -> dict:
     }
 
 
-def _series_change(series: dict, months: int) -> float | None:
-    points = series["points"]
-    if len(points) <= months:
+def _risk_number(value: object) -> float | None:
+    """Accept actual finite measurements, including zero, but not booleans."""
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, (int, float, np.number)):
         return None
-    return round(float(points[-1]["value"]) - float(points[-1 - months]["value"]), 4)
+    try:
+        number = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
 
 
-def _series_percentile(series: dict) -> float:
-    values = [float(point["value"]) for point in series["points"]]
+def _risk_latest(series: dict) -> tuple[float | None, str]:
+    points = series.get("points", [])
+    point = points[-1] if points else {}
+    return _risk_number(point.get("value")), point.get("date", "")
+
+
+def _series_change(series: dict, months: int) -> float | None:
+    """Use a calendar-month reference, not row counts for daily market series.
+
+    The final trading observation on/before the reference date is acceptable
+    only within that reference month. A missing month is not a zero change.
+    """
+    points = series.get("points", [])
+    if not points or months < 1:
+        return None
+    latest_value = _risk_number(points[-1].get("value"))
+    if latest_value is None:
+        return None
+    try:
+        latest_date = pd.Timestamp(points[-1]["date"])
+        if pd.isna(latest_date):
+            return None
+        reference_date = latest_date - pd.DateOffset(months=months)
+        candidates = [(pd.Timestamp(point["date"]), point.get("value")) for point in points]
+        candidates = [(date, value) for date, value in candidates
+                      if not pd.isna(date) and date <= reference_date
+                      and date.to_period("M") == reference_date.to_period("M")]
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not candidates:
+        return None
+    reference_value = _risk_number(max(candidates, key=lambda candidate: candidate[0])[1])
+    return round(latest_value - reference_value, 4) if reference_value is not None else None
+
+
+def _series_percentile(series: dict) -> float | None:
+    values = [_risk_number(point.get("value")) for point in series.get("points", [])]
+    if not values or any(value is None for value in values):
+        return None
     latest = values[-1]
     return round(sum(1 for value in values if value <= latest) / len(values) * 100, 1)
 
@@ -2073,93 +2465,159 @@ def _heat_level(score: int) -> str:
 
 
 def build_risk_heatmap(series: dict[str, dict], market: dict, growth_drivers: dict, external: dict, generated_at: str) -> dict:
-    def item(id_: str, label: str, group: str, score: int, evidence: str, rule: str, period: str, watch: str) -> dict:
+    def item(id_: str, label: str, group: str, score: int | None, evidence: str, rule: str, period: str, watch: str,
+             source_status: str = "fresh", unavailable_reason: str | None = None) -> dict:
+        score = int(max(0, min(100, score))) if score is not None else None
         return {
             "id": id_,
             "label": label,
             "group": group,
-            "score": int(max(0, min(100, score))),
-            "level": _heat_level(score),
+            "score": score,
+            "level": _heat_level(score) if score is not None else "unavailable",
+            "dataStatus": source_status if score is not None else "unavailable",
+            "unavailableReason": unavailable_reason if score is None else None,
             "evidence": evidence,
             "rule": rule,
             "period": period,
             "watch": watch,
         }
 
-    headline = float(series["headline"]["points"][-1]["value"])
-    core = float(series["core"]["points"][-1]["value"])
-    unemployment = float(series["unemployment"]["points"][-1]["value"])
-    opr = float(series["opr"]["points"][-1]["value"])
-    fx = float(series["fx"]["points"][-1]["value"])
-    mgs = float(series["mgs"]["points"][-1]["value"])
-    market_return = market["summary"].get("return1Y")
-    market_drawdown = abs(float(market["summary"].get("maxDrawdown1Y") or 0))
-    trade_balance = external["summary"]["balance"]
-    exports_yoy = external["summary"].get("exportsYoY")
-    imports_yoy = external["summary"].get("importsYoY")
-    demand_summary = growth_drivers.get("demand", {}).get("years", [{}])[-1].get("summary", {})
-
-    items = [
-        item("headline", "Headline inflation", "Prices", 25 if headline < 2 else 45 if headline < 3 else 75,
-             f"Latest headline CPI inflation is {headline:.1f}%.", "Low below 2%, moderate from 2-3%, high at 3% or above.", series["headline"]["points"][-1]["date"], "Watch food, transport and administered-price categories."),
-        item("core", "Core inflation", "Prices", 25 if core < 2 else 50 if core < 3 else 75,
-             f"Latest core inflation is {core:.1f}%; 3-month change is {_series_change(series['core'], 3) or 0:+.1f} pp.", "Low below 2%, moderate from 2-3%, high at 3% or above.", series["core"]["points"][-1]["date"], "Persistent core pressure matters more than one monthly headline move."),
-        item("unemployment", "Labour market", "Households", 25 if unemployment < 4 else 55 if unemployment < 5 else 80,
-             f"Unemployment is {unemployment:.1f}%.", "Low below 4%, moderate from 4-5%, high at 5% or above.", series["unemployment"]["points"][-1]["date"], "National unemployment can hide sector and regional weakness."),
-        item("opr", "Policy rate", "Financial conditions", 35 if opr < 2.5 else 55 if opr < 3.25 else 75,
-             f"OPR is {opr:.2f}%.", "Low below 2.50%, moderate from 2.50-3.25%, high above 3.25%.", series["opr"]["points"][-1]["date"], "The real policy stance also depends on expected inflation."),
-        item("fx", "USD/MYR pressure", "External", 30 if fx < 4.2 else 55 if fx < 4.6 else 80,
-             f"USD/MYR is RM {fx:.4f}, at the {_series_percentile(series['fx']):.1f}th percentile of this dashboard history.", "Higher USD/MYR levels receive higher imported-cost pressure scores.", series["fx"]["points"][-1]["date"], "A weaker ringgit can help exporters while raising imported costs."),
-        item("mgs", "10-year MGS yield", "Financial conditions", 30 if mgs < 3.5 else 55 if mgs < 4.25 else 80,
-             f"10-year MGS yield is {mgs:.2f}%.", "Low below 3.50%, moderate from 3.50-4.25%, high above 4.25%.", series["mgs"]["points"][-1]["date"], "Bond yields reflect policy expectations, term premium and global rates."),
-        item("bursa", "Bursa large-cap market", "Markets", 35 if (market_return or 0) >= 5 and market_drawdown < 10 else 55 if (market_return or 0) > -5 else 75,
-             f"KLCI one-year price return is {(market_return or 0):+.1f}% with a {market_drawdown:.1f}% max drawdown.", "Higher pressure when one-year return is negative or drawdown is large.", market["summary"]["latestDate"], "Index performance excludes dividends, fees and taxes."),
-        item("growth", "GDP growth drivers", "Growth", 35 if demand_summary.get("demandType") in {"consumption-led", "export-led", "investment-led"} else 55,
-             f"Latest demand screen is {demand_summary.get('demandType', 'production-only')}.", "Lower pressure when a clear demand engine is visible; higher when only partial evidence is available.", growth_drivers.get("demand", {}).get("observationPeriod") or growth_drivers.get("production", {}).get("observationPeriod", ""), "Current-price GDP combines volume and price effects."),
-        item("trade", "Goods trade balance", "External", 30 if trade_balance > 0 and (exports_yoy or 0) >= (imports_yoy or 0) else 55 if trade_balance > 0 else 75,
-             f"Latest goods trade balance is RM {trade_balance:+.1f} billion; exports YoY {exports_yoy if exports_yoy is not None else 0:+.1f}%, imports YoY {imports_yoy if imports_yoy is not None else 0:+.1f}%.", "Higher pressure when trade balance is negative or imports grow faster than exports.", external["summary"]["latestDate"], "Goods trade excludes services and income flows."),
+    items = []
+    macro_settings = [
+        ("headline", "Headline inflation", "Prices", (2, 3), (25, 45, 75), "Low below 2%, moderate from 2% to below 3%, high at 3% or above.", "Watch food, transport and administered-price categories."),
+        ("core", "Core inflation", "Prices", (2, 3), (25, 50, 75), "Low below 2%, moderate from 2% to below 3%, high at 3% or above. The score uses the level, not the change.", "Persistent core pressure matters more than one monthly headline move."),
+        ("unemployment", "Labour market", "Households", (4, 5), (25, 55, 80), "Low below 4%, moderate from 4% to below 5%, high at 5% or above.", "National unemployment can hide sector and regional weakness."),
+        ("opr", "Policy rate", "Financial conditions", (2.5, 3.25), (35, 55, 75), "Low below 2.50%, moderate from 2.50% to below 3.25%, high at 3.25% or above.", "The real policy stance also depends on expected inflation."),
+        ("fx", "USD/MYR pressure", "External", (4.2, 4.6), (30, 55, 80), "Low below RM 4.20, moderate from RM 4.20 to below RM 4.60, high at RM 4.60 or above. The historical percentile is context, not a score input.", "A weaker ringgit can help exporters while raising imported costs."),
+        ("mgs", "10-year MGS yield", "Financial conditions", (3.5, 4.25), (30, 55, 80), "Low below 3.50%, moderate from 3.50% to below 4.25%, high at 4.25% or above.", "Bond yields reflect policy expectations, term premium and global rates."),
     ]
-    average = round(sum(entry["score"] for entry in items) / len(items), 1)
-    top = sorted(items, key=lambda entry: entry["score"], reverse=True)[:3]
+    for key, label, group, bounds, scores, rule, watch in macro_settings:
+        source = series.get(key, {})
+        value, period = _risk_latest(source)
+        reason = f"Latest {key} level is missing or non-finite."
+        score = None if value is None else scores[0] if value < bounds[0] else scores[1] if value < bounds[1] else scores[2]
+        if value is None:
+            evidence = f"Unavailable: {reason}"
+        elif key == "headline":
+            evidence = f"Latest headline CPI inflation is {value:.1f}%."
+        elif key == "core":
+            change = _series_change(source, 3)
+            change_text = f"{change:+.1f} pp" if change is not None else "Unavailable (missing valid three-month reference observation)"
+            evidence = f"Latest core inflation is {value:.1f}%; 3-month change is {change_text}."
+        elif key == "fx":
+            percentile = _series_percentile(source)
+            percentile_text = f"at the {percentile:.1f}th percentile of this dashboard history" if percentile is not None else "historical percentile: Unavailable (incomplete or non-finite history)"
+            evidence = f"USD/MYR is RM {value:.4f}; {percentile_text}."
+        else:
+            display_label = {"unemployment": "Unemployment", "opr": "OPR", "mgs": "10-year MGS yield"}[key]
+            evidence = f"{display_label} is {value:.1f}%." if key == "unemployment" else f"{display_label} is {value:.2f}%."
+        items.append(item(key, label, group, score, evidence, rule, period, watch, source.get("status", "fresh"), reason))
+
+    market_summary = market.get("summary", {})
+    market_return = _risk_number(market_summary.get("return1Y"))
+    market_drawdown = _risk_number(market_summary.get("maxDrawdown1Y"))
+    missing_market = [name for name in ["return1Y", "maxDrawdown1Y"] if _risk_number(market_summary.get(name)) is None]
+    market_reason = "Required Bursa inputs are missing or non-finite: " + ", ".join(missing_market) + "."
+    if missing_market:
+        market_score, market_evidence = None, f"Unavailable: {market_reason}"
+    else:
+        market_drawdown = abs(market_drawdown)
+        market_score = 35 if market_return >= 5 and market_drawdown < 10 else 55 if market_return > -5 else 75
+        market_evidence = f"KLCI one-year price return is {market_return:+.1f}% with a {market_drawdown:.1f}% max drawdown."
+    items.append(item("bursa", "Bursa large-cap market", "Markets", market_score, market_evidence,
+                      "Low for return at least 5% and drawdown below 10%; moderate otherwise when return is above -5%; high when return is -5% or lower. Both measurements are required.",
+                      market_summary.get("latestDate", ""), "Index performance excludes dividends, fees and taxes.", market.get("status", "fresh"), market_reason))
+
+    demand = growth_drivers.get("demand", {})
+    demand_years = demand.get("years", [])
+    demand_summary = demand_years[-1].get("summary", {}) if demand_years else {}
+    demand_type = demand_summary.get("demandType")
+    known_types = {"consumption-led", "export-led", "investment-led", "import-sensitive", "broad-based"}
+    demand_available = isinstance(demand_type, str) and demand_type in known_types and _risk_number(demand_summary.get("largestContribution")) is not None
+    demand_reason = "Comparable demandType and largestContribution evidence are missing or invalid."
+    demand_score = (35 if demand_type in {"consumption-led", "export-led", "investment-led"} else 55) if demand_available else None
+    demand_evidence = f"Latest demand screen is {demand_type}." if demand_available else f"Unavailable: {demand_reason} Production-side GDP is not a substitute for missing demand evidence."
+    items.append(item("growth", "GDP growth drivers", "Growth", demand_score, demand_evidence,
+                      "Low for an identified consumption, export or investment engine; moderate for import-sensitive or broad-based demand. A comparable numerical demand contribution is required.",
+                      demand.get("observationPeriod", ""), "Current-price GDP combines volume and price effects.", demand.get("status", growth_drivers.get("status", "fresh")), demand_reason))
+
+    trade_summary = external.get("summary", {})
+    trade_balance = _risk_number(trade_summary.get("balance"))
+    exports_yoy = _risk_number(trade_summary.get("exportsYoY"))
+    imports_yoy = _risk_number(trade_summary.get("importsYoY"))
+    missing_trade = [name for name in ["balance", "exportsYoY", "importsYoY"] if _risk_number(trade_summary.get(name)) is None]
+    trade_reason = "Required trade inputs are missing or non-finite: " + ", ".join(missing_trade) + "."
+    if missing_trade:
+        trade_score, trade_evidence = None, f"Unavailable: {trade_reason}"
+    else:
+        trade_score = 30 if trade_balance > 0 and exports_yoy >= imports_yoy else 55 if trade_balance > 0 else 75
+        trade_evidence = f"Latest goods trade balance is RM {trade_balance:+.1f} billion; exports YoY {exports_yoy:+.1f}%, imports YoY {imports_yoy:+.1f}%."
+    items.append(item("trade", "Goods trade balance", "External", trade_score, trade_evidence,
+                      "Low for a positive trade balance with export growth at least import growth; moderate for a positive balance otherwise; high for a zero or negative balance. All three inputs are required.",
+                      trade_summary.get("latestDate", ""), "Goods trade excludes services and income flows.", external.get("status", "fresh"), trade_reason))
+
+    available = [entry for entry in items if entry["score"] is not None]
+    average = round(sum(entry["score"] for entry in available) / len(available), 1) if available else None
+    overall_level = _heat_level(average) if average is not None else "unavailable"
+    top = sorted(available, key=lambda entry: entry["score"], reverse=True)[:3]
+    coverage_note = f"{len(available)} of {len(items)} signals have score inputs. "
+    coverage_note += "The overall score is their equal-weight mean; unavailable signals are excluded, not scored as zero."
+    if len(available) != len(items):
+        coverage_note += " This incomplete screen is not directly comparable with a full-coverage score or a different available-signal set."
+    summary = (f"The current macro risk screen is {overall_level}, based on {len(available)} of {len(items)} signals. The highest-pressure available signals are {', '.join(entry['label'] for entry in top)}."
+               if available else "Unavailable: no signals have all required score inputs. The dashboard cannot calculate an overall pressure screen.")
     return {
         "generatedAt": generated_at,
-        "status": "fresh" if market["status"] == "fresh" and external["status"] == "fresh" and growth_drivers["status"] == "fresh" else "partial",
+        "status": "unavailable" if not available else "fresh" if len(available) == len(items) and all(entry["dataStatus"] == "fresh" for entry in items) else "partial",
         "overallScore": average,
-        "overallLevel": _heat_level(int(average)),
-        "summary": f"The current macro risk screen is {_heat_level(int(average))}. The highest-pressure signals are {', '.join(entry['label'] for entry in top)}.",
-        "method": "Deterministic rules combine latest levels, recent changes, historical percentile checks and market/trade summaries. Scores are descriptive screens, not forecasts or causal estimates.",
+        "overallLevel": overall_level,
+        "availableCount": len(available),
+        "totalCount": len(items),
+        "coverageNote": coverage_note,
+        "summary": summary,
+        "method": "Deterministic rules use the stated latest-level and market/trade/demand inputs. Recent core changes and FX historical percentiles are supporting context, not score inputs. The overall score is the equal-weight mean of available signals. Scores are descriptive screens, not forecasts or causal estimates.",
         "items": items,
     }
 
 
 def build_latest_brief(series: dict[str, dict], forecast_data: dict, market: dict, growth_drivers: dict, external: dict, risk: dict, generated_at: str) -> dict:
-    latest_headline = series["headline"]["points"][-1]
-    prior_headline = series["headline"]["points"][-2]
-    headline_change = float(latest_headline["value"]) - float(prior_headline["value"])
-    core = float(series["core"]["points"][-1]["value"])
-    fx_change = _series_change(series["fx"], 3) or 0
-    forecast_target = forecast_data["points"][-1]["value"]
-    watched = sorted(risk["items"], key=lambda entry: entry["score"], reverse=True)[:3]
+    headline_points = series.get("headline", {}).get("points", [])
+    latest_headline, headline_period = _risk_latest(series.get("headline", {}))
+    prior_headline = _risk_number(headline_points[-2].get("value")) if len(headline_points) >= 2 else None
+    headline_change = latest_headline - prior_headline if latest_headline is not None and prior_headline is not None else None
+    core, _ = _risk_latest(series.get("core", {}))
+    headline_text = f"{latest_headline:.1f}%" if latest_headline is not None else "Unavailable"
+    core_text = f"{core:.1f}%" if core is not None else "Unavailable"
+    fx_change = _series_change(series.get("fx", {}), 3)
+    forecast_points = forecast_data.get("points", [])
+    forecast_target = _risk_number(forecast_points[-1].get("value")) if forecast_points else None
+    watched = sorted((entry for entry in risk["items"] if _risk_number(entry.get("score")) is not None), key=lambda entry: entry["score"], reverse=True)[:3]
+    market_return = _risk_number(market.get("summary", {}).get("return1Y"))
+    trade_balance = _risk_number(external.get("summary", {}).get("balance"))
+    market_text = f"{market_return:+.1f}%" if market_return is not None else "Unavailable (insufficient valid one-year data)"
+    trade_text = f"RM {trade_balance:+.1f} billion" if trade_balance is not None else "Unavailable (missing valid trade observation)"
+    pressure_text = f"Malaysia's latest macro reading is {risk['overallLevel']} pressure" if risk.get("overallScore") is not None else "Malaysia's overall macro pressure reading is unavailable"
     return {
         "generatedAt": generated_at,
         "status": risk["status"],
-        "period": latest_headline["date"],
-        "headline": f"Malaysia's latest macro reading is {risk['overallLevel']} pressure, with headline inflation at {float(latest_headline['value']):.1f}% and core inflation at {core:.1f}%.",
+        "period": headline_period,
+        "headline": f"{pressure_text}, with headline inflation at {headline_text} and core inflation at {core_text}.",
         "whatChanged": [
-            f"Headline inflation moved {headline_change:+.1f} percentage points from the prior monthly release.",
-            f"The ringgit moved {fx_change:+.2f} against the US dollar over the latest three-month dashboard window.",
-            f"The FBM KLCI one-year price return is {(market['summary'].get('return1Y') or 0):+.1f}%, while the latest goods trade balance is RM {external['summary']['balance']:+.1f} billion.",
+            f"Headline inflation moved {headline_change:+.1f} percentage points from the prior monthly release." if headline_change is not None else "Headline inflation's monthly change is Unavailable: valid current and prior observations are required.",
+            f"The ringgit moved {fx_change:+.2f} against the US dollar over the latest three-month dashboard window." if fx_change is not None else "The ringgit's three-month change is Unavailable: the comparison requires valid observations in both calendar months.",
+            f"The FBM KLCI one-year price return is {market_text}, while the latest goods trade balance is {trade_text}.",
         ],
         "whyItMayHaveHappened": [
             "Inflation changes can reflect category-level CPI pressure, policy effects, administered prices and imported costs.",
             "Exchange-rate and bond-yield changes may reflect both Malaysian conditions and global interest-rate or risk-appetite shifts.",
             "GDP and trade readings help separate domestic demand from external demand, but they are not causal proof for market moves.",
         ],
-        "watchNext": [f"{entry['label']}: {entry['watch']}" for entry in watched],
+        "watchNext": [f"{entry['label']}: {entry['watch']}" for entry in watched] or ["Risk signals are unavailable; wait for valid source observations before drawing an overall pressure conclusion."],
+        "coverageNote": risk.get("coverageNote", ""),
         "implications": [
             "Individuals should stress-test savings, debt repayments and job resilience against the highest-pressure signals.",
             "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
-            f"The three-month inflation forecast ends at {forecast_target:.2f}%, but the prediction intervals are more important than the point estimate.",
+            f"The three-month inflation forecast ends at {forecast_target:.2f}%, but the prediction intervals are more important than the point estimate." if forecast_target is not None else "The three-month inflation forecast is Unavailable; do not substitute a zero forecast or draw a forecast-based conclusion.",
         ],
         "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice.",
     }
@@ -2176,13 +2634,24 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
     unemployment, unemployment_date = latest("unemployment")
     fx, fx_date = latest("fx")
     mgs, mgs_date = latest("mgs")
-    market_summary = market["summary"]
-    market_return = float(market_summary.get("return1Y") or 0)
+    market_summary = market.get("summary", {})
+    market_return = _risk_number(market_summary.get("return1Y"))
+    market_volatility = _risk_number(market_summary.get("annualizedVolatility1Y"))
+    market_return_text = f"{market_return:+.1f}%" if market_return is not None else "Unavailable"
+    volatility_text = f"{market_volatility:.1f}%" if market_volatility is not None else "Unavailable"
+    trade_summary = (external or {}).get("summary", {})
+    goods_imports = _risk_number(trade_summary.get("imports"))
+    goods_import_growth = _risk_number(trade_summary.get("importsYoY"))
+    imports_text = f"RM {goods_imports:.1f} billion" if goods_imports is not None else "Unavailable"
+    import_growth_text = f"{goods_import_growth:+.1f}%" if goods_import_growth is not None else "Unavailable"
+    available_risk = sorted((entry for entry in (risk or {}).get("items", []) if _risk_number(entry.get("score")) is not None), key=lambda entry: entry["score"], reverse=True)
+    heatmap_evidence = (f"The current heatmap is {risk['overallLevel']} pressure, led by {', '.join(entry['label'] for entry in available_risk[:2])}."
+                        if risk and available_risk else "The current heatmap pressure reading is Unavailable; valid score inputs are required before setting macro risk triggers.")
 
     inflation_reading = "positive but moderate" if 0 < headline < 3 else "elevated" if headline >= 3 else "very weak or negative"
     rate_reading = "Borrowing still carries a meaningful financing cost" if opr >= 2.5 else "Policy rates are comparatively accommodative"
     labour_reading = "The national unemployment rate is relatively low" if unemployment < 4 else "Labour-market slack is elevated"
-    market_reading = "positive" if market_return > 3 else "negative" if market_return < -3 else "broadly flat"
+    market_reading = "unavailable" if market_return is None else "positive" if market_return > 3 else "negative" if market_return < -3 else "broadly flat"
 
     individuals = [
         {
@@ -2195,7 +2664,7 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
         {
             "id": "listed-investments", "theme": "Stocks and long-term investing", "stance": "Avoid chasing",
             "title": "Use goals and diversification, not the latest index move",
-            "evidence": f"The FBM KLCI's latest one-year price return is {market_return:+.1f}% and its measured one-year volatility is {market_summary.get('annualizedVolatility1Y'):.1f}%.",
+            "evidence": f"The FBM KLCI's latest one-year price return is {market_return_text} and its measured one-year volatility is {volatility_text}.",
             "actions": ["Match any equity allocation to the time horizon, loss capacity and need for near-term cash.", "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.", "Verify that intermediaries and products are authorised by the Securities Commission before transferring money."],
             "watch": "Recent performance is not a forecast. Returns shown here exclude dividends, fees and taxes.",
         },
@@ -2216,14 +2685,14 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
         {
             "id": "debt-reset", "theme": "Debt and repayments", "stance": "Check buffers",
             "title": "Review variable-rate and short-tenor commitments",
-            "evidence": f"The dashboard heatmap labels policy-rate pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'opr'), 'moderate')} and 10-year MGS pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'mgs'), 'moderate')}.",
+            "evidence": f"The dashboard heatmap labels policy-rate pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'opr'), 'unavailable')} and 10-year MGS pressure as {next((item['level'] for item in (risk or {}).get('items', []) if item['id'] == 'mgs'), 'unavailable')}.",
             "actions": ["List every debt repayment date, rate type and reset date.", "Check whether a higher instalment still leaves room for essentials and emergency savings.", "Avoid using short-term promotional rates as the only affordability test."],
             "watch": "Lending rates depend on individual credit profile, bank policy and product terms, not only national benchmark rates.",
         },
         {
             "id": "imported-costs", "theme": "Daily prices and imported goods", "stance": "Compare baskets",
             "title": "Watch imported-cost pressure in your own spending",
-            "evidence": f"USD/MYR is RM {fx:.4f}; latest goods imports are RM {(external or {}).get('summary', {}).get('imports', 0):.1f} billion where trade data are available.",
+            "evidence": f"USD/MYR is RM {fx:.4f}; latest goods imports: {imports_text}.",
             "actions": ["Track recurring imported or foreign-currency-linked spending separately.", "Compare total cost after shipping, tax, warranties and exchange-rate conversion.", "Keep subscription and discretionary spending flexible when currency pressure is elevated."],
             "watch": "A national exchange-rate move does not affect every household basket equally.",
         },
@@ -2254,21 +2723,21 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
         {
             "id": "people-capex", "theme": "Hiring and investment", "stance": "Stage commitments",
             "title": "Link hiring and capital spending to demand evidence",
-            "evidence": f"Unemployment is {unemployment:.1f}% and the KLCI's latest one-year price performance is {market_reading} at {market_return:+.1f}%.",
+            "evidence": f"Unemployment is {unemployment:.1f}% and the KLCI's latest one-year price performance is {market_reading}: {market_return_text}.",
             "actions": ["Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.", "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.", "Model downside demand, financing and FX assumptions before approving irreversible expenditure."],
             "watch": "A stock index and national unemployment rate are broad signals, not company-specific revenue forecasts.",
         },
         {
             "id": "inventory-imports", "theme": "Inventory and import exposure", "stance": "Stress landed cost",
             "title": "Tie inventory decisions to FX and trade evidence",
-            "evidence": f"Goods imports grew {(external or {}).get('summary', {}).get('importsYoY', 0):+.1f}% year on year, while USD/MYR is RM {fx:.4f}.",
+            "evidence": f"Goods imports year-on-year change: {import_growth_text}, while USD/MYR is RM {fx:.4f}.",
             "actions": ["Separate essential stock buffers from speculative over-ordering.", "Reprice landed cost assumptions using adverse FX and freight scenarios.", "Review supplier currency, payment timing and contract pass-through clauses."],
             "watch": "Trade aggregates do not reveal firm-level demand, supplier reliability or margin quality.",
         },
         {
             "id": "business-risk-gates", "theme": "Scenario governance", "stance": "Use triggers",
             "title": "Set decision gates around the highest-risk signals",
-            "evidence": f"The current heatmap is {(risk or {}).get('overallLevel', 'moderate')} pressure, led by {', '.join(item['label'] for item in (risk or {}).get('items', [])[:2]) or 'macro and market indicators'}.",
+            "evidence": heatmap_evidence,
             "actions": ["Define measurable triggers before hiring, capex, refinancing or price changes.", "Assign owners for inflation, FX, cash-flow and sales indicators.", "Review decisions monthly after official releases instead of reacting to headlines."],
             "watch": "A heatmap is a monitoring tool; it cannot replace customer, supplier and balance-sheet evidence.",
         },
@@ -2276,9 +2745,9 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
 
     return {
         "generatedAt": generated_at,
-        "status": "fresh" if market["status"] == "fresh" else "partial",
+        "status": "fresh" if market.get("status") == "fresh" and market_return is not None and market_volatility is not None else "partial",
         "title": "Decision guide for the current Malaysian economy",
-        "summary": f"Malaysia currently combines {headline:.1f}% headline inflation, a {opr:.2f}% OPR, {unemployment:.1f}% unemployment and a {market_return:+.1f}% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+        "summary": f"Malaysia currently combines {headline:.1f}% headline inflation, a {opr:.2f}% OPR, {unemployment:.1f}% unemployment and a one-year KLCI price return of {market_return_text}. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
         "signals": [
             {"label": "Headline inflation", "value": f"{headline:.1f}%", "period": headline_date, "reading": inflation_reading},
             {"label": "Core inflation", "value": f"{core:.1f}%", "period": core_date, "reading": "underlying price pressure"},
@@ -2286,7 +2755,7 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
             {"label": "Unemployment", "value": f"{unemployment:.1f}%", "period": unemployment_date, "reading": labour_reading.lower()},
             {"label": "USD/MYR", "value": f"RM {fx:.4f}", "period": fx_date, "reading": "ringgit cost of one US dollar"},
             {"label": "10-year MGS", "value": f"{mgs:.2f}%", "period": mgs_date, "reading": "long-term government benchmark yield"},
-            {"label": "KLCI 1-year", "value": f"{market_return:+.1f}%", "period": market_summary["latestDate"], "reading": f"{market_reading} price performance"},
+            {"label": "KLCI 1-year", "value": market_return_text, "period": market_summary.get("latestDate", ""), "reading": f"{market_reading} price performance"},
         ],
         "audiences": {"individuals": individuals, "companies": companies},
         "sources": [
@@ -2330,6 +2799,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         series[key], sources[key] = merge_or_stale(key, loader, previous, retrieved)
     try:
         forecast_data = forecast({key: value["points"] for key, value in series.items()})
+        forecast_data["calculatedAt"] = retrieved
     except Exception as error:
         if not previous:
             raise
@@ -2444,7 +2914,9 @@ def regional_export_rows(regional: dict) -> list[dict]:
                      "data_status": source.get("status", "unknown"), "retrieved_at": source.get("retrievedAt") or ""})
 
     def add_gdp(level, state, district, item, period, district_gdp=False):
-        source = sources.get("gdp", {})
+        source = sources.get("gdpDistrict" if district_gdp else "gdpState") or sources.get("gdp", {})
+        if district_gdp and sources.get("gdpDistrict"):
+            source = {**source, "districtSourceUrl": source.get("sourceUrl"), "districtDatasetUrl": source.get("datasetUrl")}
         add(level, state, district, "realGdp", item.get("total") if district_gdp else item.get("realGdp"), gdp_unit, period, source, district_gdp)
         add(level, state, district, "largestSector", item.get("largestSector"), "sector", period, source, district_gdp)
         add(level, state, district, "largestSectorShare", item.get("largestSectorShare"), "%", period, source, district_gdp)
@@ -2513,6 +2985,16 @@ def write_regional_exports(regional: dict) -> None:
             writer.writerow({key: "'" + value if isinstance(value, str) and re.match(r"^\s*[=+\-@]", value) else value for key, value in row.items()})
 
 
+def recompute_risk_offline(previous: dict, calculated_at: str) -> dict:
+    """Correct risk-derived calculations without claiming a new official retrieval."""
+    payload = copy.deepcopy(previous)
+    payload["riskHeatmap"] = build_risk_heatmap(payload["series"], payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), calculated_at)
+    payload["latestBrief"] = build_latest_brief(payload["series"], payload["forecast"], payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), payload["riskHeatmap"], calculated_at)
+    payload["recomputation"] = {"mode": "offline-risk-recompute", "sourceRefresh": False, "calculatedAt": calculated_at,
+        "note": "Risk scores and brief recalculated from saved validated observations; official periods and retrieval clocks are unchanged."}
+    return finalize_data_trust(payload)
+
+
 def recompute_forecast_offline(previous: dict, calculated_at: str) -> dict:
     """Recalculate from saved validated observations without implying a retrieval."""
     payload = copy.deepcopy(previous)
@@ -2520,6 +3002,19 @@ def recompute_forecast_offline(previous: dict, calculated_at: str) -> dict:
         validate_points(key, payload["series"][key]["points"])
     calculated = forecast({key: payload["series"][key]["points"] for key in SPECS})
     calculated["calculatedAt"] = calculated_at
+    if previous.get("forecast", {}).get("vintageLedger"):
+        calculated["vintageLedger"] = copy.deepcopy(previous["forecast"]["vintageLedger"])
+    else:
+        # The offline calculation must not backdate source observations or create
+        # forecast issues. Publish an honest empty ledger state until the next
+        # normal pipeline run records newly retrieved, validated inputs.
+        calculated["vintageLedger"] = {
+            "version": 1, "status": "waiting", "freshSourceCount": 0, "requiredSourceCount": len(SPECS),
+            "sourceSnapshotCount": 0, "revisedSourcePeriodCount": 0, "prospectiveForecastCount": 0,
+            "capturedOutcomeCount": 0, "pendingForecastTargetCount": 0, "firstSnapshotAt": None,
+            "lastSnapshotAt": None,
+            "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified.",
+        }
     calculated["recomputation"] = {"mode": "offline", "sourceRefresh": False, "note": "Forecast and affected text recalculated from the saved validated series; official observations, source status and retrieval timestamps are unchanged."}
     finalize_data_trust({"sources": payload.get("sources", {}), "forecast": calculated})
     payload["forecast"] = calculated
@@ -2584,9 +3079,182 @@ def regional_gdp_validation_counts(frame: pd.DataFrame, records: list[dict]) -> 
             "retainedObservedSectorRows": sum(sector["valueStatus"] == "observed" for sector in sectors)}
 
 
+def _canonical_hash(value: object) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _write_immutable_json(path: Path, value: dict) -> bool:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("x", encoding="utf-8", newline="\n") as handle:
+            json.dump(value, handle, indent=2, ensure_ascii=False, allow_nan=False)
+            handle.write("\n")
+        return True
+    except FileExistsError:
+        return False
+
+
+def record_vintage_ledger(payload: dict, root: Path | None = None) -> dict:
+    """Append source revisions and strictly prospective forecasts; never rewrite old snapshots."""
+    ledger = root or (VINTAGES / "ledger-v1")
+    generated_at = payload.get("generatedAt")
+    try:
+        run_clock = datetime.fromisoformat(str(generated_at).replace("Z", "+00:00"))
+        if run_clock.tzinfo is None:
+            raise ValueError("run time must be timezone aware")
+    except (TypeError, ValueError):
+        run_clock = None
+    series = payload.get("series", {})
+    sources = payload.get("sources", {})
+    source_ids: dict[str, str] = {}
+    fresh_sources = 0
+    snapshots_dir = ledger / "sources"
+    for key in SPECS:
+        meta = sources.get(key, {})
+        data = series.get(key, {})
+        retrieved_at = meta.get("retrievedAt")
+        attempted_at = meta.get("lastAttemptAt")
+        # Only capture a source fetched and accepted during this pipeline run.
+        # Retained, stale, fallback, offline-recomputed, or old legacy clocks do not qualify.
+        if (run_clock is None or meta.get("status") != "fresh" or not retrieved_at
+                or retrieved_at != attempted_at or retrieved_at != generated_at):
+            continue
+        points = data.get("points")
+        if not isinstance(points, list) or not points or not data.get("source_url") or not data.get("unit"):
+            continue
+        try:
+            clean_points = validate_points(key, points)
+        except (KeyError, TypeError, ValueError):
+            continue
+        period = meta.get("observationPeriod")
+        if period != clean_points[-1]["date"]:
+            continue
+        content = {
+            "source": key, "observationPeriod": period, "unit": data["unit"],
+            "frequency": data.get("frequency", SPECS[key].frequency), "sourceUrl": data["source_url"],
+            "observations": clean_points,
+        }
+        digest = _canonical_hash(content)
+        snapshot_id = f"{key}:{period}:{digest}"
+        record = {
+            "ledgerVersion": 1, "snapshotId": snapshot_id, "contentHash": digest,
+            **content, "retrievedAt": retrieved_at, "attemptedAt": attempted_at,
+            "recordedAt": generated_at,
+        }
+        path = snapshots_dir / key / f"{period}--{digest}.json"
+        _write_immutable_json(path, record)
+        source_ids[key] = snapshot_id
+        fresh_sources += 1
+
+    # Issue records are prospective only when all six inputs were freshly fetched
+    # at this run's clock, a complete model fit succeeded, and all targets are future.
+    forecast = payload.get("forecast", {})
+    evaluation = forecast.get("evaluation", {})
+    final_fit = evaluation.get("finalFit", {})
+    issue_month = str(generated_at)[:7] if isinstance(generated_at, str) else ""
+    forecast_points = forecast.get("points", [])
+    issue_ready = (
+        run_clock is not None and fresh_sources == len(SPECS) and not payload.get("usingFallback", False)
+        and forecast.get("status") == "fresh" and forecast.get("calculationStatus") != "fallback"
+        and forecast.get("calculatedAt") == generated_at and isinstance(final_fit, dict)
+        and final_fit.get("fallbackUsed") is False and len(forecast_points) == 3
+        and all(isinstance(point.get("date"), str) and point["date"][:7] > issue_month for point in forecast_points)
+        and set(source_ids) == set(SPECS)
+    )
+    forecast_dir = ledger / "forecasts"
+    if issue_ready:
+        model = next((item for item in forecast.get("models", []) if item.get("name") == forecast.get("selectedModel")), None)
+        issue_content = {
+            "issueDate": str(generated_at)[:10], "targetMonths": [point["date"] for point in forecast_points],
+            "selectedModel": forecast.get("selectedModel"), "modelScore": model,
+            "forecastPoints": forecast_points, "methodLabel": forecast.get("methodLabel"),
+            "sourceSnapshots": {key: source_ids[key] for key in sorted(source_ids)},
+            "originPolicy": evaluation.get("originPolicy"),
+        }
+        digest = _canonical_hash(issue_content)
+        forecast_id = f"{issue_content['issueDate']}:{digest}"
+        _write_immutable_json(forecast_dir / f"{issue_content['issueDate']}--{digest}.json", {
+            "ledgerVersion": 1, "forecastId": forecast_id, "contentHash": digest,
+            **issue_content, "issuedAt": generated_at,
+            "warning": "Prospective model issue captured by this ledger. This is not a historical first-release vintage before its recorded issue time.",
+        })
+
+    # Record the first value this ledger sees for each forecast target. Source
+    # revisions create additional immutable outcome files; first official release
+    # status is explicitly unverified because DOSM release-vintage timestamps are unavailable.
+    headline_meta = sources.get("headline", {})
+    headline_snapshot = source_ids.get("headline")
+    headline_values = {point["date"]: point["value"] for point in series.get("headline", {}).get("points", []) if isinstance(point, dict) and isinstance(point.get("date"), str)}
+    outcome_dir = ledger / "outcomes"
+    if headline_snapshot and headline_meta.get("status") == "fresh":
+        for issue_path in forecast_dir.glob("*.json"):
+            try:
+                issue = json.loads(issue_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            for target in issue.get("targetMonths", []):
+                value = headline_values.get(target)
+                if value is None or target[:7] <= issue.get("issueDate", "")[:7]:
+                    continue
+                outcome_content = {
+                    "forecastId": issue.get("forecastId"), "targetMonth": target,
+                    "actualHeadlineInflation": value, "unit": "%", "sourceUrl": series["headline"]["source_url"],
+                }
+                outcome_hash = _canonical_hash(outcome_content)
+                issue_digest = str(issue["forecastId"]).split(":", 1)[-1]
+                _write_immutable_json(outcome_dir / issue_digest[:24] / f"{target}--{outcome_hash[:32]}.json", {
+                    "ledgerVersion": 1, "contentHash": outcome_hash, **outcome_content,
+                    "firstCapturedAt": headline_meta.get("retrievedAt"),
+                    "headlineSnapshotId": headline_snapshot,
+                    "firstOfficialReleaseVerified": False,
+                    "warning": "First value captured by this ledger, not verified as DOSM's unrevised first release.",
+                })
+
+    source_files = list(snapshots_dir.glob("*/*.json"))
+    source_periods: dict[tuple[str, str], set[str]] = {}
+    captured_times = []
+    for path in source_files:
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        source_periods.setdefault((record.get("source", ""), record.get("observationPeriod", "")), set()).add(record.get("contentHash", ""))
+        if isinstance(record.get("recordedAt"), str):
+            captured_times.append(record["recordedAt"])
+    issues = list(forecast_dir.glob("*.json"))
+    outcomes = list(outcome_dir.glob("*/*.json"))
+    pending = set()
+    for path in issues:
+        try:
+            issue = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        issue_id = issue.get("forecastId")
+        observed = set()
+        for outcome_path in (outcome_dir / str(issue_id).split(":", 1)[-1][:24]).glob("*.json"):
+            try:
+                observed.add(json.loads(outcome_path.read_text(encoding="utf-8")).get("targetMonth"))
+            except (OSError, json.JSONDecodeError):
+                continue
+        pending.update((issue_id, target) for target in issue.get("targetMonths", []) if target not in observed)
+    return {
+        "version": 1, "status": "collecting" if fresh_sources == len(SPECS) else "partial" if fresh_sources else "waiting",
+        "freshSourceCount": fresh_sources, "requiredSourceCount": len(SPECS),
+        "sourceSnapshotCount": len(source_files),
+        "revisedSourcePeriodCount": sum(1 for hashes in source_periods.values() if len(hashes) > 1),
+        "prospectiveForecastCount": len(issues), "capturedOutcomeCount": len(outcomes),
+        "pendingForecastTargetCount": len(pending), "firstSnapshotAt": min(captured_times) if captured_times else None,
+        "lastSnapshotAt": max(captured_times) if captured_times else None,
+        "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified.",
+    }
+
+
 def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
     output.parent.mkdir(parents=True, exist_ok=True)
     VINTAGES.mkdir(parents=True, exist_ok=True)
+    if isinstance(payload.get("forecast"), dict) and all(key in payload.get("series", {}) for key in SPECS):
+        payload["forecast"]["vintageLedger"] = record_vintage_ledger(payload)
     text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
     old = output.read_text(encoding="utf-8") if output.exists() else ""
     changed = hashlib.sha256(text.encode()).digest() != hashlib.sha256(old.encode()).digest()
@@ -2630,10 +3298,18 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=PUBLISHED)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--recompute-forecast", action="store_true", help="Recalculate only forecast/affected narratives offline; preserve observations and source retrieval metadata")
+    modes.add_argument("--recompute-risk", action="store_true", help="Recalculate risk/brief offline without changing official observations or retrieval clocks")
     modes.add_argument("--recompute-regional-gdp", action="store_true", help="Correct only regional GDP from explicit saved official CSV inputs; no network fetch or forecast fitting")
     parser.add_argument("--gdp-state-input", type=Path)
     parser.add_argument("--gdp-district-input", type=Path)
     args = parser.parse_args()
+    if args.recompute_risk:
+        previous = json.loads(args.output.read_text(encoding="utf-8"))
+        calculated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        payload = recompute_risk_offline(previous, calculated_at)
+        args.output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(json.dumps({"mode": "offline-risk-recompute", "sourceRefresh": False, "calculatedAt": calculated_at, "availableCount": payload["riskHeatmap"]["availableCount"]}))
+        return
     if args.recompute_regional_gdp:
         if args.gdp_state_input is None or args.gdp_district_input is None:
             parser.error("--recompute-regional-gdp requires --gdp-state-input and --gdp-district-input saved CSV files")

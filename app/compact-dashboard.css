@@ -1,12 +1,4 @@
 /* Compact research dashboard: data first, stable alignment, contained widths. */
-:root {
-  --font-sans:Arial,Helvetica,"Segoe UI",system-ui,sans-serif;
-  --paper:#f3f6f8;
-  --card:#fff;
-  --ink:#17252b;
-  --muted:#52636b;
-  --line:#d5dfe4;
-}
 body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .visual-page-summary { margin:16px 0; max-width:75ch; }
 .dashboard-app .visual-reading { margin:24px 0; }
@@ -15,9 +7,9 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .visual-reading .scenario-grid { margin:0; padding:16px; }
 .dashboard-app .visual-audit>p { padding:0 20px; }
 .dashboard-app .visual-audit :is(.risk-table-wrap,.deep-table-wrap) { margin:0; border:0; border-radius:0; max-width:100%; overflow-x:auto; }
-.dashboard-app :is(.risk-section,.bop-section) .visual-audit { background:#203530; color:#eef7f4; border-color:#526d63; }
-.dashboard-app :is(.risk-section,.bop-section) .visual-audit>summary { color:#eef7f4; }
-.dashboard-app :is(.risk-section,.bop-section) .visual-audit[open]>summary { border-color:#526d63; }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit { background:var(--surface-dark-panel); color:var(--text-on-dark); border-color:var(--border-on-dark); }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit>summary { color:var(--text-on-dark); }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit[open]>summary { border-color:var(--border-on-dark); }
 .dashboard-app .model-card>.forecast-disclosure { margin:16px 0; }
 .dashboard-app :is(h1,h2,:is(h2,h3),h4,strong,b,small,p,li,a,button,input,select,table,th,td) { font-family:var(--font-sans); }
 .dashboard-app main { min-width:0; }
@@ -34,7 +26,7 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app :is(table,td) { font-size:14px; font-variant-numeric:tabular-nums; }
 .dashboard-app th { font-size:13px; line-height:1.45; letter-spacing:.025em; }
 .dashboard-app :is(button,select,input) { font-size:14px; }
-.dashboard-app :is(a,button,select,input,summary,[tabindex]):focus-visible { outline:3px solid #197468; outline-offset:3px; }
+.dashboard-app :is(a,button,select,input,summary,[tabindex]):focus-visible { outline:3px solid var(--chart-focus); outline-offset:3px; }
 .dashboard-app main .picture-strip { display:none; }
 .dashboard-app #news .picture-strip { display:none; }
 .dashboard-app :is(.brief-section,.structure-section,.external-section,.household-section,.regional-section,.sector-section,.decision-section) { background:var(--paper); }
@@ -63,12 +55,12 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .data-status { border-radius:4px; font-size:13px; line-height:1.45; white-space:normal; }
 .dashboard-app .metrics-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 .dashboard-app .metric-card { display:flex; flex-direction:column; padding:24px; min-height:210px; transform:none; }
-.dashboard-app .metric-card:hover { transform:none; border-color:#819ca7; background:#fcfdfd; box-shadow:none; }
+.dashboard-app .metric-card:hover { transform:none; border-color:var(--border-strong); background:var(--surface-card); box-shadow:none; }
 .dashboard-app .metric-topline { align-items:center; gap:12px; font-size:13px; line-height:1.4; min-height:36px; letter-spacing:.04em; }
 .dashboard-app .metric-topline i { flex:none; }
 .dashboard-app .metric-card>strong { margin:8px 0 4px; font-size:38px; line-height:1.15; letter-spacing:-.025em; }
 .dashboard-app .metric-card>p { margin:0 0 16px; font-size:16px; }
-.dashboard-app .metric-footer { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:auto; padding-top:12px; border-top:1px solid #e4ebee; }
+.dashboard-app .metric-footer { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:auto; padding-top:12px; border-top:1px solid var(--border-default); }
 .dashboard-app .metric-footer small { flex:1 1 130px; font-size:14px; line-height:1.4; }
 .dashboard-app .metric-status { margin:0; padding:3px 6px; font-size:12px; letter-spacing:.025em; border-radius:4px; }
 .dashboard-app .metric-open { position:static; display:block; flex:0 0 auto; font-size:14px; margin-left:auto; }
@@ -91,7 +83,7 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-details { margin:16px 0; border:1px solid var(--line); border-radius:8px; background:var(--card); }
 .dashboard-details>summary { padding:16px 20px; font-size:16px; line-height:1.45; font-weight:700; cursor:pointer; }
 .dashboard-details[open]>summary { border-bottom:1px solid var(--line); }
-.dashboard-app .inflation-primer { margin:0; border:0; border-radius:0; grid-template-columns:repeat(2,minmax(0,1fr)); background:#fff; }
+.dashboard-app .inflation-primer { margin:0; border:0; border-radius:0; grid-template-columns:repeat(2,minmax(0,1fr)); background:var(--surface-card); }
 .dashboard-app .inflation-primer .primer-heading { grid-column:1/-1; padding:20px 24px 0; }
 .dashboard-app .inflation-primer>article { border:0; padding:16px 24px; }
 .dashboard-app .inflation-primer :is(h2,h3) { font-size:22px; }
@@ -117,8 +109,8 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .regional-bars { gap:6px; padding:16px; }
 .dashboard-app .regional-bar { grid-template-columns:minmax(110px,1fr) minmax(0,2fr) minmax(80px,auto); gap:12px; padding:8px 10px; border-radius:4px; }
 .dashboard-app .regional-bar>span { text-transform:none; letter-spacing:0; font-weight:600; }
-.dashboard-app .regional-bar>i { max-width:100%; min-width:0; border-radius:2px; background:#27877c; height:14px; }
-.dashboard-app .regional-bar.selected>i { background:#c45336; }
+.dashboard-app .regional-bar>i { max-width:100%; min-width:0; border-radius:2px; background:var(--chart-series-primary); height:14px; }
+.dashboard-app .regional-bar.selected>i { background:var(--chart-series-selected); }
 .dashboard-app .regional-chart-note { margin:0 0 24px; color:var(--muted); font-size:14px; }
 .dashboard-app .income-group-panel { margin-bottom:24px; padding:24px; }
 .dashboard-app .income-group-heading :is(h2,h3) { font-size:24px; }
@@ -154,35 +146,44 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app footer p { font-size:14px; }
 
 /* Trust and accessible operation: no decorative changes to the compact layout. */
-.dashboard-app .skip-link { position:absolute; top:8px; left:16px; z-index:100; transform:translateY(-150%); padding:12px 18px; background:#fff; color:#17252b; border:1px solid #17252b; }
+.dashboard-app .skip-link { position:absolute; top:8px; left:16px; z-index:100; transform:translateY(-150%); padding:12px 18px; background:var(--surface-card); color:var(--text-primary); border:1px solid var(--text-primary); }
 .dashboard-app .skip-link:focus { transform:translateY(0); }
-.dashboard-app .risk-overview>article>span { color:#f4c8bf; font-size:14px; }
-.dashboard-app .section-heading.light h1 { color:#f4f8f6; }
-.dashboard-app .input-health-notice { margin:0 0 16px; padding:12px 16px; border:1px solid #b8cad2; border-radius:4px; color:#17252b; background:#fff; }
+.dashboard-app .risk-overview>article>span { color:var(--text-accent-on-dark); font-size:14px; }
+.dashboard-app .section-heading.light h1 { color:var(--text-on-dark); }
+.dashboard-app .input-health-notice { margin:0 0 16px; padding:12px 16px; border:1px solid var(--border-control); border-radius:4px; color:var(--text-primary); background:var(--surface-card); }
 .dashboard-app .input-health-notice p { margin:0 0 6px; font-size:14px; }
-.dashboard-app .input-health-notice a { font-size:14px; color:#126256; text-decoration:underline; }
-.dashboard-app :is(.risk-section,.forecast-section) .input-health-notice { background:#243d32; border-color:#627d71; color:#e3ece8; }
-.dashboard-app :is(.risk-section,.forecast-section) .input-health-notice a { color:#a4dfd1; }
-.dashboard-app .risk-card .risk-source-status { display:block; margin:10px 0; color:#c3e4db; font-size:14px; }
-.dashboard-app .input-health-note { margin:0 0 16px; padding:12px 16px; border:1px solid #b8cad2; border-radius:4px; font-size:14px; line-height:1.5; }
+.dashboard-app .input-health-notice a { font-size:14px; color:var(--accent-interactive); text-decoration:underline; }
+.dashboard-app :is(.risk-section,.forecast-section) .input-health-notice { background:var(--surface-dark-control); border-color:var(--border-control-on-dark); color:var(--text-on-dark); }
+.dashboard-app :is(.risk-section,.forecast-section) .input-health-notice a { color:var(--text-link-on-dark); }
+.dashboard-app .risk-card .risk-source-status { display:block; margin:10px 0; color:var(--text-link-on-dark); font-size:14px; }
+.dashboard-app .input-health-note { margin:0 0 16px; padding:12px 16px; border:1px solid var(--border-control); border-radius:4px; font-size:14px; line-height:1.5; }
 .dashboard-app .input-health-note p { display:inline; margin:0 0 0 10px; font-size:14px; }
 .dashboard-app .input-health-note :is(a,button) { color:inherit; text-decoration:underline; }
-.dashboard-app :is(.risk-section,.forecast-section,.health-section,.bop-section,.market-section) .input-health-note { color:#e3ece8; border-color:#627d71; background:#243d32; }
+.dashboard-app :is(.risk-section,.forecast-section,.health-section,.bop-section,.market-section) .input-health-note { color:var(--text-on-dark); border-color:var(--border-control-on-dark); background:var(--surface-dark-control); }
 .dashboard-app .risk-card .input-health-badge { display:inline-block; margin:6px 0; font-size:14px; }
 .dashboard-app .news-meta { gap:10px 16px; flex-wrap:wrap; }
-.dashboard-app .news-refresh,.dashboard-app .news-empty button { min-height:44px; border:1px solid #8b9fa8; border-radius:4px; padding:8px 14px; color:#17252b; background:#fff; font-size:14px; font-weight:600; cursor:pointer; }
+.dashboard-app .news-refresh,.dashboard-app .news-empty button { min-height:44px; border:1px solid var(--border-strong); border-radius:4px; padding:8px 14px; color:var(--text-primary); background:var(--surface-card); font-size:14px; font-weight:600; cursor:pointer; }
 .dashboard-app .news-filter-group button { min-height:44px; }
 .dashboard-app .regional-controls .segmented button { min-height:44px; }
 .dashboard-app .regional-controls select { min-height:44px; font-size:16px; }
-.dashboard-app .dashboard-load-error { margin:20px auto; padding:16px; border:1px solid #a98b48; background:#fff8e8; color:#17252b; border-radius:4px; }
-.dashboard-app .dashboard-load-error button { min-height:44px; padding:8px 14px; margin-top:8px; color:#17252b; border:1px solid #8b9fa8; background:#fff; cursor:pointer; }
+.dashboard-app .dashboard-load-error { margin:20px auto; padding:16px; border:1px solid var(--notice-warning-border); background:var(--notice-warning-background); color:var(--text-primary); border-radius:4px; }
+.dashboard-app .dashboard-load-error button { min-height:44px; padding:8px 14px; margin-top:8px; color:var(--text-primary); border:1px solid var(--border-strong); background:var(--surface-card); cursor:pointer; }
 .dashboard-app .dashboard-load-status { font-size:14px; line-height:1.5; color:var(--muted); padding:10px 0; min-height:40px; }
+.dashboard-app :is(.risk-section,.forecast-section,.health-section,.bop-section,.market-section) .dashboard-load-status { color:var(--text-on-dark); }
 .dashboard-app main :is(h1,h2,h3) { scroll-margin-top:150px; text-wrap:balance; }
 @media(forced-colors:active) { .dashboard-app :is(button,a,select,summary,[tabindex]):focus-visible { outline:3px solid Highlight; } .dashboard-app :is(.score-visual-track,.regional-bar-track) { border:1px solid CanvasText; } }
 
 @media(min-width:1450px) {
   .dashboard-app .regional-controls { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
+
+.dashboard-app .decision-watch { color:var(--text-secondary); }
+.dashboard-app .decision-framework span { color:var(--text-link-on-dark); }
+.dashboard-app .decision-disclaimer { color:var(--text-secondary); }
+.dashboard-app .method-section .method-intro>p,
+.dashboard-app .method-section .method-list p { color:var(--text-secondary); }
+.dashboard-app .method-section .method-list li>span { color:var(--accent-interactive); }
+.dashboard-app .operations-panel .operations-heading>span { color:var(--accent-interactive); }
 @media(max-width:1250px) {
   .dashboard-app .income-group-grid,.dashboard-app .regional-lower-grid { grid-template-columns:minmax(0,1fr); }
   .dashboard-app .regional-lower-grid .mini-rank-list { grid-template-columns:repeat(2,minmax(0,1fr)); }

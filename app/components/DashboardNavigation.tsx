@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import type { DashboardSection } from "@/app/page";
+import type { DashboardSection } from "@/app/lib/dashboard-ui-types";
 
 type NavigationItem = { id: DashboardSection; label: string; href: string };
 type NavigationGroup = { label: string; items: NavigationItem[] };

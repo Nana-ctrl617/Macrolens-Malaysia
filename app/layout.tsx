@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import "./design-tokens.css";
 import "./globals.css";
 import "./compact-dashboard.css";
 import "./compact-forecast.css";
 import "./compact-navigation.css";
+import "./chart-accessibility.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

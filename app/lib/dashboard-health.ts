@@ -73,8 +73,24 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
   }
   if (result.riskHeatmap) {
     for (const item of result.riskHeatmap.items) {
-      const id = ({ bursa: "market", growth: "production", gdp: "production", trade: "externalSector" } as Record<string, string>)[item.id] ?? item.id;
-      item.dataStatus = fallback ? "fallback" : sourceStatus[id] ?? "unavailable";
+      // Required scoring inputs can be missing even when a source was retrieved.
+      // A fallback flag must never turn that missing measurement into a valid score.
+      if (item.score === null || item.level === "unavailable" || item.dataStatus === "unavailable") {
+        item.dataStatus = "unavailable";
+        continue;
+      }
+      const id = ({ bursa: "market", growth: "demand", gdp: "demand", trade: "externalSector" } as Record<string, string>)[item.id] ?? item.id;
+      item.dataStatus = fallback ? "fallback" : item.dataStatus && item.dataStatus !== "fresh" ? item.dataStatus : sourceStatus[id] ?? "unavailable";
+    }
+    const availableCount = result.riskHeatmap.items.filter((item) => typeof item.score === "number" && Number.isFinite(item.score) && item.level !== "unavailable" && item.dataStatus !== "unavailable").length;
+    if (availableCount < result.riskHeatmap.items.length) {
+      if (!availableCount) result.riskHeatmap.status = "unavailable";
+      else if (result.riskHeatmap.status === "fresh") result.riskHeatmap.status = "partial";
+      const health = result.inputHealth.riskHeatmap;
+      if (health) {
+        health.status = fallback ? "fallback" : "partial";
+        health.note = `${availableCount} of ${result.riskHeatmap.items.length} risk scores are available. Missing signals are excluded; weights are renormalised over available scores. ${health.note}`;
+      }
     }
   }
   if (result.structuralBreaks) {

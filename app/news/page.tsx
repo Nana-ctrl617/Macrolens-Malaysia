@@ -1,5 +1,4 @@
-import { DashboardPage } from "@/app/page";
+import DashboardShell from "@/app/components/DashboardShell";
+import NewsView from "@/app/views/NewsView";
 
-export default function NewsPage() {
-  return <DashboardPage section="news" />;
-}
+export default function NewsPage() { return <DashboardShell section="news"><NewsView /></DashboardShell>; }

@@ -1,5 +1,4 @@
-import { DashboardPage } from "../page";
+import DashboardShell from "@/app/components/DashboardShell";
+import DriversView from "@/app/views/DriversView";
 
-export default function DriversPage() {
-  return <DashboardPage section="drivers" />;
-}
+export default function DriversPage() { return <DashboardShell section="drivers"><DriversView /></DashboardShell>; }

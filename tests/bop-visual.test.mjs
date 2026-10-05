@@ -45,7 +45,8 @@ test("missing account observations split the line and never become zeros", () =>
   const path = html.match(/class="bop-trend-line" d="([^"]*)"/)[1];
   assert.equal((path.match(/M/g) ?? []).length, 2);
   assert.equal((path.match(/L/g) ?? []).length, 0);
-  assert.ok(html.includes('aria-label="Not published"'));
+  assert.ok(html.includes('View exact quarterly balances as a table'));
+  assert.ok(!html.includes('<table'), 'the unavailable cell is demand-mounted and tested after opening in chart-components-accessibility');
   assert.ok(!html.includes("RM 0 billion"));
 });
 

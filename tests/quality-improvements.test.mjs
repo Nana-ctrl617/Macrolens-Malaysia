@@ -5,8 +5,17 @@ import { validateDashboardIntegrity } from '../app/lib/dashboard-integrity.ts';
 import { createValidatedArtifactCache } from '../app/lib/validated-artifact-cache.ts';
 import { consecutiveMonthlyChanges } from '../app/lib/monthly-evidence.ts';
 import { weightedPressure } from '../app/lib/score-method.ts';
+import { appSource, viewSource } from './source-owners.mjs';
 
 const fixture = () => JSON.parse(readFileSync(new URL('../data/published/dashboard.json', import.meta.url), 'utf8'));
+
+test('observation-change volatility never claims daily or decision changes are monthly', () => {
+  const explorer = readFileSync(new URL('../app/components/IndicatorDetail.tsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(explorer, /Monthly-change volatility/);
+  assert.match(explorer, /Successive-observation change volatility/);
+  assert.match(explorer, /data.frequency/);
+  assert.match(explorer, /Observation spacing can differ/);
+});
 
 test('saved dashboard passes numerical and temporal integrity checks', () => {
   assert.equal(validateDashboardIntegrity(fixture()), true);
@@ -27,6 +36,27 @@ test('rejects non-future forecasts, reversed intervals and contradictory risk su
     p => p.forecast.points[0].low95 = p.forecast.points[0].high95 + 1,
     p => p.riskHeatmap.overallScore = 99,
   ]) { const p = fixture(); mutate(p); assert.equal(validateDashboardIntegrity(p), false); }
+});
+test('keeps unavailable household market observations out of the published mean', () => {
+  const p = fixture();
+  const market = p.householdPressure.components.find(item => item.id === 'wealth-risk');
+  market.score = null; market.level = 'unavailable'; market.unavailableReason = 'No one-year return.';
+  p.householdPressure.status = 'partial';
+  const available = p.householdPressure.components.filter(item => item.score !== null).map(item => item.score);
+  p.householdPressure.overallScore = Math.round(available.reduce((a, b) => a + b, 0) / available.length * 10) / 10;
+  p.householdPressure.overallLevel = p.householdPressure.overallScore >= 70 ? 'high' : p.householdPressure.overallScore >= 40 ? 'moderate' : 'low';
+  assert.equal(validateDashboardIntegrity(p), true);
+  market.unavailableReason = '';
+  assert.equal(validateDashboardIntegrity(p), false);
+});
+test('sector screens never present missing growth as a calculated risk level', () => {
+  const p = fixture();
+  const sector = p.sectorDeepDive.sectors[0];
+  sector.changeYoY = null;
+  sector.riskLevel = 'unavailable';
+  assert.equal(validateDashboardIntegrity(p), true);
+  sector.riskLevel = 'low';
+  assert.equal(validateDashboardIntegrity(p), false);
 });
 test('server cache coalesces loads and preserves last valid values with fallback status', async () => {
   let now = 0, calls = 0, broken = false;
@@ -52,18 +82,22 @@ test('monthly explanation excludes gaps rather than mislabelling multi-month cha
   assert.deepEqual(result.periods, ['2025-08']);
 });
 test('stable data loading replaces timestamp cache bypass and internal schema messages', () => {
-  const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
-  assert.doesNotMatch(page, /dashboard-v7\?refresh|schema-nine dataset|version-seven dataset|version-eight dataset/);
-  assert.match(page, /loadDashboard\(/);
-  assert.match(page, /role="status" aria-live="polite"/);
-  assert.doesNotMatch(page, /coefficients\s*=\s*scenario\?\.coefficients\s*\?\?/);
-  assert.match(page, /if \(!scenario\) return/);
-  assert.match(page, /initialDataUnavailable\s*=\s*section !== "news" && !dashboard && !dashboardLoading && Boolean\(dashboardError\)/);
-  assert.match(page, /initialDataUnavailable \? <section/);
-  assert.match(page, /Try latest data again/);
-  assert.match(page, /Historical data is unavailable/);
-  assert.match(page, /Retry historical data/);
-  assert.match(page, /const timeout = setTimeout\(\(\) => controller.abort\(\), 12000\)/);
+  const shell = appSource('components/DashboardShell.tsx');
+  const forecast = viewSource('Forecast');
+  const explorer = appSource('components/IndicatorDetail.tsx');
+  for(const source of [shell,forecast,explorer]) assert.doesNotMatch(source, /dashboard-v7\?refresh|schema-nine dataset|version-seven dataset|version-eight dataset/);
+  assert.match(shell, /loadDashboardView\(section\)/);
+  assert.match(shell, /retryDashboardView\(section\)/);
+  assert.doesNotMatch(shell, /from\s+["'][^"']*dashboard-client["']/);
+  assert.match(shell, /role="status" aria-live="polite"/);
+  assert.doesNotMatch(forecast, /coefficients\s*=\s*scenario\?\.coefficients\s*\?\?/);
+  assert.match(forecast, /if \(!scenario\) return/);
+  assert.match(shell, /initialDataUnavailable\s*=\s*section !== "news" && !dashboard && !dashboardLoading && Boolean\(dashboardError\)/);
+  assert.match(shell, /initialDataUnavailable \? <section/);
+  assert.match(shell, /Try latest data again/);
+  assert.match(explorer, /Historical data is unavailable/);
+  assert.match(explorer, /Retry historical data/);
+  assert.match(explorer, /const timeout = setTimeout\(\(\) => controller.abort\(\), 12000\)/);
 });
 
 test('exploratory risk weights renormalize without changing published scores', () => {

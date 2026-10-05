@@ -1,0 +1,1254 @@
+{
+  "phase": "after",
+  "measuredAt": "2026-10-05T13:30:56.916Z",
+  "browser": "151.0.7922.34",
+  "fixtureHash": "04fc103a9595547919f64097d6aec53bf8860ebee303338069950c1e7b4cfdb5",
+  "conditions": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "cache": "new browser context, cache disabled for each trial",
+    "network": {
+      "latencyMs": 150,
+      "downloadBytesPerSecond": 200000,
+      "uploadBytesPerSecond": 93750
+    },
+    "cpuSlowdown": 4,
+    "trialsPerRoute": 3,
+    "host": "local production Worker preview",
+    "caveat": "Synthetic cold-load lab observations, not field Core Web Vitals or a public network benchmark. Dashboard JSON is fulfilled from a deterministic fixture; its body bytes are counted separately. Network shaping applies to real asset requests."
+  },
+  "trials": [
+    {
+      "route": "/",
+      "trial": 1,
+      "domContentLoadedMs": 2474.2000000029802,
+      "loadMs": 2474.7999999970198,
+      "fcpMs": 1684,
+      "lcpMs": 2076,
+      "domElements": 322,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 72726,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 101799,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 4773
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/SnapshotView-aei7TrlG.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 4314
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6460
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/inflation-definitions-BcQgcSGt.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 597
+        },
+        {
+          "url": "/assets/visual-data-BAI-P8AJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1935
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 72794
+        }
+      ]
+    },
+    {
+      "route": "/",
+      "trial": 2,
+      "domContentLoadedMs": 1843.5999999940395,
+      "loadMs": 1847.2999999970198,
+      "fcpMs": 1280,
+      "lcpMs": 1804,
+      "domElements": 322,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 72726,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 101800,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 4773
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/SnapshotView-aei7TrlG.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 4314
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/inflation-definitions-BcQgcSGt.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 597
+        },
+        {
+          "url": "/assets/visual-data-BAI-P8AJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1935
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 72794
+        }
+      ]
+    },
+    {
+      "route": "/",
+      "trial": 3,
+      "domContentLoadedMs": 1678.5,
+      "loadMs": 1682.7999999970198,
+      "fcpMs": 1612,
+      "lcpMs": 1612,
+      "domElements": 322,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 72726,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 101800,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 4773
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/SnapshotView-aei7TrlG.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 4314
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/inflation-definitions-BcQgcSGt.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 597
+        },
+        {
+          "url": "/assets/visual-data-BAI-P8AJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1935
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 72794
+        }
+      ]
+    },
+    {
+      "route": "/forecast",
+      "trial": 1,
+      "domContentLoadedMs": 1711,
+      "loadMs": 1711.6000000089407,
+      "fcpMs": 1508,
+      "lcpMs": 1508,
+      "domElements": 399,
+      "closedDetailsRows": 3,
+      "overflow": false,
+      "dashboardPayloadBytes": 15047,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 103321,
+      "javascriptRequests": 9,
+      "resources": [
+        {
+          "url": "/forecast",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 5529
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/ForecastView-CfvsFRUp.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1329
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/ForecastView-CfSjW7u2.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 7811
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 15115
+        }
+      ]
+    },
+    {
+      "route": "/forecast",
+      "trial": 2,
+      "domContentLoadedMs": 1722.7000000029802,
+      "loadMs": 1723,
+      "fcpMs": 1476,
+      "lcpMs": 1476,
+      "domElements": 399,
+      "closedDetailsRows": 3,
+      "overflow": false,
+      "dashboardPayloadBytes": 15047,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 103321,
+      "javascriptRequests": 9,
+      "resources": [
+        {
+          "url": "/forecast",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 5529
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/ForecastView-CfvsFRUp.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1329
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/ForecastView-CfSjW7u2.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 7811
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 15115
+        }
+      ]
+    },
+    {
+      "route": "/forecast",
+      "trial": 3,
+      "domContentLoadedMs": 1667.5999999940395,
+      "loadMs": 1667.5999999940395,
+      "fcpMs": 1644,
+      "lcpMs": 1644,
+      "domElements": 399,
+      "closedDetailsRows": 3,
+      "overflow": false,
+      "dashboardPayloadBytes": 15047,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 103321,
+      "javascriptRequests": 9,
+      "resources": [
+        {
+          "url": "/forecast",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 5529
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/ForecastView-CfvsFRUp.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1329
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/ForecastView-CfSjW7u2.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 7811
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/chart-inspection-j0PcyyI6.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 974
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 15115
+        }
+      ]
+    },
+    {
+      "route": "/regional",
+      "trial": 1,
+      "domContentLoadedMs": 1321.5,
+      "loadMs": 1741.0999999940395,
+      "fcpMs": 1344,
+      "lcpMs": 1344,
+      "domElements": 552,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 40708,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 102518,
+      "javascriptRequests": 6,
+      "resources": [
+        {
+          "url": "/regional",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3358
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RegionalView-DDBNO-up.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1007
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/RegionalView-DNReSxMr.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 9317
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 40776
+        }
+      ]
+    },
+    {
+      "route": "/regional",
+      "trial": 2,
+      "domContentLoadedMs": 1179.5999999940395,
+      "loadMs": 1615.8999999910593,
+      "fcpMs": 1192,
+      "lcpMs": 1192,
+      "domElements": 552,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 40708,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 102518,
+      "javascriptRequests": 6,
+      "resources": [
+        {
+          "url": "/regional",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3358
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RegionalView-DDBNO-up.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1007
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/RegionalView-DNReSxMr.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 9317
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 40776
+        }
+      ]
+    },
+    {
+      "route": "/regional",
+      "trial": 3,
+      "domContentLoadedMs": 1244.7000000029802,
+      "loadMs": 1659.6000000089407,
+      "fcpMs": 1252,
+      "lcpMs": 1252,
+      "domElements": 552,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 40708,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 102518,
+      "javascriptRequests": 6,
+      "resources": [
+        {
+          "url": "/regional",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3358
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RegionalView-DDBNO-up.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 1007
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/RegionalView-DNReSxMr.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 9317
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 40776
+        }
+      ]
+    },
+    {
+      "route": "/risk",
+      "trial": 1,
+      "domContentLoadedMs": 1287.5999999940395,
+      "loadMs": 1675.7999999970198,
+      "fcpMs": 1272,
+      "lcpMs": 2212,
+      "domElements": 287,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 6058,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 99969,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/risk",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3659
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RiskScoreVisual-BBuOl29V.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 2119
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/RiskView-D6Wtqygd.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1498
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/PictureStrip-ClWPrJBl.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1074
+        },
+        {
+          "url": "/assets/RiskScoreVisual-Brk45nwx.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 2861
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 6125
+        }
+      ]
+    },
+    {
+      "route": "/risk",
+      "trial": 2,
+      "domContentLoadedMs": 1284.0999999940395,
+      "loadMs": 1695.5999999940395,
+      "fcpMs": 1292,
+      "lcpMs": 2420,
+      "domElements": 287,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 6058,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 99969,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/risk",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3659
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RiskScoreVisual-BBuOl29V.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 2119
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/RiskView-D6Wtqygd.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1498
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/PictureStrip-ClWPrJBl.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1074
+        },
+        {
+          "url": "/assets/RiskScoreVisual-Brk45nwx.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 2861
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 6125
+        }
+      ]
+    },
+    {
+      "route": "/risk",
+      "trial": 3,
+      "domContentLoadedMs": 1041.7000000029802,
+      "loadMs": 1844.800000011921,
+      "fcpMs": 1288,
+      "lcpMs": 2508,
+      "domElements": 287,
+      "closedDetailsRows": 0,
+      "overflow": false,
+      "dashboardPayloadBytes": 6058,
+      "unopenedHistoryRequests": 0,
+      "javascriptEncodedBytes": 99969,
+      "javascriptRequests": 10,
+      "resources": [
+        {
+          "url": "/risk",
+          "type": "text/html",
+          "status": 200,
+          "encodedBytes": 3659
+        },
+        {
+          "url": "/macrolens-logo.png",
+          "type": "image/png",
+          "status": 200,
+          "encodedBytes": 100279
+        },
+        {
+          "url": "/assets/index-DoucjMSe.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 27008
+        },
+        {
+          "url": "/assets/RiskScoreVisual-BBuOl29V.css",
+          "type": "text/css",
+          "status": 200,
+          "encodedBytes": 2119
+        },
+        {
+          "url": "/assets/layout-segment-context-myV4SP2W.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 479
+        },
+        {
+          "url": "/assets/rolldown-runtime-S-ySWqyJ.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 678
+        },
+        {
+          "url": "/assets/RiskView-D6Wtqygd.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1498
+        },
+        {
+          "url": "/assets/DashboardShell-DUlMIfWK.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 6461
+        },
+        {
+          "url": "/assets/InputHealthNotice-yin2SjBf.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 556
+        },
+        {
+          "url": "/assets/index-DE8Md89y.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 26158
+        },
+        {
+          "url": "/assets/dashboard-format-BE9D28eB.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 779
+        },
+        {
+          "url": "/assets/PictureStrip-ClWPrJBl.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 1074
+        },
+        {
+          "url": "/assets/RiskScoreVisual-Brk45nwx.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 2861
+        },
+        {
+          "url": "/assets/framework-CXnKph_e.js",
+          "type": "text/javascript",
+          "status": 200,
+          "encodedBytes": 59425
+        },
+        {
+          "url": "/api/dashboard-view",
+          "type": "application/json",
+          "status": 200,
+          "encodedBytes": 6125
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "route": "/",
+      "domContentLoadedMs": 1843.5999999940395,
+      "loadMs": 1847.2999999970198,
+      "fcpMs": 1612,
+      "lcpMs": 1804,
+      "domElements": 322,
+      "closedDetailsRows": 0,
+      "dashboardPayloadBytes": 72726,
+      "javascriptEncodedBytes": 101800,
+      "javascriptRequests": 10,
+      "unopenedHistoryRequests": 0
+    },
+    {
+      "route": "/forecast",
+      "domContentLoadedMs": 1711,
+      "loadMs": 1711.6000000089407,
+      "fcpMs": 1508,
+      "lcpMs": 1508,
+      "domElements": 399,
+      "closedDetailsRows": 3,
+      "dashboardPayloadBytes": 15047,
+      "javascriptEncodedBytes": 103321,
+      "javascriptRequests": 9,
+      "unopenedHistoryRequests": 0
+    },
+    {
+      "route": "/regional",
+      "domContentLoadedMs": 1244.7000000029802,
+      "loadMs": 1659.6000000089407,
+      "fcpMs": 1252,
+      "lcpMs": 1252,
+      "domElements": 552,
+      "closedDetailsRows": 0,
+      "dashboardPayloadBytes": 40708,
+      "javascriptEncodedBytes": 102518,
+      "javascriptRequests": 6,
+      "unopenedHistoryRequests": 0
+    },
+    {
+      "route": "/risk",
+      "domContentLoadedMs": 1284.0999999940395,
+      "loadMs": 1695.5999999940395,
+      "fcpMs": 1288,
+      "lcpMs": 2420,
+      "domElements": 287,
+      "closedDetailsRows": 0,
+      "dashboardPayloadBytes": 6058,
+      "javascriptEncodedBytes": 99969,
+      "javascriptRequests": 10,
+      "unopenedHistoryRequests": 0
+    }
+  ]
+}
