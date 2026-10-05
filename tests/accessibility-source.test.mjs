@@ -38,12 +38,13 @@ test("main route headings are semantic h1 elements", () => {
 });
 
 test("regional chart rows retain their individual value and source semantics", () => {
-  assert.doesNotMatch(page, /className="regional-bars" role="img"/);
-  assert.match(page, /className="regional-bars" role="list"/);
-  assert.match(page, /role="listitem" aria-label=\{`\$\{item\.state\}/);
-  assert.match(page, /Source: \$\{activeSourceName\}\. Observation period: \$\{sourceDate/);
-  assert.match(page, /aria-pressed=\{view === "chart"\}/);
-  assert.match(page, /aria-pressed=\{view === "table"\}/);
+  const regional = readFileSync(new URL("../app/components/RegionalLensView.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(regional, /className="regional-bars" role="img"/);
+  assert.match(regional, /className="regional-bars" role="list"/);
+  assert.match(regional, /role="listitem"/);
+  assert.match(regional, /Source: \$\{item\.sourceLabel\}\. Data status/);
+  assert.match(regional, /aria-pressed=\{selected.view === "chart"\}/);
+  assert.match(regional, /aria-pressed=\{selected.view === "table"\}/);
 });
 
 test("range and measure buttons expose their selected state", () => {

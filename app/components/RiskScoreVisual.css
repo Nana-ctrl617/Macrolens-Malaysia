@@ -78,6 +78,19 @@
 .score-visual .score-visual-evidence dd { color:var(--score-muted); margin:0; font-size:15px; line-height:1.55; overflow-wrap:anywhere; }
 .score-visual .score-visual-source { display:flex; flex-wrap:wrap; gap:8px 24px; margin:14px 0 0; color:var(--score-muted); font-size:14px; line-height:1.5; }
 .score-visual .score-visual-source strong { font-weight:700; }
+.score-visual .score-visual-method { color:var(--score-muted); font-size:15px; line-height:1.55; margin:12px 0 18px; max-width:75ch; }
+.score-visual .score-visual-layout { grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); align-items:start; }
+.score-visual .score-visual-evidence { margin:0; padding:16px; border:1px solid var(--score-line); border-radius:8px; background:var(--score-surface); scroll-margin-top:160px; }
+.score-visual .score-visual-evidence dl { grid-template-columns:1fr; gap:14px; }
+.score-visual .score-visual-evidence dd,.score-visual .score-visual-bar-label { font-size:16px; }
+.score-visual .score-view-controls { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.score-visual .score-view-controls button,.score-visual .score-weight-check select { min-height:44px; padding:8px 12px; border:1px solid var(--score-line); border-radius:4px; background:var(--score-surface); color:var(--score-ink); font:inherit; }
+.score-visual .score-view-controls button[aria-pressed="true"] { font-weight:800; text-decoration:underline; text-underline-offset:5px; }
+.score-visual .score-weight-check summary { min-height:44px; padding:10px 0; cursor:pointer; font-size:15px; font-weight:700; }
+.score-visual .score-weight-check label { display:block; margin:8px 0; font-size:15px; }
+.score-visual .score-weight-check select { width:100%; font-size:16px; }
+.score-visual .score-weight-check p { font-size:15px; line-height:1.55; color:var(--score-muted); }
+.score-visual .score-weight-check summary:focus-visible { outline:3px solid var(--score-high); outline-offset:3px; }
 @media(max-width:1000px) { .score-visual .score-visual-layout { grid-template-columns:1fr; gap:20px; } }
 @media(max-width:600px) {
   .score-visual .score-visual-heading { flex-direction:column; gap:10px; }

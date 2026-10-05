@@ -40,7 +40,7 @@
       },
       "warnings": [],
       "candidates": [],
-      "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
       "seriesFingerprint": "524117f14009f797682ccb80f809fd0cae1acec838c0d7f979908361f1c7db46",
       "calculationStatus": "fresh",
       "inputHealth": {
@@ -719,7 +719,7 @@
         "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
       ],
       "candidates": [],
-      "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+      "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
       "seriesFingerprint": "9eb8212f6a4977d02615b4a30b3d6f162099f09ec612293d1f96bfee0d7c8293",
       "calculationStatus": "fresh",
       "inputHealth": {

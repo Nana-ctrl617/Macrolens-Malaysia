@@ -23,6 +23,7 @@ const palette: Record<string, string> = {
   opr: "#275f91", fx: "#716092", mgs: "#8b6518",
 };
 const ranges: ObservationRange[] = ["1Y", "3Y", "All"];
+const HISTORY_PAGE_SIZE = 50;
 
 export function SeriesTrendPanel({ series, statuses = {}, title = "Explore the data over time", defaultKey, limit, compact = false }: SeriesTrendPanelProps) {
   const id = useId();
@@ -33,9 +34,16 @@ export function SeriesTrendPanel({ series, statuses = {}, title = "Explore the d
   const [chosen, setChosen] = useState(defaultKey ?? available[0]?.key ?? "");
   const [range, setRange] = useState<ObservationRange>("1Y");
   const [inspectionIndex, setInspectionIndex] = useState(-1);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyPagination, setHistoryPagination] = useState({ key: "", range: "1Y" as ObservationRange, page: 0 });
   const active = available.find((item) => item.key === chosen) ?? available[0];
   const prepared = useMemo(() => prepareSeriesPoints(active?.points), [active?.points]);
   const points = useMemo(() => observationWindow(prepared.points, range), [prepared.points, range]);
+  const historyPageCount = Math.max(1, Math.ceil(points.length / HISTORY_PAGE_SIZE));
+  const historyPage = historyPagination.key === active?.key && historyPagination.range === range
+    ? Math.max(0, Math.min(historyPagination.page, historyPageCount - 1)) : 0;
+  const historyStart = historyPage * HISTORY_PAGE_SIZE;
+  const historyRows = historyOpen ? points.slice(historyStart, historyStart + HISTORY_PAGE_SIZE) : [];
   const domain = useMemo(() => numericDomain(points.map((point) => point.value)), [points]);
   const change = trendChange(points);
   const selectedIndex = inspectionIndex < 0 ? points.length - 1 : Math.min(inspectionIndex, points.length - 1);
@@ -53,8 +61,8 @@ export function SeriesTrendPanel({ series, statuses = {}, title = "Explore the d
   const segments = active ? segmentSeries(points, active.frequency) : [];
   const pointValue = (value: number) => formatMetricValue(value, active.unit, active.decimals);
   const pointDate = (date: string) => formatObservationDate(date, active.frequency);
-  const pickSeries = (key: string) => { setChosen(key); setInspectionIndex(-1); };
-  const pickRange = (next: ObservationRange) => { setRange(next); setInspectionIndex(-1); };
+  const pickSeries = (key: string) => { setChosen(key); setInspectionIndex(-1); setHistoryPagination({ key, range, page: 0 }); };
+  const pickRange = (next: ObservationRange) => { setRange(next); setInspectionIndex(-1); setHistoryPagination({ key: active?.key ?? "", range: next, page: 0 }); };
   const inspectPointer = (event: PointerEvent<HTMLDivElement>) => {
     if (!points.length) return;
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -72,11 +80,11 @@ export function SeriesTrendPanel({ series, statuses = {}, title = "Explore the d
     if (event.key in actions) { event.preventDefault(); setInspectionIndex(actions[event.key]); }
   };
 
-  if (!active) return <section className="series-trend-panel"><h3>{title}</h3><p>No indicator series are available in this dashboard.</p></section>;
+  if (!active) return <section className="series-trend-panel" aria-labelledby={`${id}-heading`}><h2 id={`${id}-heading`}>{title}</h2><p>No indicator series are available in this dashboard.</p></section>;
 
   return <section className={`series-trend-panel${compact ? " is-compact" : ""}`} aria-labelledby={`${id}-heading`}>
     <div className="series-trend-heading">
-      <h3 id={`${id}-heading`}>{title}</h3>
+      <h2 id={`${id}-heading`}>{title}</h2>
       <span className={`series-trend-status${nonFresh ? " non-fresh" : ""}`}>{status ? `Source: ${status}` : "Source status not supplied"}</span>
     </div>
     <div className="series-trend-controls">
@@ -127,15 +135,24 @@ export function SeriesTrendPanel({ series, statuses = {}, title = "Explore the d
         <input id={`${id}-point`} type="range" min="0" max={Math.max(0, points.length - 1)} value={selectedIndex} disabled={points.length < 2} onChange={(event) => setInspectionIndex(Number(event.target.value))} aria-valuetext={`${pointDate(inspected.date)}: ${pointValue(inspected.value)}. Source: ${active.source}.`} />
       </div>
       <p id={`${id}-hint`} className="series-trend-hint">Hover or tap the chart, or use the slider and arrow keys. Values in {active.unit || "unitless terms"} · Frequency: {active.frequency} · {points.length} points. {segments.length > 1 ? "Gaps are not filled." : ""} A rise is not automatically good or bad.</p>
-      <details className="series-trend-table">
+      <details className="series-trend-table" open={historyOpen} onToggle={(event) => setHistoryOpen(event.currentTarget.open)}>
         <summary>View {points.length} observations and their source</summary>
+        {historyOpen && <>
+        <div className="series-trend-pagination" role="group" aria-label="Observation history pages">
+          <p id={`${id}-history-page`} className="series-trend-page-status" aria-live="polite" aria-atomic="true">Observations {historyStart + 1}–{Math.min(points.length, historyStart + HISTORY_PAGE_SIZE)} of {points.length} · Page {historyPage + 1} of {historyPageCount}</p>
+          <div className="series-trend-page-buttons">
+            <button type="button" disabled={historyPage === 0} aria-controls={`${id}-history-table`} aria-describedby={`${id}-history-page`} onClick={() => setHistoryPagination({ key: active.key, range, page: historyPage - 1 })}>Previous</button>
+            <button type="button" disabled={historyPage >= historyPageCount - 1} aria-controls={`${id}-history-table`} aria-describedby={`${id}-history-page`} onClick={() => setHistoryPagination({ key: active.key, range, page: historyPage + 1 })}>Next</button>
+          </div>
+        </div>
         <div className="series-trend-table-scroll" tabIndex={0} role="region" aria-label={`${active.title} observations table`}>
-          <table>
+          <table id={`${id}-history-table`}>
             <caption>{active.title} · {active.frequency} · {pointDate(points[0].date)} to {pointDate(points[points.length - 1].date)}. Selected window ends at the latest supplied observation, not today.</caption>
             <thead><tr><th scope="col">Observation period</th><th scope="col">Value ({active.unit || "unitless"})</th><th scope="col">Source</th></tr></thead>
-            <tbody>{points.map((point) => <tr key={point.date}><th scope="row"><time dateTime={point.date} title={formatObservationDate(point.date, active.frequency, true)}>{pointDate(point.date)}</time></th><td>{pointValue(point.value)}</td><td><a href={active.source_url} target="_blank" rel="noreferrer">{active.source}</a></td></tr>)}</tbody>
+            <tbody>{historyRows.map((point) => <tr key={point.date}><th scope="row"><time dateTime={point.date} title={formatObservationDate(point.date, active.frequency, true)}>{pointDate(point.date)}</time></th><td>{pointValue(point.value)}</td><td><a href={active.source_url} target="_blank" rel="noreferrer">{active.source}</a></td></tr>)}</tbody>
           </table>
         </div>
+        </>}
       </details>
     </>}
   </section>;

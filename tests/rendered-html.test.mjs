@@ -122,8 +122,10 @@ test("grouped navigation keeps all direct routes and a labelled mobile menu", as
 });
 
 test("regional presentation preserves data-first order and contained rank lists", () => {
-  const source = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  const regional = source.slice(source.indexOf("function RegionalLensSection"), source.indexOf("function SectorDeepDiveSection"));
+  const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /import RegionalLensView from ["']@\/app\/components\/RegionalLensView["']/);
+  assert.match(page, /section === "regional" && <RegionalLensView dashboard=\{dashboard\}/);
+  const regional = readFileSync(new URL("../app/components/RegionalLensView.tsx", import.meta.url), "utf8");
   const parts = ['className="regional-meta"', 'className="regional-controls"', 'className="regional-comparison"', 'className="regional-bars"', 'className="income-group-panel"', 'className="regional-lower-grid"', 'className="dashboard-details regional-sources"'];
   const positions = parts.map((part) => regional.indexOf(part));
   assert.ok(positions.every((position) => position >= 0));
@@ -150,6 +152,7 @@ test("serves a validated consolidated fallback dashboard", async () => {
   const body = await response.json();
   assert.equal(body.schemaVersion, 9);
   assert.equal(body.usingFallback, true);
+  assert.equal(response.headers.get('cache-control'),'public, max-age=30, s-maxage=30, stale-while-revalidate=30');
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
   assert.ok(body.sources.headline.observationPeriod);
@@ -180,8 +183,31 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.equal(body.categories.length, 13);
   assert.ok(Math.abs(body.categories.reduce((sum, item) => sum + item.weight, 0) - 100) < 1e-9);
   assert.equal(body.cpiDecomposition.weightReferenceYear, 2022);
-  assert.equal(typeof body.forecast.scenario.coefficients.fx, "number");
+  assert.equal(body.forecast.scenario, null);
+  assert.equal(body.forecast.evaluation.scenarioFit.status, 'failed');
+  assert.equal(body.forecast.selectedModel, 'SARIMA');
   assert.ok(body.dataOperations.releaseLog.length > 0);
+});
+
+test("forecast audit downloads expose the same actuals, models and fitting failures", async () => {
+  const dashboard = await (await render('/api/dashboard')).json();
+  const response = await render('/api/forecast-evaluation?format=json');
+  assert.equal(response.status,200);
+  const audit = await response.json();
+  assert.deepEqual(audit.evaluation,dashboard.forecast.evaluation);
+  assert.equal(audit.usingFallback,true);
+  assert.equal(audit.evaluation.finalFit.usedModel,dashboard.forecast.selectedModel);
+  const csv = await (await render('/api/forecast-evaluation?format=csv')).text();
+  assert.match(csv,/origin,target_date,horizon_months,model,fit_status,actual,predicted,error_pp/);
+  assert.equal(csv.trim().split('\n').length,1 + audit.evaluation.windows.length * dashboard.forecast.models.length * 3);
+  assert.match(csv,/ARIMAX,failed,,,/);
+  assert.equal((await render('/api/forecast-evaluation?format=html')).status,400);
+});
+
+test("production includes auditable forecast coverage and honest scenario failure messaging", async () => {
+  const assets = new URL('../dist/client/assets/',import.meta.url);
+  const scripts = readdirSync(assets).filter(name=>name.endsWith('.js')).map(name=>readFileSync(new URL(name,assets),'utf8')).join('\n');
+  for(const marker of ['forecast-audit','Empirical interval coverage','Inspect actual versus predicted','The sensitivity overlay is unavailable','forecast-evaluation?format=csv']) assert.ok(scripts.includes(marker),`Missing forecast audit marker: ${marker}`);
 });
 
 test("serves the versioned dashboard endpoint used by the browser app", async () => {
@@ -200,7 +226,7 @@ test("serves regional comparisons as CSV and JSON", async () => {
   assert.equal(page.status, 200);
   const html = await page.text();
   assert.match(html, /Regional Lens/);
-  assert.match(html, /schema-nine dataset is available|How different are Malaysia/);
+  assert.match(html, /How different are Malaysia/);
   const pageBundle = readdirSync("dist/client/assets").find((file) => /^page-.*\.js$/.test(file));
   assert.ok(pageBundle);
   const pageJs = readFileSync(`dist/client/assets/${pageBundle}`, "utf8");
@@ -209,14 +235,14 @@ test("serves regional comparisons as CSV and JSON", async () => {
   assert.match(pageJs, /M40/);
   assert.match(pageJs, /T20/);
   assert.match(pageJs, /Data sources for assignment/);
-  assert.match(pageJs, /Source for this number/);
+  assert.match(pageJs, /Official source/);
   assert.match(pageJs, /Source CSV/);
   const csvResponse = await render("/api/regional-lens?format=csv");
   assert.equal(csvResponse.status, 200);
   assert.match(csvResponse.headers.get("content-disposition"), /regional-lens\.csv/);
   const csvBody = await csvResponse.text();
-  assert.match(csvBody, /level,state,district,date,income_mean/);
-  assert.match(csvBody, /state_income_group/);
+  assert.match(csvBody, /level,state,district,metric,value,unit,observation_period,source_url,data_status,retrieved_at/);
+  assert.match(csvBody, /incomeGroup\.b40\.meanIncome/);
   const jsonResponse = await render("/api/regional-lens?format=json");
   assert.equal(jsonResponse.status, 200);
   const body = await jsonResponse.json();

@@ -120,7 +120,7 @@ export function BalancePaymentsVisual({ data, usingFallback = false }: { data: B
 
   return <section className="bop-visual" aria-labelledby={`${uid}-heading`}>
     <div className="bop-visual-heading">
-      <div><h3 id={`${uid}-heading`}>Follow Malaysia’s external accounts</h3><p>Compare quarterly balances through time, then see each account’s signed position in the latest published quarter.</p></div>
+      <div><h2 id={`${uid}-heading`}>Follow Malaysia’s external accounts</h2><p>Compare quarterly balances through time, then see each account’s signed position in the latest published quarter.</p></div>
       <span className="bop-source-status">{status}</span>
     </div>
     {!quarters.length || !selectedAccount ? <p className="bop-empty">No published quarterly balances are available for this chart. Check the source status below; missing observations are not drawn as zero.</p> : <>

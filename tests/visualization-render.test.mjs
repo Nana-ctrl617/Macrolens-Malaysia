@@ -39,7 +39,9 @@ test("risk visual renders actual scores, input status and selected evidence", as
   const Risk = await component("RiskScoreVisual");
   const data = payload().riskHeatmap;
   const html = renderToStaticMarkup(createElement(Risk, { items:data.items, overallScore:data.overallScore, overallLevel:data.overallLevel }));
-  assert.match(html, /Interactive pressure heatmap/);
+  assert.match(html, /Score comparison/);
+  assert.doesNotMatch(html, /Interactive pressure heatmap/);
+  assert.match(html, /equal weight/);
   assert.match(html, /aria-pressed="true"/);
   assert.match(html, /not a probability/);
   for (const item of data.items) {
@@ -88,7 +90,7 @@ test("brief trend component preserves unit, source, dated values and controls", 
   assert.ok(html.includes(data.series.headline.source));
   assert.ok(html.includes(data.series.headline.source_url.replaceAll("&", "&amp;")));
   assert.match(html, /<svg/);
-  assert.match(html, /<table/);
+  assert.doesNotMatch(html, /<table/);
 });
 
 test("BOP renders signed published flows and accounting caveat", async () => {

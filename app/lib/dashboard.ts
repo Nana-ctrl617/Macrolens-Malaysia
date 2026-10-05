@@ -1,7 +1,19 @@
 import fallback from "@/data/published/dashboard.json";
 import { normalizeDashboard } from "./dashboard-health";
+import { validateDashboardIntegrity } from "./dashboard-integrity";
+import { createValidatedArtifactCache } from "./validated-artifact-cache";
 
 export type InputHealth = { status: "fresh" | "partial" | "fallback"; staleInputs: string[]; note: string };
+
+export type ForecastEvaluation = {
+  method: string; horizonMonths: number; origins: string[];
+  windows: Array<{origin:string; trainingStart:string; trainingEnd:string; trainingObservations:number; targets:string[]; models:Array<{name:string; status:string; failureReason:string|null; fallbackModel:string|null; points:Array<{horizon:number;date:string;actual:number;predicted:number;error:number;low80:number;high80:number;low95:number;high95:number;covered80:boolean;covered95:boolean}>}>}>;
+  coverage: Array<{name:string;eligible:boolean;covered80:number;total80:number;coverage80:number|null;covered95:number;total95:number;coverage95:number|null}>;
+  candidateEligibility: Array<{name:string;eligible:boolean;successfulWindows:number;failedWindows:number;origins:string[];failedOrigins:string[]}>;
+  caveats:string[];
+  scenarioFit?: {status:string;failureReason:string|null};
+  finalFit: {requestedModel:string;usedModel:string;fallbackUsed:boolean;failureReason:string|null};
+};
 
 export type DataPoint = { date: string; value: number };
 export type SeriesData = {
@@ -146,7 +158,7 @@ export type RegionalStateRecord = {
   incomeMinusExpenditure: number; incomeToExpenditureRatio: number | null; poverty: number; gini: number;
   headlineInflation?: number | null; inflationPeriod?: string | null; unemploymentRate?: number | null;
   labourPeriod?: string | null; realGdp?: number | null; gdpPeriod?: string | null; largestSector?: string | null;
-  largestSectorShare?: number | null; sectorShares?: Array<{ id: string; name: string; value: number; share: number }>;
+  largestSectorShare?: number | null; sectorShares?: Array<{ id: string; name: string; value: number | null; share: number | null }>;
   vsNational?: { incomeMedian: number | null; incomeMean: number | null; poverty: number | null; gini: number | null; expenditureMean: number | null };
 };
 export type RegionalDistrictRecord = {
@@ -170,13 +182,13 @@ export type RegionalSourceMetadata = {
   nationalExpenditure?: { status: string; value: number | null; observationPeriod: string; retrievedAt: string | null; sourceUrl: string; page?: number | null; message?: string };
 };
 export type RegionalLens = {
-  status: "fresh" | "partial" | "stale"; generatedAt: string;
+  status: "fresh" | "partial" | "stale"; generatedAt: string; calculatedAt?: string;
   defaultComparison: { primary: string; secondary: string };
   coverage: { state: string; district: string; nationalOnly: string[] };
   sources?: Record<string, RegionalSourceMetadata>;
   stateRecords: RegionalStateRecord[]; districtRecords: RegionalDistrictRecord[];
   districtLabourRecords?: Array<{ state: string; district: string; date: string; labourForce: number; unemploymentRate: number | null; participationRate?: number | null; employmentPopulationRatio?: number | null }>;
-  districtGdpRecords?: Array<{ state: string; district: string; date: string; total: number; largestSector: string; largestSectorShare: number; sectors: Array<{ id: string; name: string; value: number; share: number }> }>;
+  districtGdpRecords?: Array<{ state: string; district: string; date: string; total: number; largestSector: string | null; largestSectorShare: number | null; sectors: Array<{ id: string; name: string; value: number | null; share: number | null }> }>;
   incomeGroups?: RegionalIncomeGroups;
   summaryCards: Array<{ label: string; value: string; detail: string }>;
   narratives: { headline: string; comparison: string; incomeGroups?: string; district: string; nationalOnly: string };
@@ -216,9 +228,11 @@ export type DashboardPayload = {
     backtestWindows: number;
     status: string;
     inputHealth?: InputHealth;
-    models: Array<{ name: string; rmse: number; mae: number; selected: boolean }>;
+    models: Array<{ name: string; rmse: number | null; mae: number | null; selected: boolean; eligible?: boolean; successfulWindows?: number; failedWindows?: number }>;
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
     scenario?: { model: string; lag: string; baseline: Record<"core" | "fx" | "opr", number>; coefficients: Record<"core" | "fx" | "opr", number>; warning: string } | null;
+    calculatedAt?: string;
+    evaluation?: ForecastEvaluation;
   };
   narratives: { snapshot: string; forecast: string; financial: string };
   structuralBreaks?: StructuralBreaks;
@@ -245,7 +259,7 @@ export type DashboardPayload = {
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
 
-export function isDashboard(value: unknown): value is DashboardPayload {
+function hasDashboardShape(value: unknown): value is DashboardPayload {
   if (!value || typeof value !== "object") return false;
   const candidate = value as DashboardPayload;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
@@ -274,7 +288,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     candidate.categories?.length === 13
     && candidate.categories.every((item) => typeof item.weight === "number" && typeof item.contribution === "number")
     && candidate.cpiDecomposition?.weightReferenceYear === 2022
-    && typeof candidate.forecast?.scenario?.coefficients?.fx === "number"
+    && (typeof candidate.forecast?.scenario?.coefficients?.fx === "number" || (candidate.forecast?.scenario === null && !!candidate.forecast?.evaluation))
     && (candidate.dataOperations?.releaseLog?.length ?? 0) > 0
   );
   const completionValid = candidate.schemaVersion < 7 || (
@@ -313,19 +327,29 @@ export function isDashboard(value: unknown): value is DashboardPayload {
     && candidate.forecast.points.length === 3;
 }
 
+export function isDashboard(value: unknown): value is DashboardPayload {
+  try { return hasDashboardShape(value) && validateDashboardIntegrity(value); }
+  catch { return false; }
+}
+
+let artifactUrl = "";
+let artifactCache: ReturnType<typeof createValidatedArtifactCache<DashboardPayload>> | undefined;
 export async function getDashboard(): Promise<DashboardPayload> {
   const local = fallback as unknown as DashboardPayload;
+  if (!isDashboard(local)) throw new Error("Bundled dashboard failed validation");
   const url = process.env.DASHBOARD_DATA_URL || DEFAULT_URL;
-  try {
-    const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
-    const remote: unknown = await response.json();
-    if (!isDashboard(remote)) throw new Error("Remote dashboard schema is invalid");
-    if (remote.schemaVersion < local.schemaVersion) {
-      return normalizeDashboard({ ...local, health: "fallback", usingFallback: true });
-    }
-    return normalizeDashboard({ ...remote, usingFallback: false });
-  } catch {
-    return normalizeDashboard({ ...local, health: "fallback", usingFallback: true });
+  if (!artifactCache || artifactUrl !== url) {
+    artifactUrl = url;
+    artifactCache = createValidatedArtifactCache<DashboardPayload>({
+      fallback: local,
+      validate: (remote) => isDashboard(remote) && remote.schemaVersion >= local.schemaVersion,
+      load: async () => {
+        const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
+        return response.json();
+      },
+    });
   }
+  const {payload,usingFallback} = await artifactCache.load();
+  return normalizeDashboard({ ...payload, ...(usingFallback ? {health:"fallback" as const} : {}), usingFallback });
 }

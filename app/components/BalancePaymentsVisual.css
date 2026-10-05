@@ -13,7 +13,7 @@
 .bop-visual * { box-sizing: border-box; }
 .bop-visual-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
 .bop-visual-heading > div { min-width: 0; }
-.bop-visual .bop-visual-heading h3 { margin: 0 0 8px; font-size: 23px; line-height: 1.3; }
+.bop-visual .bop-visual-heading h2 { margin: 0 0 8px; font-size: 23px; line-height: 1.3; }
 .bop-visual p { max-width: 76ch; margin: 0; font-size: 15px; line-height: 1.55; }
 .bop-visual .bop-source-status { flex: 0 0 auto; padding: 5px 9px; color: #374f59; background: #edf2f4; border-radius: 4px; font-size: 14px; font-weight: 700; }
 .bop-chart-controls { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 14px; }

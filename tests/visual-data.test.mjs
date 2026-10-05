@@ -9,6 +9,11 @@ import {
 
 const point = (date, value) => ({ date, value });
 
+test('annual and quarterly observations do not imply monthly precision', () => {
+  assert.equal(formatObservationDate('2024-01-01','annual'),'2024');
+  assert.equal(formatObservationDate('2024-07-01','quarterly'),'Q3 2024');
+});
+
 test("chart dates accept genuine UTC dates and reject malformed or impossible dates", () => {
   assert.equal(pointEpoch("2024-02-29"), Date.UTC(2024, 1, 29));
   for (const date of ["2023-02-29", "2024-02-30", "2024-13-01", "2024-1-01", "", null, "2024-01-01T00:00:00Z"]) assert.equal(pointEpoch(date), null);
@@ -149,7 +154,7 @@ test("all six bundled series can render deterministically without mutating the p
 
 test("trend component provides source-linked observations and keyboard inspection, not only an image", () => {
   const source = readFileSync(new URL("../app/components/SeriesTrendPanel.tsx", import.meta.url), "utf8");
-  assert.ok(source.includes("<table>"));
+  assert.match(source, /<table\b/);
   assert.ok(source.includes("aria-valuetext="));
   assert.ok(source.includes("onKeyDown={inspectKeyboard}"));
   assert.ok(source.includes("active.source_url"));

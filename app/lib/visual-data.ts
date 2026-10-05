@@ -168,6 +168,8 @@ export function formatObservationDate(date: string, frequency: string, exact = f
   const epoch = pointEpoch(date);
   if (epoch === null) return "Date not available";
   const cadence = seriesCadence(frequency);
+  if (!exact && cadence === "annual") return String(new Date(epoch).getUTCFullYear());
+  if (!exact && cadence === "quarterly") return `Q${Math.floor(new Date(epoch).getUTCMonth()/3)+1} ${new Date(epoch).getUTCFullYear()}`;
   return new Intl.DateTimeFormat("en-MY", {
     year: "numeric", month: "short", timeZone: "UTC",
     ...(exact || cadence === "daily" || cadence === "policy" || cadence === "other" ? { day: "numeric" } : {}),

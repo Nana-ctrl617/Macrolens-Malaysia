@@ -806,38 +806,93 @@ def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
     return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": LFS_DISTRICT_SOURCE_URL, "datasetUrl": LFS_DISTRICT_URL, "stateRecords": state_records, "districtRecords": district_records, "message": "District labour-force data validated and aggregated to state level"}
 
 
-def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, retrieved: str) -> dict:
+REGIONAL_STATE_NAMES = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis", "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
+REGIONAL_DISTRICT_ALIASES = {
+    "Sarawak": {"lubok antu": "Lubok Antu", "tanjong manis": "Tanjung Manis", "tanjung manis": "Tanjung Manis"},
+    "Pulau Pinang": {"s.p. selatan": "Seberang Perai Selatan", "s.p.selatan": "Seberang Perai Selatan", "seberang perai selatan": "Seberang Perai Selatan",
+                     "s.p. tengah": "Seberang Perai Tengah", "s.p.tengah": "Seberang Perai Tengah", "seberang perai tengah": "Seberang Perai Tengah",
+                     "s.p. utara": "Seberang Perai Utara", "s.p.utara": "Seberang Perai Utara", "seberang perai utara": "Seberang Perai Utara"},
+    "Perak": {"larut & matang": "Larut dan Matang", "larut dan matang": "Larut dan Matang"},
+    "Terengganu": {"hulu": "Hulu Terengganu", "hulu terengganu": "Hulu Terengganu"},
+}
+
+
+def normalize_regional_geography(state: str, district: str) -> dict:
+    """The same conservative, explicit state-scoped aliases as regional-geography.ts."""
+    supplied_state = re.sub(r"\s+", " ", state.strip())
+    state_case = {name.lower(): name for name in REGIONAL_STATE_NAMES}
+    canonical_state = state_case.get(supplied_state.lower(), supplied_state)
+    supplied_district = re.sub(r"\s+", " ", district.strip())
+    canonical_district = REGIONAL_DISTRICT_ALIASES.get(canonical_state, {}).get(supplied_district.lower(), supplied_district)
+    residual = (canonical_state in {"Sabah", "Sarawak"} and supplied_district.lower() == "supra") or canonical_state.lower() in {"supra", "supranational"}
+    return {"key": f"{canonical_state}|{canonical_district}", "state": canonical_state, "district": canonical_district, "kind": "residual" if residual else "district"}
+
+
+def parse_regional_gdp(state_frame: pd.DataFrame, district_frame: pd.DataFrame, retrieved: str | None) -> dict:
     required_state = {"series", "state", "date", "sector", "value"}
     required_district = {"series", "state", "district", "date", "sector", "value"}
     if not required_state.issubset(state_frame.columns) or not required_district.issubset(district_frame.columns):
         raise ValueError("Regional GDP source structure changed")
     def prepare(frame: pd.DataFrame, keys: list[str]) -> list[dict]:
         selected = frame[frame["series"].eq("abs")].copy()
+        if selected.empty or not selected["sector"].isin({"p0", *GDP_SECTORS}).all():
+            raise ValueError("Regional GDP source is empty or contains unexpected sector codes")
         selected["date"] = pd.to_datetime(selected["date"], errors="raise")
-        selected["value"] = pd.to_numeric(selected["value"], errors="coerce")
-        selected = selected[selected["sector"].isin({"p0", *GDP_SECTORS})].dropna(subset=["value"])
+        if selected["date"].isna().any() or not ((selected["date"].dt.month == 1) & (selected["date"].dt.day == 1)).all():
+            raise ValueError("Regional GDP source has invalid annual observation periods")
+        if any(not selected[key].map(lambda value: isinstance(value, str) and bool(value.strip())).all() for key in keys):
+            raise ValueError("Regional GDP source has invalid geography names")
+        if selected["value"].map(lambda value: isinstance(value, (bool, np.bool_))).any():
+            raise ValueError("Regional GDP source contains malformed numeric values")
+        try:
+            selected["value"] = pd.to_numeric(selected["value"], errors="raise")
+        except (ValueError, TypeError) as error:
+            raise ValueError("Regional GDP source contains malformed numeric values") from error
+        numeric = selected["value"].dropna().to_numpy(dtype=float)
+        if not np.isfinite(numeric).all() or (numeric < 0).any():
+            raise ValueError("Regional GDP source contains non-finite or negative levels")
+        selected["_geography"] = [normalize_regional_geography(str(row.state), str(getattr(row, "district", "")))["key"] for row in selected.itertuples(index=False)]
+        if selected.duplicated(["date", "_geography", "sector"]).any():
+            raise ValueError("Regional GDP source contains duplicate geography/period/sector rows")
         latest = selected[selected["date"].eq(selected["date"].max())]
         rows = []
         for group_keys, group in latest.groupby(keys, sort=True):
             group_key_values = (group_keys,) if isinstance(group_keys, str) else group_keys
-            totals = group.groupby("sector")["value"].sum()
-            if "p0" not in totals or totals["p0"] <= 0:
+            levels = group.set_index("sector")["value"]
+            if "p0" not in levels or pd.isna(levels["p0"]):
                 continue
+            total = float(levels["p0"])
             sectors = []
             for code, name in GDP_SECTORS.items():
-                value = float(totals.get(code, 0))
-                sectors.append({"id": code, "name": name, "value": round(value / 1000, 3), "share": round(value / float(totals["p0"]) * 100, 2)})
-            sectors.sort(key=lambda item: item["share"], reverse=True)
+                published = code in levels
+                observed = published and pd.notna(levels[code])
+                value = float(levels[code]) if observed else None
+                sectors.append({"id": code, "name": name, "value": round(value / 1000, 3) if value is not None else None,
+                                "share": round(value / total * 100, 2) if value is not None and total > 0 else None,
+                                "valueStatus": "observed" if observed else "suppressed-or-unavailable" if published else "not-published"})
+            # Rank actual supplied levels, not rounded display percentages.
+            sectors.sort(key=lambda item: float(levels[item["id"]]) if item["valueStatus"] == "observed" else -1, reverse=True)
+            ranked = [item for item in sectors if item["value"] is not None]
             row = {key: str(value) for key, value in zip(keys, group_key_values)}
-            row.update({"date": group["date"].max().strftime("%Y-%m-%d"), "total": round(float(totals["p0"]) / 1000, 3), "largestSector": sectors[0]["name"], "largestSectorShare": sectors[0]["share"], "sectors": sectors})
+            row.update({"date": group["date"].max().strftime("%Y-%m-%d"), "total": round(total / 1000, 3),
+                        "largestSector": ranked[0]["name"] if ranked else None, "largestSectorShare": ranked[0]["share"] if ranked else None,
+                        "sectors": sectors, "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"})
             rows.append(row)
         return rows
-    states = [row for row in prepare(state_frame, ["state"]) if row["state"] != "Supra"]
+    state_rows = prepare(state_frame, ["state"])
+    states = [row for row in state_rows if normalize_regional_geography(row["state"], "")["kind"] != "residual"]
+    state_residuals = [row for row in state_rows if normalize_regional_geography(row["state"], "")["kind"] == "residual"]
     districts = prepare(district_frame, ["state", "district"])
-    if len(states) < 15 or len(districts) < 100:
+    administrative_districts = [row for row in districts if normalize_regional_geography(row["state"], row["district"])["kind"] == "district"]
+    if len(states) < 15 or len(administrative_districts) < 100:
         raise ValueError("Regional GDP source has insufficient latest coverage")
     latest_date = max(row["date"] for row in states)
-    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest_date, "sourceUrl": GDP_STATE_REAL_SOURCE_URL, "datasetUrl": GDP_STATE_REAL_URL, "districtSourceUrl": GDP_DISTRICT_REAL_SOURCE_URL, "districtDatasetUrl": GDP_DISTRICT_REAL_URL, "stateRecords": states, "districtRecords": districts, "message": "Latest annual real GDP by state and district validated"}
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest_date, "sourceUrl": GDP_STATE_REAL_SOURCE_URL, "datasetUrl": GDP_STATE_REAL_URL,
+            "districtSourceUrl": GDP_DISTRICT_REAL_SOURCE_URL, "districtDatasetUrl": GDP_DISTRICT_REAL_URL,
+            "stateRecords": states, "stateResidualRecords": state_residuals, "districtRecords": districts, "administrativeDistrictCount": len(administrative_districts),
+            "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+            "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+            "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero"}
 
 
 def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
@@ -1508,6 +1563,23 @@ def _hedges_g(pre: np.ndarray, post: np.ndarray) -> float | None:
     return float(correction * (np.mean(post) - np.mean(pre)) / pooled)
 
 
+def structural_indicator_narrative(candidates: list[dict]) -> str:
+    """Deterministic interpretation of saved diagnostics, without rerunning statistics."""
+    supported = [candidate for candidate in candidates if candidate["status"] == "supported"]
+    possible = [candidate for candidate in candidates if candidate["status"] == "possible"]
+    if supported:
+        latest = supported[-1]
+        change = latest["regimeComparison"]["absoluteChange"]
+        direction = "higher" if change > 0 else "lower"
+        return f"The latest supported parameter shift is estimated near {latest['breakPeriod'][:7]}. The adjacent-regime mean was {abs(change):.2f} units {direction}; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change."
+    if possible:
+        latest = possible[-1]
+        return f"A possible shift is screened near {latest['breakPeriod'][:7]}, but the classical and autocorrelation-robust evidence do not both meet the 5% threshold. This is suggestive evidence, not confirmed instability or proof that a nearby event caused the change."
+    if candidates:
+        return "The screening step found candidate regime boundaries, but the confirmation tests do not support calling them structural shifts. Screened candidates alone do not establish parameter instability or causality."
+    return "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events."
+
+
 def analyse_structural_indicator(key: str, points: list[dict], opr_points: list[dict], calculated_at: str) -> dict:
     series = structural_monthly(key, points)
     minimum_segment = 24 if len(series) >= 72 else 12
@@ -1600,21 +1672,7 @@ def analyse_structural_indicator(key: str, points: list[dict], opr_points: list[
             label = "Not statistically supported"
         candidate["status"], candidate["statusLabel"] = status, label
 
-    supported = [candidate for candidate in candidates if candidate["status"] == "supported"]
-    possible = [candidate for candidate in candidates if candidate["status"] == "possible"]
-    if supported:
-        latest = supported[-1]
-        change = latest["regimeComparison"]["absoluteChange"]
-        direction = "higher" if change > 0 else "lower"
-        narrative_text = f"The latest supported parameter shift is estimated near {latest['breakPeriod'][:7]}. The adjacent-regime mean was {abs(change):.2f} units {direction}; both the Holm-adjusted Chow and HAC tests are below 5%."
-    elif possible:
-        latest = possible[-1]
-        narrative_text = f"A possible shift is screened near {latest['breakPeriod'][:7]}, but the classical and autocorrelation-robust evidence do not both meet the 5% threshold."
-    elif candidates:
-        narrative_text = "The screening step found candidate regime boundaries, but the confirmation tests do not support calling them structural shifts."
-    else:
-        narrative_text = "BIC selected a stable single-regime specification; no structural break candidate is reported."
-    narrative_text += " This is evidence of parameter instability, not proof that a nearby event caused the change."
+    narrative_text = structural_indicator_narrative(candidates)
 
     return {
         "indicatorId": key, "status": "fresh", "calculatedAt": calculated_at,
@@ -1668,83 +1726,178 @@ def fit_model(name: str, y: pd.Series, exog: pd.DataFrame | None = None):
     return SARIMAX(y, exog=exog, order=(1, 0, 1), seasonal_order=(0, 0, 0, 0), trend="c", enforce_stationarity=False, enforce_invertibility=False).fit(disp=False)
 
 
-def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str]:
+def _require_converged(model) -> None:
+    converged = getattr(model, "mle_retvals", {}).get("converged")
+    if converged is not None and not bool(converged):
+        raise ValueError("Model fit did not converge")
+
+
+def _forecast_arrays(name: str, y: pd.Series, exog: pd.DataFrame | None, future_dates: pd.DatetimeIndex):
+    """Fit only the supplied training sample; never read realised future inputs."""
+    horizon = len(future_dates)
+    model = None
+    if name == "Seasonal naive":
+        central = np.array([y.iloc[-12 + step] for step in range(horizon)], dtype=float)
+        residuals = y.iloc[12:].to_numpy() - y.iloc[:-12].to_numpy()
+        sigma = float(np.std(residuals, ddof=1))
+        intervals = np.array([
+            (value - 1.282 * sigma * math.sqrt(step + 1), value + 1.282 * sigma * math.sqrt(step + 1),
+             value - 1.96 * sigma * math.sqrt(step + 1), value + 1.96 * sigma * math.sqrt(step + 1))
+            for step, value in enumerate(central)
+        ])
+    else:
+        model = fit_model(name, y, exog if name == "ARIMAX" else None)
+        _require_converged(model)
+        if name == "ARIMAX":
+            # Fixed at the last available training value, not realised target-month values.
+            future_x = pd.DataFrame([exog.iloc[-1].to_dict()] * horizon, index=future_dates)
+            result = model.get_forecast(horizon, exog=future_x)
+        else:
+            result = model.get_forecast(horizon)
+        central = np.asarray(result.predicted_mean, dtype=float)
+        ci80 = np.asarray(result.conf_int(alpha=.20), dtype=float)
+        ci95 = np.asarray(result.conf_int(alpha=.05), dtype=float)
+        intervals = np.column_stack([ci80[:, 0], ci80[:, 1], ci95[:, 0], ci95[:, 1]])
+    if central.shape != (horizon,) or intervals.shape != (horizon, 4):
+        raise ValueError("Forecast returned an incomplete horizon")
+    if not np.isfinite(central).all() or not np.isfinite(intervals).all():
+        raise ValueError("Forecast contains non-finite values or intervals")
+    if (intervals[:, 0] > intervals[:, 1]).any() or (intervals[:, 2] > intervals[:, 3]).any():
+        raise ValueError("Forecast interval bounds are reversed")
+    if (intervals[:, 2] > intervals[:, 0]).any() or (intervals[:, 3] < intervals[:, 1]).any():
+        raise ValueError("Forecast 95% bounds do not contain 80% bounds")
+    return central, intervals, model
+
+
+def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
     y_full = monthly(series["headline"])
     exog_full = prepare_exog(series, y_full.index)
     common = y_full.index.intersection(exog_full.index)
     y_full, exog_full = y_full.loc[common], exog_full.loc[common]
-    origins = range(len(y_full) - 14, len(y_full) - 2)
-    actual: list[float] = []
-    predictions = {"Seasonal naive": [], "SARIMA": [], "ARIMAX": []}
+    names = ["Seasonal naive", "SARIMA", "ARIMAX"]
+    # Last origin must leave all three observed targets; retain at most 12 folds.
+    origins = [position for position in range(35, len(y_full) - 3)
+               if y_full.index[position + 1:position + 4].equals(
+                   pd.date_range(y_full.index[position] + pd.offsets.MonthBegin(), periods=3, freq="MS"))][-12:]
+    if not origins:
+        raise ValueError("At least 36 training months and three complete target months are required")
+    windows = []
+    audited_points = {name: [] for name in names}
+    failures = {name: [] for name in names}
     for origin in origins:
         train = y_full.iloc[: origin + 1]
-        horizon = min(3, len(y_full) - origin - 1)
-        truth = y_full.iloc[origin + 1: origin + 1 + horizon]
-        actual.extend(truth.tolist())
-        seasonal = [float(train.iloc[-12 + step]) for step in range(horizon)]
-        predictions["Seasonal naive"].extend(seasonal)
-        try:
-            predictions["SARIMA"].extend(fit_model("SARIMA", train).get_forecast(horizon).predicted_mean.tolist())
-        except Exception:
-            predictions["SARIMA"].extend(seasonal)
-        try:
-            x_train = exog_full.loc[train.index]
-            future_x = exog_full.iloc[origin + 1: origin + 1 + horizon].copy()
-            for column in future_x:
-                future_x[column] = x_train[column].iloc[-1]
-            predictions["ARIMAX"].extend(fit_model("ARIMAX", train, x_train).get_forecast(horizon, exog=future_x).predicted_mean.tolist())
-        except Exception:
-            predictions["ARIMAX"].extend(seasonal)
+        truth = y_full.iloc[origin + 1: origin + 4]
+        origin_date = train.index[-1].strftime("%Y-%m-%d")
+        fold = {"origin": origin_date, "trainingStart": train.index[0].strftime("%Y-%m-%d"),
+                "trainingEnd": origin_date, "trainingObservations": len(train),
+                "targets": [date.strftime("%Y-%m-%d") for date in truth.index], "models": []}
+        for name in names:
+            row = {"name": name, "status": "success", "failureReason": None, "fallbackModel": None, "points": []}
+            try:
+                central, intervals, _ = _forecast_arrays(name, train, exog_full.loc[train.index], truth.index)
+                for step, (date, actual, predicted, bounds) in enumerate(zip(truth.index, truth, central, intervals), start=1):
+                    low80, high80, low95, high95 = [round(float(value), 6) for value in bounds]
+                    actual, predicted = round(float(actual), 6), round(float(predicted), 6)
+                    point = {"horizon": step, "date": date.strftime("%Y-%m-%d"), "actual": actual,
+                             "predicted": predicted, "error": round(predicted - actual, 6),
+                             "low80": low80, "high80": high80, "low95": low95, "high95": high95,
+                             "covered80": low80 <= actual <= high80, "covered95": low95 <= actual <= high95}
+                    row["points"].append(point)
+                audited_points[name].extend(row["points"])
+            except Exception as error:
+                row.update({"status": "failed", "failureReason": f"{type(error).__name__}: {str(error)[:240]}", "points": []})
+                failures[name].append(origin_date)
+            fold["models"].append(row)
+        windows.append(fold)
     scores = []
-    rank = {"Seasonal naive": 0, "SARIMA": 1, "ARIMAX": 2}
-    for name, values in predictions.items():
-        scores.append({"name": name, "rmse": round(float(mean_squared_error(actual, values) ** 0.5), 4), "mae": round(float(mean_absolute_error(actual, values)), 4), "selected": False})
-    selected = min(scores, key=lambda score: (score["rmse"], score["mae"], rank[score["name"]]))["name"]
+    origin_dates = [fold["origin"] for fold in windows]
+    eligibility = []
+    coverage = []
+    for name in names:
+        points = audited_points[name]
+        eligible = not failures[name] and len(points) == 3 * len(windows)
+        actual = [point["actual"] for point in points]
+        predicted = [point["predicted"] for point in points]
+        scores.append({"name": name,
+                       "rmse": round(float(mean_squared_error(actual, predicted) ** 0.5), 4) if points else None,
+                       "mae": round(float(mean_absolute_error(actual, predicted)), 4) if points else None,
+                       "selected": False, "eligible": eligible, "successfulWindows": len(windows) - len(failures[name]),
+                       "failedWindows": len(failures[name]), "fallbackCount": 0,
+                       "scoreBasis": "Identical complete three-month windows" if eligible else "Successful fits only; not eligible for selection"})
+        eligibility.append({"name": name, "eligible": eligible, "successfulWindows": len(windows) - len(failures[name]),
+                            "failedWindows": len(failures[name]), "origins": origin_dates, "failedOrigins": failures[name]})
+        def measured(items):
+            numerator80 = sum(point["covered80"] for point in items)
+            numerator95 = sum(point["covered95"] for point in items)
+            return {"covered80": numerator80, "total80": len(items), "coverage80": round(numerator80 / len(items), 6) if items else None,
+                    "covered95": numerator95, "total95": len(items), "coverage95": round(numerator95 / len(items), 6) if items else None}
+        coverage.append({"name": name, "eligible": eligible, **measured(points),
+                         "byHorizon": [{"horizon": horizon, **measured([point for point in points if point["horizon"] == horizon])} for horizon in (1, 2, 3)]})
+    eligible_scores = [score for score in scores if score["eligible"]]
+    if not eligible_scores:
+        raise ValueError("No forecast candidate completed all evaluation windows")
+    selected = min(eligible_scores, key=lambda score: (score["rmse"], score["mae"], names.index(score["name"])))["name"]
     for score in scores:
         score["selected"] = score["name"] == selected
-    return scores, selected
+    evaluation = {
+        "method": "Pseudo-real-time rolling-origin evaluation", "horizonMonths": 3, "origins": origin_dates,
+        "windows": windows, "candidateEligibility": eligibility, "coverage": coverage,
+        "fallbackCount": 0, "errorDefinition": "predicted minus actual, percentage points",
+        "eligibilityRule": "Every candidate attempts the same origins. Selection requires successful fits and all three targets at every origin; failed fits are not replaced or scored as that candidate.",
+        "caveats": [
+            "Pseudo-real-time, not a historical-vintage backtest: saved current observations may contain revisions that were not available at the original origin.",
+            "Core CPI uses the origin's same-month observation; unemployment, FX, OPR and MGS use an assumed one-month lag. These conservative assumptions are not verified historical release timestamps.",
+            "ARIMAX future covariates are frozen at the last training values. Its intervals are conditional on that path and do not include future-covariate uncertainty.",
+            "Monthly origins overlap across three-month target windows, so errors and interval coverage are dependent; coverage is descriptive, not a calibration guarantee.",
+            "Seasonal-naive bounds use only training seasonal residuals with square-root-horizon scaling; parametric model intervals and these approximations may understate uncertainty.",
+            "Ineligible candidates' error scores and coverage, if present, describe successful fits only and are not comparable selection scores on the complete shared sample.",
+        ],
+    }
+    return scores, selected, evaluation
 
 
 def forecast(series: dict[str, list[dict]]) -> dict:
-    scores, selected = backtest(series)
+    scores, selected, evaluation = backtest(series)
     y = monthly(series["headline"])
     exog = prepare_exog(series, y.index)
     common = y.index.intersection(exog.index)
     y, exog = y.loc[common], exog.loc[common]
     future_dates = pd.date_range(y.index[-1] + pd.offsets.MonthBegin(), periods=3, freq="MS")
-    if selected == "Seasonal naive":
-        central = np.array([y.iloc[-12 + step] for step in range(3)], dtype=float)
-        residuals = (y.iloc[12:].to_numpy() - y.iloc[:-12].to_numpy())
-        sigma = float(np.std(residuals, ddof=1))
-        intervals = [(value - 1.282 * sigma * math.sqrt(step + 1), value + 1.282 * sigma * math.sqrt(step + 1), value - 1.96 * sigma * math.sqrt(step + 1), value + 1.96 * sigma * math.sqrt(step + 1)) for step, value in enumerate(central)]
-    else:
-        model = fit_model(selected, y, exog if selected == "ARIMAX" else None)
-        if selected == "ARIMAX":
-            future_x = pd.DataFrame([exog.iloc[-1].to_dict()] * 3, index=future_dates)
-            result = model.get_forecast(3, exog=future_x)
-        else:
-            result = model.get_forecast(3)
-        central = result.predicted_mean.to_numpy()
-        ci80 = result.conf_int(alpha=.20).to_numpy()
-        ci95 = result.conf_int(alpha=.05).to_numpy()
-        intervals = [(ci80[i, 0], ci80[i, 1], ci95[i, 0], ci95[i, 1]) for i in range(3)]
+    requested = selected
+    failure_reason = None
+    try:
+        central, intervals, final_model = _forecast_arrays(selected, y, exog, future_dates)
+    except Exception as error:
+        if selected == "Seasonal naive":
+            raise
+        failure_reason = f"{type(error).__name__}: {str(error)[:240]}"
+        selected = "Seasonal naive"
+        central, intervals, final_model = _forecast_arrays(selected, y, exog, future_dates)
+    evaluation["finalFit"] = {"requestedModel": requested, "usedModel": selected, "fallbackUsed": failure_reason is not None, "failureReason": failure_reason}
+    evaluation["fallbackCount"] = evaluation.get("fallbackCount", 0) + int(failure_reason is not None)
+    for score in scores:
+        score["selected"] = score["name"] == selected
     points = []
     for date, value, bounds in zip(future_dates, central, intervals):
         low80, high80, low95, high95 = bounds
         points.append({"date": date.strftime("%Y-%m-%d"), "value": round(float(value), 3), "low80": round(float(low80), 3), "high80": round(float(high80), 3), "low95": round(float(min(low95, low80)), 3), "high95": round(float(max(high95, high80)), 3)})
     scenario = None
     try:
-        sensitivity_model = fit_model("ARIMAX", y, exog)
+        sensitivity_model = final_model if selected == "ARIMAX" else fit_model("ARIMAX", y, exog)
+        _require_converged(sensitivity_model)
         scenario = {
             "model": "ARIMAX sensitivity model",
-            "lag": "One-month-lag economic inputs",
+            "lag": "Same-month core CPI; other economic inputs lagged one month",
             "baseline": {key: round(float(exog[key].iloc[-1]), 4) for key in ("core", "fx", "opr")},
             "coefficients": {key: round(float(sensitivity_model.params[key]), 6) for key in ("core", "fx", "opr")},
-            "warning": "A sensitivity overlay based on historical ARIMAX associations. It is not the selected forecast unless ARIMAX wins the backtest, and it does not identify causal effects.",
+            "warning": "A conditional sensitivity overlay based on historical ARIMAX associations. Core CPI is contemporaneous; other inputs lag one month. It is not the selected forecast unless ARIMAX completes all backtest windows and wins, and it does not identify causal effects or include covariate-path uncertainty.",
         }
-    except Exception:
+        evaluation["scenarioFit"] = {"status": "success", "failureReason": None}
+    except Exception as error:
         scenario = None
-    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative release lags", "backtestWindows": 12, "models": scores, "points": points, "scenario": scenario}
+        evaluation["scenarioFit"] = {"status": "failed", "failureReason": f"{type(error).__name__}: {str(error)[:240]}"}
+    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages", "backtestWindows": len(evaluation["windows"]), "models": scores, "points": points, "scenario": scenario, "evaluation": evaluation,
+            "status": "fallback" if failure_reason else "fresh", "calculationStatus": "fallback" if failure_reason else "fresh"}
 
 
 def build_cpi_decomposition(categories: list[dict], headline_points: list[dict]) -> dict:
@@ -2263,6 +2416,174 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     return payload
 
 
+REGIONAL_CSV_FIELDS = ["level", "state", "district", "metric", "value", "unit", "observation_period", "source_url", "data_status", "retrieved_at"]
+
+
+def regional_export_rows(regional: dict) -> list[dict]:
+    """Long-form export parity with the app: each value carries its own provenance."""
+    rows = []
+    sources = regional.get("sources", {})
+    household_unit = "RM per household per month"
+    gdp_unit = "RM billion (constant 2015 prices)"
+    hies_units = {"incomeMean": household_unit, "incomeMedian": household_unit,
+                  "expenditureMean": household_unit, "incomeMinusExpenditure": household_unit,
+                  "incomeToExpenditureRatio": "ratio", "poverty": "%", "gini": "coefficient"}
+
+    def add(level, state, district, metric, value, unit, period, source, district_gdp=False, source_url=None):
+        if isinstance(value, bool) or value is None:
+            return
+        if isinstance(value, (int, float)):
+            if not math.isfinite(value):
+                return
+        elif not isinstance(value, str) or not value.strip():
+            return
+        if source_url is None:
+            source_url = (source.get("districtSourceUrl") or source.get("districtDatasetUrl") or "") if district_gdp else (source.get("sourceUrl") or source.get("datasetUrl") or "")
+        rows.append({"level": level, "state": state, "district": district, "metric": metric, "value": value,
+                     "unit": unit, "observation_period": period or "", "source_url": source_url,
+                     "data_status": source.get("status", "unknown"), "retrieved_at": source.get("retrievedAt") or ""})
+
+    def add_gdp(level, state, district, item, period, district_gdp=False):
+        source = sources.get("gdp", {})
+        add(level, state, district, "realGdp", item.get("total") if district_gdp else item.get("realGdp"), gdp_unit, period, source, district_gdp)
+        add(level, state, district, "largestSector", item.get("largestSector"), "sector", period, source, district_gdp)
+        add(level, state, district, "largestSectorShare", item.get("largestSectorShare"), "%", period, source, district_gdp)
+        for sector in item.get("sectors" if district_gdp else "sectorShares", []):
+            add(level, state, district, f"sector.{sector['id']}.value", sector.get("value"), gdp_unit, period, source, district_gdp)
+            add(level, state, district, f"sector.{sector['id']}.share", sector.get("share"), "%", period, source, district_gdp)
+
+    for state in sorted(regional.get("stateRecords", []), key=lambda item: item["state"]):
+        for metric, unit in hies_units.items():
+            add("state", state["state"], "", metric, state.get(metric), unit, state.get("date"), sources.get("hiesState", {}))
+        add("state", state["state"], "", "headlineInflation", state.get("headlineInflation"), "%", state.get("inflationPeriod") or sources.get("cpi", {}).get("observationPeriod"), sources.get("cpi", {}))
+        add("state", state["state"], "", "unemploymentRate", state.get("unemploymentRate"), "%", state.get("labourPeriod") or sources.get("labour", {}).get("observationPeriod"), sources.get("labour", {}))
+        add_gdp("state", state["state"], "", state, state.get("gdpPeriod") or sources.get("gdp", {}).get("observationPeriod"))
+
+    def district_index(records):
+        index, ambiguous = {}, set()
+        for item in records:
+            geography = normalize_regional_geography(item["state"], item["district"])
+            key = (geography["state"], geography["district"])
+            if key in ambiguous:
+                continue
+            if key in index:
+                index.pop(key)
+                ambiguous.add(key)
+            else:
+                index[key] = item
+        return index
+    district_hies = district_index(regional.get("districtRecords", []))
+    district_labour = district_index(regional.get("districtLabourRecords", []))
+    district_gdp = district_index(regional.get("districtGdpRecords", []))
+    for state, district in sorted(district_hies.keys() | district_labour.keys() | district_gdp.keys()):
+        survey = district_hies.get((state, district), {})
+        labour = district_labour.get((state, district), {})
+        gdp = district_gdp.get((state, district), {})
+        level = "district_residual" if normalize_regional_geography(state, district)["kind"] == "residual" else "district"
+        for metric, unit in hies_units.items():
+            add(level, state, district, metric, survey.get(metric), unit, survey.get("date"), sources.get("hiesDistrict", {}))
+        # No state CPI substitution: this dataset has no district CPI observations.
+        for metric in ["unemploymentRate", "participationRate", "employmentPopulationRatio"]:
+            add(level, state, district, metric, labour.get(metric), "%", labour.get("date"), sources.get("labour", {}))
+        add(level, state, district, "labourForce", labour.get("labourForce"), "thousand persons", labour.get("date"), sources.get("labour", {}))
+        add_gdp(level, state, district, gdp, gdp.get("date"), True)
+
+    groups = regional.get("incomeGroups", {})
+    def add_groups(level, state, period, records, national=False):
+        source_url = groups.get("nationalDatasetUrl", "") if national else groups.get("sourceUrl") or groups.get("stateDatasetUrl") or ""
+        for group in records:
+            for field in ["meanIncome", "medianIncome", "minIncome", "maxIncome", "vsNationalMean", "percentileRange"]:
+                add(level, state, "", f"incomeGroup.{group['id']}.{field}", group.get(field), "percentiles" if field == "percentileRange" else household_unit, period, groups, source_url=source_url)
+    for state_group in groups.get("stateGroups", []):
+        add_groups("state_income_group", state_group["state"], state_group.get("date"), state_group.get("groups", []))
+    add_groups("national_income_group", "Malaysia", groups.get("observationPeriod"), groups.get("nationalGroups", []), True)
+    return rows
+
+
+def write_regional_exports(regional: dict) -> None:
+    REGIONAL_JSON.parent.mkdir(parents=True, exist_ok=True)
+    regional_json = json.dumps(regional, indent=2, ensure_ascii=False) + "\n"
+    if not REGIONAL_JSON.exists() or REGIONAL_JSON.read_text(encoding="utf-8") != regional_json:
+        REGIONAL_JSON.write_text(regional_json, encoding="utf-8")
+    with REGIONAL_CSV.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=REGIONAL_CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        for row in regional_export_rows(regional):
+            # Protect text cells against spreadsheet formulas, preserving negative numbers.
+            writer.writerow({key: "'" + value if isinstance(value, str) and re.match(r"^\s*[=+\-@]", value) else value for key, value in row.items()})
+
+
+def recompute_forecast_offline(previous: dict, calculated_at: str) -> dict:
+    """Recalculate from saved validated observations without implying a retrieval."""
+    payload = copy.deepcopy(previous)
+    for key in SPECS:
+        validate_points(key, payload["series"][key]["points"])
+    calculated = forecast({key: payload["series"][key]["points"] for key in SPECS})
+    calculated["calculatedAt"] = calculated_at
+    calculated["recomputation"] = {"mode": "offline", "sourceRefresh": False, "note": "Forecast and affected text recalculated from the saved validated series; official observations, source status and retrieval timestamps are unchanged."}
+    finalize_data_trust({"sources": payload.get("sources", {}), "forecast": calculated})
+    payload["forecast"] = calculated
+    payload.setdefault("narratives", {})["forecast"] = narrative(payload["series"], calculated)["forecast"]
+    for section in payload.get("monthlyReport", {}).get("sections", []):
+        if section.get("heading") == "Forecast":
+            section["body"] = payload["narratives"]["forecast"]
+    if payload.get("monthlyReport"):
+        payload["monthlyReport"]["calculatedAt"] = calculated_at
+    if payload.get("latestBrief"):
+        implications = payload["latestBrief"].get("implications", [])
+        for index, implication in enumerate(implications):
+            if "three-month inflation forecast" in implication:
+                implications[index] = f"The three-month inflation forecast ends at {calculated['points'][-1]['value']:.2f}%, but the prediction intervals are more important than the point estimate."
+        payload["latestBrief"]["calculatedAt"] = calculated_at
+    return payload
+
+
+def recompute_regional_gdp_offline(previous: dict, state_frame: pd.DataFrame, district_frame: pd.DataFrame, calculated_at: str) -> dict:
+    """Bounded correction from explicit saved official inputs; no fetch or forecast fit."""
+    payload = copy.deepcopy(previous)
+    regional = payload["regionalLens"]
+    old_gdp = regional["sources"]["gdp"]
+    # Keep the existing source retrieval clock; local validation has its own clock.
+    gdp = parse_regional_gdp(state_frame, district_frame, old_gdp.get("retrievedAt"))
+    source = {**copy.deepcopy(old_gdp), **gdp, "status": old_gdp.get("status", "unavailable"),
+              "sourceValidatedAt": calculated_at,
+              "message": "Saved official GDP inputs validated locally; null/missing sectors corrected without a new pipeline retrieval"}
+    regional["sources"]["gdp"] = source
+    by_state = {normalize_regional_geography(item["state"], "")["state"]: item for item in gdp["stateRecords"]}
+    for item in regional.get("stateRecords", []):
+        record = by_state.get(normalize_regional_geography(item["state"], "")["state"], {})
+        item.update({"realGdp": record.get("total"), "gdpPeriod": record.get("date"),
+                     "largestSector": record.get("largestSector"), "largestSectorShare": record.get("largestSectorShare"),
+                     "sectorShares": copy.deepcopy(record.get("sectors", []))})
+    regional["districtGdpRecords"] = copy.deepcopy(gdp["districtRecords"])
+    regional["calculatedAt"] = calculated_at
+    regional["recomputation"] = {"mode": "offline-regional-gdp-correction", "sourceRefresh": False,
+        "note": "Only GDP-derived regional records/exports were reparsed from explicit saved official source files. Official nulls and absent sector codes remain unavailable, genuine zeros remain observed, shares use official p0 totals, and Supra is a GDP residual. Other official inputs, forecasts and retrieval timestamps are unchanged; this is not a full dashboard refresh."}
+    for indicator in payload.get("structuralBreaks", {}).get("indicators", {}).values():
+        if isinstance(indicator.get("candidates"), list) and indicator.get("status") != "unavailable":
+            indicator["narrative"] = structural_indicator_narrative(indicator["candidates"])
+    # Revalidate unchanged national observations and assert correction scope before saving.
+    for key in SPECS:
+        validate_points(key, payload["series"][key]["points"])
+    if any(payload[key] != previous[key] for key in previous if key not in {"regionalLens", "structuralBreaks"}):
+        raise ValueError("Bounded GDP correction changed an unrelated dashboard section")
+    return payload
+
+
+def regional_gdp_validation_counts(frame: pd.DataFrame, records: list[dict]) -> dict:
+    """Descriptive counts for the already validated latest absolute-level source."""
+    selected = frame[frame["series"].eq("abs")].copy()
+    dates = pd.to_datetime(selected["date"], errors="raise")
+    selected = selected[dates.eq(dates.max()) & selected["sector"].isin(GDP_SECTORS)].copy()
+    values = pd.to_numeric(selected["value"], errors="raise")
+    sectors = [sector for record in records for sector in record["sectors"]]
+    return {"observationPeriod": dates.max().strftime("%Y-%m-%d"), "sourceSectorRows": len(selected),
+            "sourceNullSectorRows": int(values.isna().sum()), "sourceZeroSectorRows": int(values.eq(0).sum()),
+            "retainedSuppressedOrUnavailableSectorRows": sum(sector["valueStatus"] == "suppressed-or-unavailable" for sector in sectors),
+            "retainedNotPublishedSectorRows": sum(sector["valueStatus"] == "not-published" for sector in sectors),
+            "retainedObservedSectorRows": sum(sector["valueStatus"] == "observed" for sector in sectors)}
+
+
 def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
     output.parent.mkdir(parents=True, exist_ok=True)
     VINTAGES.mkdir(parents=True, exist_ok=True)
@@ -2300,109 +2621,50 @@ def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-    regional = payload.get("regionalLens", {})
-    regional_json = json.dumps(regional, indent=2, ensure_ascii=False) + "\n"
-    REGIONAL_JSON.parent.mkdir(parents=True, exist_ok=True)
-    if not REGIONAL_JSON.exists() or REGIONAL_JSON.read_text(encoding="utf-8") != regional_json:
-        REGIONAL_JSON.write_text(regional_json, encoding="utf-8")
-    regional_rows = []
-    for item in regional.get("stateRecords", []):
-        regional_rows.append({
-            "level": "state",
-            "state": item.get("state"),
-            "district": "",
-            "date": item.get("date"),
-            "income_mean": item.get("incomeMean"),
-            "income_median": item.get("incomeMedian"),
-            "expenditure_mean": item.get("expenditureMean"),
-            "income_minus_expenditure": item.get("incomeMinusExpenditure"),
-            "income_to_expenditure_ratio": item.get("incomeToExpenditureRatio"),
-            "poverty": item.get("poverty"),
-            "gini": item.get("gini"),
-            "headline_inflation": item.get("headlineInflation"),
-            "unemployment_rate": item.get("unemploymentRate"),
-            "real_gdp_rm_billion": item.get("realGdp"),
-            "largest_sector": item.get("largestSector"),
-            "income_group": "",
-            "income_group_mean": "",
-            "income_group_vs_national_mean": "",
-        })
-    for item in regional.get("districtRecords", []):
-        regional_rows.append({
-            "level": "district",
-            "state": item.get("state"),
-            "district": item.get("district"),
-            "date": item.get("date"),
-            "income_mean": item.get("incomeMean"),
-            "income_median": item.get("incomeMedian"),
-            "expenditure_mean": item.get("expenditureMean"),
-            "income_minus_expenditure": item.get("incomeMinusExpenditure"),
-            "income_to_expenditure_ratio": item.get("incomeToExpenditureRatio"),
-            "poverty": item.get("poverty"),
-            "gini": item.get("gini"),
-            "headline_inflation": "",
-            "unemployment_rate": "",
-            "real_gdp_rm_billion": "",
-            "largest_sector": "",
-            "income_group": "",
-            "income_group_mean": "",
-            "income_group_vs_national_mean": "",
-        })
-    for state_group in regional.get("incomeGroups", {}).get("stateGroups", []):
-        for group in state_group.get("groups", []):
-            regional_rows.append({
-                "level": "state_income_group",
-                "state": state_group.get("state"),
-                "district": "",
-                "date": state_group.get("date"),
-                "income_mean": "",
-                "income_median": "",
-                "expenditure_mean": "",
-                "income_minus_expenditure": "",
-                "income_to_expenditure_ratio": "",
-                "poverty": "",
-                "gini": "",
-                "headline_inflation": "",
-                "unemployment_rate": "",
-                "real_gdp_rm_billion": "",
-                "largest_sector": "",
-                "income_group": group.get("label"),
-                "income_group_mean": group.get("meanIncome"),
-                "income_group_vs_national_mean": group.get("vsNationalMean"),
-            })
-    for group in regional.get("incomeGroups", {}).get("nationalGroups", []):
-        regional_rows.append({
-            "level": "national_income_group",
-            "state": "Malaysia",
-            "district": "",
-            "date": regional.get("incomeGroups", {}).get("observationPeriod"),
-            "income_mean": "",
-            "income_median": "",
-            "expenditure_mean": "",
-            "income_minus_expenditure": "",
-            "income_to_expenditure_ratio": "",
-            "poverty": "",
-            "gini": "",
-            "headline_inflation": "",
-            "unemployment_rate": "",
-            "real_gdp_rm_billion": "",
-            "largest_sector": "",
-            "income_group": group.get("label"),
-            "income_group_mean": group.get("meanIncome"),
-            "income_group_vs_national_mean": 0,
-        })
-    regional_fields = ["level", "state", "district", "date", "income_mean", "income_median", "expenditure_mean", "income_minus_expenditure", "income_to_expenditure_ratio", "poverty", "gini", "headline_inflation", "unemployment_rate", "real_gdp_rm_billion", "largest_sector", "income_group", "income_group_mean", "income_group_vs_national_mean"]
-    with REGIONAL_CSV.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=regional_fields)
-        writer.writeheader()
-        writer.writerows(regional_rows)
+    write_regional_exports(payload.get("regionalLens", {}))
     return changed
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=PUBLISHED)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--recompute-forecast", action="store_true", help="Recalculate only forecast/affected narratives offline; preserve observations and source retrieval metadata")
+    modes.add_argument("--recompute-regional-gdp", action="store_true", help="Correct only regional GDP from explicit saved official CSV inputs; no network fetch or forecast fitting")
+    parser.add_argument("--gdp-state-input", type=Path)
+    parser.add_argument("--gdp-district-input", type=Path)
     args = parser.parse_args()
+    if args.recompute_regional_gdp:
+        if args.gdp_state_input is None or args.gdp_district_input is None:
+            parser.error("--recompute-regional-gdp requires --gdp-state-input and --gdp-district-input saved CSV files")
+        previous = json.loads(args.output.read_text(encoding="utf-8"))
+        calculated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        state_frame, district_frame = pd.read_csv(args.gdp_state_input), pd.read_csv(args.gdp_district_input)
+        payload = recompute_regional_gdp_offline(previous, state_frame, district_frame, calculated_at)
+        payload["regionalLens"]["sources"]["gdp"]["localInputVerification"] = {
+            "sourceValidatedAt": calculated_at,
+            "stateSha256": hashlib.sha256(args.gdp_state_input.read_bytes()).hexdigest(),
+            "districtSha256": hashlib.sha256(args.gdp_district_input.read_bytes()).hexdigest(),
+            "note": "Hashes identify explicit saved source files, not a new network retrieval by this command."}
+        args.output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        write_regional_exports(payload["regionalLens"])
+        # Only deterministic interpretation text changes; saved break statistics are retained.
+        STRUCTURAL_JSON.write_text(json.dumps(payload["structuralBreaks"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        gdp = payload["regionalLens"]["sources"]["gdp"]
+        print(json.dumps({"mode": "offline-regional-gdp-correction", "sourceRefresh": False, "calculatedAt": calculated_at,
+                          "originalGeneratedAt": payload["generatedAt"], "stateRecords": len(gdp["stateRecords"]),
+                          "districtRecords": len(gdp["districtRecords"]), "administrativeDistrictCount": gdp["administrativeDistrictCount"],
+                          "stateValidationCounts": regional_gdp_validation_counts(state_frame, gdp["stateRecords"] + gdp["stateResidualRecords"]),
+                          "districtValidationCounts": regional_gdp_validation_counts(district_frame, gdp["districtRecords"])}))
+        return
+    if args.recompute_forecast:
+        previous = json.loads(args.output.read_text(encoding="utf-8"))
+        calculated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        payload = recompute_forecast_offline(previous, calculated_at)
+        args.output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        write_regional_exports(payload.get("regionalLens", {}))
+        print(json.dumps({"mode": "offline-forecast-recompute", "sourceRefresh": False, "calculatedAt": calculated_at, "originalGeneratedAt": payload["generatedAt"], "selectedModel": payload["forecast"]["selectedModel"], "backtestWindows": payload["forecast"]["backtestWindows"]}))
+        return
     payload = build(args.output)
     print(json.dumps({"changed": write_payload(payload, args.output), "generatedAt": payload["generatedAt"], "health": payload["health"]}))
 
