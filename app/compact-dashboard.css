@@ -8,6 +8,17 @@
   --line:#d5dfe4;
 }
 body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
+.dashboard-app .visual-page-summary { margin:16px 0; max-width:75ch; }
+.dashboard-app .visual-reading { margin:24px 0; }
+.dashboard-app .visual-reading .brief-grid { padding:16px; }
+.dashboard-app .visual-reading .brief-grid article { padding:16px; border:0; border-radius:0; background:transparent; }
+.dashboard-app .visual-reading .scenario-grid { margin:0; padding:16px; }
+.dashboard-app .visual-audit>p { padding:0 20px; }
+.dashboard-app .visual-audit :is(.risk-table-wrap,.deep-table-wrap) { margin:0; border:0; border-radius:0; max-width:100%; overflow-x:auto; }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit { background:#203530; color:#eef7f4; border-color:#526d63; }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit>summary { color:#eef7f4; }
+.dashboard-app :is(.risk-section,.bop-section) .visual-audit[open]>summary { border-color:#526d63; }
+.dashboard-app .model-card>.forecast-disclosure { margin:16px 0; }
 .dashboard-app :is(h1,h2,h3,h4,strong,b,small,p,li,a,button,input,select,table,th,td) { font-family:var(--font-sans); }
 .dashboard-app main { min-width:0; }
 .dashboard-app .shell { width:min(1200px,calc(100% - 48px)); min-width:0; margin-inline:auto; }

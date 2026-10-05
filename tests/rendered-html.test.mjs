@@ -16,6 +16,16 @@ async function render(path = "/") {
   return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
 
+test("production ships chart-led surfaces and the model-error toggle", async () => {
+  const assets = new URL("../dist/client/assets/", import.meta.url);
+  const scripts = readdirSync(assets).filter((name) => name.endsWith(".js")).map((name) => readFileSync(new URL(name, assets), "utf8")).join("\n");
+  for (const marker of ["score-visual-map", "series-trend-plot", "bop-trend-frame", "model-error-list"]) assert.ok(scripts.includes(marker), `Missing production visualization: ${marker}`);
+  const html = await (await render("/forecast")).text();
+  assert.match(html, /Compare model forecast errors/);
+  assert.match(html, /shorter bar = lower error/);
+  assert.match(html, /Exact model-error table/);
+});
+
 test("renders the MacroLens public dashboard", async () => {
   const response = await render();
   assert.equal(response.status, 200);

@@ -12,7 +12,7 @@
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "test:web": "node --test tests/rendered-html.test.mjs",
-    "test:unit": "node --test tests/dashboard-trust.test.mjs tests/news.test.mjs tests/accessibility-source.test.mjs",
+    "test:unit": "node --test tests/dashboard-trust.test.mjs tests/news.test.mjs tests/accessibility-source.test.mjs tests/score-visual-source.test.mjs tests/visual-data.test.mjs tests/visualization-render.test.mjs tests/bop-visual.test.mjs",
     "typecheck:app": "tsc -p tsconfig.app.json",
     "data:refresh": "python pipeline/macrolens.py",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",

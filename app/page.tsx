@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { DashboardNavigation } from "@/app/components/DashboardNavigation";
+import RiskScoreVisual from "@/app/components/RiskScoreVisual";
+import SeriesTrendPanel from "@/app/components/SeriesTrendPanel";
+import BalancePaymentsVisual from "@/app/components/BalancePaymentsVisual";
+import ModelErrorVisual from "@/app/components/ModelErrorVisual";
 import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, InputHealth, MacroTimeline, RegionalLens, RegionalStateRecord, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
@@ -1230,12 +1234,13 @@ function BriefSection({ dashboard }: { dashboard: DashboardPayload | null }) {
     {!brief ? <div className="brief-empty">The latest brief will appear when the version-seven dataset is available.</div> : <>
       <div className="brief-hero"><div><span className="brief-label">MacroLens-generated briefing</span><h3>{brief.headline}</h3><p>Calculated {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${inputHealth?.status ?? brief.status}`}>{healthStatusLabel(dashboard?.usingFallback ? "fallback" : inputHealth?.status ?? brief.status)}</em></div>
       <InputHealthNotice health={inputHealth} />
-      <div className="brief-grid">
+      {dashboard && <SeriesTrendPanel series={Object.values(dashboard.series)} statuses={Object.fromEntries(Object.entries(dashboard.sources).map(([id, source]) => [id, dashboard.usingFallback ? "fallback" : source.status]))} title="The latest readings in context" defaultKey="headline" />}
+      <details className="dashboard-details visual-reading"><summary>Read the economic brief — changes, possible reasons and implications</summary><div className="brief-grid">
         <article><span>What changed recently</span><ul>{brief.whatChanged.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article><span>Why it may have happened</span><ul>{brief.whyItMayHaveHappened.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article><span>What to watch next</span><ul>{brief.watchNext.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article><span>Implications</span><ul>{brief.implications.map((item) => <li key={item}>{item}</li>)}</ul></article>
-      </div>
+      </div></details>
       {risk && <div className="brief-risk-link"><span className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</span><p>{risk.summary}</p><a href="/risk">Open full risk heatmap</a></div>}
       <p className="brief-disclaimer">{brief.disclaimer}</p>
     </>}
@@ -1244,19 +1249,16 @@ function BriefSection({ dashboard }: { dashboard: DashboardPayload | null }) {
 
 function RiskHeatmapSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const risk = dashboard?.riskHeatmap;
-  const grouped = useMemo(() => {
-    const output = new Map<string, NonNullable<RiskHeatmap["items"]>>();
-    for (const item of risk?.items ?? []) output.set(item.group, [...(output.get(item.group) ?? []), item]);
-    return [...output.entries()];
-  }, [risk]);
   return <section className="section risk-section page-section" id="risk"><div className="shell">
     <div className="section-heading light"><div><span className="section-number">03 / Risk heatmap</span><h1>Where pressure is building</h1></div><p>Each score is rule-based and auditable. It is a monitoring screen, not a forecast or investment signal.</p></div>
     <PictureStrip pictures={["prices", "markets", "trade"]} />
     {!risk ? <div className="risk-empty">The risk heatmap will appear when the version-seven dataset is available.</div> : <>
       <InputHealthNotice health={dashboard?.inputHealth?.riskHeatmap} />
-      <div className="risk-overview"><article><span>Overall screen</span><strong>{risk.overallScore.toFixed(1)}</strong><b className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</b></article><div><p>{risk.summary}</p><small>{risk.method}</small></div></div>
-      <div className="risk-groups">{grouped.map(([group, items]) => <section key={group}><h3>{group}</h3>{items.map((item) => <article key={item.id} className={`risk-card ${item.level}`}><div><span>{item.label}</span><strong>{item.score}</strong></div><p>{item.evidence}</p><small className="risk-source-status">Observation period: {item.period ? formatDate(item.period) : "Not recorded"} · {healthStatusLabel(item.dataStatus)}</small><small>{item.rule}</small><em>{item.watch}</em></article>)}</section>)}</div>
-      <div className="risk-table-wrap"><table><thead><tr><th>Signal</th><th>Period</th><th>Score</th><th>Level</th><th>Evidence</th></tr></thead><tbody>{risk.items.map((item) => <tr key={item.id}><td>{item.label}</td><td>{item.period ? formatDate(item.period) : "Latest"}</td><td>{item.score}</td><td><span className={`risk-pill ${item.level}`}>{levelLabel(item.level)}</span></td><td>{item.evidence}</td></tr>)}</tbody></table></div>
+      <p className="visual-page-summary">{risk.summary}</p>
+      <RiskScoreVisual items={risk.items.map((item) => ({ ...item, dataStatus: dashboard?.usingFallback ? "fallback" : item.dataStatus }))} overallScore={risk.overallScore} overallLevel={risk.overallLevel} title="Pressure at a glance" />
+      <details className="dashboard-details visual-audit"><summary>All signals, scoring rules and observation periods</summary><p>{risk.method}</p><p>Calculated {retrievalTime(risk.generatedAt)}. This chart compares published pressure scores, not how the risk evolved over time.</p>
+        <div className="risk-table-wrap"><table><thead><tr><th>Signal</th><th>Period / status</th><th>Score</th><th>Level</th><th>Evidence</th><th>Scoring rule</th><th>What to watch</th></tr></thead><tbody>{risk.items.map((item) => <tr key={item.id}><td>{item.label}</td><td>{item.period ? formatDate(item.period) : "Not recorded"}<br />{healthStatusLabel(dashboard?.usingFallback ? "fallback" : item.dataStatus)}</td><td>{item.score}</td><td><span className={`risk-pill ${item.level}`}>{levelLabel(item.level)}</span></td><td>{item.evidence}</td><td>{item.rule}</td><td>{item.watch}</td></tr>)}</tbody></table></div>
+      </details>
     </>}
   </div></section>;
 }
@@ -1614,14 +1616,22 @@ function DecisionCardView({ card }: { card: DecisionCard }) {
 
 function HouseholdPressureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const household: HouseholdPressure | undefined = dashboard?.householdPressure;
+  const householdSignals = household?.components.map((item) => {
+    const sourceIds: Record<string, string[]> = { "cost-of-living": ["headline", "core"], "debt-service": ["opr"], "job-income": ["unemployment"], "imported-spending": ["fx"] };
+    const sources = (sourceIds[item.id] ?? []).map((id) => dashboard?.sources[id]).filter((source) => source != null);
+    const market = item.id === "wealth-risk" ? dashboard?.market : undefined;
+    const period = market?.summary.latestDate ? formatDate(market.summary.latestDate) : sources.length ? [...new Set(sources.map((source) => formatDate(source.observationPeriod)))].join(" / ") : "Not recorded";
+    const dataStatus = dashboard?.usingFallback ? "fallback" : market ? market.status : sources.length ? sources.every((source) => source.status === "fresh") ? "fresh" : "stale" : "unavailable";
+    return { ...item, group: "Households", level: item.level ?? (item.score >= 70 ? "high" as const : item.score >= 45 ? "moderate" as const : "low" as const), period, rule: "Published household pressure screen; not a personal affordability score.", dataStatus };
+  }) ?? [];
   return <section className="section deep-section household-section page-section" id="household"><div className="shell">
     <div className="section-heading"><div><span className="section-number">10 / Households</span><h1>Household pressure monitor</h1></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
     <PictureStrip pictures={["household", "prices", "markets"]} />
     {!household ? <div className="deep-empty">Household pressure analysis will appear when the version-eight dataset is available.</div> : <>
       <InputHealthNotice health={dashboard?.inputHealth?.householdPressure} />
-      <div className="deep-hero"><div><span>Overall household pressure</span><strong>{household.overallScore.toFixed(1)}</strong><b className={`risk-pill ${household.overallLevel}`}>{levelLabel(household.overallLevel)}</b></div><p>{household.summary}</p></div>
-      <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div className="deep-card-heading"><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
-      <div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h3>{item.title}</h3><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div>
+      <p className="visual-page-summary">{household.summary}</p>
+      <RiskScoreVisual title="Household pressure comparison" overallScore={household.overallScore} overallLevel={household.overallLevel} items={householdSignals} />
+      <details className="dashboard-details visual-reading"><summary>Household scenario checks and important limits</summary><div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h3>{item.title}</h3><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div></details>
       <p className="deep-disclaimer">{household.disclaimer}</p>
     </>}
   </div></section>;
@@ -1636,12 +1646,13 @@ function BalancePaymentsSection({ dashboard }: { dashboard: DashboardPayload | n
     <div className="section-heading light"><div><span className="section-number">08 / Balance of payments</span><h1>External financing position</h1></div><p>Trade in goods is only one part of the external story. The balance of payments adds income flows, services, capital and financial-account movements.</p></div>
     {!bop || !latest ? <div className="deep-empty">Balance-of-payments data will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>Latest quarter</span><strong>{formatDate(latest.date)}</strong><b className={`risk-pill ${bop.status}`}>{bop.status}</b></div><p>{bop.narratives.externalPosition}</p></div>
+      <BalancePaymentsVisual data={bop} usingFallback={dashboard?.usingFallback} />
       <div className="deep-card-grid">
         <article><span>Current account</span><strong>{fmt(bop.summary.currentAccount)}</strong><p>{bop.summary.reading} · change from previous quarter {fmt(bop.summary.currentAccountChange)}</p></article>
         <article><span>Financial account</span><strong>{fmt(bop.summary.financialAccount)}</strong><p>Largest latest component: {bop.summary.largestAbsoluteComponent}.</p></article>
         <article><span>Reserve assets</span><strong>{fmt(bop.summary.reserveAccount)}</strong><p>{bop.narratives.ringgitContext}</p></article>
       </div>
-      <div className="deep-table-wrap"><table><thead><tr><th>Quarter</th><th>Current account</th><th>Capital account</th><th>Financial account</th><th>Reserve assets</th><th>Net errors</th></tr></thead><tbody>{[...bop.quarters].slice(-12).reverse().map((row) => <tr key={row.date}><td>{formatDate(row.date)}</td><td>{fmt(account(row, "ca"))}</td><td>{fmt(account(row, "ka"))}</td><td>{fmt(account(row, "fa"))}</td><td>{fmt(account(row, "reserves"))}</td><td>{fmt(account(row, "neo"))}</td></tr>)}</tbody></table></div>
+      <details className="dashboard-details visual-audit"><summary>Latest 12 quarters — full account table</summary><div className="deep-table-wrap"><table><thead><tr><th>Quarter</th><th>Current account</th><th>Capital account</th><th>Financial account</th><th>Reserve assets</th><th>Net errors</th></tr></thead><tbody>{[...bop.quarters].slice(-12).reverse().map((row) => <tr key={row.date}><td>{formatDate(row.date)}</td><td>{fmt(account(row, "ca"))}</td><td>{fmt(account(row, "ka"))}</td><td>{fmt(account(row, "fa"))}</td><td>{fmt(account(row, "reserves"))}</td><td>{fmt(account(row, "neo"))}</td></tr>)}</tbody></table></div></details>
       <div className="external-sources"><p>{bop.message} · Retrieved {formatDate(bop.retrievedAt.slice(0, 10))}</p><a href={bop.sourceUrl} target="_blank" rel="noreferrer">Official data catalogue</a><a href={bop.datasetUrl} target="_blank" rel="noreferrer">Source CSV</a></div>
       <p className="deep-disclaimer">Balance-of-payments components are accounting flows, not a causal model of exchange-rate movements.</p>
     </>}
@@ -2108,7 +2119,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
             <aside className="model-card">
               <span className="mini-label">Out-of-sample comparison</span>
               <h3>Model scorecard</h3>
-              <div className="forecast-score-table">
+              <ModelErrorVisual models={liveModels} />
+              <details className="forecast-disclosure"><summary>Exact model-error table</summary><div className="forecast-score-table">
                 <table>
                   <caption>Identical rolling backtest windows; lower error is better.</caption>
                   <thead><tr><th scope="col">Model</th><th scope="col">RMSE</th><th scope="col">MAE</th></tr></thead>
@@ -2117,7 +2129,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
                     <td>{model.rmse.toFixed(2)}</td><td>{model.mae.toFixed(2)}</td>
                   </tr>)}</tbody>
                 </table>
-              </div>
+              </div></details>
               <small><b>RMSE</b> means typical forecast error size in percentage points. <b>MAE</b> means average absolute error. Scores use {dashboard?.forecast.backtestWindows ?? "the available"} rolling backtest windows; lower is better. {selectedForecastModel?.name ?? dashboard?.forecast.selectedModel ?? "The selected model"} is selected because it has the lowest tested error.</small>
             </aside>
           </div>

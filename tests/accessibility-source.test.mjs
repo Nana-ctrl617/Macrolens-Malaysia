@@ -71,8 +71,11 @@ test("derived pages carry normalized input health and risk cards retain observat
   for (const key of ["latestBrief", "riskHeatmap", "decisionGuide", "householdPressure", "forecast"]) {
     assert.ok(page.includes(`dashboard?.inputHealth?.${key}`), `Missing input-health lookup: ${key}`);
   }
-  assert.ok(page.includes("className=\"risk-source-status\""));
-  assert.ok(page.includes("healthStatusLabel(item.dataStatus)"));
+  const scoreVisual = readFileSync(new URL("../app/components/RiskScoreVisual.tsx", import.meta.url), "utf8");
+  assert.ok(scoreVisual.includes("Observation period:"));
+  assert.ok(scoreVisual.includes("Data status:"));
+  assert.ok(page.includes("All signals, scoring rules and observation periods"));
+  assert.ok(page.includes('healthStatusLabel(dashboard?.usingFallback ? "fallback" : item.dataStatus)'));
   assert.ok(page.includes("Inspect source freshness →"));
   assert.doesNotMatch(page, /Latest data included|Latest signals incorporated/);
 });
