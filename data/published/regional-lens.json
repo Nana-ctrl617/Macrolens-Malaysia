@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "generatedAt": "2026-10-04T11:16:32Z",
+  "generatedAt": "2026-10-05T12:36:25Z",
   "defaultComparison": {
     "primary": "W.P. Kuala Lumpur",
     "secondary": "Sarawak"
@@ -19,7 +19,7 @@
   "sources": {
     "hiesState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -210,24 +210,25 @@
         "gini": 0.39,
         "expenditureMean": 5566.0
       },
-      "narrative": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
-      "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
       "nationalExpenditure": {
         "status": "fresh",
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-10-05T07:37:53Z",
-        "lastAttemptAt": "2026-10-05T07:37:53Z",
+        "retrievedAt": "2026-10-05T12:36:25Z",
+        "lastAttemptAt": "2026-10-05T12:36:25Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
         "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
-      }
+      },
+      "narrative": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
+      "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     },
     "hiesDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -2177,11 +2178,12 @@
           "gini": 0.214
         }
       ],
-      "message": "Latest district HIES data validated"
+      "message": "Latest district HIES data validated",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     },
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -2796,11 +2798,12 @@
         }
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
-      "message": "Latest state and national income-percentile data validated"
+      "message": "Latest state and national income-percentile data validated",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     },
     "labour": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
       "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -4296,11 +4299,12 @@
           "employmentPopulationRatio": 62.3
         }
       ],
-      "message": "District labour-force data validated and aggregated to state level"
+      "message": "District labour-force data validated and aggregated to state level",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     },
     "gdp": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -5132,6 +5136,60 @@
             {
               "id": "p3",
               "name": "Manufacturing",
+              "value": 0.0,
+              "share": 0.0,
+              "valueStatus": "observed"
+            }
+          ],
+          "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"
+        }
+      ],
+      "stateResidualRecords": [
+        {
+          "state": "Supra",
+          "date": "2025-01-01",
+          "total": 43.257,
+          "largestSector": "Mining and quarrying",
+          "largestSectorShare": 100.0,
+          "sectors": [
+            {
+              "id": "p2",
+              "name": "Mining and quarrying",
+              "value": 43.257,
+              "share": 100.0,
+              "valueStatus": "observed"
+            },
+            {
+              "id": "p1",
+              "name": "Agriculture",
+              "value": 0.0,
+              "share": 0.0,
+              "valueStatus": "observed"
+            },
+            {
+              "id": "p3",
+              "name": "Manufacturing",
+              "value": 0.0,
+              "share": 0.0,
+              "valueStatus": "observed"
+            },
+            {
+              "id": "p4",
+              "name": "Construction",
+              "value": 0.0,
+              "share": 0.0,
+              "valueStatus": "observed"
+            },
+            {
+              "id": "p5",
+              "name": "Services",
+              "value": 0.0,
+              "share": 0.0,
+              "valueStatus": "observed"
+            },
+            {
+              "id": "p6",
+              "name": "Import duties",
               "value": 0.0,
               "share": 0.0,
               "valueStatus": "observed"
@@ -13675,75 +13733,15 @@
           "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"
         }
       ],
-      "message": "Saved official GDP inputs validated locally; null/missing sectors corrected without a new pipeline retrieval",
-      "stateResidualRecords": [
-        {
-          "state": "Supra",
-          "date": "2025-01-01",
-          "total": 43.257,
-          "largestSector": "Mining and quarrying",
-          "largestSectorShare": 100.0,
-          "sectors": [
-            {
-              "id": "p2",
-              "name": "Mining and quarrying",
-              "value": 43.257,
-              "share": 100.0,
-              "valueStatus": "observed"
-            },
-            {
-              "id": "p1",
-              "name": "Agriculture",
-              "value": 0.0,
-              "share": 0.0,
-              "valueStatus": "observed"
-            },
-            {
-              "id": "p3",
-              "name": "Manufacturing",
-              "value": 0.0,
-              "share": 0.0,
-              "valueStatus": "observed"
-            },
-            {
-              "id": "p4",
-              "name": "Construction",
-              "value": 0.0,
-              "share": 0.0,
-              "valueStatus": "observed"
-            },
-            {
-              "id": "p5",
-              "name": "Services",
-              "value": 0.0,
-              "share": 0.0,
-              "valueStatus": "observed"
-            },
-            {
-              "id": "p6",
-              "name": "Import duties",
-              "value": 0.0,
-              "share": 0.0,
-              "valueStatus": "observed"
-            }
-          ],
-          "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"
-        }
-      ],
       "administrativeDistrictCount": 159,
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
-      "sourceValidatedAt": "2026-10-05T10:27:14Z",
-      "localInputVerification": {
-        "sourceValidatedAt": "2026-10-05T10:27:14Z",
-        "stateSha256": "0478e221408f506167d2cbbd1b0e9a73881ccc7509fe59ff6b7b81cbffaf63cb",
-        "districtSha256": "163b8700fe179fc9cccdbd7e6c2fe5db5763218cf00f67a43e4c69c623f125bd",
-        "note": "Hashes identify explicit saved source files, not a new network retrieval by this command."
-      }
+      "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     },
     "cpi": {
       "status": "fresh",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": "2026-10-05T12:36:25Z",
       "observationPeriod": "2026-08-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
@@ -13829,7 +13827,8 @@
           "headlineInflation": 2.0
         }
       ],
-      "message": "Latest state headline CPI inflation validated"
+      "message": "Latest state headline CPI inflation validated",
+      "lastAttemptAt": "2026-10-05T12:36:25Z"
     }
   },
   "stateRecords": [
@@ -26843,7 +26842,7 @@
   ],
   "incomeGroups": {
     "status": "fresh",
-    "retrievedAt": "2026-10-04T11:16:32Z",
+    "retrievedAt": "2026-10-05T12:36:25Z",
     "observationPeriod": "2024-01-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -27458,7 +27457,8 @@
       }
     ],
     "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
-    "message": "Latest state and national income-percentile data validated"
+    "message": "Latest state and national income-percentile data validated",
+    "lastAttemptAt": "2026-10-05T12:36:25Z"
   },
   "summaryCards": [
     {
@@ -27505,11 +27505,5 @@
     "status": "fresh",
     "staleInputs": [],
     "note": "All required inputs passed source validation; observation periods still differ."
-  },
-  "calculatedAt": "2026-10-05T10:27:14Z",
-  "recomputation": {
-    "mode": "offline-regional-gdp-correction",
-    "sourceRefresh": false,
-    "note": "Only GDP-derived regional records/exports were reparsed from explicit saved official source files. Official nulls and absent sector codes remain unavailable, genuine zeros remain observed, shares use official p0 totals, and Supra is a GDP residual. Other official inputs, forecasts and retrieval timestamps are unchanged; this is not a full dashboard refresh."
   }
 }
