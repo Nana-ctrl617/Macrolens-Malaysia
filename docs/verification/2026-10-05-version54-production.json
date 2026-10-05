@@ -1,0 +1,66 @@
+{
+  "site": "https://macrolens-malaysia.ruoniing2005.chatgpt.site",
+  "version": 54,
+  "deploymentStatus": "succeeded",
+  "deployedAt": "2026-10-05T11:11:53.677567+00:00",
+  "sitesSourceCommit": "07e0cf6c5af4179f7e461af0e264afe2479c29d4",
+  "githubImplementationCommit": "3b6fb03e891b1abca56a6a14d5693f74d30d797d",
+  "localPreReleaseChecks": {
+    "nodeUnitTests": 121,
+    "pythonTests": 82,
+    "renderedRouteAndDownloadTests": 19,
+    "appTypeCheck": "passed",
+    "productionBuild": "passed"
+  },
+  "productionChecks": {
+    "dashboardSchema": 9,
+    "usingBundledFallback": false,
+    "overallSourceHealth": "partial",
+    "staleSources": ["opr", "mgs"],
+    "selectedForecastModel": "SARIMA",
+    "forecastMonths": 3,
+    "forecastAuditOrigins": 12,
+    "forecastCsvRows": 108,
+    "failedFitCsvRows": 30,
+    "failedFitRowsWithInventedPredictions": 0,
+    "forecastNumericalAndAuditParityWithGithub": true,
+    "forecastAuditDownloadParityWithDashboard": true,
+    "headlineIndicatorPoints": 548,
+    "indicatorParityWithDashboard": true,
+    "regionalCsvRows": 4356,
+    "regionalCsvFields": ["level", "state", "district", "metric", "value", "unit", "observation_period", "source_url", "data_status", "retrieved_at"],
+    "successfulHttpRoutes": ["/forecast", "/regional", "/risk", "/health", "/api/dashboard", "/api/indicator?id=headline", "/api/forecast-evaluation?format=json", "/api/forecast-evaluation?format=csv", "/api/regional-lens?format=json", "/api/regional-lens?format=csv"],
+    "liveRegionalControls": {
+      "administrativeDistrictOptions": 165,
+      "supraResidualSelectable": false,
+      "comparison": ["Kuching, Sarawak", "Batu Pahat, Johor"],
+      "medianHouseholdIncome": [6741, 7555],
+      "observationYear": 2024,
+      "source": "DOSM district HIES",
+      "tableView": "passed",
+      "documentWidthAt1280Viewport": 1265
+    },
+    "liveMobileRisk": {
+      "viewportWidth": 390,
+      "viewportHeight": 844,
+      "documentWidth": 375,
+      "selectedSignal": "Policy rate",
+      "selectedEvidenceTop": 160.421875,
+      "selectedEvidenceBottom": 680.65625,
+      "heatmapSwitch": "passed",
+      "staleStatusVisible": true
+    }
+  },
+  "preservation": {
+    "githubDailyWorkflow": "unchanged",
+    "historicalVintages": "unchanged",
+    "originalAugustCpiVintageSha256": "2eeaab966c05292ecfd6378206ad16d4da1c772adb7f2f94e66310853e4dc8ba",
+    "publicUrlAndAudience": "unchanged"
+  },
+  "limitations": [
+    "Publication is not an official-source refresh; stale OPR and MGS labels remain visible.",
+    "The selected model historically under-covered its nominal intervals; coverage and failed ARIMAX fits are disclosed.",
+    "The existing scheduled workflow was preserved, not manually triggered by this publishing step.",
+    "Local technical review scores are provisional, not certification or measured performance benchmarks."
+  ]
+}
