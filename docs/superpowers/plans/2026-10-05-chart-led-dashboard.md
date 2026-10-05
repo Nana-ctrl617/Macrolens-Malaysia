@@ -60,6 +60,6 @@
 - [x] Integrate all new visual surfaces; retain warnings and readable layout; no changes to models/API/pipeline.
 - [x] Run application typecheck, Node regressions, production build and rendered routes. Final run: 57 unit/component checks and 17 production-rendered checks passed; application typecheck and build passed.
 - [x] Browser-check Risk, Brief, Household, BOP and Forecast together at desktop/mobile sizes, click/keyboard points and selection states. Fix observed issues in one batch and confirm once. Pointer handlers are source-tested; native hover was not exercised by this browser interface.
-- [ ] Synchronise only changed application/tests/docs to GitHub without overwriting newer generated artifacts. Push exact Sites source, package matching built output, deploy and verify success/live pages.
+- [x] Synchronise only changed application/tests/docs to GitHub without overwriting newer generated artifacts. Push exact Sites source, package matching built output, deploy and verify success/live pages. Published version 53; source SHA b44edb85919fbd413a96c74caf625bf1c4362f32; public routes and assets verified.
 
 The superpowers execution sub-skills are unavailable; use the provided collaboration tools for bounded parallel execution now. Implementation is authorized by the user's request; no additional planning approval is required.

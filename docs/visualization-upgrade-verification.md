@@ -28,6 +28,14 @@ Checked all five surfaces at 1280 x 720 and 390 x 844 in the in-app browser.
 
 Pointer handlers are source-tested. Native hover was not exercised by this browser interface; click/tap-style selection and keyboard inspection were exercised.
 
-## Release boundary
+## Production release
 
-The verified build is ready for publication to the existing public MacroLens site. Publication outcome and public smoke checks are recorded separately after deployment. No data pipeline run is required for these frontend-only changes.
+- Sites version 53 published successfully at 2026-10-05T09:01:28Z.
+- Exact Sites source SHA: `b44edb85919fbd413a96c74caf625bf1c4362f32`.
+- Deployment ID: `appgdep_6ac36750cccc81919d0b2f55f7943e33`.
+- Existing public audience and URL preserved: https://macrolens-malaysia.ruoniing2005.chatgpt.site/.
+- All five affected public routes returned HTTP 200 with a cache-busting version query.
+- Published page asset includes all four chart components: score matrix/bars, series trend, BOP trend/bars and model-error comparison.
+- Live Risk and Brief interactions verified in the browser. Risk remains 37.2, household pressure remains 40, schema remains 9 and the consolidated response is not a bundled fallback.
+- No data pipeline run was required for these frontend-only changes. Generated data files were not overwritten.
+- Windows packaging used the official build-preparation helper and native tar after the source workflow pushed successfully but could not start its Bash packaging step. The saved archive was built from the exact pushed application source.
