@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
-
 :root { --paper:#f5f1e8; --card:#fffdf7; --ink:#182321; --muted:#69736f; --rust:#df5b36; --teal:#1c6b61; --navy:#213d4a; --line:#d9d3c7; --dark:#172522; }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
@@ -274,7 +272,7 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .deep-card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }
 .deep-card,.scenario-grid article,.sector-deep-card,.report-grid article { padding:22px; border:1px solid #d6cfbf; border-radius:17px; background:#fffdf7; }
 .bop-section .deep-card,.timeline-list article,.health-section .deep-table-wrap { border-color:#314842; background:#203530; }
-.deep-card div,.sector-deep-card>div { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+.deep-card-heading,.sector-deep-card>div { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
 .deep-card strong,.deep-card b,.sector-deep-card b { font-family:'DM Sans',sans-serif; font-size:28px; font-variant-numeric:tabular-nums; }
 .deep-card p,.sector-deep-card p,.scenario-grid p,.report-grid li { color:#4e5b57; font-size:15px; line-height:1.65; }
 .bop-section .deep-card p { color:#d1dcd8; }

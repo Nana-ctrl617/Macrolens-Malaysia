@@ -42,6 +42,8 @@ def test_write_creates_one_vintage_per_cpi_period(tmp_path, monkeypatch):
     monkeypatch.setattr(macrolens, "VINTAGES", tmp_path / "vintages")
     monkeypatch.setattr(macrolens, "STRUCTURAL_JSON", tmp_path / "published" / "structural-breaks.json")
     monkeypatch.setattr(macrolens, "STRUCTURAL_CSV", tmp_path / "published" / "structural-breaks.csv")
+    monkeypatch.setattr(macrolens, "REGIONAL_JSON", tmp_path / "published" / "regional-lens.json")
+    monkeypatch.setattr(macrolens, "REGIONAL_CSV", tmp_path / "published" / "regional-lens.csv")
     payload = {"schemaVersion": 2, "series": {"headline": {"points": sample(60)}}, "structuralBreaks": {"indicators": {}}}
     output = tmp_path / "published" / "dashboard.json"
     assert macrolens.write_payload(payload, output)

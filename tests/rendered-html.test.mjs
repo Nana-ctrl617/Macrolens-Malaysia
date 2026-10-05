@@ -86,6 +86,39 @@ test("forecast route explains model output and limitations", async () => {
   assert.match(html, /not a promise/);
 });
 
+test("compact snapshot puts figures first and uses flow-based card footers", async () => {
+  const html = await (await render()).text();
+  const parts = ['class="snapshot-meta"', 'class="metrics-grid"', 'class="trend-card"', 'class="snapshot-completion"', 'class="dashboard-details snapshot-definitions"'];
+  const positions = parts.map((part) => html.indexOf(part));
+  assert.ok(positions.every((position) => position >= 0));
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+  assert.equal((html.match(/class="metric-footer"/g) ?? []).length, 6);
+  assert.doesNotMatch(html, /class="picture-strip"/);
+});
+
+test("grouped navigation keeps all direct routes and a labelled mobile menu", async () => {
+  const html = await (await render("/regional")).text();
+  assert.equal((html.match(/class="dashboard-navigation-group"/g) ?? []).length, 5);
+  const nav = html.slice(html.indexOf('aria-label="Primary navigation"'), html.indexOf('</nav>'));
+  assert.equal((nav.match(/<a /g) ?? []).length, 19);
+  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /Sections\. Current page: Regional Lens/);
+  assert.match(html, /aria-current="page" href="\/regional">Regional Lens/);
+});
+
+test("regional presentation preserves data-first order and contained rank lists", () => {
+  const source = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const regional = source.slice(source.indexOf("function RegionalLensSection"), source.indexOf("function SectorDeepDiveSection"));
+  const parts = ['className="regional-meta"', 'className="regional-controls"', 'className="regional-comparison"', 'className="regional-bars"', 'className="income-group-panel"', 'className="regional-lower-grid"', 'className="dashboard-details regional-sources"'];
+  const positions = parts.map((part) => regional.indexOf(part));
+  assert.ok(positions.every((position) => position >= 0));
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+  const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.doesNotMatch(css, /\.deep-card div\s*[,\{]/);
+  const compact = readFileSync(new URL("../app/compact-dashboard.css", import.meta.url), "utf8");
+  assert.match(compact, /\.mini-rank-list>div\s*\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
+});
+
 test("serves the embedded MGS history without an external request", async () => {
   const response = await render("/api/indicator?id=mgs");
   assert.equal(response.status, 200);

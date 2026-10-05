@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { DashboardNavigation } from "@/app/components/DashboardNavigation";
 import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, MacroTimeline, RegionalLens, RegionalStateRecord, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
@@ -45,28 +46,6 @@ const fallbackCategories = [
 
 export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "regional" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
 
-const navigation: Array<{ id: DashboardSection; label: string; href: string }> = [
-  { id: "snapshot", label: "Snapshot", href: "/" },
-  { id: "brief", label: "Brief", href: "/brief" },
-  { id: "news", label: "News", href: "/news" },
-  { id: "risk", label: "Risk heatmap", href: "/risk" },
-  { id: "forecast", label: "Forecast", href: "/forecast" },
-  { id: "drivers", label: "Drivers", href: "/drivers" },
-  { id: "structure", label: "Growth drivers", href: "/structure" },
-  { id: "external", label: "External sector", href: "/external" },
-  { id: "bop", label: "BOP", href: "/bop" },
-  { id: "household", label: "Households", href: "/household" },
-  { id: "regional", label: "Regional Lens", href: "/regional" },
-  { id: "sectors", label: "Sectors", href: "/sectors" },
-  { id: "bursa", label: "Bursa", href: "/bursa" },
-  { id: "decisions", label: "Decision guide", href: "/decisions" },
-  { id: "timeline", label: "Timeline", href: "/timeline" },
-  { id: "structural", label: "Structural shifts", href: "/structural" },
-  { id: "report", label: "Report", href: "/report" },
-  { id: "health", label: "Data health", href: "/health" },
-  { id: "methodology", label: "Methodology", href: "/methodology" },
-];
-
 const inflationDefinitions = {
   headline: {
     short: "The year-on-year change in Malaysia's full Consumer Price Index (CPI) basket.",
@@ -77,25 +56,6 @@ const inflationDefinitions = {
     explanation: "It helps show whether inflation is broad and persistent, but it is not a household's actual cost-of-living rate.",
   },
 } as const;
-
-function Header({ active }: { active: DashboardSection }) {
-  const activeLinkRef = useRef<HTMLAnchorElement>(null);
-  useEffect(() => {
-    activeLinkRef.current?.scrollIntoView({ block: "nearest", inline: "center" });
-  }, [active]);
-  return (
-    <header className="site-header">
-      <a className="brand" href="/" aria-label="MacroLens Malaysia home">
-        <img className="brand-logo" src="/macrolens-logo.png" alt="" width="30" height="30" />
-        <span>MacroLens Malaysia</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        {navigation.map((item) => <a key={item.id} ref={active === item.id ? activeLinkRef : undefined} className={active === item.id ? "active" : ""} aria-current={active === item.id ? "page" : undefined} href={item.href}>{item.label}</a>)}
-      </nav>
-      <a className="source-link" href="https://data.gov.my/" target="_blank" rel="noreferrer">Official sources ↗</a>
-    </header>
-  );
-}
 
 type PictureVariant = "city" | "prices" | "trade" | "markets" | "household" | "research";
 
@@ -439,9 +399,11 @@ function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: M
       <div className="metric-topline"><span>{metric.label}</span><i /></div>
       <strong>{metric.value}</strong>
       <p>{metric.detail}</p>
-      <small>Release period · {metric.period}</small>
-      {metric.status && <span className={`metric-status ${metric.status}`}>{metric.status}</span>}
-      <span className="metric-open">View history <b>↗</b></span>
+      <div className="metric-footer">
+        <small>Release period · {metric.period}</small>
+        {metric.status && <span className={`metric-status ${metric.status}`}>{metric.status}</span>}
+        <span className="metric-open">View history <b>↗</b></span>
+      </div>
     </button>
   );
 }
@@ -1570,7 +1532,7 @@ function HouseholdPressureSection({ dashboard }: { dashboard: DashboardPayload |
     <PictureStrip pictures={["household", "prices", "markets"]} />
     {!household ? <div className="deep-empty">Household pressure analysis will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>Overall household pressure</span><strong>{household.overallScore.toFixed(1)}</strong><b className={`risk-pill ${household.overallLevel}`}>{levelLabel(household.overallLevel)}</b></div><p>{household.summary}</p></div>
-      <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
+      <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div className="deep-card-heading"><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
       <div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h3>{item.title}</h3><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div>
       <p className="deep-disclaimer">{household.disclaimer}</p>
     </>}
@@ -1692,64 +1654,11 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
   ].filter((item) => item.catalogue || item.csv || item.period);
   return <section className="section deep-section regional-section page-section" id="regional"><div className="shell">
     <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h2>How different are Malaysia&apos;s states and districts?</h2></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
-    <PictureStrip pictures={["city", "household", "trade"]} />
     {!regional ? <div className="deep-empty">Regional Lens will appear when the schema-nine dataset is available.</div> : <>
-      <div className="regional-hero">
-        <div>
-          <span>{regional.narratives.headline}</span>
-          <h3>Regional income and spending can tell different stories.</h3>
-          <p>{regional.narratives.comparison}</p>
-          <p>{regional.disclaimer}</p>
-        </div>
-        <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
+      <div className="regional-meta">
+        <div><span className={`risk-pill ${dashboard?.usingFallback ? "fallback" : regional.status}`}>{dashboard?.usingFallback ? "Fallback snapshot" : regional.status}</span><span>{metricInfo.label} · data period {sourceDate(activeSource?.observationPeriod)}</span></div>
+        <a href={activeSourceUrl} target="_blank" rel="noreferrer">{activeSourceName} ↗</a>
       </div>
-      <div className="regional-source-panel" aria-label="Regional Lens data sources for assignment citation">
-        <div>
-          <span>Data sources for assignment</span>
-          <h3>Every regional number is tied to an official source.</h3>
-          <p>Hover on the cards for a quick source note, or open the source links below when you need to cite or download the original data.</p>
-        </div>
-        <div className="regional-source-grid">
-          {sourceCards.map((source) => <details key={source.label}>
-            <summary><span>{source.label}</span><b className={`risk-pill ${source.status ?? "fresh"}`}>{source.status ?? "source"}</b></summary>
-            <p>{source.source}</p>
-            <small>Observation period: {sourceDate(source.period)} · Retrieved: {sourceDate(source.retrieved)}</small>
-            <div>
-              {source.catalogue ? <a href={source.catalogue} target="_blank" rel="noreferrer">Catalogue ↗</a> : null}
-              {source.csv ? <a href={source.csv} target="_blank" rel="noreferrer">Source CSV ↗</a> : null}
-              {source.extraCatalogue ? <a href={source.extraCatalogue} target="_blank" rel="noreferrer">District catalogue ↗</a> : null}
-              {source.extraCsv ? <a href={source.extraCsv} target="_blank" rel="noreferrer">Extra CSV ↗</a> : null}
-            </div>
-          </details>)}
-        </div>
-      </div>
-      <div className="regional-summary-grid">
-        {regional.summaryCards.map((card) => <article key={card.label} title={`Source for this number: DOSM HIES household survey. Observation period ${sourceDate(hiesSource?.observationPeriod)}.`}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p><small>Source: DOSM HIES · {sourceDate(hiesSource?.observationPeriod)}</small></article>)}
-      </div>
-      {incomeGroupRows.length ? <div className="income-group-panel">
-        <div className="income-group-heading">
-          <div>
-            <span>Income distribution</span>
-            <h3>B40, M40 and T20 income comparison</h3>
-            <p>{regional.narratives.incomeGroups ?? incomeGroups?.note}</p>
-          </div>
-          <small>{incomeGroups?.observationPeriod ? `Survey year ${new Date(incomeGroups.observationPeriod).getFullYear()}` : "Official percentile data"}</small>
-        </div>
-        <div className="income-group-grid">
-          {incomeGroupRows.map((row) => <article key={row.id}>
-            <span>{row.label}</span>
-            <div className="income-group-bars">
-              {[{ label: primary, item: row.primary, tone: "primary" }, { label: secondary, item: row.secondary, tone: "secondary" }, { label: "Malaysia", item: row.national, tone: "national" }].map((entry) => <div key={entry.label} className={`income-group-row ${entry.tone}`} title={`Source for this number: DOSM HIES percentile income data. ${row.label} means percentile range ${entry.item?.percentileRange ?? "available"}; observation period ${sourceDate(incomeGroups?.observationPeriod)}.`}>
-                <b>{entry.label}</b>
-                <i style={{ width: `${Math.max(5, ((entry.item?.meanIncome ?? 0) / maxIncomeGroupValue) * 100)}%` }} />
-                <strong>{regionalFormat(entry.item?.meanIncome, "RM")}</strong>
-                <em>{entry.item?.vsNationalMean == null ? "Benchmark" : `${regionalRmGap(entry.item.vsNationalMean)} vs Malaysia ${row.label}`}</em>
-              </div>)}
-            </div>
-          </article>)}
-        </div>
-        <p className="income-group-note">{incomeGroups?.note} <a href={incomeGroups?.sourceUrl} target="_blank" rel="noreferrer">Catalogue ↗</a> <a href={incomeGroups?.stateDatasetUrl} target="_blank" rel="noreferrer">State CSV ↗</a> <a href={incomeGroups?.nationalDatasetUrl} target="_blank" rel="noreferrer">Malaysia CSV ↗</a></p>
-      </div> : null}
       <div className="regional-controls">
         <label><span>Geography</span><select value={level} onChange={(event) => setLevel(event.target.value as "state" | "district")}><option value="state">State / federal territory</option><option value="district">District where available</option></select></label>
         <label><span>Main region</span><select value={primary} onChange={(event) => setPrimary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
@@ -1768,12 +1677,48 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
           <em>{metricInfo.label} · Source: {activeSourceName} · {item.largestSector ? `largest sector: ${item.largestSector}` : "official regional data"}</em>
         </div>)}
       </div> : <div className="table-wrap"><table className="data-table"><caption>Source for selected metric: {activeSourceName}; observation period {sourceDate(activeSource?.observationPeriod)}.</caption><thead><tr><th>State</th><th>{metricInfo.label}</th><th>Median income</th><th>Expenditure</th><th>Poverty</th><th>Unemployment</th><th>Largest sector</th></tr></thead><tbody>{rankedStates.map((item) => <tr key={item.state}><td>{item.state}</td><td title={`Source: ${activeSourceName}`}>{regionalFormat(item.selectedValue, metricInfo.unit)}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.incomeMedian, "RM")}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.expenditureMean, "RM")}</td><td title="Source: DOSM HIES household survey">{regionalFormat(item.poverty, "%")}</td><td title="Source: DOSM labour force dataset">{regionalFormat(item.unemploymentRate, "%")}</td><td title="Source: DOSM state GDP dataset">{item.largestSector ?? "n/a"}</td></tr>)}</tbody></table></div>}
+      <p className="regional-chart-note">State comparison · hover, tap or focus a row for its source note. {level === "district" ? `Available districts in ${primary} are listed below; the chart above remains a state comparison.` : "The same metric is used for every state."}</p>
+      {incomeGroupRows.length ? <div className="income-group-panel">
+        <div className="income-group-heading">
+          <div><span>Income distribution</span><h3>B40, M40 and T20 income comparison</h3><p>{regional.narratives.incomeGroups ?? incomeGroups?.note}</p></div>
+          <small>{incomeGroups?.observationPeriod ? `Survey year ${new Date(incomeGroups.observationPeriod).getFullYear()}` : "Official percentile data"}</small>
+        </div>
+        <div className="income-group-grid">
+          {incomeGroupRows.map((row) => <article key={row.id}>
+            <span>{row.label}</span>
+            <div className="income-group-bars">
+              {[{ label: primary, item: row.primary, tone: "primary" }, { label: secondary, item: row.secondary, tone: "secondary" }, { label: "Malaysia", item: row.national, tone: "national" }].map((entry) => <div key={entry.label} className={`income-group-row ${entry.tone}`} title={`Source for this number: DOSM HIES percentile income data. ${row.label} means percentile range ${entry.item?.percentileRange ?? "available"}; observation period ${sourceDate(incomeGroups?.observationPeriod)}.`}>
+                <b>{entry.label}</b><i style={{ width: `${Math.max(5, ((entry.item?.meanIncome ?? 0) / maxIncomeGroupValue) * 100)}%` }} /><strong>{regionalFormat(entry.item?.meanIncome, "RM")}</strong>
+                <em>{entry.item?.vsNationalMean == null ? "Benchmark" : `${regionalRmGap(entry.item.vsNationalMean)} vs Malaysia ${row.label}`}</em>
+              </div>)}
+            </div>
+          </article>)}
+        </div>
+        <p className="income-group-note">{incomeGroups?.note} <a href={incomeGroups?.sourceUrl} target="_blank" rel="noreferrer">Catalogue ↗</a> <a href={incomeGroups?.stateDatasetUrl} target="_blank" rel="noreferrer">State CSV ↗</a> <a href={incomeGroups?.nationalDatasetUrl} target="_blank" rel="noreferrer">Malaysia CSV ↗</a></p>
+      </div> : null}
       <div className="regional-lower-grid">
         <article className="deep-card"><span>District view</span><h3>{level === "district" ? `${primary} districts` : "District data exists, but not for every indicator"}</h3><p>{regional.narratives.district}</p><div className="mini-rank-list">{districtSample.map((item) => <div key={`${item.state}-${item.district}`}><span>{item.district}</span><b>{regionalFormat(item.incomeMedian, "RM")}</b><small>poverty {regionalFormat(item.poverty, "%")}</small></div>)}</div></article>
         <article className="deep-card"><span>National-only indicators</span><h3>Some signals should not be split by state.</h3><p>{regional.narratives.nationalOnly}</p><div className="badge-row">{regional.coverage.nationalOnly.map((item) => <span key={item}>{item}</span>)}</div></article>
         <article className="deep-card"><span>Sector mix</span><h3>{primaryState?.state ?? "Selected region"} is most exposed to {primaryState?.largestSector ?? "available sectors"}.</h3><p>State GDP helps explain why regions may react differently to trade, commodity, tourism, construction or services conditions.</p><div className="mini-rank-list">{(primaryState?.sectorShares ?? []).slice(0, 5).map((sector) => <div key={sector.id}><span>{sector.name}</span><b>{sector.share.toFixed(1)}%</b><small>{regionalFormat(sector.value, "RM billion")}</small></div>)}</div></article>
       </div>
-      <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p><p>For school assignments, use the “Data sources for assignment” links above together with the downloaded CSV/JSON. The dashboard is a cleaned presentation layer; the linked DOSM/data.gov.my files are the original sources.</p></div>
+      <details className="dashboard-details regional-context">
+        <summary>Income and spending context — KL, Sarawak and the national benchmark</summary>
+        <div className="regional-hero"><div><span>{regional.narratives.headline}</span><h3>Regional income and spending can tell different stories.</h3><p>{regional.narratives.comparison}</p><p>{regional.disclaimer}</p></div></div>
+        <div className="regional-summary-grid">{regional.summaryCards.map((card) => <article key={card.label} title={`Source: DOSM HIES household survey. Observation period ${sourceDate(hiesSource?.observationPeriod)}.`}><span>{card.label}</span><strong>{card.value}</strong><p>{card.detail}</p><small>Source: DOSM HIES · {sourceDate(hiesSource?.observationPeriod)}</small></article>)}</div>
+      </details>
+      <details className="dashboard-details regional-sources">
+        <summary>Data sources for assignment, downloads and coverage notes</summary>
+        <div className="regional-source-panel" aria-label="Regional Lens data sources for assignment citation">
+          <div><span>Data sources for assignment</span><h3>Every regional number is tied to an official source.</h3><p>Open the links below to cite or download the original data. Each chart and comparison also includes a direct source link.</p></div>
+          <div className="regional-source-grid">{sourceCards.map((source) => <details key={source.label}>
+            <summary><span>{source.label}</span><b className={`risk-pill ${source.status ?? "fresh"}`}>{source.status ?? "source"}</b></summary>
+            <p>{source.source}</p><small>Observation period: {sourceDate(source.period)} · Retrieved: {sourceDate(source.retrieved)}</small>
+            <div>{source.catalogue ? <a href={source.catalogue} target="_blank" rel="noreferrer">Catalogue ↗</a> : null}{source.csv ? <a href={source.csv} target="_blank" rel="noreferrer">Source CSV ↗</a> : null}{source.extraCatalogue ? <a href={source.extraCatalogue} target="_blank" rel="noreferrer">District catalogue ↗</a> : null}{source.extraCsv ? <a href={source.extraCsv} target="_blank" rel="noreferrer">Extra CSV ↗</a> : null}</div>
+          </details>)}</div>
+        </div>
+        <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
+        <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p><p>For school assignments, use the original DOSM/data.gov.my source links with the dashboard CSV/JSON. The dashboard is a cleaned presentation layer, not the original publisher.</p></div>
+      </details>
     </>}
   </div></section>;
 }
@@ -1954,7 +1899,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   }, [section]);
 
   const liveMetrics: Metric[] = useMemo(() => {
-    if (!dashboard) return metrics as Metric[];
+    if (!dashboard) return metrics.map((metric) => ({ ...metric, value: "—", period: "Loading" })) as Metric[];
     const details: Record<MetricId, string> = {
       headline: "Full CPI basket, year on year", core: "Underlying price pressure", opr: "BNM policy setting",
       unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Government bond yield",
@@ -1970,21 +1915,19 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
     });
   }, [dashboard]);
 
-  const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? history.map((value, index) => {
-    const date = new Date(Date.UTC(2024, 7 + index, 1));
-    return { date: date.toISOString().slice(0, 10), value };
-  });
+  const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? [];
   const liveHistory = headlinePoints.map((point) => point.value);
   const liveHistoryLabels = headlinePoints.filter((_, index) => index === 0 || index === headlinePoints.length - 1 || index % Math.max(1, Math.floor(headlinePoints.length / 6)) === 0).map((point) => formatDate(point.date));
-  const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? forecasts;
-  const liveModels = dashboard?.forecast.models ?? models;
+  const liveForecasts = dashboard?.forecast.points.map((point) => ({ ...point, month: formatDate(point.date) })) ?? [];
+  const liveModels = dashboard?.forecast.models ?? [];
   const selectedForecastModel = liveModels.find((model) => model.selected) ?? liveModels[0];
   const finalForecast = liveForecasts.at(-1);
   const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
 
   return (
-    <main id="top">
-      <Header active={section} />
+    <div className="dashboard-app">
+      <DashboardNavigation active={section} />
+      <main id="top">
 
       {section === "snapshot" && <>
       <section className="section snapshot-section shell" id="snapshot">
@@ -1992,31 +1935,9 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <div><span className="section-number">01 / Snapshot</span><h2>Malaysia’s economy at a glance</h2></div>
           <p>Track the latest signals across prices, interest rates, jobs, the ringgit and government bonds—with official data and clear explanations.</p>
         </div>
-        <PictureStrip pictures={["city", "prices", "markets"]} />
         <div className="snapshot-meta">
           <span>Last successful refresh · {updatedAt}</span>
           <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Official data · ${dashboard.health}` : "Loading validated data"}</div>
-        </div>
-        <aside className="inflation-primer" aria-labelledby="inflation-primer-title">
-          <div className="primer-heading">
-            <span>Quick guide</span>
-            <h3 id="inflation-primer-title">Headline versus core inflation</h3>
-          </div>
-          <article>
-            <strong>Headline inflation</strong>
-            <p>{inflationDefinitions.headline.short} {inflationDefinitions.headline.explanation}</p>
-          </article>
-          <article>
-            <strong>Core inflation</strong>
-            <p>{inflationDefinitions.core.short} {inflationDefinitions.core.explanation}</p>
-          </article>
-          <p className="primer-summary"><strong>The difference:</strong> headline describes price changes across the full household basket; core helps reveal the steadier underlying trend. Neither is better—they answer different questions.</p>
-        </aside>
-        <div className="snapshot-completion">
-          <a href="/brief"><span>Latest brief</span><strong>{dashboard?.latestBrief?.headline ?? "Monthly brief loading"}</strong><small>What changed, possible reasons, watch list and decision context.</small></a>
-          <a href="/news"><span>Latest headlines</span><strong>Malaysia economy news</strong><small>Fresh headlines on inflation, BNM, ringgit, Bursa, GDP, trade and jobs.</small></a>
-          <a href="/risk"><span>Risk heatmap</span><strong>{dashboard?.riskHeatmap ? `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Rule-based scores for prices, jobs, rates, FX, bonds, Bursa, GDP and trade.</small></a>
-          <a href="/regional"><span>Regional Lens</span><strong>{dashboard?.regionalLens ? "KL, Sarawak and every state" : "Regional data loading"}</strong><small>Compare income, spending pressure, poverty, jobs, CPI and sector mix by place.</small></a>
         </div>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
@@ -2028,6 +1949,21 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
           <div className="interpretation"><b>How to read this</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
           <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>
+        <div className="snapshot-completion" aria-label="Explore related analysis">
+          <a href="/brief"><span>Latest brief ↗</span><strong>What changed recently</strong><small>Possible reasons, what to watch and decision context.</small></a>
+          <a href="/news"><span>Latest headlines ↗</span><strong>Malaysia economy news</strong><small>Recent coverage of prices, policy, markets, trade and jobs.</small></a>
+          <a href="/risk"><span>Risk heatmap ↗</span><strong>{dashboard?.riskHeatmap ? `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Inspect the evidence behind the rule-based pressure scores.</small></a>
+          <a href="/regional"><span>Regional Lens ↗</span><strong>Compare Malaysia’s states</strong><small>Income, spending, poverty, jobs, CPI and sector mix by place.</small></a>
+        </div>
+        <details className="dashboard-details snapshot-definitions">
+          <summary>Headline versus core inflation — definitions and reading guide</summary>
+          <aside className="inflation-primer" aria-labelledby="inflation-primer-title">
+            <div className="primer-heading"><span>Quick guide</span><h3 id="inflation-primer-title">Headline versus core inflation</h3></div>
+            <article><strong>Headline inflation</strong><p>{inflationDefinitions.headline.short} {inflationDefinitions.headline.explanation}</p></article>
+            <article><strong>Core inflation</strong><p>{inflationDefinitions.core.short} {inflationDefinitions.core.explanation}</p></article>
+            <p className="primer-summary"><strong>The difference:</strong> headline describes price changes across the full household basket; core helps reveal the steadier underlying trend. Neither is better—they answer different questions.</p>
+          </aside>
+        </details>
       </section>
       </>}
 
@@ -2037,78 +1973,99 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "risk" && <RiskHeatmapSection dashboard={dashboard} />}
 
-      {section === "forecast" && <section className="section forecast-section page-section" id="forecast">
+      {section === "forecast" && <section className="section forecast-section page-section compact-forecast" id="forecast">
         <div className="shell">
           <div className="section-heading light">
             <div><span className="section-number">04 / Forecast</span><h2>Three months ahead</h2></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
-          <PictureStrip pictures={["research", "prices", "markets"]} />
-          <div className="forecast-guide">
-            <div><span>How to read this page</span><h3>Start with the range, then read the point estimate.</h3><p>This is a three-month headline inflation forecast. It is not a forecast for individual stocks, the ringgit, or the next OPR decision.</p></div>
-            <article><strong>Central forecast</strong><p>The model&apos;s best estimate for each future month.</p></article>
-            <article><strong>80% and 95% intervals</strong><p>Uncertainty ranges. The 95% interval is wider because it is designed to cover more possible outcomes.</p></article>
-            <article><strong>Wider range</strong><p>More uncertainty. Treat the exact number as less important when the interval is wide.</p></article>
-          </div>
           <div className="forecast-layout">
             <div className="forecast-card">
-              <div className="forecast-scale"><span>−1%</span><span>0%</span><span>1%</span><span>2%</span><span>3%</span><span>4%</span><span>5%</span></div>
-              {liveForecasts.map((item) => {
-                const toPercent = (v: number) => ((v + 1) / 6) * 100;
-                return (
-                  <div className="forecast-row" key={item.month}>
-                    <strong>{item.month}</strong>
-                    <div className="interval-track">
-                      <i className="range range95" style={{ left: `${toPercent(item.low95)}%`, width: `${toPercent(item.high95) - toPercent(item.low95)}%` }} />
-                      <i className="range range80" style={{ left: `${toPercent(item.low80)}%`, width: `${toPercent(item.high80) - toPercent(item.low80)}%` }} />
-                      <i className="forecast-point" style={{ left: `${toPercent(item.value)}%` }}><span>{item.value.toFixed(2)}%</span></i>
-                    </div>
+              <h3>Headline inflation forecast</h3>
+              {(() => {
+                const intervalValues = liveForecasts.flatMap((point) => [point.low95, point.low80, point.value, point.high80, point.high95]).filter(Number.isFinite);
+                const scaleMin = Math.floor(Math.min(-1, ...intervalValues));
+                const scaleMax = Math.ceil(Math.max(5, ...intervalValues));
+                const toPercent = (value: number) => Math.min(100, Math.max(0, (value - scaleMin) / (scaleMax - scaleMin) * 100));
+                const ticks = Array.from({ length: 7 }, (_, index) => scaleMin + (scaleMax - scaleMin) * index / 6);
+                return <>
+                  <div className="forecast-scale" aria-hidden="true">{ticks.map((value, index) => <span key={index}>{Number(value.toFixed(1))}%</span>)}</div>
+                  <div className="forecast-plot" aria-label="Three-month headline inflation forecast and prediction intervals">
+                    {liveForecasts.map((item) => <div className="forecast-row" key={item.month}>
+                      <strong>{item.month}</strong>
+                      <div className="interval-track" role="img" tabIndex={0} aria-label={`${item.month}: central forecast ${item.value.toFixed(2)}%; 80% interval ${item.low80.toFixed(2)}% to ${item.high80.toFixed(2)}%; 95% interval ${item.low95.toFixed(2)}% to ${item.high95.toFixed(2)}%`}>
+                        <i className="range range95" style={{ left: `${toPercent(item.low95)}%`, width: `${toPercent(item.high95) - toPercent(item.low95)}%` }} />
+                        <i className="range range80" style={{ left: `${toPercent(item.low80)}%`, width: `${toPercent(item.high80) - toPercent(item.low80)}%` }} />
+                        <i className="forecast-point" style={{ left: `${toPercent(item.value)}%` }}><span>{item.value.toFixed(2)}%</span></i>
+                        <span className="forecast-chart-tooltip" role="tooltip"><b>{item.month} · {item.value.toFixed(2)}%</b><span>80%: {item.low80.toFixed(2)}% to {item.high80.toFixed(2)}%</span><span>95%: {item.low95.toFixed(2)}% to {item.high95.toFixed(2)}%</span></span>
+                      </div>
+                    </div>)}
                   </div>
-                );
-              })}
-              <div className="interval-legend"><span><i className="key95" />95% interval</span><span><i className="key80" />80% interval</span><span><i className="keypoint" />Central forecast</span></div>
+                  <div className="interval-legend"><span><i className="keypoint" />Central forecast</span><span><i className="key80" />80% interval</span><span><i className="key95" />95% interval</span></div>
+                </>;
+              })()}
+              <p className="forecast-chart-note">Start with the range, then read the point estimate. The 95% interval is wider because it is designed to cover more possible outcomes.</p>
             </div>
             <aside className="model-card">
               <span className="mini-label">Out-of-sample comparison</span>
               <h3>Model scorecard</h3>
-              {liveModels.map((model) => (
-                <div className={model.selected ? "model-row selected" : "model-row"} key={model.name}>
-                  <div><strong>{model.name}</strong>{model.selected && <span>Selected</span>}</div>
-                  <div className="model-bar"><i style={{ width: `${(model.rmse / .6) * 100}%` }} /></div>
-                  <b>{model.rmse.toFixed(2)}<small>RMSE</small></b>
-                  <em>{model.mae.toFixed(2)} MAE</em>
-                </div>
-              ))}
-              <small><b>RMSE</b> means typical forecast error size in percentage points. <b>MAE</b> means average absolute error. Scores use {dashboard?.forecast.backtestWindows ?? 12} identical rolling backtest windows; lower is better. {selectedForecastModel?.name ?? dashboard?.forecast.selectedModel ?? "The selected model"} is selected because it has the lowest tested error.</small>
+              <div className="forecast-score-table">
+                <table>
+                  <caption>Identical rolling backtest windows; lower error is better.</caption>
+                  <thead><tr><th scope="col">Model</th><th scope="col">RMSE</th><th scope="col">MAE</th></tr></thead>
+                  <tbody>{liveModels.map((model) => <tr className={model.selected ? "selected" : undefined} key={model.name}>
+                    <th scope="row">{model.name}{model.selected && <span>Selected</span>}</th>
+                    <td>{model.rmse.toFixed(2)}</td><td>{model.mae.toFixed(2)}</td>
+                  </tr>)}</tbody>
+                </table>
+              </div>
+              <small><b>RMSE</b> means typical forecast error size in percentage points. <b>MAE</b> means average absolute error. Scores use {dashboard?.forecast.backtestWindows ?? "the available"} rolling backtest windows; lower is better. {selectedForecastModel?.name ?? dashboard?.forecast.selectedModel ?? "The selected model"} is selected because it has the lowest tested error.</small>
             </aside>
           </div>
+          <h3 className="forecast-summary-heading">Final forecast month{finalForecast ? ` · ${finalForecast.month}` : ""}</h3>
           <div className="forecast-explain-grid">
             <article><span>Central forecast</span><strong>{finalForecast ? `${finalForecast.value.toFixed(2)}%` : "Loading"}</strong><p>The single line estimate for the last forecast month. It is useful, but should not be read alone.</p></article>
             <article><span>80% interval</span><strong>{finalForecast ? `${finalForecast.low80.toFixed(2)}% to ${finalForecast.high80.toFixed(2)}%` : "Loading"}</strong><p>A narrower uncertainty band. Outcomes outside this range are still possible.</p></article>
             <article><span>95% interval</span><strong>{finalForecast ? `${finalForecast.low95.toFixed(2)}% to ${finalForecast.high95.toFixed(2)}%` : "Loading"}</strong><p>A wider prediction interval. It should contain the 80% interval.</p></article>
-            <article><span>Why three months only?</span><strong>Short horizon</strong><p>Inflation can change when policy, administered prices, commodity costs or exchange rates move. Shorter horizons are easier to explain responsibly.</p></article>
-            <article><span>What can make it wrong?</span><strong>New shocks</strong><p>Unexpected subsidy changes, global commodity moves, exchange-rate swings, data revisions or one-off price changes can shift the path.</p></article>
           </div>
           <div className="forecast-takeaway"><span>Model reading</span><p>{dashboard?.narratives.forecast ?? "Loading the latest model interpretation."}</p></div>
-          <div className="forecast-method-panel">
-            <div><span>Forecast method in simple steps</span><h3>How the page turns data into a forecast</h3></div>
-            <ol>
-              <li><b>Collect official data.</b><p>Use monthly inflation and related macro variables from the dashboard payload.</p></li>
-              <li><b>Compare models fairly.</b><p>Seasonal naive, SARIMA and ARIMAX are tested over the same rolling historical windows.</p></li>
-              <li><b>Select the lowest-error model.</b><p>The chosen model is the one with the best backtest performance, mainly lowest RMSE.</p></li>
-              <li><b>Forecast three months ahead.</b><p>Show the central forecast for each future month.</p></li>
-              <li><b>Show uncertainty.</b><p>Display 80% and 95% prediction intervals and explain the limits.</p></li>
-            </ol>
-          </div>
-          <div className="forecast-model-notes">
-            {liveModels.map((model) => <article key={model.name}><span>{model.name}</span><p>{forecastModelDescriptions[model.name] ?? "Forecast candidate evaluated using the same rolling backtest windows."}</p></article>)}
-          </div>
+          <details className="forecast-disclosure">
+            <summary>How to read the forecast</summary>
+            <div className="forecast-guide">
+              <div><h3>Start with the range, then read the point estimate.</h3><p>This is a three-month headline inflation forecast. It is not a forecast for individual stocks, the ringgit, or the next OPR decision.</p></div>
+              <article><strong>Central forecast</strong><p>The model&apos;s best estimate for each future month.</p></article>
+              <article><strong>80% and 95% intervals</strong><p>Uncertainty ranges. The 95% interval is wider because it is designed to cover more possible outcomes.</p></article>
+              <article><strong>Wider range</strong><p>More uncertainty. Treat the exact number as less important when the interval is wide.</p></article>
+            </div>
+          </details>
+          <details className="forecast-disclosure">
+            <summary>Forecast method in simple steps</summary>
+            <div className="forecast-method-panel">
+              <h3>How the page turns data into a forecast</h3>
+              <ol>
+                <li><b>Collect official data.</b><p>Use monthly inflation and related macro variables from the dashboard payload.</p></li>
+                <li><b>Compare models fairly.</b><p>Seasonal naive, SARIMA and ARIMAX are tested over the same rolling historical windows.</p></li>
+                <li><b>Select the lowest-error model.</b><p>The chosen model is the one with the best backtest performance, mainly lowest RMSE.</p></li>
+                <li><b>Forecast three months ahead.</b><p>Show the central forecast for each future month.</p></li>
+                <li><b>Show uncertainty.</b><p>Display 80% and 95% prediction intervals and explain the limits.</p></li>
+              </ol>
+            </div>
+          </details>
+          <details className="forecast-disclosure">
+            <summary>Model definitions and assumptions</summary>
+            <div className="forecast-model-notes">
+              {liveModels.map((model) => <article key={model.name}><span>{model.name}</span><p>{forecastModelDescriptions[model.name] ?? "Forecast candidate evaluated using the same rolling backtest windows."}</p></article>)}
+            </div>
+          </details>
           <ScenarioExplorer dashboard={dashboard} forecastPoints={liveForecasts} />
-          <div className="forecast-misunderstandings">
-            <span>Common misunderstandings</span>
-            <h3>What this forecast does not mean</h3>
-            <ul>{forecastMisunderstandings.map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
+          <details className="forecast-disclosure">
+            <summary>What this forecast does not mean</summary>
+            <div className="forecast-limits">
+              <article><h3>Why three months only?</h3><strong>Short horizon</strong><p>Inflation can change when policy, administered prices, commodity costs or exchange rates move. Shorter horizons are easier to explain responsibly.</p></article>
+              <article><h3>What can make it wrong?</h3><strong>New shocks</strong><p>Unexpected subsidy changes, global commodity moves, exchange-rate swings, data revisions or one-off price changes can shift the path.</p></article>
+            </div>
+            <div className="forecast-misunderstandings"><h3>Common misunderstandings</h3><ul>{forecastMisunderstandings.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          </details>
         </div>
       </section>}
 
@@ -2158,7 +2115,8 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
         <div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div>
       </footer>
       {selectedMetric && <IndicatorDetail metric={selectedMetric} dashboard={dashboard} onClose={() => setSelectedMetric(null)} />}
-    </main>
+      </main>
+    </div>
   );
 }
 

@@ -1,0 +1,190 @@
+/* Compact research dashboard: data first, stable alignment, contained widths. */
+:root {
+  --font-sans:Arial,Helvetica,"Segoe UI",system-ui,sans-serif;
+  --paper:#f3f6f8;
+  --card:#fff;
+  --ink:#17252b;
+  --muted:#52636b;
+  --line:#d5dfe4;
+}
+body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
+.dashboard-app :is(h1,h2,h3,h4,strong,b,small,p,li,a,button,input,select,table,th,td) { font-family:var(--font-sans); }
+.dashboard-app main { min-width:0; }
+.dashboard-app .shell { width:min(1200px,calc(100% - 48px)); min-width:0; margin-inline:auto; }
+.dashboard-app .section { padding:32px 0 40px; scroll-margin-top:80px; }
+.dashboard-app .section-heading { align-items:start; gap:24px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+.dashboard-app .section-heading>div { flex:1; min-width:0; }
+.dashboard-app .section-heading h2,.dashboard-app .method-intro h2 { font-size:34px; line-height:1.16; font-weight:700; letter-spacing:-.025em; margin:0; }
+.dashboard-app .section-heading>p { flex:1; max-width:58ch; margin:0; font-size:16px; line-height:1.55; }
+.dashboard-app .section-number { display:none; }
+.dashboard-app h3 { font-size:22px; line-height:1.28; font-weight:700; letter-spacing:-.015em; }
+.dashboard-app :is(p,li) { font-size:16px; line-height:1.55; }
+.dashboard-app small { font-size:14px; line-height:1.5; }
+.dashboard-app :is(table,td) { font-size:14px; font-variant-numeric:tabular-nums; }
+.dashboard-app th { font-size:13px; line-height:1.45; letter-spacing:.025em; }
+.dashboard-app :is(button,select,input) { font-size:14px; }
+.dashboard-app :is(a,button,select,input,summary,[tabindex]):focus-visible { outline:3px solid #197468; outline-offset:3px; }
+.dashboard-app main .picture-strip { display:none; }
+.dashboard-app #news .picture-strip { display:grid; }
+.dashboard-app :is(.brief-section,.structure-section,.external-section,.household-section,.regional-section,.sector-section,.decision-section) { background:var(--paper); }
+.dashboard-app :is(.metric-card,.trend-card,.snapshot-completion>a,.deep-card,.regional-comparison article,.regional-bars,.income-group-panel,.structure-chart,.structure-reading,.structure-toolbar,.decision-card) { border-radius:8px; box-shadow:none; }
+.dashboard-app :is(.metrics-grid,.snapshot-completion,.regional-summary-grid,.regional-comparison,.regional-lower-grid,.deep-card-grid,.income-group-grid,.structure-overview,.decision-grid,.risk-grid,.market-stats,.external-summary,.report-grid)>* { min-width:0; }
+.dashboard-app :is(.table-wrap,.data-table-wrap,.structure-table-wrap,.break-table-wrap,.deep-table-wrap,.external-table-wrap) { width:100%; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; }
+.dashboard-app :is(.source-note,.chart-axis,.chart-interaction-hint,.mini-label,.metric-topline,.risk-pill,.structure-toolbar label,.structure-highlights span,.regional-controls span,.income-group-note,.market-sources,.market-disclaimer,.decision-disclaimer,.why-limit) { font-size:14px; }
+.dashboard-app :is(.brief-reading-grid,.deep-card-grid,.regime-comparison,.report-grid) { gap:16px; }
+.dashboard-app :is(.deep-hero,.brief-hero,.regional-hero) { padding:24px; border-radius:8px; align-items:start; }
+.dashboard-app :is(.brief-hero h3,.regional-hero h3) { font-size:26px; line-height:1.3; max-width:65ch; }
+.dashboard-app .deep-hero strong { font-size:36px; }
+.dashboard-app .structure-overview { grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:16px; align-items:start; }
+.dashboard-app .structure-reading { padding:24px; }
+.dashboard-app .structure-reading h3 { font-size:40px; line-height:1.15; }
+.dashboard-app .structure-highlights { margin-top:16px; }
+.dashboard-app .sector-legend button { font-size:14px; padding:10px; }
+.dashboard-app .decision-card h3 { font-size:24px; line-height:1.3; }
+.dashboard-app .decision-signals { grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.dashboard-app .decision-signals :is(span,small) { font-size:13px; }
+.dashboard-app .decision-signals p { min-height:0; font-size:14px; }
+.dashboard-app .decision-watch { font-size:14px; }
+.dashboard-app .decision-watch b { font-size:13px; }
+
+/* Six KPI cards, with footer content in normal flow, including stale MGS. */
+.dashboard-app .snapshot-meta { margin:0 0 16px; padding:0 0 16px; flex-wrap:wrap; font-size:14px; }
+.dashboard-app .data-status { border-radius:4px; font-size:13px; line-height:1.45; white-space:normal; }
+.dashboard-app .metrics-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.dashboard-app .metric-card { display:flex; flex-direction:column; padding:24px; min-height:210px; transform:none; }
+.dashboard-app .metric-card:hover { transform:none; border-color:#819ca7; background:#fcfdfd; box-shadow:none; }
+.dashboard-app .metric-topline { align-items:center; gap:12px; font-size:13px; line-height:1.4; min-height:36px; letter-spacing:.04em; }
+.dashboard-app .metric-topline i { flex:none; }
+.dashboard-app .metric-card>strong { margin:8px 0 4px; font-size:38px; line-height:1.15; letter-spacing:-.025em; }
+.dashboard-app .metric-card>p { margin:0 0 16px; font-size:16px; }
+.dashboard-app .metric-footer { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:auto; padding-top:12px; border-top:1px solid #e4ebee; }
+.dashboard-app .metric-footer small { flex:1 1 130px; font-size:14px; line-height:1.4; }
+.dashboard-app .metric-status { margin:0; padding:3px 6px; font-size:12px; letter-spacing:.025em; border-radius:4px; }
+.dashboard-app .metric-open { position:static; display:block; flex:0 0 auto; font-size:14px; margin-left:auto; }
+.dashboard-app .trend-card { margin-top:16px; padding:24px; }
+.dashboard-app .card-heading { gap:16px; flex-wrap:wrap; }
+.dashboard-app .card-heading h3 { font-size:24px; }
+.dashboard-app .card-heading span,.dashboard-app .legend { font-size:14px; }
+.dashboard-app .bar-chart { height:200px; }
+.dashboard-app .bar-tooltip { font-size:16px; }
+.dashboard-app .bar-tooltip small { font-size:13px; }
+.dashboard-app .interpretation { grid-template-columns:140px minmax(0,1fr); gap:16px; padding:16px; border-radius:0 4px 4px 0; }
+.dashboard-app .interpretation b { font-size:14px; }
+.dashboard-app .snapshot-completion { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:24px 0 16px; }
+.dashboard-app .snapshot-completion>a { padding:20px 24px; display:flex; flex-direction:column; }
+.dashboard-app .snapshot-completion span { font-size:14px; letter-spacing:0; text-transform:none; }
+.dashboard-app .snapshot-completion strong { margin:8px 0; font-size:22px; line-height:1.25; }
+.dashboard-app .snapshot-completion small { font-size:14px; }
+
+/* Progressive disclosure keeps full explanatory/source material accessible. */
+.dashboard-details { margin:16px 0; border:1px solid var(--line); border-radius:8px; background:var(--card); }
+.dashboard-details>summary { padding:16px 20px; font-size:16px; line-height:1.45; font-weight:700; cursor:pointer; }
+.dashboard-details[open]>summary { border-bottom:1px solid var(--line); }
+.dashboard-app .inflation-primer { margin:0; border:0; border-radius:0; grid-template-columns:repeat(2,minmax(0,1fr)); background:#fff; }
+.dashboard-app .inflation-primer .primer-heading { grid-column:1/-1; padding:20px 24px 0; }
+.dashboard-app .inflation-primer>article { border:0; padding:16px 24px; }
+.dashboard-app .inflation-primer h3 { font-size:22px; }
+.dashboard-app .inflation-primer p { font-size:16px; }
+.dashboard-app .inflation-primer .primer-summary { grid-column:1/-1; padding:16px 24px; margin:0; }
+
+/* Regional grids never let content widen the document. */
+.dashboard-app .regional-meta { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; font-size:14px; }
+.dashboard-app .regional-meta>div { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.dashboard-app .regional-meta a { color:var(--teal); text-decoration:underline; text-underline-offset:3px; }
+.dashboard-app .regional-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 16px; padding:16px; border-radius:8px; margin:0 0 16px; }
+.dashboard-app .regional-controls label { min-width:0; gap:4px; }
+.dashboard-app .regional-controls label>span { font-size:13px; letter-spacing:.035em; }
+.dashboard-app .regional-controls select { min-width:0; max-width:100%; font-size:14px; font-weight:600; padding:10px; border-radius:4px; }
+.dashboard-app .regional-controls .segmented { grid-column:1/-1; justify-self:start; border-radius:4px; }
+.dashboard-app .regional-controls .segmented button { padding:8px 16px; min-height:40px; }
+.dashboard-app .regional-comparison { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:16px; }
+.dashboard-app .regional-comparison article { padding:20px 24px; }
+.dashboard-app .regional-comparison article>span { font-size:14px; }
+.dashboard-app .regional-comparison strong { font-size:36px; line-height:1.2; margin:8px 0; }
+.dashboard-app .regional-comparison :is(p,small) { font-size:14px; }
+.dashboard-app .regional-comparison p { margin-bottom:8px; }
+.dashboard-app .regional-bars { gap:6px; padding:16px; }
+.dashboard-app .regional-bar { grid-template-columns:minmax(110px,1fr) minmax(0,2fr) minmax(80px,auto); gap:12px; padding:8px 10px; border-radius:4px; }
+.dashboard-app .regional-bar>span { text-transform:none; letter-spacing:0; font-weight:600; }
+.dashboard-app .regional-bar>i { max-width:100%; min-width:0; border-radius:2px; background:#27877c; height:14px; }
+.dashboard-app .regional-bar.selected>i { background:#c45336; }
+.dashboard-app .regional-chart-note { margin:0 0 24px; color:var(--muted); font-size:14px; }
+.dashboard-app .income-group-panel { margin-bottom:24px; padding:24px; }
+.dashboard-app .income-group-heading h3 { font-size:24px; }
+.dashboard-app .income-group-heading p { max-width:74ch; }
+.dashboard-app .income-group-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.dashboard-app .income-group-grid>article { padding:16px; border-radius:4px; }
+.dashboard-app .income-group-row { grid-template-columns:minmax(0,1fr) auto; gap:6px; }
+.dashboard-app .income-group-row>b { grid-column:1/-1; font-size:14px; }
+.dashboard-app .income-group-row>i { max-width:100%; }
+.dashboard-app .income-group-row>strong { font-size:17px; }
+.dashboard-app .income-group-row>em { grid-column:1/-1; font-size:13px; }
+.dashboard-app .regional-lower-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.dashboard-app .regional-lower-grid .deep-card { padding:20px; }
+.dashboard-app .regional-lower-grid h3 { font-size:22px; }
+.dashboard-app .mini-rank-list { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; min-width:0; }
+.dashboard-app .mini-rank-list>div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 8px; min-width:0; }
+.dashboard-app .mini-rank-list span { text-transform:none; letter-spacing:0; font-size:14px; overflow-wrap:anywhere; }
+.dashboard-app .mini-rank-list b { font-size:16px; white-space:nowrap; }
+.dashboard-app .mini-rank-list small { grid-column:1/-1; font-size:14px; }
+.dashboard-app .badge-row { display:flex; flex-wrap:wrap; }
+.dashboard-app .regional-context .regional-hero { display:block; margin:0; border:0; }
+.dashboard-app .regional-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); margin:0; padding:0 24px 24px; gap:16px; }
+.dashboard-app .regional-summary-grid strong { font-size:28px; }
+.dashboard-app .regional-source-panel { grid-template-columns:minmax(0,1fr); border:0; border-radius:0; margin:0; padding:24px; }
+.dashboard-app .regional-source-panel h3 { font-size:22px; }
+.dashboard-app .regional-source-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.dashboard-app .regional-source-grid summary { flex-wrap:wrap; gap:8px; }
+.dashboard-app .regional-source-grid summary span { min-width:0; flex:1 1 150px; }
+.dashboard-app .regional-downloads { display:flex; flex-wrap:wrap; margin:0 24px 24px; gap:12px; }
+.dashboard-app .regional-downloads a { font-size:14px; padding:10px 16px; }
+.dashboard-app .regional-method { margin:0 24px 24px; border-radius:4px; }
+.dashboard-app footer.shell { gap:16px; padding:24px 0; margin-top:0; font-size:14px; }
+.dashboard-app footer p { font-size:14px; }
+
+@media(min-width:1450px) {
+  .dashboard-app .regional-controls { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media(max-width:1250px) {
+  .dashboard-app .income-group-grid,.dashboard-app .regional-lower-grid { grid-template-columns:minmax(0,1fr); }
+  .dashboard-app .regional-lower-grid .mini-rank-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:1099px) and (min-width:700px) {
+  .dashboard-app .section { padding-top:24px; }
+  .dashboard-app .metrics-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:699px) {
+  .dashboard-app .shell { width:calc(100% - 32px); }
+  .dashboard-app .section { padding:24px 0 32px; }
+  .dashboard-app .section-heading { display:block; margin-bottom:16px; padding-bottom:16px; }
+  .dashboard-app .section-heading h2,.dashboard-app .method-intro h2 { font-size:28px; line-height:1.2; }
+  .dashboard-app .section-heading>p { margin:12px 0 0; }
+  .dashboard-app .metrics-grid { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .dashboard-app .metric-card { min-height:190px; padding:20px; }
+  .dashboard-app .metric-topline { min-height:0; }
+  .dashboard-app .metric-card>strong { font-size:36px; }
+  .dashboard-app .snapshot-meta { gap:8px; }
+  .dashboard-app .snapshot-completion { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .dashboard-app .snapshot-completion>a { padding:20px; }
+  .dashboard-app .trend-card { padding:20px 16px; }
+  .dashboard-app .interpretation { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .dashboard-app .chart-axis { flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:12px; }
+  .dashboard-app .chart-axis span:nth-child(2n) { display:none; }
+  .dashboard-app .bar-chart { gap:4px; }
+  .dashboard-app .inflation-primer { grid-template-columns:minmax(0,1fr); }
+  .dashboard-app .structure-overview { grid-template-columns:minmax(0,1fr); }
+  .dashboard-app .structure-reading h3 { font-size:34px; }
+  .dashboard-app .regional-comparison { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .dashboard-app .regional-comparison strong { font-size:32px; }
+  .dashboard-app .regional-controls { padding:12px; gap:12px; }
+  .dashboard-app .regional-bars { padding:10px; }
+  .dashboard-app .regional-bar { grid-template-columns:minmax(95px,1fr) minmax(0,1fr) minmax(70px,auto); gap:8px; padding:8px; }
+  .dashboard-app .regional-bar>span,.dashboard-app .regional-bar>b { font-size:13px; }
+  .dashboard-app .regional-lower-grid .mini-rank-list,.dashboard-app .regional-summary-grid,.dashboard-app .regional-source-grid { grid-template-columns:minmax(0,1fr); }
+  .dashboard-app .income-group-panel { padding:20px 16px; }
+  .dashboard-app .income-group-grid { grid-template-columns:minmax(0,1fr); }
+  .dashboard-app .regional-meta>div { gap:8px; }
+  .dashboard-app .decision-signals { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .dashboard-app .dashboard-details>summary { padding:16px; }
+  .dashboard-app footer.shell { flex-wrap:wrap; }
+}
