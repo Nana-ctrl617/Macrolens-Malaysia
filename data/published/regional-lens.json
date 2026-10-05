@@ -208,10 +208,22 @@
         "incomeMedian": 7017.0,
         "poverty": 5.1,
         "gini": 0.39,
-        "expenditureMean": 5363.4375
+        "expenditureMean": 5566.0
       },
       "narrative": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
-      "message": "Latest state HIES income, expenditure, poverty and inequality data validated"
+      "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
+      "nationalExpenditure": {
+        "status": "fresh",
+        "value": 5566.0,
+        "unit": "RM per household per month",
+        "observationPeriod": "2024-01-01",
+        "retrievedAt": "2026-10-05T07:37:53Z",
+        "lastAttemptAt": "2026-10-05T07:37:53Z",
+        "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
+        "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
+        "page": 24,
+        "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
+      }
     },
     "hiesDistrict": {
       "status": "fresh",
@@ -12579,7 +12591,7 @@
         "incomeMean": 329.0,
         "poverty": -2.6,
         "gini": -0.042,
-        "expenditureMean": 563.56
+        "expenditureMean": 361.0
       }
     },
     {
@@ -12643,7 +12655,7 @@
         "incomeMean": -3362.0,
         "poverty": 3.3,
         "gini": -0.056,
-        "expenditureMean": -1335.44
+        "expenditureMean": -1538.0
       }
     },
     {
@@ -12707,7 +12719,7 @@
         "incomeMean": -3890.0,
         "poverty": 6.4,
         "gini": -0.034,
-        "expenditureMean": -1538.44
+        "expenditureMean": -1741.0
       }
     },
     {
@@ -12771,7 +12783,7 @@
         "incomeMean": -469.0,
         "poverty": -2.1,
         "gini": -0.053,
-        "expenditureMean": 848.56
+        "expenditureMean": 646.0
       }
     },
     {
@@ -12835,7 +12847,7 @@
         "incomeMean": -1850.0,
         "poverty": -1.1,
         "gini": -0.047,
-        "expenditureMean": -248.44
+        "expenditureMean": -451.0
       }
     },
     {
@@ -12899,7 +12911,7 @@
         "incomeMean": -3089.0,
         "poverty": 0.8,
         "gini": -0.071,
-        "expenditureMean": -995.44
+        "expenditureMean": -1198.0
       }
     },
     {
@@ -12963,7 +12975,7 @@
         "incomeMean": -2982.0,
         "poverty": 1.8,
         "gini": -0.092,
-        "expenditureMean": -1131.44
+        "expenditureMean": -1334.0
       }
     },
     {
@@ -13027,7 +13039,7 @@
         "incomeMean": -3159.0,
         "poverty": -1.5,
         "gini": -0.056,
-        "expenditureMean": -1279.44
+        "expenditureMean": -1482.0
       }
     },
     {
@@ -13091,7 +13103,7 @@
         "incomeMean": -3.0,
         "poverty": -3.2,
         "gini": -0.079,
-        "expenditureMean": 486.56
+        "expenditureMean": 284.0
       }
     },
     {
@@ -13155,7 +13167,7 @@
         "incomeMean": -2657.0,
         "poverty": 12.6,
         "gini": 0.015,
-        "expenditureMean": -1816.44
+        "expenditureMean": -2019.0
       }
     },
     {
@@ -13219,7 +13231,7 @@
         "incomeMean": -2208.0,
         "poverty": 3.3,
         "gini": -0.029,
-        "expenditureMean": -1082.44
+        "expenditureMean": -1285.0
       }
     },
     {
@@ -13283,7 +13295,7 @@
         "incomeMean": 4141.0,
         "poverty": -4.2,
         "gini": -0.058,
-        "expenditureMean": 1902.56
+        "expenditureMean": 1700.0
       }
     },
     {
@@ -13347,7 +13359,7 @@
         "incomeMean": -1528.0,
         "poverty": 0.7,
         "gini": -0.127,
-        "expenditureMean": -144.44
+        "expenditureMean": -347.0
       }
     },
     {
@@ -13411,7 +13423,7 @@
         "incomeMean": 4830.0,
         "poverty": -4.1,
         "gini": -0.015,
-        "expenditureMean": 2814.56
+        "expenditureMean": 2612.0
       }
     },
     {
@@ -13475,7 +13487,7 @@
         "incomeMean": -600.0,
         "poverty": -3.1,
         "gini": -0.063,
-        "expenditureMean": -866.44
+        "expenditureMean": -1069.0
       }
     },
     {
@@ -13539,7 +13551,7 @@
         "incomeMean": 4691.0,
         "poverty": -4.9,
         "gini": -0.066,
-        "expenditureMean": 3822.56
+        "expenditureMean": 3620.0
       }
     }
   ],
@@ -24961,5 +24973,11 @@
       "href": "/api/regional-lens?format=json"
     }
   ],
-  "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice."
+  "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice.",
+  "calculationStatus": "fresh",
+  "inputHealth": {
+    "status": "fresh",
+    "staleInputs": [],
+    "note": "All required inputs passed source validation; observation periods still differ."
+  }
 }

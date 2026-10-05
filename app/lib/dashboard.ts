@@ -1,4 +1,7 @@
 import fallback from "@/data/published/dashboard.json";
+import { normalizeDashboard } from "./dashboard-health";
+
+export type InputHealth = { status: "fresh" | "partial" | "fallback"; staleInputs: string[]; note: string };
 
 export type DataPoint = { date: string; value: number };
 export type SeriesData = {
@@ -74,6 +77,7 @@ export type BriefData = {
 export type RiskItem = {
   id: string; label: string; group: string; score: number; level: "low" | "moderate" | "high";
   evidence: string; rule: string; period: string; watch: string;
+  dataStatus?: string;
 };
 export type RiskHeatmap = {
   generatedAt: string; status: "fresh" | "partial"; overallScore: number; overallLevel: "low" | "moderate" | "high";
@@ -163,6 +167,7 @@ export type RegionalSourceMetadata = {
   status?: string; retrievedAt?: string; observationPeriod?: string; sourceUrl?: string; datasetUrl?: string;
   stateDatasetUrl?: string; nationalDatasetUrl?: string; districtSourceUrl?: string; districtDatasetUrl?: string;
   frequency?: string; message?: string;
+  nationalExpenditure?: { status: string; value: number | null; observationPeriod: string; retrievedAt: string | null; sourceUrl: string; page?: number | null; message?: string };
 };
 export type RegionalLens = {
   status: "fresh" | "partial" | "stale"; generatedAt: string;
@@ -180,11 +185,13 @@ export type RegionalLens = {
 };
 export type MacroTimeline = {
   generatedAt: string; status: "fresh" | "partial"; entries: Array<{ date: string; title: string; category: string; source: string; sourceUrl: string; type?: string; evidence: string; interpretation?: string }>;
-  note: string;
+  note?: string;
+  summary?: string;
+  limitations?: string;
 };
 export type DataHealth = {
   generatedAt: string; overall: "fresh" | "partial" | "fallback"; schemaVersion: number; staleCount: number;
-  sources: Array<{ id: string; label?: string; status: string; period?: string; observationPeriod?: string; retrievedAt: string; message: string }>;
+  sources: Array<{ id: string; label?: string; status: string; period?: string; observationPeriod?: string; retrievedAt: string | null; lastAttemptAt?: string; message: string }>;
   note: string;
 };
 export type MonthlyReport = {
@@ -196,7 +203,7 @@ export type DashboardPayload = {
   generatedAt: string;
   health: "fresh" | "partial" | "fallback";
   usingFallback?: boolean;
-  sources: Record<string, { status: "fresh" | "stale"; retrievedAt: string; observationPeriod: string; message: string }>;
+  sources: Record<string, { status: "fresh" | "stale"; retrievedAt: string | null; lastAttemptAt?: string; observationPeriod: string; message: string }>;
   series: Record<string, SeriesData>;
   categories: Array<{ code: string; name: string; value: number; weight?: number; contribution?: number }>;
   cpiDecomposition?: {
@@ -208,6 +215,7 @@ export type DashboardPayload = {
     methodLabel: string;
     backtestWindows: number;
     status: string;
+    inputHealth?: InputHealth;
     models: Array<{ name: string; rmse: number; mae: number; selected: boolean }>;
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
     scenario?: { model: string; lag: string; baseline: Record<"core" | "fx" | "opr", number>; coefficients: Record<"core" | "fx" | "opr", number>; warning: string } | null;
@@ -232,6 +240,7 @@ export type DashboardPayload = {
     schedule: string; lastSuccessfulRefresh: string; vintageCount: number; latestVintagePeriod: string; vintagePolicy: string;
     releaseLog: Array<{ period: string; headline: number; core: number | null }>;
   };
+  inputHealth?: Record<string, InputHealth>;
 };
 
 const DEFAULT_URL = "https://raw.githubusercontent.com/Nana-ctrl617/macrolens-malaysia/main/data/published/dashboard.json";
@@ -254,7 +263,7 @@ export function isDashboard(value: unknown): value is DashboardPayload {
   const decisionValid = candidate.schemaVersion < 4 || (
     (candidate.decisionGuide?.audiences?.individuals?.length ?? 0) >= (candidate.schemaVersion >= 7 ? 6 : 4)
     && (candidate.decisionGuide?.audiences?.companies?.length ?? 0) >= (candidate.schemaVersion >= 7 ? 6 : 4)
-    && candidate.decisionGuide?.signals?.length >= 6
+    && (candidate.decisionGuide?.signals?.length ?? 0) >= 6
   );
   const structureValid = candidate.schemaVersion < 5 || (
     (candidate.economicStructure?.years?.length ?? 0) >= 5
@@ -305,18 +314,18 @@ export function isDashboard(value: unknown): value is DashboardPayload {
 }
 
 export async function getDashboard(): Promise<DashboardPayload> {
-  const local = fallback as DashboardPayload;
+  const local = fallback as unknown as DashboardPayload;
   const url = process.env.DASHBOARD_DATA_URL || DEFAULT_URL;
   try {
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+    const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
     const remote: unknown = await response.json();
     if (!isDashboard(remote)) throw new Error("Remote dashboard schema is invalid");
     if (remote.schemaVersion < local.schemaVersion) {
-      return { ...local, health: "fallback", usingFallback: true };
+      return normalizeDashboard({ ...local, health: "fallback", usingFallback: true });
     }
-    return { ...remote, usingFallback: false };
+    return normalizeDashboard({ ...remote, usingFallback: false });
   } catch {
-    return { ...local, health: "fallback", usingFallback: true };
+    return normalizeDashboard({ ...local, health: "fallback", usingFallback: true });
   }
 }

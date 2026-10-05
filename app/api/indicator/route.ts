@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get("id");
   const payload = await getDashboard();
   const series = id ? payload.series[id] : undefined;
-  if (!series) return NextResponse.json({ error: "Unknown indicator" }, { status: 400 });
+  if (!id || !series) return NextResponse.json({ error: "Unknown indicator" }, { status: 400 });
   const sourceStatus = payload.sources[id];
   return NextResponse.json({
     id,

@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 process.env.DASHBOARD_DATA_URL = "http://127.0.0.1:9/dashboard.json";
+process.env.NEWS_NOW = "2026-07-25T12:00:00Z";
 process.env.NEWS_RSS_FIXTURE = `<?xml version="1.0"?><rss><channel>
   <item><title>Malaysia economy expands as exports improve - Test News</title><link>https://example.com/economy</link><pubDate>Sat, 25 Jul 2026 02:00:00 GMT</pubDate><source url="https://example.com">Test News</source><description>Malaysia GDP and exports improved while economists watched the ringgit.</description></item>
   <item><title>BNM keeps focus on inflation and policy rate - Test Markets</title><link>https://example.com/bnm</link><pubDate>Fri, 24 Jul 2026 02:00:00 GMT</pubDate><source url="https://example.com/markets">Test Markets</source><description>Bank Negara Malaysia commentary discussed inflation, OPR and market conditions.</description></item>
@@ -231,7 +232,36 @@ test("serves latest Malaysia economy headlines", async () => {
   assert.equal(body.status, "fresh");
   assert.ok(body.items.length >= 2);
   assert.ok(body.items[0].topics.length > 0);
+  assert.ok(body.items.every((item) => Date.parse(item.publishedAt) >= Date.parse(body.window.start) && Date.parse(item.publishedAt) <= Date.parse(body.window.end)));
+  assert.equal(new Set(body.items.map((item) => item.link)).size, body.items.length);
+  assert.equal(body.counts.returned, body.items.length);
   assert.match(body.disclaimer, /context only/i);
+});
+
+test("each route has a semantic main heading and keyboard skip link", async () => {
+  for (const path of ["/", "/news", "/forecast", "/regional", "/health", "/risk", "/structural"]) {
+    const html = await (await render(path)).text();
+    assert.equal((html.match(/<h1(?:\s|>)/g) ?? []).length, 1, path);
+    assert.match(html, /Skip to main content/);
+    assert.match(html, /<main id="top" tabindex="-1"/);
+  }
+});
+
+test("consolidated artifact exposes corrected national benchmark and conservative input health", async () => {
+  const body = await (await render("/api/dashboard")).json();
+  const source = body.regionalLens.sources.hiesState;
+  assert.equal(source.national.expenditureMean, source.nationalExpenditure.value);
+  assert.equal(source.nationalExpenditure.observationPeriod, source.observationPeriod);
+  assert.match(source.nationalExpenditure.sourceUrl, /storage\.dosm\.gov\.my/);
+  assert.equal(body.dataHealth.overall, "fallback");
+  assert.ok(body.dataHealth.sources.some((item) => item.id === "regional:nationalExpenditure"));
+  assert.equal(body.forecast.inputHealth.status, "fallback");
+  for (const id of ["opr", "mgs"]) {
+    if (body.sources[id].status === "stale") {
+      assert.ok(body.inputHealth.latestBrief.staleInputs.includes(id));
+      assert.notEqual(body.latestBrief.status, "fresh");
+    }
+  }
 });
 
 test("serves structural diagnostics from the indicator payload", async () => {

@@ -38,6 +38,96 @@ def test_partial_failure_preserves_last_valid_series():
     assert status["status"] == "stale"
 
 
+def test_failed_refresh_preserves_last_success_and_records_attempt():
+    success = "2026-09-01T12:00:00Z"
+    attempt = "2026-10-05T12:00:00Z"
+    old = {"series": {"headline": {"points": sample()}}, "sources": {"headline": {"status": "fresh", "retrievedAt": success}}}
+    _, status = macrolens.merge_or_stale("headline", lambda: (_ for _ in ()).throw(RuntimeError()), old, attempt)
+    assert status["retrievedAt"] == success
+    assert status["lastAttemptAt"] == attempt
+
+
+def test_old_observation_is_stale_but_old_opr_decision_is_not():
+    _, monthly_status = macrolens.merge_or_stale("headline", lambda: sample(), None, "2026-10-05T12:00:00Z")
+    _, opr_status = macrolens.merge_or_stale("opr", lambda: sample(20), None, "2026-10-05T12:00:00Z")
+    assert monthly_status["status"] == "stale"
+    assert opr_status["status"] == "fresh"
+    assert monthly_status["freshness"]["basis"] == "observation-recency"
+
+
+def test_derived_sections_inherit_stale_inputs_and_health_lists_regional_and_demand():
+    payload = {
+        "schemaVersion": 9, "generatedAt": "2026-10-05T12:00:00Z", "health": "fresh",
+        "sources": {key: {"status": "stale" if key == "opr" else "fresh", "retrievedAt": "2026-10-01T00:00:00Z"} for key in macrolens.SPECS},
+        "market": {"status": "fresh"}, "economicStructure": {"status": "fresh"},
+        "growthDrivers": {"status": "fresh", "production": {"status": "fresh"}, "demand": {"status": "stale"}},
+        "externalSector": {"status": "fresh"}, "balancePayments": {"status": "fresh"},
+        "regionalLens": {"status": "fresh", "sources": {"hiesState": {"status": "fresh"}, "hiesDistrict": {"status": "stale"}}},
+        "structuralBreaks": {"status": "fresh", "indicators": {key: {"status": "fresh"} for key in macrolens.SPECS}},
+        **{key: {"status": "fresh"} for key in ["forecast", "riskHeatmap", "latestBrief", "householdPressure", "decisionGuide", "sectorDeepDive", "macroTimeline", "monthlyReport"]},
+    }
+    result = macrolens.finalize_data_trust(payload)
+    for key in ["forecast", "riskHeatmap", "latestBrief", "householdPressure", "decisionGuide", "structuralBreaks"]:
+        assert result[key]["status"] != "fresh"
+        assert "opr" in result[key]["inputHealth"]["staleInputs"]
+    assert result["growthDrivers"]["status"] == "partial"
+    assert result["regionalLens"]["status"] == "partial"
+    assert result["health"] == "partial"
+    health = macrolens.build_data_health(result, result["generatedAt"])
+    assert health["overall"] == "partial"
+    assert health["note"] == health["summary"]
+    assert {"growthDrivers.demand", "regionalLens.hiesDistrict"}.issubset({row["id"] for row in health["sources"]})
+
+
+def test_successful_derived_recalculation_clears_prior_input_warning():
+    payload = {"sources": {key: {"status": "fresh"} for key in macrolens.SPECS}, "forecast": {"status": "partial", "calculationStatus": "fresh"}}
+    result = macrolens.finalize_data_trust(payload)
+    assert result["forecast"]["status"] == "fresh"
+    assert result["forecast"]["inputHealth"]["staleInputs"] == []
+
+
+def test_structural_status_is_compatible_and_recovers_when_inputs_refresh():
+    payload = {"sources": {key: {"status": "stale" if key == "opr" else "fresh"} for key in macrolens.SPECS}, "structuralBreaks": {"status": "fresh", "indicators": {key: {"status": "fresh"} for key in macrolens.SPECS}}}
+    result = macrolens.finalize_data_trust(payload)
+    assert result["structuralBreaks"]["status"] == "partial"
+    assert all(item["status"] == "stale" and item["calculationStatus"] == "fresh" for item in result["structuralBreaks"]["indicators"].values())
+    result["sources"]["opr"]["status"] = "fresh"
+    recovered = macrolens.finalize_data_trust(result)
+    assert recovered["structuralBreaks"]["status"] == "fresh"
+    assert all(item["status"] == "fresh" for item in recovered["structuralBreaks"]["indicators"].values())
+
+
+def test_total_source_failure_preserves_dashboard_without_claiming_fresh(monkeypatch):
+    import copy
+    import json
+    previous = json.loads(macrolens.PUBLISHED.read_text(encoding="utf-8"))
+
+    def unavailable(*args, **kwargs):
+        raise RuntimeError("source unavailable")
+
+    for name in ["fetch_cpi", "fetch_unemployment", "fetch_opr", "fetch_daily_fx", "fetch_mgs", "fetch_klci", "read_csv", "read_catalogue_json", "forecast"]:
+        monkeypatch.setattr(macrolens, name, unavailable)
+    monkeypatch.setattr(macrolens, "build_structural_analysis", lambda *args: copy.deepcopy(previous["structuralBreaks"]))
+    result = macrolens.build()
+    assert result["health"] == "partial"
+    assert all(source["status"] == "stale" for source in result["sources"].values())
+    for key in macrolens.SPECS:
+        assert result["series"][key]["points"] == previous["series"][key]["points"]
+        assert result["sources"][key]["retrievedAt"] == previous["sources"][key]["retrievedAt"]
+    assert result["categories"] == previous["categories"]
+    assert result["forecast"]["points"] == previous["forecast"]["points"]
+    assert result["forecast"]["status"] == "stale"
+    assert result["regionalLens"]["status"] == "stale"
+    assert result["market"]["retrievedAt"] == previous["market"]["retrievedAt"]
+    assert result["externalSector"]["retrievedAt"] == previous["externalSector"]["retrievedAt"]
+
+
+def test_data_health_does_not_invent_successful_retrieval_time():
+    result = macrolens.build_data_health({"health": "partial", "market": {"status": "stale"}}, "2026-10-05T00:00:00Z")
+    assert result["sources"][0]["retrievedAt"] is None
+    assert result["overall"] == "partial"
+
+
 def test_write_creates_one_vintage_per_cpi_period(tmp_path, monkeypatch):
     monkeypatch.setattr(macrolens, "VINTAGES", tmp_path / "vintages")
     monkeypatch.setattr(macrolens, "STRUCTURAL_JSON", tmp_path / "published" / "structural-breaks.json")
@@ -155,6 +245,16 @@ def test_market_failure_preserves_last_valid_prices(monkeypatch):
     result = macrolens.build_market(previous, "2026-01-01T00:00:00Z")
     assert result["status"] == "stale"
     assert result["benchmark"]["points"] == old
+
+
+def test_future_market_observation_retains_last_valid_prices(monkeypatch):
+    old = sample(260, start="2000-01-01", value=1500)
+    previous = {"market": {"retrievedAt": "2025-12-01T00:00:00Z", "benchmark": {"points": old}}}
+    monkeypatch.setattr(macrolens, "fetch_klci", lambda: sample(260, start="2027-01-01", value=1500))
+    result = macrolens.build_market(previous, "2026-01-01T00:00:00Z")
+    assert result["status"] == "stale"
+    assert result["benchmark"]["points"] == old
+    assert result["retrievedAt"] == previous["market"]["retrievedAt"]
 
 
 def test_decision_guide_is_data_linked_and_balanced_for_both_audiences():
@@ -372,6 +472,43 @@ def test_regional_hies_state_parser_rejects_duplicates(monkeypatch):
         macrolens.parse_hies_state(pd.DataFrame(rows), "2026-01-01T00:00:00Z")
 
 
+def test_national_expenditure_report_requires_exact_year_label_and_unambiguous_mean():
+    text = (Path(__file__).parent / "fixtures" / "national-expenditure-summary.txt").read_text(encoding="utf-8")
+    result = macrolens.parse_national_expenditure_report([text], 2024, "2026-10-05T00:00:00Z")
+    assert result["value"] == 5566
+    assert result["observationPeriod"] == "2024-01-01"
+    assert result["sourceUrl"] == "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf"
+    for pages in [[text.replace("2024", "2022")], [text.replace("MALAYSIA\nRM5,566", "JOHOR\nRM5,566")], [text, text], [text.replace("5,566", "999,999")]]:
+        with pytest.raises(ValueError):
+            macrolens.parse_national_expenditure_report(pages, 2024, "2026-10-05T00:00:00Z")
+
+
+def test_state_hies_uses_official_national_mean_not_average_states(monkeypatch):
+    import pandas as pd
+    states = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Pulau Pinang", "Perak", "Perlis", "Selangor", "Terengganu", "Sabah", "Sarawak", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
+    frame = pd.DataFrame([{"date": "2024-01-01", "state": state, "income_mean": 8000, "income_median": 6000, "expenditure_mean": 4000, "gini": 0.35, "poverty": 2.0} for state in states])
+    monkeypatch.setattr(macrolens, "read_catalogue_json", lambda *_: pd.DataFrame([{"date": "2024-01-01", "income_mean": 9155, "income_median": 7017, "poverty_absolute": 5.1, "gini": 0.39}, {"date": "2026-01-01", "income_mean": 99999, "income_median": 88888, "poverty_absolute": 4.0, "gini": 0.40}]))
+    text = (Path(__file__).parent / "fixtures" / "national-expenditure-summary.txt").read_text(encoding="utf-8")
+    national = macrolens.parse_national_expenditure_report([text], 2024, "2026-10-05T00:00:00Z")
+    result = macrolens.parse_hies_state(frame, "2026-10-05T00:00:00Z", national)
+    assert result["national"]["expenditureMean"] == 5566
+    assert result["national"]["incomeMedian"] == 7017
+    assert result["nationalExpenditure"]["sourceUrl"] == national["sourceUrl"]
+    unmatched = macrolens.parse_hies_state(frame, "2026-10-05T00:00:00Z", {**national, "observationPeriod": "2022-01-01"})
+    assert unmatched["national"]["expenditureMean"] is None
+    assert unmatched["status"] == "partial"
+
+
+def test_national_expenditure_failure_only_preserves_verified_same_year(monkeypatch):
+    monkeypatch.setattr(macrolens, "get", lambda *_: (_ for _ in ()).throw(RuntimeError("offline")))
+    prior = {"status": "fresh", "value": 5566, "observationPeriod": "2024-01-01", "retrievedAt": "2026-09-01T00:00:00Z", "sourceUrl": macrolens.HIES_EXPENDITURE_REPORT_URL.format(year=2024)}
+    retained = macrolens.fetch_national_expenditure(2024, "2026-10-05T00:00:00Z", prior)
+    assert retained["status"] == "stale" and retained["value"] == 5566
+    assert retained["retrievedAt"] == prior["retrievedAt"]
+    unavailable = macrolens.fetch_national_expenditure(2026, "2026-10-05T00:00:00Z", prior)
+    assert unavailable["status"] == "unavailable" and unavailable["value"] is None
+
+
 def income_percentile_fixture(states):
     import pandas as pd
     rows = []
@@ -437,6 +574,7 @@ def test_regional_lens_combines_kl_sarawak_and_national_only(monkeypatch):
     ])
     sources = iter([hies_state, hies_district, income_state, income_national, labour, gdp_state, gdp_district])
     monkeypatch.setattr(macrolens, "read_csv", lambda url: next(sources))
+    monkeypatch.setattr(macrolens, "fetch_national_expenditure", lambda year, retrieved, previous=None: {"status": "fresh", "value": 5566, "observationPeriod": "2024-01-01", "retrievedAt": retrieved})
     monkeypatch.setattr(macrolens, "read_catalogue_json", lambda dataset_id, limit=100000: pd.DataFrame([{"date": "2024-01-01", "income_mean": 8479, "income_median": 6338, "poverty_absolute": 5.1, "gini": 0.39}]) if dataset_id != "cpi_state_inflation" else cpi)
     result = macrolens.build_regional_lens(None, "2026-01-01T00:00:00Z")
     assert result["schemaVersion"] if "schemaVersion" in result else True

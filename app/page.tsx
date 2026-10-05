@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { DashboardNavigation } from "@/app/components/DashboardNavigation";
-import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, MacroTimeline, RegionalLens, RegionalStateRecord, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
+import type { BalancePayments, DashboardPayload, DecisionCard, EconomicSector, ExternalSector, HouseholdPressure, InputHealth, MacroTimeline, RegionalLens, RegionalStateRecord, RiskHeatmap, SectorDeepDive, StructuralCandidate, StructuralIndicator, TradePoint } from "@/app/lib/dashboard";
 
 const metrics = [
   { id: "headline", label: "Headline inflation", value: "2.0%", detail: "Full CPI basket, year on year", period: "May 2026", tone: "rust" },
@@ -149,6 +149,9 @@ type NewsPayload = {
   status: "fresh" | "partial" | "unavailable";
   refreshPolicy: string;
   queryWindow: string;
+  window?: { start: string; end: string; days: number };
+  counts?: { parsed: number; eligible: number; excluded: number; duplicates: number; returned: number };
+  emptyReason?: string;
   sources: Array<{ id: string; label: string; url: string; status: string; message: string }>;
   items: NewsItem[];
   disclaimer: string;
@@ -158,6 +161,10 @@ function formatDate(date: string) {
   const includeDay = !date.endsWith("-01");
   return new Intl.DateTimeFormat("en-MY", includeDay ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" })
     .format(new Date(`${date}T00:00:00`));
+}
+
+function formatNewsDate(date: string) {
+  return new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(date));
 }
 
 function formatValue(value: number, data: IndicatorData) {
@@ -394,7 +401,7 @@ function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: M
     <button
       className={`metric-card ${metric.tone}`}
       onClick={() => onSelect(metric)}
-      aria-label={`Open historical data for ${metric.label}`}
+      aria-label={`Open historical data for ${metric.label}. ${metric.value}. Release period: ${metric.period}. Data status: ${metric.status ?? "loading"}.`}
     >
       <div className="metric-topline"><span>{metric.label}</span><i /></div>
       <strong>{metric.value}</strong>
@@ -409,6 +416,10 @@ function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: M
 }
 
 function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashboard: DashboardPayload | null; onClose: () => void }) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   const [data, setData] = useState<IndicatorData | null>(null);
   const [error, setError] = useState("");
   const [range, setRange] = useState<RangeKey>("5Y");
@@ -417,16 +428,57 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
   const [showTable, setShowTable] = useState(false);
 
   useEffect(() => {
+    const panel = panelRef.current;
+    const overlay = overlayRef.current;
+    if (!panel || !overlay) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const background = new Map<HTMLElement, boolean>();
+    let branch: HTMLElement | null = overlay;
+    while (branch && branch !== document.body) {
+      const parent: HTMLElement | null = branch.parentElement;
+      if (!parent) break;
+      for (const element of Array.from(parent.children)) {
+        if (!(element instanceof HTMLElement) || element === branch) continue;
+        background.set(element, element.inert);
+        element.inert = true;
+      }
+      branch = parent;
+    }
+    const wasModalOpen = document.body.classList.contains("modal-open");
     document.body.classList.add("modal-open");
-    const closeWithEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+    const focusableElements = () => Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'))
+      .filter((element) => !element.closest("[inert]") && element.getClientRects().length > 0);
+    const focusStart = () => (focusableElements()[0] ?? panel).focus();
+    const containFocus = (event: FocusEvent) => {
+      if (event.target instanceof Node && !panel.contains(event.target)) focusStart();
     };
-    window.addEventListener("keydown", closeWithEscape);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeRef.current();
+      } else if (event.key === "Tab") {
+        const elements = focusableElements();
+        const first = elements[0] ?? panel;
+        const last = elements.at(-1) ?? panel;
+        const active = document.activeElement;
+        if (!panel.contains(active) || (event.shiftKey && active === first) || (!event.shiftKey && active === last) || !elements.length) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        }
+      }
+    };
+    focusStart();
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", containFocus);
     return () => {
-      document.body.classList.remove("modal-open");
-      window.removeEventListener("keydown", closeWithEscape);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", containFocus);
+      for (const [element, wasInert] of background) element.inert = wasInert;
+      if (!wasModalOpen) document.body.classList.remove("modal-open");
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -469,8 +521,8 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
   const analysis = data ? buildAnalysis(data, filtered) : null;
 
   return (
-    <div className="detail-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div ref={overlayRef} className="detail-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section ref={panelRef} className="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title" tabIndex={-1}>
         <header className="detail-header">
           <div>
             <span className="detail-kicker">Interactive indicator explorer</span>
@@ -498,12 +550,13 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
                   <button
                     key={option}
                     className={range === option ? "active" : ""}
+                    aria-pressed={range === option}
                     onClick={() => setRange(option)}
                   >
                     {option === "ALL" ? "All" : option}
                   </button>
                 ))}
-                <button className={range === "CUSTOM" ? "active" : ""} onClick={() => setRange("CUSTOM")}>Custom</button>
+                <button className={range === "CUSTOM" ? "active" : ""} aria-pressed={range === "CUSTOM"} onClick={() => setRange("CUSTOM")}>Custom</button>
               </div>
             </div>
 
@@ -539,8 +592,9 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
                 {data.structuralBreaks && (
                   <div className="detail-structural">
                     <div><span>Structural shift screen</span><strong>{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length} supported break{data.structuralBreaks.candidates.filter((candidate) => candidate.status === "supported").length === 1 ? "" : "s"}</strong></div>
+                    <small>Diagnostic data status: {healthStatusLabel(dashboard?.usingFallback ? "fallback" : data.structuralBreaks.status)}. Statistical evidence does not establish data freshness.</small>
                     <p>{data.structuralBreaks.narrative}</p>
-                    <a href="#structural" onClick={onClose}>Open full diagnostics ↓</a>
+                    <a href={`/structural?indicator=${metric.id}`} onClick={onClose}>Open full diagnostics →</a>
                   </div>
                 )}
               </>
@@ -553,11 +607,11 @@ function IndicatorDetail({ metric, dashboard, onClose }: { metric: Metric; dashb
                 <span>Source</span>
                 <a href={data.sourceUrl} target="_blank" rel="noreferrer">{data.source} ↗</a>
               </div>
-              <button onClick={() => setShowTable(!showTable)}>{showTable ? "Hide data table" : `Show all ${filtered.length} data points`}</button>
+              <button aria-expanded={showTable} aria-controls="indicator-data-table" onClick={() => setShowTable(!showTable)}>{showTable ? "Hide data table" : `Show all ${filtered.length} data points`}</button>
             </div>
 
             {showTable && (
-              <div className="data-table-wrap">
+              <div className="data-table-wrap" id="indicator-data-table">
                 <table>
                   <thead><tr><th>Period</th><th>{data.title}</th><th>Change from previous</th></tr></thead>
                   <tbody>
@@ -741,6 +795,10 @@ function StructuralChart({ data, points, candidates }: { data: IndicatorData; po
 function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const [selected, setSelected] = useState<MetricId>("core");
   const [range, setRange] = useState<"10Y" | "25Y" | "ALL">("ALL");
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("indicator");
+    if (requested && Object.hasOwn(structuralLabels, requested)) setSelected(requested as MetricId);
+  }, []);
   const structural = dashboard?.structuralBreaks;
   const analysis = structural?.indicators[selected];
   const sourceSeries = dashboard?.series[selected];
@@ -763,15 +821,16 @@ function StructuralSection({ dashboard }: { dashboard: DashboardPayload | null }
     <section className="section structural-section" id="structural">
       <div className="shell">
         <div className="section-heading">
-          <div><span className="section-number">10 / Structural shifts</span><h2>When the pattern changed</h2></div>
+          <div><span className="section-number">10 / Structural shifts</span><h1>When the pattern changed</h1></div>
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">Structural diagnostics will appear when the version-two dataset is available.</div> : <>
+          {(dashboard?.usingFallback || analysis.status !== "fresh") && <InputHealthNotice health={{ status: dashboard?.usingFallback ? "fallback" : "partial", staleInputs: [selected, "opr"].filter((id) => dashboard?.sources[id]?.status !== "fresh"), note: "Saved structural diagnostics are displayed because an input refresh or analysis calculation could not be verified. Break-test evidence and data freshness are separate checks." }} />}
           <div className="structural-toolbar">
             <div className="indicator-tabs" role="tablist" aria-label="Select structural indicator">
               {(Object.keys(structuralLabels) as MetricId[]).map((id) => <button key={id} role="tab" aria-selected={selected === id} className={selected === id ? "active" : ""} onClick={() => setSelected(id)}>{structuralLabels[id]}</button>)}
             </div>
-            <div className="structural-range" aria-label="Structural chart time frame">{(["10Y", "25Y", "ALL"] as const).map((option) => <button key={option} className={range === option ? "active" : ""} onClick={() => setRange(option)}>{option === "ALL" ? "All history" : option}</button>)}</div>
+            <div className="structural-range" aria-label="Structural chart time frame">{(["10Y", "25Y", "ALL"] as const).map((option) => <button key={option} className={range === option ? "active" : ""} aria-pressed={range === option} onClick={() => setRange(option)}>{option === "ALL" ? "All history" : option}</button>)}</div>
           </div>
 
           <div className="structural-summary">
@@ -947,7 +1006,7 @@ function EconomicDonut({ sectors }: { sectors: EconomicSector[] }) {
       onPointerMove={selectFromPointer} onPointerDown={selectFromPointer}
       onKeyDown={(event) => { if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return; event.preventDefault(); setSelected((current) => (current + (event.key === "ArrowRight" ? 1 : sectors.length - 1)) % sectors.length); }} />
     <small>Hover, tap, use the legend, or press arrow keys to inspect a sector.</small>
-    <div className="sector-legend" aria-label="GDP sector legend">{sectors.map((sector, index) => <button key={sector.id} className={selected === index ? "active" : ""} onClick={() => setSelected(index)}><i style={{ background: sectorColours[index] }} /><span>{sector.name}</span><b>{sector.share.toFixed(2)}%</b></button>)}</div>
+    <div className="sector-legend" aria-label="GDP sector legend">{sectors.map((sector, index) => <button key={sector.id} className={selected === index ? "active" : ""} aria-pressed={selected === index} onClick={() => setSelected(index)}><i style={{ background: sectorColours[index] }} /><span>{sector.name}</span><b>{sector.share.toFixed(2)}%</b></button>)}</div>
   </div>;
 }
 
@@ -1013,7 +1072,7 @@ function SectorShareTrend({ years }: { years: Array<{ year: number; sectors: Eco
   const latestShare = years.at(-1)?.sectors.find((sector) => sector.id === selected.id)?.share ?? selected.share;
   return <article className="structure-trend-card">
     <div className="structure-subheading"><span>Share over time</span><h3>{selected.name}: {firstShare.toFixed(1)}% → {latestShare.toFixed(1)}%</h3><p>Shows how one sector&apos;s share of nominal GDP changed across available annual observations.</p></div>
-    <div className="sector-chip-row" role="group" aria-label="Choose sector trend">{sectorList.map((sector, index) => <button key={sector.id} className={selected.id === sector.id ? "active" : ""} onClick={() => setActiveId(sector.id)}><i style={{ background: sectorColours[index % sectorColours.length] }} />{sector.name}</button>)}</div>
+    <div className="sector-chip-row" role="group" aria-label="Choose sector trend">{sectorList.map((sector, index) => <button key={sector.id} className={selected.id === sector.id ? "active" : ""} aria-pressed={selected.id === sector.id} onClick={() => setActiveId(sector.id)}><i style={{ background: sectorColours[index % sectorColours.length] }} />{sector.name}</button>)}</div>
     <div className="structure-line-chart">
       <canvas ref={canvasRef} role="img" tabIndex={0} aria-label={`${selected.name} share of Malaysian nominal GDP over time`} onPointerMove={(event) => showPoint(event.clientX)} onPointerDown={(event) => showPoint(event.clientX)} onPointerLeave={(event) => event.pointerType === "mouse" && setHovered(null)} />
       {hovered && <><i className="chart-hover-line" style={{ left: hovered.left }} /><i className="chart-hover-dot" style={{ left: hovered.left, top: hovered.top }} /><div className="chart-tooltip light" role="status" style={{ left: hovered.tooltipLeft, top: hovered.top }}><span>{hovered.year}</span><strong>{hovered.share.toFixed(2)}%</strong></div></>}
@@ -1137,14 +1196,40 @@ function levelLabel(level?: string) {
   return level ? level.charAt(0).toUpperCase() + level.slice(1) : "Building";
 }
 
+function healthStatusLabel(status?: string) {
+  const labels: Record<string, string> = {
+    fresh: "Fresh inputs",
+    partial: "Some inputs not fresh",
+    fallback: "Fallback snapshot",
+    stale: "Saved / stale input",
+    unavailable: "Input unavailable",
+  };
+  return labels[status ?? ""] ?? "Input status unavailable";
+}
+
+function InputHealthNotice({ health }: { health?: InputHealth }) {
+  if (!health) return null;
+  return <aside className={`input-health-notice ${health.status}`} aria-label="Analysis input freshness">
+    <p><strong>{healthStatusLabel(health.status)}.</strong> {health.note}</p>
+    <a href="/health">Inspect source freshness →</a>
+  </aside>;
+}
+
+function retrievalTime(value?: string | null) {
+  if (!value || !Number.isFinite(Date.parse(value))) return "Not recorded";
+  return new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(value));
+}
+
 function BriefSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const brief = dashboard?.latestBrief;
   const risk = dashboard?.riskHeatmap;
+  const inputHealth = dashboard?.inputHealth?.latestBrief;
   return <section className="section brief-section page-section" id="brief"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">02 / Brief</span><h2>Latest economic brief</h2></div><p>A concise monthly reading of what changed, why it may have happened, what to watch next, and what it could mean for households and companies.</p></div>
+    <div className="section-heading"><div><span className="section-number">02 / Brief</span><h1>Latest economic brief</h1></div><p>A concise monthly reading of what changed, why it may have happened, what to watch next, and what it could mean for households and companies.</p></div>
     <PictureStrip pictures={["city", "prices", "markets"]} />
     {!brief ? <div className="brief-empty">The latest brief will appear when the version-seven dataset is available.</div> : <>
-      <div className="brief-hero"><div><span className="brief-label">Generated briefing</span><h3>{brief.headline}</h3><p>Last refreshed {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${brief.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : brief.status === "fresh" ? "Latest data included" : "Some inputs cached"}</em></div>
+      <div className="brief-hero"><div><span className="brief-label">MacroLens-generated briefing</span><h3>{brief.headline}</h3><p>Calculated {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${inputHealth?.status ?? brief.status}`}>{healthStatusLabel(dashboard?.usingFallback ? "fallback" : inputHealth?.status ?? brief.status)}</em></div>
+      <InputHealthNotice health={inputHealth} />
       <div className="brief-grid">
         <article><span>What changed recently</span><ul>{brief.whatChanged.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article><span>Why it may have happened</span><ul>{brief.whyItMayHaveHappened.map((item) => <li key={item}>{item}</li>)}</ul></article>
@@ -1165,11 +1250,12 @@ function RiskHeatmapSection({ dashboard }: { dashboard: DashboardPayload | null 
     return [...output.entries()];
   }, [risk]);
   return <section className="section risk-section page-section" id="risk"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">03 / Risk heatmap</span><h2>Where pressure is building</h2></div><p>Each score is rule-based and auditable. It is a monitoring screen, not a forecast or investment signal.</p></div>
+    <div className="section-heading light"><div><span className="section-number">03 / Risk heatmap</span><h1>Where pressure is building</h1></div><p>Each score is rule-based and auditable. It is a monitoring screen, not a forecast or investment signal.</p></div>
     <PictureStrip pictures={["prices", "markets", "trade"]} />
     {!risk ? <div className="risk-empty">The risk heatmap will appear when the version-seven dataset is available.</div> : <>
+      <InputHealthNotice health={dashboard?.inputHealth?.riskHeatmap} />
       <div className="risk-overview"><article><span>Overall screen</span><strong>{risk.overallScore.toFixed(1)}</strong><b className={`risk-pill ${risk.overallLevel}`}>{levelLabel(risk.overallLevel)} pressure</b></article><div><p>{risk.summary}</p><small>{risk.method}</small></div></div>
-      <div className="risk-groups">{grouped.map(([group, items]) => <section key={group}><h3>{group}</h3>{items.map((item) => <article key={item.id} className={`risk-card ${item.level}`}><div><span>{item.label}</span><strong>{item.score}</strong></div><p>{item.evidence}</p><small>{item.rule}</small><em>{item.watch}</em></article>)}</section>)}</div>
+      <div className="risk-groups">{grouped.map(([group, items]) => <section key={group}><h3>{group}</h3>{items.map((item) => <article key={item.id} className={`risk-card ${item.level}`}><div><span>{item.label}</span><strong>{item.score}</strong></div><p>{item.evidence}</p><small className="risk-source-status">Observation period: {item.period ? formatDate(item.period) : "Not recorded"} · {healthStatusLabel(item.dataStatus)}</small><small>{item.rule}</small><em>{item.watch}</em></article>)}</section>)}</div>
       <div className="risk-table-wrap"><table><thead><tr><th>Signal</th><th>Period</th><th>Score</th><th>Level</th><th>Evidence</th></tr></thead><tbody>{risk.items.map((item) => <tr key={item.id}><td>{item.label}</td><td>{item.period ? formatDate(item.period) : "Latest"}</td><td>{item.score}</td><td><span className={`risk-pill ${item.level}`}>{levelLabel(item.level)}</span></td><td>{item.evidence}</td></tr>)}</tbody></table></div>
     </>}
   </div></section>;
@@ -1179,6 +1265,7 @@ function NewsSection() {
   const [news, setNews] = useState<NewsPayload | null>(null);
   const [topic, setTopic] = useState("All");
   const [source, setSource] = useState("All");
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -1199,7 +1286,7 @@ function NewsSection() {
         disclaimer: "News headlines are unavailable right now. The official statistical dashboard remains available.",
       }));
     return () => { active = false; };
-  }, []);
+  }, [refresh]);
 
   const topics = useMemo(() => ["All", ...Array.from(new Set((news?.items ?? []).flatMap((item) => item.topics))).sort()], [news]);
   const sources = useMemo(() => ["All", ...Array.from(new Set((news?.items ?? []).map((item) => item.source))).sort()], [news]);
@@ -1211,13 +1298,18 @@ function NewsSection() {
   const generated = news ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(news.generatedAt)) : "Loading";
 
   return <section className="section news-section page-section" id="news"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">03 / News</span><h2>Latest Malaysia economy headlines</h2></div><p>Recent headlines that may help explain what markets and policymakers are discussing. This complements the official data; it does not replace statistical evidence.</p></div>
-    <PictureStrip pictures={["city", "trade", "markets"]} />
+    <div className="section-heading"><div><span className="section-number">03 / News</span><h1>Latest Malaysia economy headlines</h1></div><p>Recent headlines that may help explain what markets and policymakers are discussing. This complements the official data; it does not replace statistical evidence.</p></div>
     <div className="news-meta">
       <span>Last checked · {generated}</span>
       <b className={`risk-pill ${news?.status ?? "partial"}`}>{news?.status ?? "loading"}</b>
       <small>{news?.queryWindow ?? "Past seven days"} · fetched from public RSS/search feeds</small>
+      {news && <small>{news.items.length} verified-date headline{news.items.length === 1 ? "" : "s"} · newest first</small>}
+      <button type="button" className="news-refresh" onClick={() => { setNews(null); setRefresh((value) => value + 1); }}>Refresh headlines</button>
     </div>
+    {featured && <article className="news-featured">
+      <div><span>{featured.topics.join(" · ")}</span><h3>{featured.title}</h3><p>{featured.summary || "Open the source article for the full context."}</p></div>
+      <aside><strong>{featured.source}</strong><time dateTime={featured.publishedAt}>{formatNewsDate(featured.publishedAt)}</time><a href={featured.link} target="_blank" rel="noreferrer">Read source ↗</a></aside>
+    </article>}
     <div className="news-toolbar">
       <div className="news-filter-group">
         <span>Topic</span>
@@ -1232,20 +1324,15 @@ function NewsSection() {
         </div>
       </div>
     </div>
-    {!news ? <div className="news-empty">Loading latest economy headlines…</div> : !filtered.length ? <div className="news-empty">No matching headlines found for this filter.</div> : <>
-      {featured && <article className="news-featured">
-        <div><span>{featured.topics.join(" · ")}</span><h3>{featured.title}</h3><p>{featured.summary || "Open the source article for the full context."}</p></div>
-        <aside><strong>{featured.source}</strong><time>{formatDate(featured.publishedAt.slice(0, 10))}</time><a href={featured.link} target="_blank" rel="noreferrer">Read source ↗</a></aside>
-      </article>}
+    {!news ? <div className="news-empty" role="status">Loading latest economy headlines…</div> : !filtered.length ? <div className="news-empty" role="status"><p>{news.items.length ? "No headlines match these filters. Choose All to see the available stories." : news.emptyReason || "No dated Malaysian economy headlines are available in the past seven days. Older or undated stories are excluded, not presented as latest news."}</p>{news.items.length > 0 && <button type="button" onClick={() => { setTopic("All"); setSource("All"); }}>Clear filters</button>}</div> : <>
       <div className="news-grid">{filtered.slice(1, 25).map((item, index) => <article key={item.link} className={`news-card tone-${index % 6}`}>
         <div>{item.topics.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div>
         <h3><a href={item.link} target="_blank" rel="noreferrer">{item.title}</a></h3>
         <p>{item.summary || "Open the article for details."}</p>
-        <footer><b>{item.source}</b><time>{formatDate(item.publishedAt.slice(0, 10))}</time></footer>
+        <footer><b>{item.source}</b><time dateTime={item.publishedAt}>{formatNewsDate(item.publishedAt)}</time></footer>
       </article>)}</div>
-      <div className="news-sources"><p>{news.refreshPolicy}</p>{news.sources.map((item) => <a key={item.id} href={item.url} target="_blank" rel="noreferrer"><span className={`risk-pill ${item.status}`}>{item.status}</span>{item.label}</a>)}</div>
-      <p className="deep-disclaimer">{news.disclaimer}</p>
     </>}
+    {news && <><div className="news-sources"><p>{news.refreshPolicy}</p>{news.sources.map((item) => <a key={item.id} href={item.url} target="_blank" rel="noreferrer" title={item.message}><span className={`risk-pill ${item.status}`}>{item.status}</span>{item.label}</a>)}</div><p className="deep-disclaimer">{news.disclaimer}</p></>}
   </div></section>;
 }
 
@@ -1317,11 +1404,11 @@ function ExternalSectorSection({ dashboard }: { dashboard: DashboardPayload | nu
     return all.filter((point) => new Date(`${point.date}T00:00:00`) >= start);
   }, [external, range]);
   return <section className="section external-section page-section" id="external"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">07 / External sector</span><h2>Trade, exports and imported-cost pressure</h2></div><p>Goods trade helps explain how external demand, the ringgit and imported costs can flow through the Malaysian economy.</p></div>
+    <div className="section-heading"><div><span className="section-number">07 / External sector</span><h1>Trade, exports and imported-cost pressure</h1></div><p>Goods trade helps explain how external demand, the ringgit and imported costs can flow through the Malaysian economy.</p></div>
     <PictureStrip pictures={["trade", "markets", "prices"]} />
     {!external ? <div className="external-empty">External-sector data will appear when the version-seven dataset is available.</div> : <>
       <div className="external-summary"><article><span>Exports</span><strong>RM {external.summary.exports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.exportsYoY)} year on year</small></article><article><span>Imports</span><strong>RM {external.summary.imports.toFixed(1)}bn</strong><small>{signedPercent(external.summary.importsYoY)} year on year</small></article><article><span>Trade balance</span><strong className={external.summary.balance >= 0 ? "up" : "down"}>RM {external.summary.balance > 0 ? "+" : ""}{external.summary.balance.toFixed(1)}bn</strong><small>Latest month · {formatDate(external.summary.latestDate)}</small></article><article><span>12-month balance</span><strong>RM {external.summary.last12Balance > 0 ? "+" : ""}{external.summary.last12Balance.toFixed(1)}bn</strong><small>{external.summary.tradeReading}</small></article></div>
-      <div className="external-toolbar"><div role="group" aria-label="Choose trade chart measure">{(["balance", "exports", "imports"] as const).map((item) => <button key={item} className={metric === item ? "active" : ""} onClick={() => setMetric(item)}>{item === "balance" ? "Trade balance" : item[0].toUpperCase() + item.slice(1)}</button>)}</div><div role="group" aria-label="Choose trade chart time frame">{(["3Y", "5Y", "ALL"] as const).map((item) => <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item === "ALL" ? "All history" : item}</button>)}</div></div>
+      <div className="external-toolbar"><div role="group" aria-label="Choose trade chart measure">{(["balance", "exports", "imports"] as const).map((item) => <button key={item} className={metric === item ? "active" : ""} aria-pressed={metric === item} onClick={() => setMetric(item)}>{item === "balance" ? "Trade balance" : item[0].toUpperCase() + item.slice(1)}</button>)}</div><div role="group" aria-label="Choose trade chart time frame">{(["3Y", "5Y", "ALL"] as const).map((item) => <button key={item} className={range === item ? "active" : ""} aria-pressed={range === item} onClick={() => setRange(item)}>{item === "ALL" ? "All history" : item}</button>)}</div></div>
       <ExternalChart points={points} metric={metric} />
       <div className="external-analysis"><article><span>Latest reading</span><p>{external.narratives.performance}</p></article><article><span>Macro meaning</span><p>{external.narratives.macro}</p></article></div>
       <div className="external-table-wrap"><table><thead><tr><th>Month</th><th>Exports</th><th>Imports</th><th>Total trade</th><th>Balance</th></tr></thead><tbody>{[...external.points].slice(-12).reverse().map((point) => <tr key={point.date}><td>{formatDate(point.date)}</td><td>RM {point.exports.toFixed(1)}bn</td><td>RM {point.imports.toFixed(1)}bn</td><td>RM {point.total.toFixed(1)}bn</td><td className={point.balance >= 0 ? "up" : "down"}>RM {point.balance > 0 ? "+" : ""}{point.balance.toFixed(1)}bn</td></tr>)}</tbody></table></div>
@@ -1345,11 +1432,11 @@ function EconomicStructureSection({ dashboard }: { dashboard: DashboardPayload |
   const oneMinuteReading = selectedYear ? `${selectedYear.summary.largestSector} is the largest production sector at ${selectedYear.summary.largestShare.toFixed(1)}% of nominal GDP. ${selectedYear.summary.fastestGrowth == null ? "A prior-year growth comparison is not available for this selected year." : `${selectedYear.summary.fastestGrowingSector} shows the fastest current-price increase at ${selectedYear.summary.fastestGrowth > 0 ? "+" : ""}${selectedYear.summary.fastestGrowth.toFixed(1)}%.`} ${selectedDemandYear ? `On the spending side, the latest classification is ${selectedDemandYear.summary.demandType.toLowerCase()}, led by ${selectedDemandYear.summary.largestGrowthDriver}.` : "Expenditure-side detail is not available for this selected year."}` : "";
   useEffect(() => { if (structure && year == null) setYear(structure.latestYear); }, [structure, year]);
   return <section className="section structure-section page-section" id="structure"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">06 / Growth drivers</span><h2>What drives Malaysia&apos;s economic value?</h2></div><p>Choose a year to compare the production side of GDP with the expenditure side: consumption, investment, exports, imports and inventories.</p></div>
+    <div className="section-heading"><div><span className="section-number">06 / Growth drivers</span><h1>What drives Malaysia&apos;s economic value?</h1></div><p>Choose a year to compare the production side of GDP with the expenditure side: consumption, investment, exports, imports and inventories.</p></div>
     <PictureStrip pictures={["city", "trade", "household"]} />
     {!structure || !selectedYear ? <div className="structure-empty">Economic-sector data will appear when the version-five dataset is available.</div> : <>
       <div className="growth-brief-card"><span>One-minute conclusion</span><p>{oneMinuteReading}</p><small>Current-price GDP is useful for economic value and sector size. It is not the same as real output growth after removing price effects.</small></div>
-      <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><div className="driver-view-switch" role="group" aria-label="Choose GDP view"><button className={view === "production" ? "active" : ""} onClick={() => setView("production")}>Production side</button><button className={view === "expenditure" ? "active" : ""} onClick={() => setView("expenditure")}>Expenditure side</button></div><p><span className={`structure-status ${growth?.status ?? structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : growth?.status === "fresh" || structure.status === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
+      <div className="structure-toolbar"><div><label htmlFor="structure-year">Calendar year</label><select id="structure-year" value={selectedYear.year} onChange={(event) => setYear(Number(event.target.value))}>{[...structure.years].reverse().map((item) => <option key={item.year} value={item.year}>{item.year}</option>)}</select></div><div className="driver-view-switch" role="group" aria-label="Choose GDP view"><button className={view === "production" ? "active" : ""} aria-pressed={view === "production"} onClick={() => setView("production")}>Production side</button><button className={view === "expenditure" ? "active" : ""} aria-pressed={view === "expenditure"} onClick={() => setView("expenditure")}>Expenditure side</button></div><p><span className={`structure-status ${growth?.status ?? structure.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : (growth?.status ?? structure.status) === "fresh" ? "Official data refreshed" : "Using last validated data"}</span>Complete years only · latest {structure.latestYear}</p></div>
       {view === "production" && <div className="structure-overview">
         <EconomicDonut sectors={selectedYear.sectors} />
         <div className="structure-reading"><span className="mini-label">Production view · {selectedYear.year}</span><h3>RM {selectedYear.total.toLocaleString("en-MY", { maximumFractionDigits: 1 })} billion</h3><p className="structure-definition">Total GDP at purchasers&apos; prices. The six slices reconcile five production sectors plus import duties.</p><div className="structure-highlights"><article><span>Largest sector</span><strong>{selectedYear.summary.largestSector}</strong><small>{selectedYear.summary.largestShare.toFixed(1)}% of nominal GDP</small></article><article><span>Fastest current-price increase</span><strong>{selectedYear.summary.fastestGrowingSector}</strong><small>{selectedYear.summary.fastestGrowth == null ? "Prior-year comparison unavailable" : `${selectedYear.summary.fastestGrowth > 0 ? "+" : ""}${selectedYear.summary.fastestGrowth.toFixed(1)}% year on year`}</small></article><article><span>Largest RM addition</span><strong>{selectedYear.summary.largestGrowthContributor}</strong><small>{selectedYear.summary.largestContributionValue == null ? "Prior-year comparison unavailable" : `RM ${selectedYear.summary.largestContributionValue > 0 ? "+" : ""}${selectedYear.summary.largestContributionValue.toFixed(1)} billion`}</small></article></div></div>
@@ -1494,12 +1581,12 @@ function BursaSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const periodReturn = points.length > 1 ? (points.at(-1)!.value / points[0].value - 1) * 100 : null;
   const summary = market?.summary;
   return <section className="section market-section" id="bursa"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">08 / Bursa Malaysia</span><h2>The large-cap market pulse</h2></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
+    <div className="section-heading light"><div><span className="section-number">08 / Bursa Malaysia</span><h1>The large-cap market pulse</h1></div><p>The FBM KLCI tracks 30 leading Main Market companies. It is a benchmark for large Malaysian shares, not the performance of every Bursa-listed company.</p></div>
     <PictureStrip pictures={["markets", "city", "research"]} />
     {!market || !summary ? <div className="market-empty">Market history will appear when the version-three dataset is available.</div> : <>
       <div className="market-overview">
         <article className="market-quote"><span>FTSE Bursa Malaysia KLCI</span><strong>{summary.latest.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><div><b className={summary.change1D >= 0 ? "positive" : "negative"}>{signedPercent(summary.change1D)}</b><small>latest trading day · {formatDate(summary.latestDate)}</small></div><em className={`market-status ${market.status}`}>{dashboard?.usingFallback ? "Bundled fallback" : market.status === "fresh" ? "Delayed data · refreshed" : "Delayed data · cached"}</em></article>
-        <div className="market-range" role="group" aria-label="Choose KLCI chart period">{(["1M", "3M", "YTD", "1Y", "3Y", "5Y", "ALL"] as MarketRange[]).map((item) => <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item}</button>)}</div>
+        <div className="market-range" role="group" aria-label="Choose KLCI chart period">{(["1M", "3M", "YTD", "1Y", "3Y", "5Y", "ALL"] as MarketRange[]).map((item) => <button key={item} className={range === item ? "active" : ""} aria-pressed={range === item} onClick={() => setRange(item)}>{item}</button>)}</div>
       </div>
       <MarketChart points={points} />
       <div className="market-stats">
@@ -1528,9 +1615,10 @@ function DecisionCardView({ card }: { card: DecisionCard }) {
 function HouseholdPressureSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const household: HouseholdPressure | undefined = dashboard?.householdPressure;
   return <section className="section deep-section household-section page-section" id="household"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">10 / Households</span><h2>Household pressure monitor</h2></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
+    <div className="section-heading"><div><span className="section-number">10 / Households</span><h1>Household pressure monitor</h1></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
     <PictureStrip pictures={["household", "prices", "markets"]} />
     {!household ? <div className="deep-empty">Household pressure analysis will appear when the version-eight dataset is available.</div> : <>
+      <InputHealthNotice health={dashboard?.inputHealth?.householdPressure} />
       <div className="deep-hero"><div><span>Overall household pressure</span><strong>{household.overallScore.toFixed(1)}</strong><b className={`risk-pill ${household.overallLevel}`}>{levelLabel(household.overallLevel)}</b></div><p>{household.summary}</p></div>
       <div className="deep-card-grid">{household.components.map((item) => <article key={item.id} className={`deep-card ${item.level ?? (item.score >= 70 ? "high" : item.score >= 45 ? "moderate" : "low")}`}><div className="deep-card-heading"><span>{item.label}</span><b>{item.score}</b></div><p>{item.evidence}</p><small>{item.watch}</small></article>)}</div>
       <div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h3>{item.title}</h3><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div>
@@ -1545,7 +1633,7 @@ function BalancePaymentsSection({ dashboard }: { dashboard: DashboardPayload | n
   const fmt = (value: number | null | undefined) => value == null ? "—" : `RM ${value > 0 ? "+" : ""}${value.toFixed(1)}bn`;
   const account = (row: BalancePayments["quarters"][number] | undefined, id: string) => row?.accounts.find((item) => item.id === id)?.balance ?? null;
   return <section className="section deep-section bop-section page-section" id="bop"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">08 / Balance of payments</span><h2>External financing position</h2></div><p>Trade in goods is only one part of the external story. The balance of payments adds income flows, services, capital and financial-account movements.</p></div>
+    <div className="section-heading light"><div><span className="section-number">08 / Balance of payments</span><h1>External financing position</h1></div><p>Trade in goods is only one part of the external story. The balance of payments adds income flows, services, capital and financial-account movements.</p></div>
     {!bop || !latest ? <div className="deep-empty">Balance-of-payments data will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>Latest quarter</span><strong>{formatDate(latest.date)}</strong><b className={`risk-pill ${bop.status}`}>{bop.status}</b></div><p>{bop.narratives.externalPosition}</p></div>
       <div className="deep-card-grid">
@@ -1593,7 +1681,7 @@ function getRegionalMetric(item: RegionalStateRecord, metric: string) {
 }
 
 function sourceDate(value: string | null | undefined) {
-  return value ? formatDate(value.slice(0, 10)) : "latest available";
+  return value ? formatDate(value.slice(0, 10)) : "not recorded";
 }
 
 function regionalMetricSource(metric: string) {
@@ -1653,7 +1741,7 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
     { label: "State inflation", source: "DOSM state CPI inflation", period: cpiSource?.observationPeriod, retrieved: cpiSource?.retrievedAt, catalogue: cpiSource?.sourceUrl, status: cpiSource?.status },
   ].filter((item) => item.catalogue || item.csv || item.period);
   return <section className="section deep-section regional-section page-section" id="regional"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h2>How different are Malaysia&apos;s states and districts?</h2></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
+    <div className="section-heading"><div><span className="section-number">11 / Regional Lens</span><h1>How different are Malaysia&apos;s states and districts?</h1></div><p>Compare income, spending pressure, poverty, unemployment, inflation and GDP across Malaysia. District views appear only where official data supports them.</p></div>
     {!regional ? <div className="deep-empty">Regional Lens will appear when the schema-nine dataset is available.</div> : <>
       <div className="regional-meta">
         <div><span className={`risk-pill ${dashboard?.usingFallback ? "fallback" : regional.status}`}>{dashboard?.usingFallback ? "Fallback snapshot" : regional.status}</span><span>{metricInfo.label} · data period {sourceDate(activeSource?.observationPeriod)}</span></div>
@@ -1664,15 +1752,15 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
         <label><span>Main region</span><select value={primary} onChange={(event) => setPrimary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
         <label><span>Compare with</span><select value={secondary} onChange={(event) => setSecondary(event.target.value)}>{states.map((state) => <option key={state} value={state}>{state}</option>)}</select></label>
         <label><span>Metric</span><select value={metric} onChange={(event) => setMetric(event.target.value)}>{Object.entries(regionalMetricCopy).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}</select></label>
-        <div className="segmented small"><button className={view === "chart" ? "active" : ""} onClick={() => setView("chart")}>Chart</button><button className={view === "table" ? "active" : ""} onClick={() => setView("table")}>Table</button></div>
+        <div className="segmented small" role="group" aria-label="Regional comparison view"><button className={view === "chart" ? "active" : ""} aria-pressed={view === "chart"} onClick={() => setView("chart")}>Chart</button><button className={view === "table" ? "active" : ""} aria-pressed={view === "table"} onClick={() => setView("table")}>Table</button></div>
       </div>
       <div className="regional-comparison">
         {[primaryState, secondaryState].filter(Boolean).map((item) => <article key={item.state} title={`Source for this selected metric: ${activeSourceName}. Observation period ${sourceDate(activeSource?.observationPeriod)}.`}><span>{item.state}</span><strong>{regionalFormat(getRegionalMetric(item, metric), metricInfo.unit)}</strong><p>{metricInfo.description}</p><small>Source: <a href={activeSourceUrl} target="_blank" rel="noreferrer">{activeSourceName} ↗</a> · data period {sourceDate(activeSource?.observationPeriod)}</small></article>)}
       </div>
-      {view === "chart" ? <div className="regional-bars" role="img" aria-label={`${metricInfo.label} by state`}>
-        {rankedStates.map((item) => <div key={item.state} className={`regional-bar ${item.state === primary || item.state === secondary ? "selected" : ""}`} tabIndex={0}>
+      {view === "chart" ? <div className="regional-bars" role="list" aria-label={`${metricInfo.label} by state`}>
+        {rankedStates.map((item) => <div key={item.state} className={`regional-bar ${item.state === primary || item.state === secondary ? "selected" : ""}`} role="listitem" aria-label={`${item.state}. ${metricInfo.label}: ${regionalFormat(item.selectedValue, metricInfo.unit)}. Source: ${activeSourceName}. Observation period: ${sourceDate(activeSource?.observationPeriod)}.${item.state === primary || item.state === secondary ? " Selected for comparison." : ""}`} tabIndex={0}>
           <span>{item.state}</span>
-          <i style={{ width: `${Math.max(6, Math.abs(item.selectedValue ?? 0) / maxValue * 100)}%` }} />
+          <i aria-hidden="true" style={{ width: `${Math.max(6, Math.abs(item.selectedValue ?? 0) / maxValue * 100)}%` }} />
           <b>{regionalFormat(item.selectedValue, metricInfo.unit)}</b>
           <em>{metricInfo.label} · Source: {activeSourceName} · {item.largestSector ? `largest sector: ${item.largestSector}` : "official regional data"}</em>
         </div>)}
@@ -1715,6 +1803,7 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
             <p>{source.source}</p><small>Observation period: {sourceDate(source.period)} · Retrieved: {sourceDate(source.retrieved)}</small>
             <div>{source.catalogue ? <a href={source.catalogue} target="_blank" rel="noreferrer">Catalogue ↗</a> : null}{source.csv ? <a href={source.csv} target="_blank" rel="noreferrer">Source CSV ↗</a> : null}{source.extraCatalogue ? <a href={source.extraCatalogue} target="_blank" rel="noreferrer">District catalogue ↗</a> : null}{source.extraCsv ? <a href={source.extraCsv} target="_blank" rel="noreferrer">Extra CSV ↗</a> : null}</div>
           </details>)}</div>
+          {hiesSource?.nationalExpenditure && <p>Malaysia expenditure benchmark: <strong>{regionalFormat(hiesSource.nationalExpenditure.value, "RM")}</strong> per household per month · survey {sourceDate(hiesSource.nationalExpenditure.observationPeriod)}. <a href={hiesSource.nationalExpenditure.sourceUrl} target="_blank" rel="noreferrer">DOSM expenditure report{hiesSource.nationalExpenditure.page ? `, page ${hiesSource.nationalExpenditure.page}` : ""} ↗</a>. This official national figure is not an average of state averages.</p>}
         </div>
         <div className="regional-downloads">{regional.downloads.map((item) => <a key={item.href} href={item.href}>{item.label} ↗</a>)}</div>
         <div className="regional-method"><span>Coverage note</span><p>{regional.coverage.state}</p><p>{regional.coverage.district}</p><p>For school assignments, use the original DOSM/data.gov.my source links with the dashboard CSV/JSON. The dashboard is a cleaned presentation layer, not the original publisher.</p></div>
@@ -1726,7 +1815,7 @@ function RegionalLensSection({ dashboard }: { dashboard: DashboardPayload | null
 function SectorDeepDiveSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const deep: SectorDeepDive | undefined = dashboard?.sectorDeepDive;
   return <section className="section deep-section sectors-section page-section" id="sectors"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">11 / Sector deep dive</span><h2>How sectors connect to markets and external demand</h2></div><p>Uses the latest production-side GDP structure and links each sector to export sensitivity, Bursa exposure and dashboard risk conditions.</p></div>
+    <div className="section-heading"><div><span className="section-number">11 / Sector deep dive</span><h1>How sectors connect to markets and external demand</h1></div><p>Uses the latest production-side GDP structure and links each sector to export sensitivity, Bursa exposure and dashboard risk conditions.</p></div>
     {!deep ? <div className="deep-empty">Sector deep dives will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>Reference year</span><strong>{deep.year}</strong><b className={`risk-pill ${deep.status}`}>{deep.status}</b></div><p>{deep.summary}</p></div>
       <div className="sector-deep-grid">{deep.sectors.map((sector) => <article key={sector.id} className={`sector-deep-card ${sector.riskLevel}`}><div><span>{sector.name}</span><b>{sector.share.toFixed(1)}%</b></div><p>{sector.narrative}</p><dl><div><dt>Value</dt><dd>RM {sector.value.toFixed(1)}bn</dd></div><div><dt>Growth</dt><dd>{sector.changeYoY == null ? "—" : signedPercent(sector.changeYoY)}</dd></div><div><dt>Contribution</dt><dd>{sector.growthContribution == null ? "—" : `${sector.growthContribution.toFixed(1)}%`}</dd></div><div><dt>Market link</dt><dd>{sector.marketLink}</dd></div></dl></article>)}</div>
@@ -1737,7 +1826,7 @@ function SectorDeepDiveSection({ dashboard }: { dashboard: DashboardPayload | nu
 function MacroTimelineSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const timeline: MacroTimeline | undefined = dashboard?.macroTimeline;
   return <section className="section deep-section timeline-section page-section" id="timeline"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">13 / Timeline</span><h2>Macro event and evidence timeline</h2></div><p>Combines verified event dates, detected structural breaks and latest market observations in one chronological audit trail.</p></div>
+    <div className="section-heading light"><div><span className="section-number">13 / Timeline</span><h1>Macro event and evidence timeline</h1></div><p>Combines verified event dates, detected structural breaks and latest market observations in one chronological audit trail.</p></div>
     {!timeline ? <div className="deep-empty">The macro timeline will appear when the version-eight dataset is available.</div> : <>
       <div className="timeline-list">{[...timeline.entries].sort((a, b) => b.date.localeCompare(a.date)).map((entry) => <article key={`${entry.date}-${entry.title}`}><time>{formatDate(entry.date)}</time><div><span>{entry.category}</span><h3>{entry.title}</h3><p>{entry.evidence}</p><small>{entry.interpretation ?? "Context marker only; proximity does not prove causation."}</small><a href={entry.sourceUrl} target="_blank" rel="noreferrer">{entry.source} ↗</a></div></article>)}</div>
       <p className="deep-disclaimer">{timeline.note}</p>
@@ -1748,7 +1837,7 @@ function MacroTimelineSection({ dashboard }: { dashboard: DashboardPayload | nul
 function MonthlyReportSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const report = dashboard?.monthlyReport;
   return <section className="section deep-section report-section page-section" id="report"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">15 / Report</span><h2>Latest generated report</h2></div><p>A recruiter-friendly written summary generated from the same validated dashboard payload.</p></div>
+    <div className="section-heading"><div><span className="section-number">15 / Report</span><h1>Latest generated report</h1></div><p>A recruiter-friendly written summary generated from the same validated dashboard payload.</p></div>
     {!report ? <div className="deep-empty">The generated report will appear when the version-eight dataset is available.</div> : <>
       <div className="deep-hero"><div><span>{formatDate(report.generatedAt.slice(0, 10))}</span><strong>{report.title}</strong></div><p>{report.summary ?? `Generated for ${report.period ? formatDate(report.period) : "the latest validated release"}.`}</p></div>
       <div className="report-grid">{report.sections.map((section) => <article key={section.heading}><h3>{section.heading}</h3>{section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : <p>{section.body}</p>}</article>)}</div>
@@ -1761,10 +1850,10 @@ function MonthlyReportSection({ dashboard }: { dashboard: DashboardPayload | nul
 function DataHealthSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const health = dashboard?.dataHealth;
   return <section className="section deep-section health-section page-section" id="health"><div className="shell">
-    <div className="section-heading light"><div><span className="section-number">16 / Data health</span><h2>Source freshness and validation audit</h2></div><p>Shows whether the dashboard is fresh, stale or using fallback data. Cached data is never labelled as live.</p></div>
+    <div className="section-heading light"><div><span className="section-number">16 / Data health</span><h1>Source freshness and validation audit</h1></div><p>Shows whether the dashboard is fresh, stale or using fallback data. Cached data is never labelled as live.</p></div>
     {!health ? <div className="deep-empty">Data-health details will appear when the version-eight dataset is available.</div> : <>
-      <div className="deep-hero"><div><span>Schema version {health.schemaVersion}</span><strong>{levelLabel(health.overall)}</strong><b className={`risk-pill ${health.overall}`}>{health.staleCount} stale</b></div><p>{health.note}</p></div>
-      <div className="deep-table-wrap"><table><thead><tr><th>Source</th><th>Status</th><th>Observation period</th><th>Retrieved</th><th>Message</th></tr></thead><tbody>{health.sources.map((source) => <tr key={source.id}><td>{source.label ?? source.id}</td><td><span className={`risk-pill ${source.status}`}>{source.status}</span></td><td>{source.period || source.observationPeriod ? formatDate(source.period ?? source.observationPeriod ?? "") : "—"}</td><td>{source.retrievedAt ? formatDate(source.retrievedAt.slice(0, 10)) : "—"}</td><td>{source.message}</td></tr>)}</tbody></table></div>
+      <div className="deep-hero"><div><span>Schema version {health.schemaVersion}</span><strong>{healthStatusLabel(health.overall)}</strong><b className={`risk-pill ${health.overall}`}>{health.staleCount} stale</b></div><p>{health.note}</p></div>
+      <div className="deep-table-wrap"><table><thead><tr><th>Source</th><th>Status</th><th>Observation period</th><th>Last successful retrieval</th><th>Last refresh attempt</th><th>Message</th></tr></thead><tbody>{health.sources.map((source) => <tr key={source.id}><td>{source.label ?? source.id}</td><td><span className={`risk-pill ${source.status}`}>{source.status}</span></td><td>{source.period || source.observationPeriod ? formatDate(source.period ?? source.observationPeriod ?? "") : "—"}</td><td>{retrievalTime(source.retrievedAt)}</td><td>{retrievalTime(source.lastAttemptAt)}</td><td>{source.message}</td></tr>)}</tbody></table></div>
     </>}
   </div></section>;
 }
@@ -1792,7 +1881,7 @@ function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardP
   const effect = coreDelta * coefficients.core + fxDelta * coefficients.fx + oprDelta * coefficients.opr;
   const reset = () => { setCoreDelta(0); setFxDelta(0); setOprDelta(0); };
   return <section className="scenario-explorer" aria-labelledby="scenario-title">
-    <div className="scenario-heading"><div><span>Sensitivity overlay</span><h3 id="scenario-title">Stress the forecast assumptions</h3><p>These sliders do not change the official forecast above. They show how the published central path could shift under a separate historical-association overlay.</p></div><button onClick={reset}>Reset assumptions</button></div>
+    <div className="scenario-heading"><div><span>Sensitivity overlay</span><h3 id="scenario-title">Stress the forecast assumptions</h3><p>These sliders do not change the MacroLens model forecast above. They show how the published central path could shift under a separate historical-association overlay.</p></div><button onClick={reset}>Reset assumptions</button></div>
     <div className="scenario-definitions" aria-label="Sensitivity variable definitions">
       <article><span>Core inflation</span><p>Underlying inflation pressure after selected volatile or administered-price items are removed.</p></article>
       <article><span>USD/MYR</span><p>The ringgit exchange rate against the US dollar; changes can affect imported costs with a lag.</p></article>
@@ -1805,7 +1894,7 @@ function ScenarioExplorer({ dashboard, forecastPoints }: { dashboard: DashboardP
         <label><span>OPR change <b>{oprDelta > 0 ? "+" : ""}{oprDelta.toFixed(2)} pp</b></span><input aria-label="OPR change" type="range" min="-1" max="1" step="0.25" value={oprDelta} onInput={(event) => setOprDelta(Number(event.currentTarget.value))} /></label>
       </div>
       <div className="scenario-result">
-        <span>Association-based overlay</span><strong>{effect > 0 ? "+" : ""}{effect.toFixed(2)} pp</strong><p>Estimated shift relative to the published central path. It is an illustrative sensitivity result, not a new official forecast.</p>
+        <span>Association-based overlay</span><strong>{effect > 0 ? "+" : ""}{effect.toFixed(2)} pp</strong><p>Estimated shift relative to the published central path. It is an illustrative sensitivity result, not a new MacroLens model forecast.</p>
         <div>{forecastPoints.map((point) => <article key={point.month}><small>{point.month}</small><b>{(point.value + effect).toFixed(2)}%</b></article>)}</div>
       </div>
     </div>
@@ -1824,10 +1913,10 @@ function DriversSection({ dashboard }: { dashboard: DashboardPayload | null }) {
   const headline = decomposition?.headline ?? dashboard?.series.headline.points.at(-1)?.value ?? 0;
   const gap = decomposition?.reconciliationGap ?? headline - estimatedTotal;
   return <section className="section shell page-section" id="drivers">
-    <div className="section-heading"><div><span className="section-number">05 / Drivers</span><h2>What contributes to inflation</h2></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
+    <div className="section-heading"><div><span className="section-number">05 / Drivers</span><h1>What contributes to inflation</h1></div><p>Official 2022 expenditure weights reveal how much each CPI division matters—not only which category has the fastest price growth.</p></div>
     <PictureStrip pictures={["prices", "household", "research"]} />
     <div className="driver-summary"><article><span>Headline inflation</span><strong>{headline.toFixed(2)}%</strong></article><article><span>Weighted division estimate</span><strong>{estimatedTotal.toFixed(2)} pp</strong></article><article><span>Chain-index gap</span><strong>{gap > 0 ? "+" : ""}{gap.toFixed(2)} pp</strong></article></div>
-    <div className="driver-view-switch" role="group" aria-label="Choose driver measure"><button className={view === "contribution" ? "active" : ""} onClick={() => setView("contribution")}>Weighted contribution</button><button className={view === "rate" ? "active" : ""} onClick={() => setView("rate")}>Category inflation rate</button></div>
+    <div className="driver-view-switch" role="group" aria-label="Choose driver measure"><button className={view === "contribution" ? "active" : ""} aria-pressed={view === "contribution"} onClick={() => setView("contribution")}>Weighted contribution</button><button className={view === "rate" ? "active" : ""} aria-pressed={view === "rate"} onClick={() => setView("rate")}>Category inflation rate</button></div>
     <div className="drivers-layout">
       <div className="category-card weighted">
         <div className="category-columns"><span>Division</span><span>{view === "contribution" ? "Contribution estimate" : "Inflation rate"}</span></div>
@@ -1862,12 +1951,13 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
   const guide = dashboard?.decisionGuide;
   const cards = guide?.audiences[audience] ?? [];
   return <section className="section decision-section page-section" id="decisions"><div className="shell">
-    <div className="section-heading"><div><span className="section-number">09 / Decision guide</span><h2>What the signals may mean for decisions</h2></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
+    <div className="section-heading"><div><span className="section-number">09 / Decision guide</span><h1>What the signals may mean for decisions</h1></div><p>Translate the latest Malaysian economic readings into questions and safeguards. These are conditional scenarios—not instructions to buy, sell, borrow, hire or change jobs.</p></div>
     <PictureStrip pictures={["household", "markets", "research"]} />
     {!guide ? <div className="decision-empty">The decision guide will appear when the version-four dataset is available.</div> : <>
-      <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={guide.status}>{guide.status === "fresh" ? "Latest signals incorporated" : "Some inputs use cached data"}</em></div>
+      <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={dashboard?.inputHealth?.decisionGuide?.status ?? guide.status}>{healthStatusLabel(dashboard?.usingFallback ? "fallback" : dashboard?.inputHealth?.decisionGuide?.status ?? guide.status)}</em></div>
+      <InputHealthNotice health={dashboard?.inputHealth?.decisionGuide} />
       <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
-      <div className="audience-switch" role="group" aria-label="Choose decision-guide audience"><button className={audience === "individuals" ? "active" : ""} onClick={() => setAudience("individuals")}>For individuals</button><button className={audience === "companies" ? "active" : ""} onClick={() => setAudience("companies")}>For companies</button></div>
+      <div className="audience-switch" role="group" aria-label="Choose decision-guide audience"><button className={audience === "individuals" ? "active" : ""} aria-pressed={audience === "individuals"} onClick={() => setAudience("individuals")}>For individuals</button><button className={audience === "companies" ? "active" : ""} aria-pressed={audience === "companies"} onClick={() => setAudience("companies")}>For companies</button></div>
       <div className="decision-grid">{cards.map((card) => <DecisionCardView key={card.id} card={card} />)}</div>
       <div className="decision-framework"><div><span>How to use this page</span><ol><li>Start with the evidence shown on each card.</li><li>Compare it with your own cash flow, commitments and time horizon.</li><li>Stress-test what happens if the signal moves against you.</li><li>Use a licensed professional for decisions with material consequences.</li></ol></div><div><span>Official learning resources</span>{guide.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.name} ↗</a>)}</div></div>
       <p className="decision-disclaimer">{guide.disclaimer}</p>
@@ -1878,18 +1968,24 @@ function DecisionGuideSection({ dashboard }: { dashboard: DashboardPayload | nul
 export function DashboardPage({ section = "snapshot" }: { section?: DashboardSection }) {
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
   const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
+  const [dashboardError, setDashboardError] = useState("");
+  const [dashboardRefresh, setDashboardRefresh] = useState(0);
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/dashboard-v7?refresh=${Date.now()}`, { cache: "no-store" })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    setDashboardError("");
+    fetch(`/api/dashboard-v7?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Dashboard data unavailable");
         return response.json() as Promise<DashboardPayload>;
       })
       .then((payload) => active && setDashboard(payload))
-      .catch(() => active && setDashboard(null));
-    return () => { active = false; };
-  }, []);
+      .catch(() => active && setDashboardError("The dashboard could not be loaded. You can retry; no missing values have been replaced with estimates."))
+      .finally(() => clearTimeout(timeout));
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
+  }, [dashboardRefresh]);
 
   useEffect(() => {
     if (section !== "snapshot") return;
@@ -1922,17 +2018,19 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
   const liveModels = dashboard?.forecast.models ?? [];
   const selectedForecastModel = liveModels.find((model) => model.selected) ?? liveModels[0];
   const finalForecast = liveForecasts.at(-1);
-  const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.generatedAt)) : "loading";
+  const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.dataOperations?.lastSuccessfulRefresh ?? dashboard.generatedAt)) : "loading";
 
   return (
     <div className="dashboard-app">
+      <a className="skip-link" href="#top">Skip to main content</a>
       <DashboardNavigation active={section} />
-      <main id="top">
+      <main id="top" tabIndex={-1}>
+      {dashboardError && <div className="dashboard-load-error shell" role="alert"><p>{dashboardError}</p><button type="button" onClick={() => setDashboardRefresh((value) => value + 1)}>Retry dashboard</button></div>}
 
       {section === "snapshot" && <>
       <section className="section snapshot-section shell" id="snapshot">
         <div className="section-heading">
-          <div><span className="section-number">01 / Snapshot</span><h2>Malaysia’s economy at a glance</h2></div>
+          <div><span className="section-number">01 / Snapshot</span><h1>Malaysia’s economy at a glance</h1></div>
           <p>Track the latest signals across prices, interest rates, jobs, the ringgit and government bonds—with official data and clear explanations.</p>
         </div>
         <div className="snapshot-meta">
@@ -1976,9 +2074,10 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
       {section === "forecast" && <section className="section forecast-section page-section compact-forecast" id="forecast">
         <div className="shell">
           <div className="section-heading light">
-            <div><span className="section-number">04 / Forecast</span><h2>Three months ahead</h2></div>
+            <div><span className="section-number">04 / Forecast</span><h1>Three months ahead</h1></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
+          <InputHealthNotice health={dashboard?.inputHealth?.forecast} />
           <div className="forecast-layout">
             <div className="forecast-card">
               <h3>Headline inflation forecast</h3>
@@ -2097,7 +2196,7 @@ export function DashboardPage({ section = "snapshot" }: { section?: DashboardSec
 
       {section === "methodology" && <section className="section method-section page-section" id="method">
         <div className="shell method-layout">
-          <div className="method-intro"><span className="section-number">11 / Method</span><h2>Built to be questioned.</h2><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
+          <div className="method-intro"><span className="section-number">11 / Method</span><h1>Built to be questioned.</h1><p>A portfolio project is stronger when the assumptions are visible. MacroLens shows how data become a forecast—and where the approach can fail.</p></div>
           <PictureStrip pictures={["research", "trade", "city"]} />
           <ol className="method-list">
             <li><span>01</span><div><h3>Collect</h3><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>

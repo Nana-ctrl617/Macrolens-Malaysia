@@ -1,43 +1,49 @@
 {
   "schemaVersion": 9,
-  "generatedAt": "2026-10-04T11:16:32Z",
+  "generatedAt": "2026-10-05T07:37:53Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
       "retrievedAt": "2026-10-04T11:16:32Z",
       "observationPeriod": "2026-08-01",
-      "message": "Official source validated"
+      "message": "Official source validated",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     },
     "core": {
       "status": "fresh",
       "retrievedAt": "2026-10-04T11:16:32Z",
       "observationPeriod": "2026-08-01",
-      "message": "Official source validated"
+      "message": "Official source validated",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     },
     "unemployment": {
       "status": "fresh",
       "retrievedAt": "2026-10-04T11:16:32Z",
       "observationPeriod": "2026-07-01",
-      "message": "Official source validated"
+      "message": "Official source validated",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     },
     "opr": {
       "status": "stale",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": null,
       "observationPeriod": "2026-09-03",
-      "message": "Using last valid data: SSLError"
+      "message": "Using last valid data: SSLError; last successful retrieval was not recorded by the legacy pipeline",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     },
     "fx": {
       "status": "fresh",
       "retrievedAt": "2026-10-04T11:16:32Z",
       "observationPeriod": "2026-09-01",
-      "message": "Official source validated"
+      "message": "Official source validated",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     },
     "mgs": {
       "status": "stale",
-      "retrievedAt": "2026-10-04T11:16:32Z",
+      "retrievedAt": null,
       "observationPeriod": "2026-09-10",
-      "message": "Using last valid data: RuntimeError"
+      "message": "Using last valid data: RuntimeError; last successful retrieval was not recorded by the legacy pipeline",
+      "lastAttemptAt": "2026-10-04T11:16:32Z"
     }
   },
   "series": {
@@ -5653,7 +5659,14 @@
     "estimatedTotal": 1.914,
     "reconciliationGap": -0.014,
     "method": "Official division weight multiplied by the division year-on-year inflation rate",
-    "warning": "This is a transparent weighted-pressure estimate. Malaysia uses a chained CPI, so division estimates need not add exactly to headline inflation; the reconciliation gap is shown rather than hidden."
+    "warning": "This is a transparent weighted-pressure estimate. Malaysia uses a chained CPI, so division estimates need not add exactly to headline inflation; the reconciliation gap is shown rather than hidden.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "fresh",
+      "staleInputs": [],
+      "note": "All required inputs passed source validation; observation periods still differ."
+    },
+    "status": "fresh"
   },
   "forecast": {
     "selectedModel": "ARIMAX",
@@ -5720,10 +5733,19 @@
       },
       "warning": "A sensitivity overlay based on historical ARIMAX associations. It is not the selected forecast unless ARIMAX wins the backtest, and it does not identify causal effects."
     },
-    "status": "fresh"
+    "status": "partial",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr"
+    }
   },
   "structuralBreaks": {
-    "status": "fresh",
+    "status": "partial",
     "calculatedAt": "2026-10-01T11:47:49Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
@@ -5738,7 +5760,7 @@
     "indicators": {
       "headline": {
         "indicatorId": "headline",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-09-18T10:02:12Z",
         "sample": {
           "start": "1981-01-01",
@@ -5765,11 +5787,19 @@
         "warnings": [],
         "candidates": [],
         "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "524117f14009f797682ccb80f809fd0cae1acec838c0d7f979908361f1c7db46"
+        "seriesFingerprint": "524117f14009f797682ccb80f809fd0cae1acec838c0d7f979908361f1c7db46",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: opr"
+        }
       },
       "core": {
         "indicatorId": "core",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-09-18T10:02:12Z",
         "sample": {
           "start": "2019-01-01",
@@ -5845,11 +5875,19 @@
           }
         ],
         "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.33 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "40694cbb3d6b3807c6d5b17d16c2d37dea38350df1e590c29d006ec4f08bc17e"
+        "seriesFingerprint": "40694cbb3d6b3807c6d5b17d16c2d37dea38350df1e590c29d006ec4f08bc17e",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: opr"
+        }
       },
       "unemployment": {
         "indicatorId": "unemployment",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-09-21T11:05:16Z",
         "sample": {
           "start": "2010-01-01",
@@ -6056,11 +6094,19 @@
           }
         ],
         "narrative": "The latest supported parameter shift is estimated near 2022-04. The adjacent-regime mean was 1.34 units lower; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "2974ead5bfb195b256f58b67a5e9d1a8ce1c476a6157976eab56e07ecee0e88d"
+        "seriesFingerprint": "2974ead5bfb195b256f58b67a5e9d1a8ce1c476a6157976eab56e07ecee0e88d",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: opr"
+        }
       },
       "opr": {
         "indicatorId": "opr",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-09-11T06:46:04Z",
         "sample": {
           "start": "2010-01-01",
@@ -6292,11 +6338,19 @@
           }
         ],
         "narrative": "The latest supported parameter shift is estimated near 2022-05. The adjacent-regime mean was 1.05 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "ce3eb23f2486df1f75f995d0fd8bfbc6100f3ab8a8d93a776c4b81ae94227f2c"
+        "seriesFingerprint": "ce3eb23f2486df1f75f995d0fd8bfbc6100f3ab8a8d93a776c4b81ae94227f2c",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: opr"
+        }
       },
       "fx": {
         "indicatorId": "fx",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-10-01T11:47:49Z",
         "sample": {
           "start": "1997-01-01",
@@ -6370,11 +6424,19 @@
           }
         ],
         "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.69 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e"
+        "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: opr"
+        }
       },
       "mgs": {
         "indicatorId": "mgs",
-        "status": "fresh",
+        "status": "stale",
         "calculatedAt": "2026-09-11T07:01:30Z",
         "sample": {
           "start": "2021-11-01",
@@ -6404,8 +6466,32 @@
         ],
         "candidates": [],
         "narrative": "BIC selected a stable single-regime specification; no structural break candidate is reported. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "9eb8212f6a4977d02615b4a30b3d6f162099f09ec612293d1f96bfee0d7c8293"
+        "seriesFingerprint": "9eb8212f6a4977d02615b4a30b3d6f162099f09ec612293d1f96bfee0d7c8293",
+        "calculationStatus": "fresh",
+        "inputHealth": {
+          "status": "partial",
+          "staleInputs": [
+            "mgs",
+            "opr"
+          ],
+          "note": "Uses retained, stale or unavailable inputs: mgs, opr"
+        }
       }
+    },
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr",
+        "structuralBreaks.core",
+        "structuralBreaks.fx",
+        "structuralBreaks.headline",
+        "structuralBreaks.mgs",
+        "structuralBreaks.opr",
+        "structuralBreaks.unemployment"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr, structuralBreaks.core, structuralBreaks.fx, structuralBreaks.headline, structuralBreaks.mgs, structuralBreaks.opr, structuralBreaks.unemployment"
     }
   },
   "market": {
@@ -18812,7 +18898,13 @@
       "message": "Official quarterly expenditure observations validated; complete years only"
     },
     "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
-    "message": "Production and expenditure GDP views validated"
+    "message": "Production and expenditure GDP views validated",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "fresh",
+      "staleInputs": [],
+      "note": "All required inputs passed source validation; observation periods still differ."
+    }
   },
   "externalSector": {
     "status": "fresh",
@@ -23299,10 +23391,22 @@
           "incomeMedian": 7017.0,
           "poverty": 5.1,
           "gini": 0.39,
-          "expenditureMean": 5363.4375
+          "expenditureMean": 5566.0
         },
         "narrative": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
-        "message": "Latest state HIES income, expenditure, poverty and inequality data validated"
+        "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
+        "nationalExpenditure": {
+          "status": "fresh",
+          "value": 5566.0,
+          "unit": "RM per household per month",
+          "observationPeriod": "2024-01-01",
+          "retrievedAt": "2026-10-05T07:37:53Z",
+          "lastAttemptAt": "2026-10-05T07:37:53Z",
+          "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
+          "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
+          "page": 24,
+          "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
+        }
       },
       "hiesDistrict": {
         "status": "fresh",
@@ -35670,7 +35774,7 @@
           "incomeMean": 329.0,
           "poverty": -2.6,
           "gini": -0.042,
-          "expenditureMean": 563.56
+          "expenditureMean": 361.0
         }
       },
       {
@@ -35734,7 +35838,7 @@
           "incomeMean": -3362.0,
           "poverty": 3.3,
           "gini": -0.056,
-          "expenditureMean": -1335.44
+          "expenditureMean": -1538.0
         }
       },
       {
@@ -35798,7 +35902,7 @@
           "incomeMean": -3890.0,
           "poverty": 6.4,
           "gini": -0.034,
-          "expenditureMean": -1538.44
+          "expenditureMean": -1741.0
         }
       },
       {
@@ -35862,7 +35966,7 @@
           "incomeMean": -469.0,
           "poverty": -2.1,
           "gini": -0.053,
-          "expenditureMean": 848.56
+          "expenditureMean": 646.0
         }
       },
       {
@@ -35926,7 +36030,7 @@
           "incomeMean": -1850.0,
           "poverty": -1.1,
           "gini": -0.047,
-          "expenditureMean": -248.44
+          "expenditureMean": -451.0
         }
       },
       {
@@ -35990,7 +36094,7 @@
           "incomeMean": -3089.0,
           "poverty": 0.8,
           "gini": -0.071,
-          "expenditureMean": -995.44
+          "expenditureMean": -1198.0
         }
       },
       {
@@ -36054,7 +36158,7 @@
           "incomeMean": -2982.0,
           "poverty": 1.8,
           "gini": -0.092,
-          "expenditureMean": -1131.44
+          "expenditureMean": -1334.0
         }
       },
       {
@@ -36118,7 +36222,7 @@
           "incomeMean": -3159.0,
           "poverty": -1.5,
           "gini": -0.056,
-          "expenditureMean": -1279.44
+          "expenditureMean": -1482.0
         }
       },
       {
@@ -36182,7 +36286,7 @@
           "incomeMean": -3.0,
           "poverty": -3.2,
           "gini": -0.079,
-          "expenditureMean": 486.56
+          "expenditureMean": 284.0
         }
       },
       {
@@ -36246,7 +36350,7 @@
           "incomeMean": -2657.0,
           "poverty": 12.6,
           "gini": 0.015,
-          "expenditureMean": -1816.44
+          "expenditureMean": -2019.0
         }
       },
       {
@@ -36310,7 +36414,7 @@
           "incomeMean": -2208.0,
           "poverty": 3.3,
           "gini": -0.029,
-          "expenditureMean": -1082.44
+          "expenditureMean": -1285.0
         }
       },
       {
@@ -36374,7 +36478,7 @@
           "incomeMean": 4141.0,
           "poverty": -4.2,
           "gini": -0.058,
-          "expenditureMean": 1902.56
+          "expenditureMean": 1700.0
         }
       },
       {
@@ -36438,7 +36542,7 @@
           "incomeMean": -1528.0,
           "poverty": 0.7,
           "gini": -0.127,
-          "expenditureMean": -144.44
+          "expenditureMean": -347.0
         }
       },
       {
@@ -36502,7 +36606,7 @@
           "incomeMean": 4830.0,
           "poverty": -4.1,
           "gini": -0.015,
-          "expenditureMean": 2814.56
+          "expenditureMean": 2612.0
         }
       },
       {
@@ -36566,7 +36670,7 @@
           "incomeMean": -600.0,
           "poverty": -3.1,
           "gini": -0.063,
-          "expenditureMean": -866.44
+          "expenditureMean": -1069.0
         }
       },
       {
@@ -36630,7 +36734,7 @@
           "incomeMean": 4691.0,
           "poverty": -4.9,
           "gini": -0.066,
-          "expenditureMean": 3822.56
+          "expenditureMean": 3620.0
         }
       }
     ],
@@ -48052,11 +48156,17 @@
         "href": "/api/regional-lens?format=json"
       }
     ],
-    "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice."
+    "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "fresh",
+      "staleInputs": [],
+      "note": "All required inputs passed source validation; observation periods still differ."
+    }
   },
   "householdPressure": {
     "generatedAt": "2026-10-04T11:16:32Z",
-    "status": "fresh",
+    "status": "partial",
     "overallScore": 40.0,
     "overallLevel": "moderate",
     "summary": "Household pressure is moderate, led by debt service in the current rule-based screen.",
@@ -48119,7 +48229,17 @@
         "limit": "Returns exclude dividends, fees and taxes and are not forecasts."
       }
     ],
-    "disclaimer": "Educational household-pressure screen only. It is not personalised financial, investment, property, tax, legal or career advice."
+    "disclaimer": "Educational household-pressure screen only. It is not personalised financial, investment, property, tax, legal or career advice.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr",
+        "riskHeatmap"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr, riskHeatmap"
+    }
   },
   "sectorDeepDive": {
     "generatedAt": "2026-10-04T11:16:32Z",
@@ -48202,11 +48322,17 @@
     ],
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
-    "limitations": "Sector screens describe broad economic structure. They do not forecast company earnings or identify investable stocks."
+    "limitations": "Sector screens describe broad economic structure. They do not forecast company earnings or identify investable stocks.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "fresh",
+      "staleInputs": [],
+      "note": "All required inputs passed source validation; observation periods still differ."
+    }
   },
   "macroTimeline": {
     "generatedAt": "2026-10-04T11:16:32Z",
-    "status": "fresh",
+    "status": "partial",
     "entries": [
       {
         "date": "2013-08-01",
@@ -48336,11 +48462,21 @@
       }
     ],
     "summary": "The timeline combines official Malaysian events, data-selected structural breaks and the latest market observation. Event proximity is context, not causal proof.",
-    "limitations": "Structural-break candidates are exploratory and may change after official data revisions."
+    "limitations": "Structural-break candidates are exploratory and may change after official data revisions.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr",
+        "structuralBreaks"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr, structuralBreaks"
+    }
   },
   "riskHeatmap": {
     "generatedAt": "2026-10-04T11:16:32Z",
-    "status": "fresh",
+    "status": "partial",
     "overallScore": 37.2,
     "overallLevel": "low",
     "summary": "The current macro risk screen is low. The highest-pressure signals are Policy rate, 10-year MGS yield, Bursa large-cap market.",
@@ -48445,11 +48581,20 @@
         "period": "2026-08-01",
         "watch": "Goods trade excludes services and income flows."
       }
-    ]
+    ],
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr"
+    }
   },
   "latestBrief": {
     "generatedAt": "2026-10-04T11:16:32Z",
-    "status": "fresh",
+    "status": "partial",
     "period": "2026-08-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.7%.",
     "whatChanged": [
@@ -48472,11 +48617,21 @@
       "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
       "The three-month inflation forecast ends at 1.81%, but the prediction intervals are more important than the point estimate."
     ],
-    "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice."
+    "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "forecast",
+        "mgs",
+        "opr"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
+    }
   },
   "decisionGuide": {
     "generatedAt": "2026-10-04T11:16:32Z",
-    "status": "fresh",
+    "status": "partial",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a -0.4% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
@@ -48703,7 +48858,17 @@
         "url": "https://data.gov.my/"
       }
     ],
-    "disclaimer": "General educational scenarios only. They do not consider income, liabilities, tax, risk tolerance, business contracts or objectives. They are not personalised financial, investment, property, legal, tax or career advice."
+    "disclaimer": "General educational scenarios only. They do not consider income, liabilities, tax, risk tolerance, business contracts or objectives. They are not personalised financial, investment, property, legal, tax or career advice.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "mgs",
+        "opr",
+        "riskHeatmap"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: mgs, opr, riskHeatmap"
+    }
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
@@ -48742,7 +48907,9 @@
         "headline": 1.7,
         "core": 2.1
       }
-    ]
+    ],
+    "lastMaintenanceAt": "2026-10-05T07:37:53Z",
+    "maintenanceNote": "Trust-label and national benchmark correction; no model recalculation or new macro observations."
   },
   "narratives": {
     "snapshot": "Headline inflation rose to 1.9% in the latest release, while core inflation was 1.7%.",
@@ -48750,10 +48917,12 @@
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "dataHealth": {
-    "generatedAt": "2026-10-04T11:16:32Z",
+    "generatedAt": "2026-10-05T07:37:53Z",
     "schemaVersion": 9,
+    "overall": "partial",
+    "note": "16 of 18 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time.",
     "overallHealth": "partial",
-    "sourceCount": 10,
+    "sourceCount": 18,
     "staleCount": 2,
     "sources": [
       {
@@ -48761,47 +48930,55 @@
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
         "observationPeriod": "2026-08-01",
-        "message": "Official source validated"
+        "message": "Official source validated",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "core",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
         "observationPeriod": "2026-08-01",
-        "message": "Official source validated"
+        "message": "Official source validated",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "unemployment",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
         "observationPeriod": "2026-07-01",
-        "message": "Official source validated"
+        "message": "Official source validated",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "opr",
         "status": "stale",
-        "retrievedAt": "2026-10-04T11:16:32Z",
+        "retrievedAt": null,
         "observationPeriod": "2026-09-03",
-        "message": "Using last valid data: SSLError"
+        "message": "Using last valid data: SSLError; last successful retrieval was not recorded by the legacy pipeline",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "fx",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
         "observationPeriod": "2026-09-01",
-        "message": "Official source validated"
+        "message": "Official source validated",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "mgs",
         "status": "stale",
-        "retrievedAt": "2026-10-04T11:16:32Z",
+        "retrievedAt": null,
         "observationPeriod": "2026-09-10",
-        "message": "Using last valid data: RuntimeError"
+        "message": "Using last valid data: RuntimeError; last successful retrieval was not recorded by the legacy pipeline",
+        "lastAttemptAt": "2026-10-04T11:16:32Z"
       },
       {
         "id": "market",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": null,
         "observationPeriod": "2026-10-02",
         "message": "Delayed daily prices validated"
       },
@@ -48809,6 +48986,8 @@
         "id": "economicStructure",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
         "observationPeriod": "2025-12-31",
         "message": "Official quarterly observations validated; only complete calendar years are published"
       },
@@ -48816,6 +48995,8 @@
         "id": "externalSector",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
         "observationPeriod": "2026-08-01",
         "message": "Official monthly trade headline data validated"
       },
@@ -48823,8 +49004,82 @@
         "id": "balancePayments",
         "status": "fresh",
         "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
         "observationPeriod": "2026-04-01",
         "message": "Official quarterly BOP component balances validated"
+      },
+      {
+        "id": "growthDrivers.demand",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
+        "observationPeriod": "2025-12-31",
+        "message": "Official quarterly expenditure observations validated; complete years only"
+      },
+      {
+        "id": "regionalLens.hiesState",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
+        "observationPeriod": "2024-01-01",
+        "message": "Latest state HIES income, expenditure, poverty and inequality data validated"
+      },
+      {
+        "id": "regionalLens.hiesDistrict",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
+        "observationPeriod": "2024-01-01",
+        "message": "Latest district HIES data validated"
+      },
+      {
+        "id": "regionalLens.incomeGroups",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
+        "observationPeriod": "2024-01-01",
+        "message": "Latest state and national income-percentile data validated"
+      },
+      {
+        "id": "regionalLens.labour",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
+        "observationPeriod": "2024-01-01",
+        "message": "District labour-force data validated and aggregated to state level"
+      },
+      {
+        "id": "regionalLens.gdp",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
+        "observationPeriod": "2025-01-01",
+        "message": "Latest annual real GDP by state and district validated"
+      },
+      {
+        "id": "regionalLens.cpi",
+        "status": "fresh",
+        "retrievedAt": "2026-10-04T11:16:32Z",
+        "lastAttemptAt": null,
+        "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
+        "observationPeriod": "2026-08-01",
+        "message": "Latest state headline CPI inflation validated"
+      },
+      {
+        "id": "regionalLens.nationalExpenditure",
+        "status": "fresh",
+        "retrievedAt": "2026-10-05T07:37:53Z",
+        "lastAttemptAt": "2026-10-05T07:37:53Z",
+        "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
+        "observationPeriod": "2024-01-01",
+        "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
       }
     ],
     "refresh": {
@@ -48864,9 +49119,11 @@
           "headline": 1.7,
           "core": 2.1
         }
-      ]
+      ],
+      "lastMaintenanceAt": "2026-10-05T07:37:53Z",
+      "maintenanceNote": "Trust-label and national benchmark correction; no model recalculation or new macro observations."
     },
-    "summary": "8 of 10 source groups are fresh in the latest generated payload."
+    "summary": "16 of 18 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time."
   },
   "monthlyReport": {
     "generatedAt": "2026-10-04T11:16:32Z",
@@ -48908,6 +49165,17 @@
         "url": "/api/structural-breaks?format=json"
       }
     ],
-    "disclaimer": "This report is generated from validated dashboard data and is educational analysis, not personalised financial advice."
+    "disclaimer": "This report is generated from validated dashboard data and is educational analysis, not personalised financial advice.",
+    "calculationStatus": "fresh",
+    "inputHealth": {
+      "status": "partial",
+      "staleInputs": [
+        "forecast",
+        "mgs",
+        "opr"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
+    },
+    "status": "partial"
   }
 }

@@ -6,6 +6,7 @@ import argparse
 import csv
 import copy
 import hashlib
+import io
 import json
 import math
 import re
@@ -19,6 +20,7 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from pypdf import PdfReader
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import statsmodels.api as sm
 from scipy.stats import f as f_distribution
@@ -49,6 +51,7 @@ REGIONAL_JSON = ROOT / "data" / "published" / "regional-lens.json"
 REGIONAL_CSV = ROOT / "data" / "published" / "regional-lens.csv"
 HIES_STATE_URL = "https://storage.dosm.gov.my/hies/hies_state.csv"
 HIES_STATE_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_state"
+HIES_EXPENDITURE_REPORT_URL = "https://storage.dosm.gov.my/hies/household_expenditure_{year}.pdf"
 HIES_DISTRICT_URL = "https://storage.dosm.gov.my/hies/hies_district.csv"
 HIES_DISTRICT_SOURCE_URL = "https://data.gov.my/data-catalogue/hies_district"
 HIES_STATE_PERCENTILE_URL = "https://storage.dosm.gov.my/hies/hies_state_percentile.csv"
@@ -360,7 +363,9 @@ def parse_economic_structure(frame: pd.DataFrame, retrieved: str) -> dict:
 
 def build_economic_structure(previous: dict | None, retrieved: str) -> dict:
     try:
-        return parse_economic_structure(read_csv(GDP_STRUCTURE_URL), retrieved)
+        result = parse_economic_structure(read_csv(GDP_STRUCTURE_URL), retrieved)
+        result["lastAttemptAt"] = retrieved
+        return result
     except Exception as error:
         old = (previous or {}).get("economicStructure")
         if not old or not old.get("years"):
@@ -368,7 +373,7 @@ def build_economic_structure(previous: dict | None, retrieved: str) -> dict:
         return {
             **copy.deepcopy(old),
             "status": "stale",
-            "retrievedAt": retrieved,
+            "lastAttemptAt": retrieved,
             "message": f"Using last valid GDP sector data: {type(error).__name__}",
         }
 
@@ -472,6 +477,7 @@ def parse_gdp_demand(frame: pd.DataFrame, retrieved: str) -> dict:
 def build_growth_drivers(previous: dict | None, retrieved: str, production: dict) -> dict:
     try:
         demand = parse_gdp_demand(read_csv(GDP_DEMAND_URL), retrieved)
+        demand["lastAttemptAt"] = retrieved
         status = "fresh" if production.get("status") == "fresh" else "partial"
         message = "Production and expenditure GDP views validated"
     except Exception as error:
@@ -479,14 +485,15 @@ def build_growth_drivers(previous: dict | None, retrieved: str, production: dict
         if old and old.get("demand", {}).get("years"):
             demand = copy.deepcopy(old["demand"])
             demand["status"] = "stale"
-            demand["retrievedAt"] = retrieved
+            demand["lastAttemptAt"] = retrieved
             demand["message"] = f"Using last valid GDP demand data: {type(error).__name__}"
             status = "partial"
             message = "Production view refreshed; expenditure view retained from last validation"
         else:
             demand = {
                 "status": "unavailable",
-                "retrievedAt": retrieved,
+                "retrievedAt": None,
+                "lastAttemptAt": retrieved,
                 "observationPeriod": production.get("observationPeriod", ""),
                 "source": "Department of Statistics Malaysia via data.gov.my",
                 "sourceUrl": GDP_DEMAND_SOURCE_URL,
@@ -542,7 +549,67 @@ def _regional_status(*parts: dict) -> str:
     return "fresh" if all(part.get("status") == "fresh" for part in parts) else "partial"
 
 
-def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
+def parse_national_expenditure_report(page_texts: list[str], year: int, retrieved: str) -> dict:
+    """Read the labelled national mean, never an average of state estimates.
+
+    Only the exact-year English state-summary page is accepted. Layout/wording
+    changes fail closed rather than silently extracting a state or earlier year.
+    """
+    matches = []
+    heading = rf"MEAN MONTHLY HOUSEHOLD CONSUMPTION EXPENDITURE BY STATE, MALAYSIA, {year}\b"
+    for page_number, text in enumerate(page_texts, start=1):
+        normalised = re.sub(r"\s+", " ", text).strip()
+        if not re.search(heading, normalised, flags=re.IGNORECASE):
+            continue
+        match = re.search(r"\bMALAYSIA\s+RM\s*([\d,]+)(?:\s|$)", normalised, flags=re.IGNORECASE)
+        if not match:
+            raise ValueError("National expenditure report has no labelled Malaysia mean")
+        value = float(match.group(1).replace(",", ""))
+        if not 100 <= value <= 100000:
+            raise ValueError("National expenditure report contains an implausible RM mean")
+        matches.append((value, page_number))
+    if len(matches) != 1:
+        raise ValueError("National expenditure report year/summary is missing or ambiguous")
+    value, page_number = matches[0]
+    return {
+        "status": "fresh", "value": value, "unit": "RM per household per month",
+        "observationPeriod": f"{year}-01-01", "retrievedAt": retrieved, "lastAttemptAt": retrieved,
+        "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
+        "sourceUrl": HIES_EXPENDITURE_REPORT_URL.format(year=year), "page": page_number,
+        "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report",
+    }
+
+
+def fetch_national_expenditure(year: int, retrieved: str, previous: dict | None = None) -> dict:
+    try:
+        response = get(HIES_EXPENDITURE_REPORT_URL.format(year=year))
+        if not response.content.startswith(b"%PDF-"):
+            raise ValueError("National expenditure response is not a PDF")
+        reader = PdfReader(io.BytesIO(response.content))
+        # The national summary appears in the opening report pages. Do not scan
+        # arbitrary tables where another geography or year could be mistaken.
+        texts = [page.extract_text() or "" for page in reader.pages[:60]]
+        return parse_national_expenditure_report(texts, year, retrieved)
+    except Exception as error:
+        prior_value = _safe_float(previous.get("value")) if previous else None
+        if previous and previous.get("observationPeriod") == f"{year}-01-01" and previous.get("sourceUrl") == HIES_EXPENDITURE_REPORT_URL.format(year=year) and prior_value is not None and 100 <= prior_value <= 100000:
+            return {**copy.deepcopy(previous), "status": "stale", "lastAttemptAt": retrieved, "message": f"Last verified same-year national expenditure retained: {type(error).__name__}"}
+        return {"status": "unavailable", "value": None, "unit": "RM per household per month", "observationPeriod": f"{year}-01-01", "retrievedAt": None, "lastAttemptAt": retrieved, "sourceUrl": HIES_EXPENDITURE_REPORT_URL.format(year=year), "message": f"National expenditure benchmark unavailable: {type(error).__name__}; no state-average substitute used"}
+
+
+def _national_survey_value(frame: pd.DataFrame, column: str, period: pd.Timestamp) -> float | None:
+    if frame.empty:
+        return None
+    if not {"date", column}.issubset(frame.columns):
+        raise ValueError("National survey source structure changed")
+    dates = pd.to_datetime(frame["date"], errors="raise")
+    matching = frame.loc[dates.eq(period)]
+    if len(matching) > 1:
+        raise ValueError("National survey source has duplicate survey periods")
+    return _safe_float(matching[column].iloc[0]) if len(matching) == 1 else None
+
+
+def parse_hies_state(frame: pd.DataFrame, retrieved: str, national_expenditure: dict | None = None) -> dict:
     required = {"date", "state", "income_mean", "income_median", "expenditure_mean", "gini", "poverty"}
     if not required.issubset(frame.columns):
         raise ValueError("State HIES source structure changed")
@@ -561,15 +628,15 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
     income_national = read_catalogue_json("hh_income")
     poverty_national = read_catalogue_json("hh_poverty")
     gini_national = read_catalogue_json("hh_inequality")
-    income_national = income_national.assign(date=pd.to_datetime(income_national["date"], errors="raise")).sort_values("date") if not income_national.empty else income_national
-    poverty_national = poverty_national.assign(date=pd.to_datetime(poverty_national["date"], errors="raise")).sort_values("date") if not poverty_national.empty else poverty_national
-    gini_national = gini_national.assign(date=pd.to_datetime(gini_national["date"], errors="raise")).sort_values("date") if not gini_national.empty else gini_national
+    national_expenditure = national_expenditure or fetch_national_expenditure(latest_date.year, retrieved)
+    if national_expenditure.get("observationPeriod") != latest_date.strftime("%Y-%m-%d"):
+        national_expenditure = {**national_expenditure, "status": "unavailable", "value": None, "message": "National expenditure survey period does not match the state survey period"}
     national = {
-        "incomeMean": _safe_float(income_national["income_mean"].iloc[-1]) if not income_national.empty else None,
-        "incomeMedian": _safe_float(income_national["income_median"].iloc[-1]) if not income_national.empty else None,
-        "poverty": _safe_float(poverty_national["poverty_absolute"].iloc[-1]) if not poverty_national.empty else None,
-        "gini": _safe_float(gini_national["gini"].iloc[-1]) if not gini_national.empty else None,
-        "expenditureMean": _safe_float(latest["expenditure_mean"].mean()),
+        "incomeMean": _national_survey_value(income_national, "income_mean", latest_date),
+        "incomeMedian": _national_survey_value(income_national, "income_median", latest_date),
+        "poverty": _national_survey_value(poverty_national, "poverty_absolute", latest_date),
+        "gini": _national_survey_value(gini_national, "gini", latest_date),
+        "expenditureMean": _safe_float(national_expenditure.get("value")),
     }
     records = []
     for row in latest.sort_values("state").itertuples(index=False):
@@ -591,7 +658,7 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
     highest_income = max(records, key=lambda item: item["incomeMedian"])
     highest_spend = max(records, key=lambda item: item["expenditureMean"])
     return {
-        "status": "fresh",
+        "status": _regional_status(national_expenditure),
         "retrievedAt": retrieved,
         "observationPeriod": latest_date.strftime("%Y-%m-%d"),
         "source": "Department of Statistics Malaysia via data.gov.my",
@@ -600,6 +667,7 @@ def parse_hies_state(frame: pd.DataFrame, retrieved: str) -> dict:
         "frequency": "Survey years",
         "records": records,
         "national": national,
+        "nationalExpenditure": national_expenditure,
         "narrative": (
             f"KL's median household income is above Sarawak's, but its mean household spending is also higher. "
             f"Latest HIES ranks {highest_income['state']} highest for median income and {highest_spend['state']} highest for mean expenditure."
@@ -789,12 +857,18 @@ def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
 
 def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
     try:
-        hies_state = parse_hies_state(read_csv(HIES_STATE_URL), retrieved)
+        state_frame = read_csv(HIES_STATE_URL)
+        survey_year = pd.to_datetime(state_frame["date"], errors="raise").max().year
+        previous_national = (previous or {}).get("regionalLens", {}).get("sources", {}).get("hiesState", {}).get("nationalExpenditure")
+        national_expenditure = fetch_national_expenditure(survey_year, retrieved, previous_national)
+        hies_state = parse_hies_state(state_frame, retrieved, national_expenditure)
         hies_district = parse_hies_district(read_csv(HIES_DISTRICT_URL), retrieved)
         income_groups = parse_hies_income_groups(read_csv(HIES_STATE_PERCENTILE_URL), read_csv(HIES_NATIONAL_PERCENTILE_URL), retrieved)
         labour = parse_regional_labour(read_csv(LFS_DISTRICT_URL), retrieved)
         gdp = parse_regional_gdp(read_csv(GDP_STATE_REAL_URL), read_csv(GDP_DISTRICT_REAL_URL), retrieved)
         cpi = parse_state_cpi(read_catalogue_json("cpi_state_inflation"), retrieved)
+        for source in [hies_state, hies_district, income_groups, labour, gdp, cpi]:
+            source["lastAttemptAt"] = retrieved
         records = []
         labour_by_state = {item["state"]: item for item in labour["stateRecords"]}
         gdp_by_state = {item["state"]: item for item in gdp["stateRecords"]}
@@ -827,7 +901,7 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
         kl = next((item for item in records if item["state"] == "W.P. Kuala Lumpur"), records[0])
         sarawak = next((item for item in records if item["state"] == "Sarawak"), records[0])
         return {
-            "status": _regional_status(hies_state, hies_district, labour, gdp, cpi),
+            "status": _regional_status(hies_state, hies_district, income_groups, labour, gdp, cpi),
             "generatedAt": retrieved,
             "defaultComparison": {"primary": "W.P. Kuala Lumpur", "secondary": "Sarawak"},
             "coverage": {
@@ -869,8 +943,14 @@ def build_regional_lens(previous: dict | None, retrieved: str) -> dict:
         if old and old.get("stateRecords"):
             retained = copy.deepcopy(old)
             retained["status"] = "stale"
+            retained["calculationStatus"] = "stale"
             retained["generatedAt"] = retrieved
+            retained["lastAttemptAt"] = retrieved
             retained["message"] = f"Using last valid regional data: {type(error).__name__}"
+            for source in retained.get("sources", {}).values():
+                source["status"] = "stale"
+                source["lastAttemptAt"] = retrieved
+                source["message"] = "Regional refresh failed; last validated regional inputs retained"
             return retained
         raise
 
@@ -954,7 +1034,8 @@ def parse_trade_headline(frame: pd.DataFrame, retrieved: str) -> dict:
 
 def build_external_sector(previous: dict | None, retrieved: str) -> dict:
     try:
-        return parse_trade_headline(read_csv(TRADE_HEADLINE_URL), retrieved)
+        result = parse_trade_headline(read_csv(TRADE_HEADLINE_URL), retrieved)
+        return apply_observation_recency(result, retrieved, 100)
     except Exception as error:
         old = (previous or {}).get("externalSector")
         if not old or not old.get("points"):
@@ -962,7 +1043,7 @@ def build_external_sector(previous: dict | None, retrieved: str) -> dict:
         return {
             **copy.deepcopy(old),
             "status": "stale",
-            "retrievedAt": retrieved,
+            "lastAttemptAt": retrieved,
             "message": f"Using last valid trade data: {type(error).__name__}",
         }
 
@@ -1036,7 +1117,8 @@ def parse_bop_balance(frame: pd.DataFrame, retrieved: str) -> dict:
 
 def build_balance_payments(previous: dict | None, retrieved: str) -> dict:
     try:
-        return parse_bop_balance(read_csv(BOP_BALANCE_URL), retrieved)
+        result = parse_bop_balance(read_csv(BOP_BALANCE_URL), retrieved)
+        return apply_observation_recency(result, retrieved, 200)
     except Exception as error:
         old = (previous or {}).get("balancePayments")
         if not old or not old.get("quarters"):
@@ -1044,7 +1126,7 @@ def build_balance_payments(previous: dict | None, retrieved: str) -> dict:
         return {
             **copy.deepcopy(old),
             "status": "stale",
-            "retrievedAt": retrieved,
+            "lastAttemptAt": retrieved,
             "message": f"Using last valid BOP data: {type(error).__name__}",
         }
 
@@ -1149,26 +1231,35 @@ def build_data_health(payload: dict, generated_at: str) -> dict:
         ("economicStructure", payload.get("economicStructure", {})),
         ("externalSector", payload.get("externalSector", {})),
         ("balancePayments", payload.get("balancePayments", {})),
+        ("growthDrivers.demand", payload.get("growthDrivers", {}).get("demand", {})),
+        *((f"regionalLens.{key}", source) for key, source in payload.get("regionalLens", {}).get("sources", {}).items()),
+        ("regionalLens.nationalExpenditure", payload.get("regionalLens", {}).get("sources", {}).get("hiesState", {}).get("nationalExpenditure", {})),
     ]
     for key, source in extra:
         if source:
             source_rows.append({
                 "id": key,
-                "status": source.get("status", "fresh"),
-                "retrievedAt": source.get("retrievedAt", generated_at),
+                "status": source.get("status", "unavailable"),
+                "retrievedAt": source.get("retrievedAt"),
+                "lastAttemptAt": source.get("lastAttemptAt"),
+                "sourceUrl": source.get("sourceUrl") or source.get("datasetUrl"),
                 "observationPeriod": source.get("observationPeriod") or source.get("summary", {}).get("latestDate", ""),
                 "message": source.get("message", "Validated"),
             })
     stale_count = sum(1 for row in source_rows if row.get("status") != "fresh")
+    overall = "fresh" if source_rows and stale_count == 0 else "partial"
+    note = f"{len(source_rows) - stale_count} of {len(source_rows)} source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time."
     return {
         "generatedAt": generated_at,
         "schemaVersion": payload.get("schemaVersion"),
-        "overallHealth": payload.get("health"),
+        "overall": overall,
+        "note": note,
+        "overallHealth": overall,
         "sourceCount": len(source_rows),
         "staleCount": stale_count,
         "sources": source_rows,
         "refresh": payload.get("dataOperations", {}),
-        "summary": f"{len(source_rows) - stale_count} of {len(source_rows)} source groups are fresh in the latest generated payload.",
+        "summary": note,
     }
 
 
@@ -1232,9 +1323,14 @@ def market_statistics(points: list[dict]) -> dict:
 
 
 def build_market(previous: dict | None, retrieved: str) -> dict:
+    old_market = (previous or {}).get("market", {})
+    retrieval_succeeded = False
+    recency = {}
     try:
         points = fetch_klci()
-        status, message = "fresh", "Delayed daily prices validated"
+        recency = apply_observation_recency({"status": "fresh", "observationPeriod": points[-1]["date"], "message": "Delayed daily prices validated"}, retrieved, 10)
+        retrieval_succeeded = True
+        status, message = recency["status"], recency["message"]
     except Exception as error:
         old = (previous or {}).get("market", {}).get("benchmark", {}).get("points")
         if not old:
@@ -1247,9 +1343,10 @@ def build_market(previous: dict | None, retrieved: str) -> dict:
     magnitude = abs(one_year or 0)
     performance = f"The FBM KLCI {direction} {magnitude:.1f}% over the latest year, with {summary['annualizedVolatility1Y']:.1f}% annualised volatility and a {abs(summary['maxDrawdown1Y']):.1f}% maximum drawdown during that window."
     macro = "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
-    return {
+    result = {
         "status": status,
-        "retrievedAt": retrieved,
+        "retrievedAt": retrieved if retrieval_succeeded else old_market.get("retrievedAt"),
+        "lastAttemptAt": retrieved,
         "message": message,
         "benchmark": {
             "id": "fbmklci", "title": "FTSE Bursa Malaysia KLCI", "symbol": "^KLSE",
@@ -1261,6 +1358,9 @@ def build_market(previous: dict | None, retrieved: str) -> dict:
         "summary": summary,
         "narratives": {"performance": performance, "macro": macro},
     }
+    if "freshness" in recency:
+        result["freshness"] = recency["freshness"]
+    return result
 
 
 def validate_points(key: str, points: list[dict]) -> list[dict]:
@@ -1540,6 +1640,7 @@ def build_structural_analysis(series: dict[str, dict], previous: dict | None, ca
             if key in prior:
                 indicators[key] = copy.deepcopy(prior[key])
                 indicators[key]["status"] = "stale"
+                indicators[key]["calculationStatus"] = "stale"
                 indicators[key]["warnings"] = [*indicators[key].get("warnings", []), f"Last valid analysis retained after {type(error).__name__}."]
             else:
                 indicators[key] = {"indicatorId": key, "status": "unavailable", "calculatedAt": calculated_at, "seriesFingerprint": fingerprint, "sample": {"start": "", "end": "", "observations": 0, "frequency": "Monthly", "minimumSegmentMonths": 0, "confidence": "unavailable"}, "screening": {"method": "Bai-Perron-style dynamic programming", "criterion": "BIC", "maximumBreaks": 3, "selectedBreaks": 0, "bic": None}, "diagnostics": {"adfStatistic": None, "adfPValue": None, "adfLags": None, "cusumStatistic": None, "cusumPValue": None}, "warnings": [f"Analysis unavailable after {type(error).__name__}."], "candidates": [], "narrative": "Structural analysis is temporarily unavailable for this indicator."}
@@ -1690,14 +1791,101 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
     spec = SPECS[key]
     try:
         points = validate_points(key, loader())
-        status = {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": points[-1]["date"], "message": "Official source validated"}
+        status = {"status": "fresh", "retrievedAt": retrieved, "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": "Official source validated"}
+        # OPR is an applicable policy setting, not a daily/monthly observation:
+        # a successful response with an older last decision is not itself stale.
+        max_age = {"headline": 100, "core": 100, "unemployment": 110, "fx": 45, "mgs": 10}.get(key)
+        if max_age is not None:
+            status = apply_observation_recency(status, retrieved, max_age)
     except Exception as error:
         old = previous and previous.get("series", {}).get(key)
         if not old:
             raise
         points = old["points"]
-        status = {"status": "stale", "retrievedAt": retrieved, "observationPeriod": points[-1]["date"], "message": f"Using last valid data: {type(error).__name__}"}
+        previous_source = (previous or {}).get("sources", {}).get(key, {})
+        status = {**copy.deepcopy(previous_source), "status": "stale", "retrievedAt": previous_source.get("retrievedAt"), "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": f"Using last valid data: {type(error).__name__}"}
     return {**spec.__dict__, "points": points}, status
+
+
+def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days: int) -> dict:
+    """Conservative age screen, not an assertion about an official release date."""
+    source["lastAttemptAt"] = attempted_at
+    period = source.get("observationPeriod") or source.get("summary", {}).get("latestDate")
+    if not period:
+        return source
+    observation = pd.Timestamp(period)
+    attempted = pd.Timestamp(attempted_at)
+    observation = observation.tz_localize("UTC") if observation.tzinfo is None else observation.tz_convert("UTC")
+    attempted = attempted.tz_localize("UTC") if attempted.tzinfo is None else attempted.tz_convert("UTC")
+    age = (attempted.normalize() - observation.normalize()).days
+    source["freshness"] = {"basis": "observation-recency", "observationAgeDays": age, "maximumObservationAgeDays": maximum_age_days, "note": "Conservative observation-age limit; not a verified official release calendar."}
+    if age > maximum_age_days:
+        source["status"] = "stale"
+        source["message"] = f"Response validated but latest observation exceeds the {maximum_age_days}-day recency limit; showing last available observation"
+    elif age < 0:
+        raise ValueError("Source contains a future observation")
+    return source
+
+
+def finalize_data_trust(payload: dict) -> dict:
+    """Propagate input health without changing observations or model outputs.
+
+    The calculation status is separate from source availability. Both must be
+    fresh before a derived section can be labelled fresh.
+    """
+    statuses = {key: source.get("status", "unavailable") for key, source in payload.get("sources", {}).items()}
+    for key in ["market", "economicStructure", "externalSector", "balancePayments"]:
+        statuses[key] = payload.get(key, {}).get("status", "unavailable")
+
+    def attach(section: dict, inputs: dict[str, str]) -> dict:
+        if not section:
+            return section
+        bad = sorted(key for key, status in inputs.items() if status != "fresh")
+        calculated = section.get("calculationStatus", section.get("status", "fresh"))
+        section["calculationStatus"] = calculated
+        section["inputHealth"] = {
+            "status": "partial" if bad else "fresh", "staleInputs": bad,
+            "note": "Uses retained, stale or unavailable inputs: " + ", ".join(bad) if bad else "All required inputs passed source validation; observation periods still differ.",
+        }
+        section["status"] = calculated if calculated in {"stale", "unavailable", "fallback"} else "partial" if bad else calculated
+        return section
+
+    growth = payload.get("growthDrivers", {})
+    attach(growth, {"economicStructure": statuses["economicStructure"], "growthDrivers.demand": growth.get("demand", {}).get("status", "unavailable")})
+    statuses["growthDrivers"] = growth.get("status", "unavailable")
+    regional = payload.get("regionalLens", {})
+    regional_inputs = {f"regionalLens.{key}": source.get("status", "unavailable") for key, source in regional.get("sources", {}).items()}
+    national = regional.get("sources", {}).get("hiesState", {}).get("nationalExpenditure")
+    if national:
+        regional_inputs["regionalLens.nationalExpenditure"] = national.get("status", "unavailable")
+    attach(regional, regional_inputs)
+    statuses["regionalLens"] = regional.get("status", "unavailable")
+    macro = {key: statuses.get(key, "unavailable") for key in SPECS}
+    market_inputs = {key: statuses[key] for key in ["market", "growthDrivers", "externalSector"]}
+    attach(payload.get("forecast", {}), macro)
+    attach(payload.get("cpiDecomposition", {}), {key: statuses.get(key, "unavailable") for key in ["headline", "core"]})
+    statuses["forecast"] = payload.get("forecast", {}).get("status", "unavailable")
+    risk_inputs = {**macro, **market_inputs}
+    attach(payload.get("riskHeatmap", {}), risk_inputs)
+    statuses["riskHeatmap"] = payload.get("riskHeatmap", {}).get("status", "unavailable")
+    attach(payload.get("latestBrief", {}), {**risk_inputs, "forecast": statuses["forecast"]})
+    attach(payload.get("householdPressure", {}), {**macro, "market": statuses["market"], "riskHeatmap": statuses["riskHeatmap"]})
+    attach(payload.get("decisionGuide", {}), {**risk_inputs, "riskHeatmap": statuses["riskHeatmap"]})
+    attach(payload.get("sectorDeepDive", {}), market_inputs)
+    structural = payload.get("structuralBreaks", {})
+    for key, indicator in structural.get("indicators", {}).items():
+        # OPR history supplies the event catalogue used for every indicator.
+        attach(indicator, {key: statuses.get(key, "unavailable"), "opr": statuses.get("opr", "unavailable")})
+        if indicator.get("status") == "partial":
+            indicator["status"] = "stale"
+    if structural.get("indicators"):
+        structural["calculationStatus"] = "fresh" if all(item.get("calculationStatus") == "fresh" for item in structural["indicators"].values()) else "partial"
+    attach(structural, {**macro, **{f"structuralBreaks.{key}": item.get("status", "unavailable") for key, item in structural.get("indicators", {}).items()}})
+    attach(payload.get("macroTimeline", {}), {**macro, "market": statuses["market"], "structuralBreaks": structural.get("status", "unavailable")})
+    attach(payload.get("monthlyReport", {}), {**risk_inputs, "forecast": statuses["forecast"], "balancePayments": statuses["balancePayments"], "regionalLens": statuses["regionalLens"]})
+    source_sections = list(statuses.values())
+    payload["health"] = "fresh" if source_sections and all(status == "fresh" for status in source_sections) else "partial"
+    return payload
 
 
 def narrative(series: dict[str, dict], forecast_data: dict) -> dict:
@@ -1961,10 +2149,24 @@ def build_decision_guide(series: dict[str, dict], market: dict, generated_at: st
 def build(previous_path: Path = PUBLISHED) -> dict:
     previous = json.loads(previous_path.read_text(encoding="utf-8")) if previous_path.exists() else None
     retrieved = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-    headline, core, categories = fetch_cpi()
+    try:
+        headline, core, categories = fetch_cpi()
+        cpi_loaders = {"headline": lambda: headline, "core": lambda: core}
+    except Exception as error:
+        if not previous or not previous.get("categories"):
+            raise
+        categories = copy.deepcopy(previous["categories"])
+
+        # Bind the error outside the exception block; Python clears the exception
+        # target when leaving that block, while loaders execute afterwards.
+        cpi_error = error
+
+        def unavailable_cpi():
+            raise RuntimeError("CPI refresh failed; using last valid CPI release") from cpi_error
+
+        cpi_loaders = {"headline": unavailable_cpi, "core": unavailable_cpi}
     loaders: dict[str, Callable[[], list[dict]]] = {
-        "headline": lambda: headline,
-        "core": lambda: core,
+        **cpi_loaders,
         "unemployment": fetch_unemployment,
         "opr": fetch_opr,
         "fx": fetch_daily_fx,
@@ -1979,7 +2181,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         if not previous:
             raise
         forecast_data = previous["forecast"]
-        forecast_data = {**forecast_data, "status": "stale", "message": f"Forecast retained after {type(error).__name__}"}
+        forecast_data = {**forecast_data, "status": "stale", "calculationStatus": "stale", "message": f"Forecast retained after {type(error).__name__}"}
     forecast_data.setdefault("status", "fresh")
     structural_data = build_structural_analysis(series, previous, retrieved)
     market_data = build_market(previous, retrieved)
@@ -2018,8 +2220,9 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "dataOperations": build_data_operations(series, retrieved),
         "narratives": narrative(series, forecast_data),
     }
-    payload["dataHealth"] = build_data_health(payload, retrieved)
     payload["monthlyReport"] = build_monthly_report(payload, retrieved)
+    finalize_data_trust(payload)
+    payload["dataHealth"] = build_data_health(payload, retrieved)
     if previous:
         candidate = copy.deepcopy(payload)
         baseline = copy.deepcopy(previous)
