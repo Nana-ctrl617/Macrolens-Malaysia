@@ -1,43 +1,43 @@
 {
   "schemaVersion": 9,
-  "generatedAt": "2026-10-05T12:36:25Z",
+  "generatedAt": "2026-10-06T12:13:36Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
-      "lastAttemptAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 65,
+        "observationAgeDays": 66,
         "maximumObservationAgeDays": 100,
         "note": "Conservative observation-age limit; not a verified official release calendar."
       }
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
-      "lastAttemptAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 65,
+        "observationAgeDays": 66,
         "maximumObservationAgeDays": 100,
         "note": "Conservative observation-age limit; not a verified official release calendar."
       }
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
-      "lastAttemptAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2026-07-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 96,
+        "observationAgeDays": 97,
         "maximumObservationAgeDays": 110,
         "note": "Conservative observation-age limit; not a verified official release calendar."
       }
@@ -47,17 +47,17 @@
       "retrievedAt": null,
       "observationPeriod": "2026-09-03",
       "message": "Using last valid data: SSLError",
-      "lastAttemptAt": "2026-10-05T12:36:25Z"
+      "lastAttemptAt": "2026-10-06T12:13:36Z"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
-      "lastAttemptAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 34,
+        "observationAgeDays": 35,
         "maximumObservationAgeDays": 45,
         "note": "Conservative observation-age limit; not a verified official release calendar."
       }
@@ -67,7 +67,7 @@
       "retrievedAt": null,
       "observationPeriod": "2026-09-10",
       "message": "Using last valid data: RuntimeError",
-      "lastAttemptAt": "2026-10-05T12:36:25Z"
+      "lastAttemptAt": "2026-10-06T12:13:36Z"
     }
   },
   "series": {
@@ -5693,7 +5693,7 @@
     "status": "fresh"
   },
   "forecast": {
-    "selectedModel": "SARIMA",
+    "selectedModel": "Seasonal naive",
     "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages",
     "backtestWindows": 19,
     "models": [
@@ -5701,7 +5701,7 @@
         "name": "Seasonal naive",
         "rmse": 0.539,
         "mae": 0.4737,
-        "selected": false,
+        "selected": true,
         "eligible": true,
         "successfulWindows": 19,
         "failedWindows": 0,
@@ -5730,62 +5730,62 @@
       },
       {
         "name": "SARIMA",
-        "rmse": 0.187,
-        "mae": 0.1539,
-        "selected": true,
-        "eligible": true,
-        "successfulWindows": 19,
-        "failedWindows": 0,
+        "rmse": 0.1828,
+        "mae": 0.1488,
+        "selected": false,
+        "eligible": false,
+        "successfulWindows": 18,
+        "failedWindows": 1,
         "fallbackCount": 0,
         "metricsByHorizon": [
           {
             "horizon": 1,
-            "count": 19,
-            "mae": 0.1217,
-            "rmse": 0.1431
+            "count": 18,
+            "mae": 0.1146,
+            "rmse": 0.1348
           },
           {
             "horizon": 2,
-            "count": 19,
-            "mae": 0.1629,
-            "rmse": 0.1977
+            "count": 18,
+            "mae": 0.1551,
+            "rmse": 0.1901
           },
           {
             "horizon": 3,
-            "count": 19,
-            "mae": 0.177,
-            "rmse": 0.213
+            "count": 18,
+            "mae": 0.1766,
+            "rmse": 0.2144
           }
         ],
-        "scoreBasis": "Identical complete three-month windows"
+        "scoreBasis": "Successful fits only; not eligible for selection"
       },
       {
         "name": "ARIMAX",
-        "rmse": 0.0796,
-        "mae": 0.0651,
+        "rmse": 0.0888,
+        "mae": 0.0752,
         "selected": false,
         "eligible": false,
-        "successfulWindows": 2,
-        "failedWindows": 17,
+        "successfulWindows": 3,
+        "failedWindows": 16,
         "fallbackCount": 0,
         "metricsByHorizon": [
           {
             "horizon": 1,
-            "count": 2,
-            "mae": 0.0731,
-            "rmse": 0.0731
+            "count": 3,
+            "mae": 0.067,
+            "rmse": 0.0675
           },
           {
             "horizon": 2,
-            "count": 2,
-            "mae": 0.0727,
-            "rmse": 0.1022
+            "count": 3,
+            "mae": 0.1004,
+            "rmse": 0.1227
           },
           {
             "horizon": 3,
-            "count": 2,
-            "mae": 0.0495,
-            "rmse": 0.0567
+            "count": 3,
+            "mae": 0.0583,
+            "rmse": 0.0637
           }
         ],
         "scoreBasis": "Successful fits only; not eligible for selection"
@@ -5794,27 +5794,27 @@
     "points": [
       {
         "date": "2026-09-01",
-        "value": 1.823,
-        "low80": 1.655,
-        "high80": 1.991,
-        "low95": 1.566,
-        "high95": 2.079
+        "value": 1.5,
+        "low80": 0.061,
+        "high80": 2.939,
+        "low95": -0.7,
+        "high95": 3.7
       },
       {
         "date": "2026-10-01",
-        "value": 1.859,
-        "low80": 1.636,
-        "high80": 2.082,
-        "low95": 1.518,
-        "high95": 2.2
+        "value": 1.3,
+        "low80": -0.735,
+        "high80": 3.335,
+        "low95": -1.811,
+        "high95": 4.411
       },
       {
         "date": "2026-11-01",
-        "value": 1.816,
-        "low80": 1.558,
-        "high80": 2.074,
-        "low95": 1.421,
-        "high95": 2.211
+        "value": 1.4,
+        "low80": -1.092,
+        "high80": 3.892,
+        "low95": -2.41,
+        "high95": 5.21
       }
     ],
     "scenario": null,
@@ -5936,12 +5936,12 @@
                   "horizon": 1,
                   "date": "2024-12-01",
                   "actual": 1.7,
-                  "predicted": 1.800369,
-                  "error": 0.100369,
-                  "low80": 1.634178,
-                  "high80": 1.96656,
-                  "low95": 1.546202,
-                  "high95": 2.054536,
+                  "predicted": 1.80039,
+                  "error": 0.10039,
+                  "low80": 1.634201,
+                  "high80": 1.966579,
+                  "low95": 1.546226,
+                  "high95": 2.054554,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -5957,12 +5957,12 @@
                   "horizon": 2,
                   "date": "2025-01-01",
                   "actual": 1.7,
-                  "predicted": 1.792302,
-                  "error": 0.092302,
-                  "low80": 1.576476,
-                  "high80": 2.008129,
-                  "low95": 1.462224,
-                  "high95": 2.122381,
+                  "predicted": 1.79233,
+                  "error": 0.09233,
+                  "low80": 1.576516,
+                  "high80": 2.008144,
+                  "low95": 1.462271,
+                  "high95": 2.122389,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -5978,12 +5978,12 @@
                   "horizon": 3,
                   "date": "2025-02-01",
                   "actual": 1.5,
-                  "predicted": 1.711044,
-                  "error": 0.211044,
-                  "low80": 1.462986,
-                  "high80": 1.959102,
-                  "low95": 1.331672,
-                  "high95": 2.090416,
+                  "predicted": 1.711075,
+                  "error": 0.211075,
+                  "low80": 1.463035,
+                  "high80": 1.959114,
+                  "low95": 1.331731,
+                  "high95": 2.090418,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6099,12 +6099,12 @@
                   "horizon": 1,
                   "date": "2025-01-01",
                   "actual": 1.7,
-                  "predicted": 1.696057,
-                  "error": -0.003943,
-                  "low80": 1.531546,
-                  "high80": 1.860569,
-                  "low95": 1.444459,
-                  "high95": 1.947656,
+                  "predicted": 1.696054,
+                  "error": -0.003946,
+                  "low80": 1.531542,
+                  "high80": 1.860566,
+                  "low95": 1.444455,
+                  "high95": 1.947653,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6120,12 +6120,12 @@
                   "horizon": 2,
                   "date": "2025-02-01",
                   "actual": 1.5,
-                  "predicted": 1.616942,
-                  "error": 0.116942,
-                  "low80": 1.399402,
-                  "high80": 1.834482,
-                  "low95": 1.284244,
-                  "high95": 1.94964,
+                  "predicted": 1.616938,
+                  "error": 0.116938,
+                  "low80": 1.399395,
+                  "high80": 1.834481,
+                  "low95": 1.284235,
+                  "high95": 1.949641,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6141,12 +6141,12 @@
                   "horizon": 3,
                   "date": "2025-03-01",
                   "actual": 1.4,
-                  "predicted": 1.611594,
-                  "error": 0.211594,
-                  "low80": 1.359602,
-                  "high80": 1.863586,
-                  "low95": 1.226205,
-                  "high95": 1.996983,
+                  "predicted": 1.611589,
+                  "error": 0.211589,
+                  "low80": 1.359592,
+                  "high80": 1.863587,
+                  "low95": 1.226193,
+                  "high95": 1.996986,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6264,9 +6264,9 @@
                   "actual": 1.5,
                   "predicted": 1.620722,
                   "error": 0.120722,
-                  "low80": 1.45953,
+                  "low80": 1.459531,
                   "high80": 1.781913,
-                  "low95": 1.3742,
+                  "low95": 1.374202,
                   "high95": 1.867243,
                   "covered80": true,
                   "covered95": true,
@@ -6283,12 +6283,12 @@
                   "horizon": 2,
                   "date": "2025-03-01",
                   "actual": 1.4,
-                  "predicted": 1.615346,
-                  "error": 0.215346,
+                  "predicted": 1.615347,
+                  "error": 0.215347,
                   "low80": 1.402293,
-                  "high80": 1.828399,
+                  "high80": 1.828401,
                   "low95": 1.289509,
-                  "high95": 1.941183,
+                  "high95": 1.941185,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -6304,12 +6304,12 @@
                   "horizon": 3,
                   "date": "2025-04-01",
                   "actual": 1.4,
-                  "predicted": 1.610544,
-                  "error": 0.210544,
+                  "predicted": 1.610546,
+                  "error": 0.210546,
                   "low80": 1.363804,
-                  "high80": 1.857284,
+                  "high80": 1.857287,
                   "low95": 1.233187,
-                  "high95": 1.9879,
+                  "high95": 1.987905,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6425,12 +6425,12 @@
                   "horizon": 1,
                   "date": "2025-03-01",
                   "actual": 1.4,
-                  "predicted": 1.499559,
-                  "error": 0.099559,
-                  "low80": 1.338963,
-                  "high80": 1.660155,
-                  "low95": 1.253949,
-                  "high95": 1.74517,
+                  "predicted": 1.499555,
+                  "error": 0.099555,
+                  "low80": 1.33896,
+                  "high80": 1.660149,
+                  "low95": 1.253946,
+                  "high95": 1.745163,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6446,12 +6446,12 @@
                   "horizon": 2,
                   "date": "2025-04-01",
                   "actual": 1.4,
-                  "predicted": 1.494494,
-                  "error": 0.094494,
-                  "low80": 1.282862,
-                  "high80": 1.706125,
-                  "low95": 1.170831,
-                  "high95": 1.818156,
+                  "predicted": 1.494485,
+                  "error": 0.094485,
+                  "low80": 1.282855,
+                  "high80": 1.706114,
+                  "low95": 1.170825,
+                  "high95": 1.818144,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6467,12 +6467,12 @@
                   "horizon": 3,
                   "date": "2025-05-01",
                   "actual": 1.2,
-                  "predicted": 1.439206,
-                  "error": 0.239206,
-                  "low80": 1.193744,
-                  "high80": 1.684669,
-                  "low95": 1.063804,
-                  "high95": 1.814609,
+                  "predicted": 1.43919,
+                  "error": 0.23919,
+                  "low80": 1.193729,
+                  "high80": 1.68465,
+                  "low95": 1.063791,
+                  "high95": 1.814589,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6588,12 +6588,12 @@
                   "horizon": 1,
                   "date": "2025-04-01",
                   "actual": 1.4,
-                  "predicted": 1.397066,
-                  "error": -0.002934,
-                  "low80": 1.237785,
-                  "high80": 1.556347,
-                  "low95": 1.153467,
-                  "high95": 1.640665,
+                  "predicted": 1.397069,
+                  "error": -0.002931,
+                  "low80": 1.237788,
+                  "high80": 1.556349,
+                  "low95": 1.15347,
+                  "high95": 1.640667,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6609,12 +6609,12 @@
                   "horizon": 2,
                   "date": "2025-05-01",
                   "actual": 1.2,
-                  "predicted": 1.341424,
-                  "error": 0.141424,
-                  "low80": 1.129026,
+                  "predicted": 1.341426,
+                  "error": 0.141426,
+                  "low80": 1.12903,
                   "high80": 1.553823,
-                  "low95": 1.016589,
-                  "high95": 1.66626,
+                  "low95": 1.016594,
+                  "high95": 1.666258,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6630,12 +6630,12 @@
                   "horizon": 3,
                   "date": "2025-06-01",
                   "actual": 1.1,
-                  "predicted": 1.336921,
-                  "error": 0.236921,
-                  "low80": 1.089137,
-                  "high80": 1.584705,
-                  "low95": 0.957968,
-                  "high95": 1.715874,
+                  "predicted": 1.336924,
+                  "error": 0.236924,
+                  "low80": 1.089143,
+                  "high80": 1.584704,
+                  "low95": 0.957976,
+                  "high95": 1.715871,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6774,10 +6774,10 @@
                   "actual": 1.1,
                   "predicted": 1.339815,
                   "error": 0.239815,
-                  "low80": 1.131312,
+                  "low80": 1.131311,
                   "high80": 1.548319,
-                  "low95": 1.020937,
-                  "high95": 1.658693,
+                  "low95": 1.020936,
+                  "high95": 1.658695,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -6795,10 +6795,10 @@
                   "actual": 1.2,
                   "predicted": 1.335744,
                   "error": 0.135744,
-                  "low80": 1.092544,
-                  "high80": 1.578944,
-                  "low95": 0.963802,
-                  "high95": 1.707686,
+                  "low80": 1.092543,
+                  "high80": 1.578945,
+                  "low95": 0.9638,
+                  "high95": 1.707688,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -6914,11 +6914,11 @@
                   "horizon": 1,
                   "date": "2025-06-01",
                   "actual": 1.1,
-                  "predicted": 1.198859,
-                  "error": 0.098859,
-                  "low80": 1.041802,
-                  "high80": 1.355916,
-                  "low95": 0.958661,
+                  "predicted": 1.19886,
+                  "error": 0.09886,
+                  "low80": 1.041803,
+                  "high80": 1.355917,
+                  "low95": 0.958662,
                   "high95": 1.439057,
                   "covered80": true,
                   "covered95": true,
@@ -6937,9 +6937,9 @@
                   "actual": 1.2,
                   "predicted": 1.19231,
                   "error": -0.00769,
-                  "low80": 0.983651,
+                  "low80": 0.983652,
                   "high80": 1.400968,
-                  "low95": 0.873194,
+                  "low95": 0.873195,
                   "high95": 1.511426,
                   "covered80": true,
                   "covered95": true,
@@ -6956,11 +6956,11 @@
                   "horizon": 3,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.212612,
-                  "error": -0.087388,
-                  "low80": 0.968827,
+                  "predicted": 1.212613,
+                  "error": -0.087387,
+                  "low80": 0.968828,
                   "high80": 1.456397,
-                  "low95": 0.839775,
+                  "low95": 0.839776,
                   "high95": 1.585449,
                   "covered80": true,
                   "covered95": true,
@@ -7077,12 +7077,12 @@
                   "horizon": 1,
                   "date": "2025-07-01",
                   "actual": 1.2,
-                  "predicted": 1.093759,
-                  "error": -0.106241,
-                  "low80": 0.937834,
-                  "high80": 1.249683,
-                  "low95": 0.855293,
-                  "high95": 1.332224,
+                  "predicted": 1.093753,
+                  "error": -0.106247,
+                  "low80": 0.937827,
+                  "high80": 1.249679,
+                  "low95": 0.855285,
+                  "high95": 1.332221,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7098,12 +7098,12 @@
                   "horizon": 2,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.112374,
-                  "error": -0.187626,
-                  "low80": 0.902524,
-                  "high80": 1.322224,
-                  "low95": 0.791437,
-                  "high95": 1.433311,
+                  "predicted": 1.112363,
+                  "error": -0.187637,
+                  "low80": 0.902512,
+                  "high80": 1.322215,
+                  "low95": 0.791424,
+                  "high95": 1.433303,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7119,12 +7119,12 @@
                   "horizon": 3,
                   "date": "2025-09-01",
                   "actual": 1.5,
-                  "predicted": 1.131582,
-                  "error": -0.368418,
-                  "low80": 0.884915,
-                  "high80": 1.37825,
-                  "low95": 0.754337,
-                  "high95": 1.508827,
+                  "predicted": 1.131567,
+                  "error": -0.368433,
+                  "low80": 0.884897,
+                  "high80": 1.378236,
+                  "low95": 0.754318,
+                  "high95": 1.508815,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -7240,12 +7240,12 @@
                   "horizon": 1,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.216663,
-                  "error": -0.083337,
-                  "low80": 1.061549,
+                  "predicted": 1.216662,
+                  "error": -0.083338,
+                  "low80": 1.061548,
                   "high80": 1.371776,
-                  "low95": 0.979437,
-                  "high95": 1.453889,
+                  "low95": 0.979436,
+                  "high95": 1.453888,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7261,12 +7261,12 @@
                   "horizon": 2,
                   "date": "2025-09-01",
                   "actual": 1.5,
-                  "predicted": 1.237493,
-                  "error": -0.262507,
+                  "predicted": 1.237492,
+                  "error": -0.262508,
                   "low80": 1.030722,
-                  "high80": 1.444263,
-                  "low95": 0.921265,
-                  "high95": 1.553721,
+                  "high80": 1.444262,
+                  "low95": 0.921264,
+                  "high95": 1.55372,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -7282,12 +7282,12 @@
                   "horizon": 3,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.206236,
-                  "error": -0.093764,
-                  "low80": 0.964413,
-                  "high80": 1.44806,
-                  "low95": 0.836399,
-                  "high95": 1.576074,
+                  "predicted": 1.206235,
+                  "error": -0.093765,
+                  "low80": 0.964412,
+                  "high80": 1.448058,
+                  "low95": 0.836398,
+                  "high95": 1.576072,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7403,12 +7403,12 @@
                   "horizon": 1,
                   "date": "2025-09-01",
                   "actual": 1.5,
-                  "predicted": 1.320287,
-                  "error": -0.179713,
-                  "low80": 1.166587,
-                  "high80": 1.473987,
+                  "predicted": 1.320289,
+                  "error": -0.179711,
+                  "low80": 1.166588,
+                  "high80": 1.473991,
                   "low95": 1.085223,
-                  "high95": 1.555351,
+                  "high95": 1.555356,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -7424,12 +7424,12 @@
                   "horizon": 2,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.289529,
-                  "error": -0.010471,
-                  "low80": 1.082731,
-                  "high80": 1.496327,
-                  "low95": 0.973258,
-                  "high95": 1.605799,
+                  "predicted": 1.28953,
+                  "error": -0.01047,
+                  "low80": 1.082729,
+                  "high80": 1.496331,
+                  "low95": 0.973255,
+                  "high95": 1.605805,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7445,12 +7445,12 @@
                   "horizon": 3,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.311616,
-                  "error": -0.088384,
-                  "low80": 1.069353,
-                  "high80": 1.553878,
-                  "low95": 0.941107,
-                  "high95": 1.682124,
+                  "predicted": 1.311619,
+                  "error": -0.088381,
+                  "low80": 1.069352,
+                  "high80": 1.553885,
+                  "low95": 0.941104,
+                  "high95": 1.682133,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7566,12 +7566,12 @@
                   "horizon": 1,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.469647,
-                  "error": 0.169647,
-                  "low80": 1.313536,
-                  "high80": 1.625759,
-                  "low95": 1.230896,
-                  "high95": 1.708399,
+                  "predicted": 1.469625,
+                  "error": 0.169625,
+                  "low80": 1.313525,
+                  "high80": 1.625726,
+                  "low95": 1.23089,
+                  "high95": 1.708361,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -7587,12 +7587,12 @@
                   "horizon": 2,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.48844,
-                  "error": 0.08844,
-                  "low80": 1.275575,
-                  "high80": 1.701305,
-                  "low95": 1.162891,
-                  "high95": 1.813988,
+                  "predicted": 1.488414,
+                  "error": 0.088414,
+                  "low80": 1.275573,
+                  "high80": 1.701254,
+                  "low95": 1.162902,
+                  "high95": 1.813925,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7608,12 +7608,12 @@
                   "horizon": 3,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.507964,
-                  "error": -0.092036,
-                  "low80": 1.258192,
-                  "high80": 1.757737,
-                  "low95": 1.125971,
-                  "high95": 1.889958,
+                  "predicted": 1.507934,
+                  "error": -0.092066,
+                  "low80": 1.258193,
+                  "high80": 1.757675,
+                  "low95": 1.125988,
+                  "high95": 1.889879,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7729,12 +7729,12 @@
                   "horizon": 1,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.330719,
-                  "error": -0.069281,
-                  "low80": 1.173056,
-                  "high80": 1.488383,
-                  "low95": 1.089594,
-                  "high95": 1.571845,
+                  "predicted": 1.330721,
+                  "error": -0.069279,
+                  "low80": 1.173057,
+                  "high80": 1.488384,
+                  "low95": 1.089595,
+                  "high95": 1.571847,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7750,11 +7750,11 @@
                   "horizon": 2,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.354739,
-                  "error": -0.245261,
-                  "low80": 1.146001,
-                  "high80": 1.563478,
-                  "low95": 1.035501,
+                  "predicted": 1.354741,
+                  "error": -0.245259,
+                  "low80": 1.146003,
+                  "high80": 1.563479,
+                  "low95": 1.035503,
                   "high95": 1.673978,
                   "covered80": false,
                   "covered95": true,
@@ -7771,11 +7771,11 @@
                   "horizon": 3,
                   "date": "2026-01-01",
                   "actual": 1.6,
-                  "predicted": 1.351844,
-                  "error": -0.248156,
-                  "low80": 1.108721,
+                  "predicted": 1.351845,
+                  "error": -0.248155,
+                  "low80": 1.108724,
                   "high80": 1.594967,
-                  "low95": 0.98002,
+                  "low95": 0.980023,
                   "high95": 1.723668,
                   "covered80": false,
                   "covered95": true,
@@ -7792,10 +7792,74 @@
             },
             {
               "name": "ARIMAX",
-              "status": "failed",
-              "failureReason": "ValueError: Model fit did not converge",
+              "status": "success",
+              "failureReason": null,
               "fallbackModel": null,
-              "points": []
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2025-11-01",
+                  "actual": 1.4,
+                  "predicted": 1.345215,
+                  "error": -0.054785,
+                  "low80": 1.103139,
+                  "high80": 1.587291,
+                  "low95": 0.974992,
+                  "high95": 1.715438,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2025-12-01",
+                  "actual": 1.6,
+                  "predicted": 1.444171,
+                  "error": -0.155829,
+                  "low80": 1.10433,
+                  "high80": 1.784013,
+                  "low95": 0.924429,
+                  "high95": 1.963914,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2026-01-01",
+                  "actual": 1.6,
+                  "predicted": 1.524096,
+                  "error": -0.075904,
+                  "low80": 1.13345,
+                  "high80": 1.914743,
+                  "low95": 0.926654,
+                  "high95": 2.121538,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 0,
+                    "calibrationTargets": [],
+                    "low80": null,
+                    "high80": null,
+                    "low95": null,
+                    "high95": null
+                  }
+                }
+              ]
             }
           ],
           "evaluationPhase": "calibration-warmup"
@@ -7948,8 +8012,8 @@
                       "2025-09-01",
                       "2025-10-01"
                     ],
-                    "low80": 1.248191,
-                    "high80": 1.587485,
+                    "low80": 1.248213,
+                    "high80": 1.587463,
                     "low95": null,
                     "high95": null
                   }
@@ -7992,10 +8056,10 @@
                   "actual": 1.4,
                   "predicted": 1.463267,
                   "error": 0.063267,
-                  "low80": 1.225748,
+                  "low80": 1.225747,
                   "high80": 1.700786,
                   "low95": 1.100013,
-                  "high95": 1.826521,
+                  "high95": 1.82652,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8011,8 +8075,8 @@
                       "2025-09-01",
                       "2025-10-01"
                     ],
-                    "low80": 1.224061,
-                    "high80": 1.702473,
+                    "low80": 1.224077,
+                    "high80": 1.702457,
                     "low95": null,
                     "high95": null
                   }
@@ -8157,12 +8221,12 @@
                   "horizon": 1,
                   "date": "2026-01-01",
                   "actual": 1.6,
-                  "predicted": 1.5824,
-                  "error": -0.0176,
-                  "low80": 1.424012,
-                  "high80": 1.740787,
+                  "predicted": 1.582399,
+                  "error": -0.017601,
+                  "low80": 1.424011,
+                  "high80": 1.740786,
                   "low95": 1.340166,
-                  "high95": 1.824633,
+                  "high95": 1.824632,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8181,8 +8245,8 @@
                       "2025-10-01",
                       "2025-11-01"
                     ],
-                    "low80": 1.412753,
-                    "high80": 1.752047,
+                    "low80": 1.412774,
+                    "high80": 1.752024,
                     "low95": null,
                     "high95": null
                   }
@@ -8191,12 +8255,12 @@
                   "horizon": 2,
                   "date": "2026-02-01",
                   "actual": 1.4,
-                  "predicted": 1.627096,
-                  "error": 0.227096,
-                  "low80": 1.417027,
-                  "high80": 1.837166,
+                  "predicted": 1.627095,
+                  "error": 0.227095,
+                  "low80": 1.417026,
+                  "high80": 1.837165,
                   "low95": 1.305822,
-                  "high95": 1.94837,
+                  "high95": 1.948369,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -8214,8 +8278,8 @@
                       "2025-10-01",
                       "2025-11-01"
                     ],
-                    "low80": 1.387281,
-                    "high80": 1.866911,
+                    "low80": 1.38728,
+                    "high80": 1.86691,
                     "low95": null,
                     "high95": null
                   }
@@ -8224,12 +8288,12 @@
                   "horizon": 3,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.645182,
-                  "error": -0.054818,
+                  "predicted": 1.645181,
+                  "error": -0.054819,
                   "low80": 1.400973,
-                  "high80": 1.889392,
+                  "high80": 1.88939,
                   "low95": 1.271697,
-                  "high95": 2.018668,
+                  "high95": 2.018666,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8246,8 +8310,8 @@
                       "2025-10-01",
                       "2025-11-01"
                     ],
-                    "low80": 1.405976,
-                    "high80": 1.884388,
+                    "low80": 1.405991,
+                    "high80": 1.884371,
                     "low95": null,
                     "high95": null
                   }
@@ -8420,8 +8484,8 @@
                       "2025-11-01",
                       "2025-12-01"
                     ],
-                    "low80": 1.463672,
-                    "high80": 1.823098,
+                    "low80": 1.463674,
+                    "high80": 1.823096,
                     "low95": null,
                     "high95": null
                   }
@@ -8435,7 +8499,7 @@
                   "low80": 1.452822,
                   "high80": 1.868577,
                   "low95": 1.342779,
-                  "high95": 1.97862,
+                  "high95": 1.978621,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8454,8 +8518,8 @@
                       "2025-11-01",
                       "2025-12-01"
                     ],
-                    "low80": 1.415439,
-                    "high80": 1.905961,
+                    "low80": 1.415441,
+                    "high80": 1.905959,
                     "low95": null,
                     "high95": null
                   }
@@ -8466,7 +8530,7 @@
                   "actual": 1.9,
                   "predicted": 1.651408,
                   "error": -0.248592,
-                  "low80": 1.409553,
+                  "low80": 1.409552,
                   "high80": 1.893264,
                   "low95": 1.281522,
                   "high95": 2.021295,
@@ -8487,8 +8551,8 @@
                       "2025-11-01",
                       "2025-12-01"
                     ],
-                    "low80": 1.412202,
-                    "high80": 1.890614,
+                    "low80": 1.412218,
+                    "high80": 1.890598,
                     "low95": null,
                     "high95": null
                   }
@@ -8639,12 +8703,12 @@
                   "horizon": 1,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.437878,
-                  "error": -0.262122,
+                  "predicted": 1.437879,
+                  "error": -0.262121,
                   "low80": 1.276002,
-                  "high80": 1.599754,
+                  "high80": 1.599755,
                   "low95": 1.19031,
-                  "high95": 1.685446,
+                  "high95": 1.685448,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8665,8 +8729,8 @@
                       "2025-12-01",
                       "2026-01-01"
                     ],
-                    "low80": 1.268231,
-                    "high80": 1.607525,
+                    "low80": 1.268254,
+                    "high80": 1.607504,
                     "low95": null,
                     "high95": null
                   }
@@ -8675,12 +8739,12 @@
                   "horizon": 2,
                   "date": "2026-04-01",
                   "actual": 1.9,
-                  "predicted": 1.439183,
-                  "error": -0.460817,
-                  "low80": 1.224851,
-                  "high80": 1.653515,
+                  "predicted": 1.439184,
+                  "error": -0.460816,
+                  "low80": 1.224852,
+                  "high80": 1.653516,
                   "low95": 1.111391,
-                  "high95": 1.766975,
+                  "high95": 1.766977,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8700,8 +8764,8 @@
                       "2025-12-01",
                       "2026-01-01"
                     ],
-                    "low80": 1.193922,
-                    "high80": 1.684444,
+                    "low80": 1.193925,
+                    "high80": 1.684443,
                     "low95": null,
                     "high95": null
                   }
@@ -8715,7 +8779,7 @@
                   "low80": 1.243925,
                   "high80": 1.742626,
                   "low95": 1.111927,
-                  "high95": 1.874624,
+                  "high95": 1.874625,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8734,8 +8798,8 @@
                       "2025-12-01",
                       "2026-01-01"
                     ],
-                    "low80": 1.24512,
-                    "high80": 1.741432,
+                    "low80": 1.245121,
+                    "high80": 1.741431,
                     "low95": null,
                     "high95": null
                   }
@@ -8881,119 +8945,10 @@
             },
             {
               "name": "SARIMA",
-              "status": "success",
-              "failureReason": null,
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
               "fallbackModel": null,
-              "points": [
-                {
-                  "horizon": 1,
-                  "date": "2026-04-01",
-                  "actual": 1.9,
-                  "predicted": 1.650115,
-                  "error": -0.249885,
-                  "low80": 1.482868,
-                  "high80": 1.817362,
-                  "low95": 1.394334,
-                  "high95": 1.905896,
-                  "covered80": false,
-                  "covered95": true,
-                  "recalibrated": {
-                    "calibrationCount": 15,
-                    "calibrationTargets": [
-                      "2024-12-01",
-                      "2025-01-01",
-                      "2025-02-01",
-                      "2025-03-01",
-                      "2025-04-01",
-                      "2025-05-01",
-                      "2025-06-01",
-                      "2025-07-01",
-                      "2025-08-01",
-                      "2025-09-01",
-                      "2025-10-01",
-                      "2025-11-01",
-                      "2025-12-01",
-                      "2026-01-01",
-                      "2026-02-01"
-                    ],
-                    "low80": 1.470402,
-                    "high80": 1.829828,
-                    "low95": null,
-                    "high95": null
-                  }
-                },
-                {
-                  "horizon": 2,
-                  "date": "2026-05-01",
-                  "actual": 2.0,
-                  "predicted": 1.696022,
-                  "error": -0.303978,
-                  "low80": 1.487378,
-                  "high80": 1.904667,
-                  "low95": 1.376928,
-                  "high95": 2.015117,
-                  "covered80": false,
-                  "covered95": true,
-                  "recalibrated": {
-                    "calibrationCount": 14,
-                    "calibrationTargets": [
-                      "2025-01-01",
-                      "2025-02-01",
-                      "2025-03-01",
-                      "2025-04-01",
-                      "2025-05-01",
-                      "2025-06-01",
-                      "2025-07-01",
-                      "2025-08-01",
-                      "2025-09-01",
-                      "2025-10-01",
-                      "2025-11-01",
-                      "2025-12-01",
-                      "2026-01-01",
-                      "2026-02-01"
-                    ],
-                    "low80": 1.456207,
-                    "high80": 1.935837,
-                    "low95": null,
-                    "high95": null
-                  }
-                },
-                {
-                  "horizon": 3,
-                  "date": "2026-06-01",
-                  "actual": 1.9,
-                  "predicted": 1.715022,
-                  "error": -0.184978,
-                  "low80": 1.477849,
-                  "high80": 1.952195,
-                  "low95": 1.352297,
-                  "high95": 2.077746,
-                  "covered80": true,
-                  "covered95": true,
-                  "recalibrated": {
-                    "calibrationCount": 13,
-                    "calibrationTargets": [
-                      "2025-02-01",
-                      "2025-03-01",
-                      "2025-04-01",
-                      "2025-05-01",
-                      "2025-06-01",
-                      "2025-07-01",
-                      "2025-08-01",
-                      "2025-09-01",
-                      "2025-10-01",
-                      "2025-11-01",
-                      "2025-12-01",
-                      "2026-01-01",
-                      "2026-02-01"
-                    ],
-                    "low80": 1.466866,
-                    "high80": 1.963178,
-                    "low95": null,
-                    "high95": null
-                  }
-                }
-              ]
+              "points": []
             },
             {
               "name": "ARIMAX",
@@ -9145,12 +9100,12 @@
                   "horizon": 1,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.921467,
-                  "error": -0.078533,
-                  "low80": 1.7497,
-                  "high80": 2.093234,
-                  "low95": 1.658772,
-                  "high95": 2.184163,
+                  "predicted": 1.921469,
+                  "error": -0.078531,
+                  "low80": 1.749702,
+                  "high80": 2.093237,
+                  "low95": 1.658774,
+                  "high95": 2.184165,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9173,8 +9128,8 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.739305,
-                    "high80": 2.103629,
+                    "low80": 1.739307,
+                    "high80": 2.103631,
                     "low95": null,
                     "high95": null
                   }
@@ -9183,12 +9138,12 @@
                   "horizon": 2,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.927129,
-                  "error": 0.027129,
-                  "low80": 1.700902,
-                  "high80": 2.153356,
+                  "predicted": 1.927131,
+                  "error": 0.027131,
+                  "low80": 1.700903,
+                  "high80": 2.153359,
                   "low95": 1.581145,
-                  "high95": 2.273113,
+                  "high95": 2.273117,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9210,8 +9165,8 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.687314,
-                    "high80": 2.166944,
+                    "low80": 1.687316,
+                    "high80": 2.166946,
                     "low95": null,
                     "high95": null
                   }
@@ -9220,12 +9175,12 @@
                   "horizon": 3,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.880485,
-                  "error": 0.080485,
-                  "low80": 1.618709,
-                  "high80": 2.142262,
-                  "low95": 1.480132,
-                  "high95": 2.280838,
+                  "predicted": 1.880488,
+                  "error": 0.080488,
+                  "low80": 1.61871,
+                  "high80": 2.142266,
+                  "low95": 1.480133,
+                  "high95": 2.280843,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9246,8 +9201,8 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.641279,
-                    "high80": 2.119691,
+                    "low80": 1.641298,
+                    "high80": 2.119678,
                     "low95": null,
                     "high95": null
                   }
@@ -9264,17 +9219,19 @@
                   "horizon": 1,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.926947,
-                  "error": -0.073053,
-                  "low80": 1.693119,
-                  "high80": 2.160775,
-                  "low95": 1.569338,
-                  "high95": 2.284555,
+                  "predicted": 1.926932,
+                  "error": -0.073068,
+                  "low80": 1.69311,
+                  "high80": 2.160755,
+                  "low95": 1.569332,
+                  "high95": 2.284533,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2025-11-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9285,17 +9242,19 @@
                   "horizon": 2,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.899149,
-                  "error": -0.000851,
-                  "low80": 1.569285,
-                  "high80": 2.229013,
-                  "low95": 1.394665,
-                  "high95": 2.403632,
+                  "predicted": 1.899126,
+                  "error": -0.000874,
+                  "low80": 1.569283,
+                  "high80": 2.228969,
+                  "low95": 1.394674,
+                  "high95": 2.403578,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2025-12-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9306,17 +9265,19 @@
                   "horizon": 3,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.877076,
-                  "error": 0.077076,
-                  "low80": 1.499001,
-                  "high80": 2.255152,
-                  "low95": 1.29886,
-                  "high95": 2.455293,
+                  "predicted": 1.877048,
+                  "error": 0.077048,
+                  "low80": 1.499006,
+                  "high80": 2.255091,
+                  "low95": 1.298883,
+                  "high95": 2.455214,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2026-01-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9471,16 +9432,16 @@
                   "horizon": 1,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.999899,
-                  "error": 0.099899,
-                  "low80": 1.829607,
-                  "high80": 2.170191,
-                  "low95": 1.73946,
+                  "predicted": 1.999898,
+                  "error": 0.099898,
+                  "low80": 1.829606,
+                  "high80": 2.17019,
+                  "low95": 1.739459,
                   "high95": 2.260338,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 17,
+                    "calibrationCount": 16,
                     "calibrationTargets": [
                       "2024-12-01",
                       "2025-01-01",
@@ -9497,11 +9458,10 @@
                       "2025-12-01",
                       "2026-01-01",
                       "2026-02-01",
-                      "2026-03-01",
-                      "2026-04-01"
+                      "2026-03-01"
                     ],
-                    "low80": 1.756514,
-                    "high80": 2.243284,
+                    "low80": 1.817736,
+                    "high80": 2.18206,
                     "low95": null,
                     "high95": null
                   }
@@ -9510,12 +9470,12 @@
                   "horizon": 2,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.948047,
-                  "error": 0.148047,
+                  "predicted": 1.948046,
+                  "error": 0.148046,
                   "low80": 1.720397,
-                  "high80": 2.175696,
+                  "high80": 2.175694,
                   "low95": 1.599887,
-                  "high95": 2.296206,
+                  "high95": 2.296204,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9538,8 +9498,8 @@
                       "2026-03-01",
                       "2026-04-01"
                     ],
-                    "low80": 1.702786,
-                    "high80": 2.193308,
+                    "low80": 1.702787,
+                    "high80": 2.193305,
                     "low95": null,
                     "high95": null
                   }
@@ -9548,12 +9508,12 @@
                   "horizon": 3,
                   "date": "2026-08-01",
                   "actual": 1.9,
-                  "predicted": 1.898801,
-                  "error": -0.001199,
+                  "predicted": 1.8988,
+                  "error": -0.0012,
                   "low80": 1.634197,
-                  "high80": 2.163405,
-                  "low95": 1.494124,
-                  "high95": 2.303478,
+                  "high80": 2.163403,
+                  "low95": 1.494125,
+                  "high95": 2.303475,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9576,7 +9536,7 @@
                       "2026-04-01"
                     ],
                     "low80": 1.650645,
-                    "high80": 2.146957,
+                    "high80": 2.146955,
                     "low95": null,
                     "high95": null
                   }
@@ -9593,17 +9553,19 @@
                   "horizon": 1,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.973102,
-                  "error": 0.073102,
-                  "low80": 1.741442,
-                  "high80": 2.204762,
-                  "low95": 1.618809,
-                  "high95": 2.327395,
+                  "predicted": 1.973092,
+                  "error": 0.073092,
+                  "low80": 1.741435,
+                  "high80": 2.20475,
+                  "low95": 1.618803,
+                  "high95": 2.327382,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2025-11-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9614,17 +9576,19 @@
                   "horizon": 2,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.944546,
-                  "error": 0.144546,
-                  "low80": 1.617026,
-                  "high80": 2.272066,
-                  "low95": 1.443647,
-                  "high95": 2.445445,
+                  "predicted": 1.944531,
+                  "error": 0.144531,
+                  "low80": 1.617024,
+                  "high80": 2.272039,
+                  "low95": 1.443652,
+                  "high95": 2.445411,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2025-12-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9635,17 +9599,19 @@
                   "horizon": 3,
                   "date": "2026-08-01",
                   "actual": 1.9,
-                  "predicted": 1.921861,
-                  "error": 0.021861,
-                  "low80": 1.546234,
-                  "high80": 2.297488,
-                  "low95": 1.347389,
-                  "high95": 2.496333,
+                  "predicted": 1.921844,
+                  "error": 0.021844,
+                  "low80": 1.54624,
+                  "high80": 2.297449,
+                  "low95": 1.347407,
+                  "high95": 2.496282,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
-                    "calibrationCount": 0,
-                    "calibrationTargets": [],
+                    "calibrationCount": 1,
+                    "calibrationTargets": [
+                      "2026-01-01"
+                    ],
                     "low80": null,
                     "high80": null,
                     "low95": null,
@@ -9689,9 +9655,9 @@
         },
         {
           "name": "SARIMA",
-          "eligible": true,
-          "successfulWindows": 19,
-          "failedWindows": 0,
+          "eligible": false,
+          "successfulWindows": 18,
+          "failedWindows": 1,
           "origins": [
             "2024-11-01",
             "2024-12-01",
@@ -9713,13 +9679,15 @@
             "2026-04-01",
             "2026-05-01"
           ],
-          "failedOrigins": []
+          "failedOrigins": [
+            "2026-03-01"
+          ]
         },
         {
           "name": "ARIMAX",
           "eligible": false,
-          "successfulWindows": 2,
-          "failedWindows": 17,
+          "successfulWindows": 3,
+          "failedWindows": 16,
           "origins": [
             "2024-11-01",
             "2024-12-01",
@@ -9753,7 +9721,6 @@
             "2025-07-01",
             "2025-08-01",
             "2025-09-01",
-            "2025-10-01",
             "2025-11-01",
             "2025-12-01",
             "2026-01-01",
@@ -9812,95 +9779,95 @@
         },
         {
           "name": "SARIMA",
-          "eligible": true,
-          "covered80": 40,
-          "total80": 57,
-          "coverage80": 0.701754,
-          "covered95": 53,
-          "total95": 57,
-          "coverage95": 0.929825,
-          "meanWidth80": 0.412805,
-          "meanWidth95": 0.631331,
+          "eligible": false,
+          "covered80": 39,
+          "total80": 54,
+          "coverage80": 0.722222,
+          "covered95": 50,
+          "total95": 54,
+          "coverage95": 0.925926,
+          "meanWidth80": 0.413029,
+          "meanWidth95": 0.631674,
           "byHorizon": [
             {
               "horizon": 1,
               "covered80": 13,
-              "total80": 19,
-              "coverage80": 0.684211,
-              "covered95": 17,
-              "total95": 19,
-              "coverage95": 0.894737,
-              "meanWidth80": 0.320594,
-              "meanWidth95": 0.490306
+              "total80": 18,
+              "coverage80": 0.722222,
+              "covered95": 16,
+              "total95": 18,
+              "coverage95": 0.888889,
+              "meanWidth80": 0.319821,
+              "meanWidth95": 0.489124
             },
             {
               "horizon": 2,
               "covered80": 12,
-              "total80": 19,
-              "coverage80": 0.631579,
-              "covered95": 18,
-              "total95": 19,
-              "coverage95": 0.947368,
-              "meanWidth80": 0.424436,
-              "meanWidth95": 0.649118
+              "total80": 18,
+              "coverage80": 0.666667,
+              "covered95": 17,
+              "total95": 18,
+              "coverage95": 0.944444,
+              "meanWidth80": 0.424829,
+              "meanWidth95": 0.64972
             },
             {
               "horizon": 3,
-              "covered80": 15,
-              "total80": 19,
-              "coverage80": 0.789474,
-              "covered95": 18,
-              "total95": 19,
-              "coverage95": 0.947368,
-              "meanWidth80": 0.493385,
-              "meanWidth95": 0.754567
+              "covered80": 14,
+              "total80": 18,
+              "coverage80": 0.777778,
+              "covered95": 17,
+              "total95": 18,
+              "coverage95": 0.944444,
+              "meanWidth80": 0.494438,
+              "meanWidth95": 0.756178
             }
           ]
         },
         {
           "name": "ARIMAX",
           "eligible": false,
-          "covered80": 6,
-          "total80": 6,
+          "covered80": 9,
+          "total80": 9,
           "coverage80": 1.0,
-          "covered95": 6,
-          "total95": 6,
+          "covered95": 9,
+          "total95": 9,
           "coverage95": 1.0,
-          "meanWidth80": 0.625525,
-          "meanWidth95": 0.956658,
+          "meanWidth80": 0.63312,
+          "meanWidth95": 0.968274,
           "byHorizon": [
             {
               "horizon": 1,
-              "covered80": 2,
-              "total80": 2,
+              "covered80": 3,
+              "total80": 3,
               "coverage80": 1.0,
-              "covered95": 2,
-              "total95": 2,
+              "covered95": 3,
+              "total95": 3,
               "coverage95": 1.0,
-              "meanWidth80": 0.465488,
-              "meanWidth95": 0.711902
+              "meanWidth80": 0.471704,
+              "meanWidth95": 0.721409
             },
             {
               "horizon": 2,
-              "covered80": 2,
-              "total80": 2,
+              "covered80": 3,
+              "total80": 3,
               "coverage80": 1.0,
-              "covered95": 2,
-              "total95": 2,
+              "covered95": 3,
+              "total95": 3,
               "coverage95": 1.0,
-              "meanWidth80": 0.657384,
-              "meanWidth95": 1.005383
+              "meanWidth80": 0.664795,
+              "meanWidth95": 1.016716
             },
             {
               "horizon": 3,
-              "covered80": 2,
-              "total80": 2,
+              "covered80": 3,
+              "total80": 3,
               "coverage80": 1.0,
-              "covered95": 2,
-              "total95": 2,
+              "covered95": 3,
+              "total95": 3,
               "coverage95": 1.0,
-              "meanWidth80": 0.753702,
-              "meanWidth95": 1.152689
+              "meanWidth80": 0.762862,
+              "meanWidth95": 1.166697
             }
           ]
         }
@@ -10039,16 +10006,16 @@
             "model": "SARIMA",
             "horizon": 1,
             "nominalCoverage": 80,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.428571,
-              "meanWidth": 0.326255
+              "count": 6,
+              "coverage": 0.5,
+              "meanWidth": 0.324882
             },
             "recalibrated": {
-              "count": 7,
-              "coverage": 0.428571,
-              "meanWidth": 0.36969
+              "count": 6,
+              "coverage": 0.5,
+              "meanWidth": 0.35097
             },
             "unavailableCalibrationPoints": 0
           },
@@ -10056,33 +10023,33 @@
             "model": "SARIMA",
             "horizon": 1,
             "nominalCoverage": 95,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.714286,
-              "meanWidth": 0.498964
+              "count": 6,
+              "coverage": 0.666667,
+              "meanWidth": 0.496865
             },
             "recalibrated": {
               "count": 0,
               "coverage": null,
               "meanWidth": null
             },
-            "unavailableCalibrationPoints": 7
+            "unavailableCalibrationPoints": 6
           },
           {
             "model": "SARIMA",
             "horizon": 2,
             "nominalCoverage": 80,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.571429,
-              "meanWidth": 0.42843
+              "count": 6,
+              "coverage": 0.666667,
+              "meanWidth": 0.430287
             },
             "recalibrated": {
-              "count": 7,
-              "coverage": 0.714286,
-              "meanWidth": 0.484298
+              "count": 6,
+              "coverage": 0.833333,
+              "meanWidth": 0.485074
             },
             "unavailableCalibrationPoints": 0
           },
@@ -10090,33 +10057,33 @@
             "model": "SARIMA",
             "horizon": 2,
             "nominalCoverage": 95,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.857143,
-              "meanWidth": 0.655227
+              "count": 6,
+              "coverage": 0.833333,
+              "meanWidth": 0.658067
             },
             "recalibrated": {
               "count": 0,
               "coverage": null,
               "meanWidth": null
             },
-            "unavailableCalibrationPoints": 7
+            "unavailableCalibrationPoints": 6
           },
           {
             "model": "SARIMA",
             "horizon": 3,
             "nominalCoverage": 80,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.714286,
-              "meanWidth": 0.496139
+              "count": 6,
+              "coverage": 0.666667,
+              "meanWidth": 0.499772
             },
             "recalibrated": {
-              "count": 7,
-              "coverage": 0.714286,
-              "meanWidth": 0.486083
+              "count": 6,
+              "coverage": 0.666667,
+              "meanWidth": 0.484357
             },
             "unavailableCalibrationPoints": 0
           },
@@ -10124,18 +10091,18 @@
             "model": "SARIMA",
             "horizon": 3,
             "nominalCoverage": 95,
-            "evaluationPoints": 7,
+            "evaluationPoints": 6,
             "uncalibrated": {
-              "count": 7,
-              "coverage": 0.857143,
-              "meanWidth": 0.75878
+              "count": 6,
+              "coverage": 0.833333,
+              "meanWidth": 0.764335
             },
             "recalibrated": {
               "count": 0,
               "coverage": null,
               "meanWidth": null
             },
-            "unavailableCalibrationPoints": 7
+            "unavailableCalibrationPoints": 6
           },
           {
             "model": "ARIMAX",
@@ -10145,7 +10112,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 0.465488
+              "meanWidth": 0.46548
             },
             "recalibrated": {
               "count": 0,
@@ -10162,7 +10129,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 0.711902
+              "meanWidth": 0.71189
             },
             "recalibrated": {
               "count": 0,
@@ -10179,7 +10146,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 0.657384
+              "meanWidth": 0.657351
             },
             "recalibrated": {
               "count": 0,
@@ -10196,7 +10163,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 1.005383
+              "meanWidth": 1.005332
             },
             "recalibrated": {
               "count": 0,
@@ -10213,7 +10180,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 0.753702
+              "meanWidth": 0.753647
             },
             "recalibrated": {
               "count": 0,
@@ -10230,7 +10197,7 @@
             "uncalibrated": {
               "count": 2,
               "coverage": 1.0,
-              "meanWidth": 1.152689
+              "meanWidth": 1.152603
             },
             "recalibrated": {
               "count": 0,
@@ -10254,8 +10221,8 @@
         "Ineligible candidates' error scores and coverage, if present, describe successful fits only and are not comparable selection scores on the complete shared sample."
       ],
       "finalFit": {
-        "requestedModel": "SARIMA",
-        "usedModel": "SARIMA",
+        "requestedModel": "Seasonal naive",
+        "usedModel": "Seasonal naive",
         "fallbackUsed": false,
         "failureReason": null
       },
@@ -10266,26 +10233,7 @@
     },
     "status": "partial",
     "calculationStatus": "fresh",
-    "calculatedAt": "2026-10-05T15:11:50Z",
-    "vintageLedger": {
-      "version": 1,
-      "status": "waiting",
-      "freshSourceCount": 0,
-      "requiredSourceCount": 6,
-      "sourceSnapshotCount": 0,
-      "revisedSourcePeriodCount": 0,
-      "prospectiveForecastCount": 0,
-      "capturedOutcomeCount": 0,
-      "pendingForecastTargetCount": 0,
-      "firstSnapshotAt": null,
-      "lastSnapshotAt": null,
-      "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
-    },
-    "recomputation": {
-      "mode": "offline",
-      "sourceRefresh": false,
-      "note": "Forecast and affected text recalculated from the saved validated series; official observations, source status and retrieval timestamps are unchanged."
-    },
+    "calculatedAt": "2026-10-06T12:13:36Z",
     "inputHealth": {
       "status": "partial",
       "staleInputs": [
@@ -10293,6 +10241,20 @@
         "opr"
       ],
       "note": "Uses retained, stale or unavailable inputs: mgs, opr"
+    },
+    "vintageLedger": {
+      "version": 1,
+      "status": "partial",
+      "freshSourceCount": 4,
+      "requiredSourceCount": 6,
+      "sourceSnapshotCount": 4,
+      "revisedSourcePeriodCount": 0,
+      "prospectiveForecastCount": 0,
+      "capturedOutcomeCount": 0,
+      "pendingForecastTargetCount": 0,
+      "firstSnapshotAt": "2026-10-06T12:13:36Z",
+      "lastSnapshotAt": "2026-10-06T12:13:36Z",
+      "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
     }
   },
   "structuralBreaks": {
@@ -11047,8 +11009,8 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-10-05T12:36:25Z",
-    "lastAttemptAt": "2026-10-05T12:36:25Z",
+    "retrievedAt": "2026-10-06T12:13:36Z",
+    "lastAttemptAt": "2026-10-06T12:13:36Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -11064,10 +11026,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-10-05",
-          "value": 1662.92
-        },
         {
           "date": "2016-10-06",
           "value": 1666.73
@@ -20847,24 +20805,28 @@
         {
           "date": "2026-10-05",
           "value": 1631.75
+        },
+        {
+          "date": "2026-10-06",
+          "value": 1633.35
         }
       ]
     },
     "summary": {
-      "latest": 1631.75,
-      "latestDate": "2026-10-05",
-      "change1D": 0.05,
-      "return1M": -4.47,
-      "return3M": -2.82,
-      "returnYtd": -2.88,
-      "return1Y": -0.2,
-      "annualizedVolatility1Y": 9.54,
+      "latest": 1633.35,
+      "latestDate": "2026-10-06",
+      "change1D": 0.1,
+      "return1M": -4.38,
+      "return3M": -2.98,
+      "returnYtd": -2.78,
+      "return1Y": -0.29,
+      "annualizedVolatility1Y": 9.52,
       "maxDrawdown1Y": -7.95,
       "high52w": 1771.25,
       "low52w": 1602.69
     },
     "narratives": {
-      "performance": "The FBM KLCI declined 0.2% over the latest year, with 9.5% annualised volatility and a 8.0% maximum drawdown during that window.",
+      "performance": "The FBM KLCI declined 0.3% over the latest year, with 9.5% annualised volatility and a 8.0% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     },
     "freshness": {
@@ -20876,7 +20838,7 @@
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-10-05T12:36:25Z",
+    "retrievedAt": "2026-10-06T12:13:36Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -21714,14 +21676,14 @@
     ],
     "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
     "message": "Official quarterly observations validated; only complete calendar years are published",
-    "lastAttemptAt": "2026-10-05T12:36:25Z"
+    "lastAttemptAt": "2026-10-06T12:13:36Z"
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -22559,11 +22521,11 @@
       ],
       "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
       "message": "Official quarterly observations validated; only complete calendar years are published",
-      "lastAttemptAt": "2026-10-05T12:36:25Z"
+      "lastAttemptAt": "2026-10-06T12:13:36Z"
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -23456,7 +23418,7 @@
       ],
       "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
       "message": "Official quarterly expenditure observations validated; complete years only",
-      "lastAttemptAt": "2026-10-05T12:36:25Z"
+      "lastAttemptAt": "2026-10-06T12:13:36Z"
     },
     "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
     "message": "Production and expenditure GDP views validated",
@@ -23469,7 +23431,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-10-05T12:36:25Z",
+    "retrievedAt": "2026-10-06T12:13:36Z",
     "observationPeriod": "2026-08-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -25735,17 +25697,17 @@
       "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance."
     },
     "message": "Official monthly trade headline data validated",
-    "lastAttemptAt": "2026-10-05T12:36:25Z",
+    "lastAttemptAt": "2026-10-06T12:13:36Z",
     "freshness": {
       "basis": "observation-recency",
-      "observationAgeDays": 65,
+      "observationAgeDays": 66,
       "maximumObservationAgeDays": 100,
       "note": "Conservative observation-age limit; not a verified official release calendar."
     }
   },
   "balancePayments": {
     "status": "fresh",
-    "retrievedAt": "2026-10-05T12:36:25Z",
+    "retrievedAt": "2026-10-06T12:13:36Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
@@ -27748,23 +27710,27 @@
       "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions."
     },
     "message": "Official quarterly BOP component balances validated",
-    "lastAttemptAt": "2026-10-05T12:36:25Z",
+    "lastAttemptAt": "2026-10-06T12:13:36Z",
     "freshness": {
       "basis": "observation-recency",
-      "observationAgeDays": 187,
+      "observationAgeDays": 188,
       "maximumObservationAgeDays": 200,
       "note": "Conservative observation-age limit; not a verified official release calendar."
     }
   },
   "regionalLens": {
-    "status": "fresh",
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "refreshPolicy": "source-local-v1",
+    "status": "partial",
+    "generatedAt": "2026-10-06T12:13:36Z",
+    "lastAttemptAt": "2026-10-06T12:13:36Z",
+    "calculationStatus": "fresh",
+    "message": "10 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
     "defaultComparison": {
       "primary": "W.P. Kuala Lumpur",
       "secondary": "Sarawak"
     },
     "coverage": {
-      "state": "State and federal-territory coverage is available for household income, expenditure, poverty, inequality, CPI inflation, labour-force aggregation and real GDP by sector.",
+      "state": "State and federal-territory availability differs by source; inspect each metric's source status and observation period.",
       "district": "District coverage is available where DOSM publishes district income, expenditure, poverty, inequality, labour-force and real GDP data. CPI is state-level only.",
       "nationalOnly": [
         "OPR",
@@ -27775,9 +27741,317 @@
       ]
     },
     "sources": {
+      "nationalIncome": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2024-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
+        "records": [
+          {
+            "date": "1970-01-01",
+            "incomeMean": 264.0,
+            "incomeMedian": 166.0
+          },
+          {
+            "date": "1974-01-01",
+            "incomeMean": 362.0,
+            "incomeMedian": 227.0
+          },
+          {
+            "date": "1976-01-01",
+            "incomeMean": 505.0,
+            "incomeMedian": 308.0
+          },
+          {
+            "date": "1979-01-01",
+            "incomeMean": 678.0,
+            "incomeMedian": 429.0
+          },
+          {
+            "date": "1984-01-01",
+            "incomeMean": 1098.0,
+            "incomeMedian": 719.0
+          },
+          {
+            "date": "1987-01-01",
+            "incomeMean": 1083.0,
+            "incomeMedian": 738.0
+          },
+          {
+            "date": "1989-01-01",
+            "incomeMean": 1169.0,
+            "incomeMedian": 816.0
+          },
+          {
+            "date": "1992-01-01",
+            "incomeMean": 1566.0,
+            "incomeMedian": 1077.0
+          },
+          {
+            "date": "1995-01-01",
+            "incomeMean": 2020.0,
+            "incomeMedian": 1377.0
+          },
+          {
+            "date": "1997-01-01",
+            "incomeMean": 2606.0,
+            "incomeMedian": 1724.0
+          },
+          {
+            "date": "1999-01-01",
+            "incomeMean": 2472.0,
+            "incomeMedian": 1704.0
+          },
+          {
+            "date": "2002-01-01",
+            "incomeMean": 3011.0,
+            "incomeMedian": 2049.0
+          },
+          {
+            "date": "2004-01-01",
+            "incomeMean": 3249.0,
+            "incomeMedian": 2211.0
+          },
+          {
+            "date": "2007-01-01",
+            "incomeMean": 3686.0,
+            "incomeMedian": 2552.0
+          },
+          {
+            "date": "2009-01-01",
+            "incomeMean": 4025.0,
+            "incomeMedian": 2841.0
+          },
+          {
+            "date": "2012-01-01",
+            "incomeMean": 5000.0,
+            "incomeMedian": 3626.0
+          },
+          {
+            "date": "2014-01-01",
+            "incomeMean": 6141.0,
+            "incomeMedian": 4585.0
+          },
+          {
+            "date": "2016-01-01",
+            "incomeMean": 6958.0,
+            "incomeMedian": 5228.0
+          },
+          {
+            "date": "2019-01-01",
+            "incomeMean": 7901.0,
+            "incomeMedian": 5873.0
+          },
+          {
+            "date": "2020-01-01",
+            "incomeMean": 7089.0,
+            "incomeMedian": 5209.0
+          },
+          {
+            "date": "2022-01-01",
+            "incomeMean": 8479.0,
+            "incomeMedian": 6338.0
+          },
+          {
+            "date": "2024-01-01",
+            "incomeMean": 9155.0,
+            "incomeMedian": 7017.0
+          }
+        ],
+        "message": "Official national household benchmark validated; comparisons require the same survey period",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "nationalPoverty": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2024-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
+        "records": [
+          {
+            "date": "1970-01-01",
+            "poverty": 49.3
+          },
+          {
+            "date": "1976-01-01",
+            "poverty": 37.7
+          },
+          {
+            "date": "1979-01-01",
+            "poverty": 37.4
+          },
+          {
+            "date": "1984-01-01",
+            "poverty": 20.7
+          },
+          {
+            "date": "1987-01-01",
+            "poverty": 19.4
+          },
+          {
+            "date": "1989-01-01",
+            "poverty": 16.5
+          },
+          {
+            "date": "1992-01-01",
+            "poverty": 12.4
+          },
+          {
+            "date": "1995-01-01",
+            "poverty": 8.7
+          },
+          {
+            "date": "1997-01-01",
+            "poverty": 6.1
+          },
+          {
+            "date": "1999-01-01",
+            "poverty": 7.5
+          },
+          {
+            "date": "2002-01-01",
+            "poverty": 5.1
+          },
+          {
+            "date": "2004-01-01",
+            "poverty": 5.7
+          },
+          {
+            "date": "2007-01-01",
+            "poverty": 3.6
+          },
+          {
+            "date": "2009-01-01",
+            "poverty": 3.8
+          },
+          {
+            "date": "2012-01-01",
+            "poverty": 1.7
+          },
+          {
+            "date": "2014-01-01",
+            "poverty": 0.6
+          },
+          {
+            "date": "2016-01-01",
+            "poverty": 0.4
+          },
+          {
+            "date": "2019-01-01",
+            "poverty": 5.6
+          },
+          {
+            "date": "2020-01-01",
+            "poverty": 8.4
+          },
+          {
+            "date": "2022-01-01",
+            "poverty": 6.2
+          },
+          {
+            "date": "2024-01-01",
+            "poverty": 5.1
+          }
+        ],
+        "message": "Official national household benchmark validated; comparisons require the same survey period",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "nationalInequality": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2024-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
+        "records": [
+          {
+            "date": "1970-01-01",
+            "gini": 0.513
+          },
+          {
+            "date": "1974-01-01",
+            "gini": 0.53
+          },
+          {
+            "date": "1976-01-01",
+            "gini": 0.557
+          },
+          {
+            "date": "1979-01-01",
+            "gini": 0.505
+          },
+          {
+            "date": "1984-01-01",
+            "gini": 0.483
+          },
+          {
+            "date": "1987-01-01",
+            "gini": 0.456
+          },
+          {
+            "date": "1989-01-01",
+            "gini": 0.442
+          },
+          {
+            "date": "1992-01-01",
+            "gini": 0.451
+          },
+          {
+            "date": "1995-01-01",
+            "gini": 0.456
+          },
+          {
+            "date": "1997-01-01",
+            "gini": 0.459
+          },
+          {
+            "date": "1999-01-01",
+            "gini": 0.443
+          },
+          {
+            "date": "2002-01-01",
+            "gini": 0.461
+          },
+          {
+            "date": "2004-01-01",
+            "gini": 0.462
+          },
+          {
+            "date": "2007-01-01",
+            "gini": 0.441
+          },
+          {
+            "date": "2009-01-01",
+            "gini": 0.441
+          },
+          {
+            "date": "2012-01-01",
+            "gini": 0.431
+          },
+          {
+            "date": "2014-01-01",
+            "gini": 0.401
+          },
+          {
+            "date": "2016-01-01",
+            "gini": 0.399
+          },
+          {
+            "date": "2019-01-01",
+            "gini": 0.407
+          },
+          {
+            "date": "2022-01-01",
+            "gini": 0.404
+          },
+          {
+            "date": "2024-01-01",
+            "gini": 0.39
+          }
+        ],
+        "message": "Official national household benchmark validated; comparisons require the same survey period",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
       "hiesState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -27973,20 +28247,32 @@
           "value": 5566.0,
           "unit": "RM per household per month",
           "observationPeriod": "2024-01-01",
-          "retrievedAt": "2026-10-05T12:36:25Z",
-          "lastAttemptAt": "2026-10-05T12:36:25Z",
+          "retrievedAt": "2026-10-06T12:13:36Z",
+          "lastAttemptAt": "2026-10-06T12:13:36Z",
           "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
           "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
           "page": 24,
           "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
         },
-        "narrative": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
+        "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "nationalExpenditure": {
+        "status": "fresh",
+        "value": 5566.0,
+        "unit": "RM per household per month",
+        "observationPeriod": "2024-01-01",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
+        "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
+        "page": 24,
+        "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
       },
       "hiesDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -29937,17 +30223,553 @@
           }
         ],
         "message": "Latest district HIES data validated",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
       },
-      "incomeGroups": {
+      "incomeGroupState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2024-01-01",
-        "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
-        "stateDatasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
-        "nationalDatasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
-        "frequency": "Survey years",
+        "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
+        "stateGroups": [
+          {
+            "state": "Johor",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 4465.62,
+                "medianIncome": 4562.0,
+                "minIncome": 1912.0,
+                "maxIncome": 6567.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 9336.5,
+                "medianIncome": 8986.5,
+                "minIncome": 6569.0,
+                "maxIncome": 13563.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 19852.5,
+                "medianIncome": 16727.5,
+                "minIncome": 13567.0,
+                "maxIncome": 37762.0
+              }
+            ]
+          },
+          {
+            "state": "Kedah",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 2776.4,
+                "medianIncome": 2893.5,
+                "minIncome": 1301.0,
+                "maxIncome": 3936.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 5775.75,
+                "medianIncome": 5667.0,
+                "minIncome": 3954.0,
+                "maxIncome": 7816.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 11879.15,
+                "medianIncome": 10657.0,
+                "minIncome": 7818.0,
+                "maxIncome": 19958.0
+              }
+            ]
+          },
+          {
+            "state": "Kelantan",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 2493.05,
+                "medianIncome": 2541.5,
+                "minIncome": 1348.0,
+                "maxIncome": 3522.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 4907.75,
+                "medianIncome": 4769.5,
+                "minIncome": 3523.0,
+                "maxIncome": 7002.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 11542.65,
+                "medianIncome": 9919.5,
+                "minIncome": 7003.0,
+                "maxIncome": 20624.0
+              }
+            ]
+          },
+          {
+            "state": "Melaka",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 4306.7,
+                "medianIncome": 4298.0,
+                "minIncome": 2758.0,
+                "maxIncome": 5916.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 8314.88,
+                "medianIncome": 8096.0,
+                "minIncome": 5919.0,
+                "maxIncome": 11562.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 18229.15,
+                "medianIncome": 15375.5,
+                "minIncome": 11564.0,
+                "maxIncome": 34835.0
+              }
+            ]
+          },
+          {
+            "state": "Negeri Sembilan",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 3279.45,
+                "medianIncome": 3319.5,
+                "minIncome": 1506.0,
+                "maxIncome": 4692.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 6826.93,
+                "medianIncome": 6629.5,
+                "minIncome": 4693.0,
+                "maxIncome": 9978.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 16383.55,
+                "medianIncome": 13708.5,
+                "minIncome": 9981.0,
+                "maxIncome": 31476.0
+              }
+            ]
+          },
+          {
+            "state": "Pahang",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 3205.72,
+                "medianIncome": 3257.0,
+                "minIncome": 1733.0,
+                "maxIncome": 4329.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 5683.85,
+                "medianIncome": 5547.0,
+                "minIncome": 4329.0,
+                "maxIncome": 8094.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 12573.85,
+                "medianIncome": 10869.0,
+                "minIncome": 8095.0,
+                "maxIncome": 21992.0
+              }
+            ]
+          },
+          {
+            "state": "Perak",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 2833.2,
+                "medianIncome": 2887.5,
+                "minIncome": 1454.0,
+                "maxIncome": 3966.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 5715.73,
+                "medianIncome": 5599.5,
+                "minIncome": 3967.0,
+                "maxIncome": 8212.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 13790.9,
+                "medianIncome": 11489.5,
+                "minIncome": 8233.0,
+                "maxIncome": 25613.0
+              }
+            ]
+          },
+          {
+            "state": "Perlis",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 2959.32,
+                "medianIncome": 3035.0,
+                "minIncome": 1313.0,
+                "maxIncome": 4273.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 5846.35,
+                "medianIncome": 5690.0,
+                "minIncome": 4283.0,
+                "maxIncome": 8007.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 12437.55,
+                "medianIncome": 10551.0,
+                "minIncome": 8012.0,
+                "maxIncome": 19745.0
+              }
+            ]
+          },
+          {
+            "state": "Pulau Pinang",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 4151.2,
+                "medianIncome": 4232.5,
+                "minIncome": 1673.0,
+                "maxIncome": 6367.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 8913.92,
+                "medianIncome": 8661.0,
+                "minIncome": 6370.0,
+                "maxIncome": 12676.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 19660.25,
+                "medianIncome": 16487.5,
+                "minIncome": 12676.0,
+                "maxIncome": 34270.0
+              }
+            ]
+          },
+          {
+            "state": "Sabah",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 2769.55,
+                "medianIncome": 2787.0,
+                "minIncome": 1224.0,
+                "maxIncome": 4123.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 6018.3,
+                "medianIncome": 5694.0,
+                "minIncome": 4125.0,
+                "maxIncome": 9162.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 14934.05,
+                "medianIncome": 12759.0,
+                "minIncome": 9166.0,
+                "maxIncome": 26820.0
+              }
+            ]
+          },
+          {
+            "state": "Sarawak",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 3142.4,
+                "medianIncome": 3163.5,
+                "minIncome": 1504.0,
+                "maxIncome": 4668.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 6719.6,
+                "medianIncome": 6528.5,
+                "minIncome": 4670.0,
+                "maxIncome": 9709.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 15028.75,
+                "medianIncome": 13121.5,
+                "minIncome": 9711.0,
+                "maxIncome": 26228.0
+              }
+            ]
+          },
+          {
+            "state": "Selangor",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 7012.25,
+                "medianIncome": 7338.0,
+                "minIncome": 3033.0,
+                "maxIncome": 9572.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 12209.48,
+                "medianIncome": 11890.5,
+                "minIncome": 9573.0,
+                "maxIncome": 16033.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 28091.1,
+                "medianIncome": 21630.0,
+                "minIncome": 16051.0,
+                "maxIncome": 63136.0
+              }
+            ]
+          },
+          {
+            "state": "Terengganu",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 4119.15,
+                "medianIncome": 4131.0,
+                "minIncome": 2015.0,
+                "maxIncome": 5884.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 7533.9,
+                "medianIncome": 7359.0,
+                "minIncome": 5887.0,
+                "maxIncome": 9789.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 14874.75,
+                "medianIncome": 13369.5,
+                "minIncome": 9793.0,
+                "maxIncome": 24301.0
+              }
+            ]
+          },
+          {
+            "state": "W.P. Kuala Lumpur",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 6528.77,
+                "medianIncome": 6743.0,
+                "minIncome": 2610.0,
+                "maxIncome": 9632.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 12652.88,
+                "medianIncome": 12281.0,
+                "minIncome": 9634.0,
+                "maxIncome": 17028.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 31721.3,
+                "medianIncome": 24310.0,
+                "minIncome": 17052.0,
+                "maxIncome": 59878.0
+              }
+            ]
+          },
+          {
+            "state": "W.P. Labuan",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 4226.88,
+                "medianIncome": 4414.5,
+                "minIncome": 1605.0,
+                "maxIncome": 6313.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 8636.17,
+                "medianIncome": 8074.0,
+                "minIncome": 6356.0,
+                "maxIncome": 11628.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 17429.5,
+                "medianIncome": 14815.5,
+                "minIncome": 11635.0,
+                "maxIncome": 29499.0
+              }
+            ]
+          },
+          {
+            "state": "W.P. Putrajaya",
+            "date": "2024-01-01",
+            "groups": [
+              {
+                "id": "b40",
+                "label": "B40",
+                "percentileRange": "1-40",
+                "meanIncome": 6869.4,
+                "medianIncome": 6838.0,
+                "minIncome": 3946.0,
+                "maxIncome": 9624.0
+              },
+              {
+                "id": "m40",
+                "label": "M40",
+                "percentileRange": "41-80",
+                "meanIncome": 14055.42,
+                "medianIncome": 13851.5,
+                "minIncome": 9627.0,
+                "maxIncome": 19021.0
+              },
+              {
+                "id": "t20",
+                "label": "T20",
+                "percentileRange": "81-100",
+                "meanIncome": 27604.55,
+                "medianIncome": 24859.5,
+                "minIncome": 19032.0,
+                "maxIncome": 45619.0
+              }
+            ]
+          }
+        ],
+        "message": "Official income percentiles validated independently",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "incomeGroupNational": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2024-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
+        "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
         "nationalGroups": [
           {
             "id": "b40",
@@ -29977,6 +30799,18 @@
             "maxIncome": 40194.0
           }
         ],
+        "message": "Official income percentiles validated independently",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "incomeGroups": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2024-01-01",
+        "source": "Department of Statistics Malaysia via data.gov.my",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
+        "stateDatasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
+        "nationalDatasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
+        "frequency": "Survey years",
         "stateGroups": [
           {
             "state": "Johor",
@@ -30555,12 +31389,41 @@
             ]
           }
         ],
+        "nationalGroups": [
+          {
+            "id": "b40",
+            "label": "B40",
+            "percentileRange": "1-40",
+            "meanIncome": 3814.47,
+            "medianIncome": 3815.0,
+            "minIncome": 1556.0,
+            "maxIncome": 5858.0
+          },
+          {
+            "id": "m40",
+            "label": "M40",
+            "percentileRange": "41-80",
+            "meanIncome": 8743.88,
+            "medianIncome": 8601.0,
+            "minIncome": 5858.0,
+            "maxIncome": 12681.0
+          },
+          {
+            "id": "t20",
+            "label": "T20",
+            "percentileRange": "81-100",
+            "meanIncome": 20667.65,
+            "medianIncome": 16520.5,
+            "minIncome": 12682.0,
+            "maxIncome": 40194.0
+          }
+        ],
         "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
-        "message": "Latest state and national income-percentile data validated",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "message": "State and national income groups refreshed from independently validated, same-period percentile data",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
       },
       "labour": {
-        "status": "fresh",
+        "status": "stale",
         "retrievedAt": "2026-10-05T12:36:25Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
@@ -32057,15 +32920,45 @@
             "employmentPopulationRatio": 62.3
           }
         ],
-        "message": "District labour-force data validated and aggregated to state level",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "message": "Last valid observations retained; ValueError: source retrieval or validation failed",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "failureReason": "ValueError: source retrieval or validation failed"
       },
-      "gdp": {
+      "gdpState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
+        "administrativeDistrictCount": null,
+        "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+        "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+        "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "gdpDistrict": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2020-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
+        "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
+        "administrativeDistrictCount": 159,
+        "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+        "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+        "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
+      },
+      "gdp": {
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "observationPeriod": "2025-01-01",
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
+        "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
+        "administrativeDistrictCount": 159,
+        "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+        "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+        "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
         "stateRecords": [
@@ -41491,14 +42384,33 @@
             "largestSectorBasis": "Largest among published numeric sector values; missing/suppressed sectors are not ranked"
           }
         ],
-        "administrativeDistrictCount": 159,
-        "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
-        "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
-        "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "stateSource": {
+          "status": "fresh",
+          "retrievedAt": "2026-10-06T12:13:36Z",
+          "observationPeriod": "2025-01-01",
+          "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
+          "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
+          "administrativeDistrictCount": null,
+          "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+          "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+          "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
+          "lastAttemptAt": "2026-10-06T12:13:36Z"
+        },
+        "districtSource": {
+          "status": "fresh",
+          "retrievedAt": "2026-10-06T12:13:36Z",
+          "observationPeriod": "2020-01-01",
+          "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
+          "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
+          "administrativeDistrictCount": 159,
+          "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
+          "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
+          "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
+          "lastAttemptAt": "2026-10-06T12:13:36Z"
+        }
       },
       "cpi": {
-        "status": "fresh",
+        "status": "stale",
         "retrievedAt": "2026-10-05T12:36:25Z",
         "observationPeriod": "2026-08-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
@@ -41585,8 +42497,9 @@
             "headlineInflation": 2.0
           }
         ],
-        "message": "Latest state headline CPI inflation validated",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "message": "Last valid observations retained; ValueError: source retrieval or validation failed",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "failureReason": "ValueError: source retrieval or validation failed"
       }
     },
     "stateRecords": [
@@ -54600,42 +55513,13 @@
     ],
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-05T12:36:25Z",
+      "retrievedAt": "2026-10-06T12:13:36Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
       "stateDatasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
       "nationalDatasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
       "frequency": "Survey years",
-      "nationalGroups": [
-        {
-          "id": "b40",
-          "label": "B40",
-          "percentileRange": "1-40",
-          "meanIncome": 3814.47,
-          "medianIncome": 3815.0,
-          "minIncome": 1556.0,
-          "maxIncome": 5858.0
-        },
-        {
-          "id": "m40",
-          "label": "M40",
-          "percentileRange": "41-80",
-          "meanIncome": 8743.88,
-          "medianIncome": 8601.0,
-          "minIncome": 5858.0,
-          "maxIncome": 12681.0
-        },
-        {
-          "id": "t20",
-          "label": "T20",
-          "percentileRange": "81-100",
-          "meanIncome": 20667.65,
-          "medianIncome": 16520.5,
-          "minIncome": 12682.0,
-          "maxIncome": 40194.0
-        }
-      ],
       "stateGroups": [
         {
           "state": "Johor",
@@ -55214,9 +56098,38 @@
           ]
         }
       ],
+      "nationalGroups": [
+        {
+          "id": "b40",
+          "label": "B40",
+          "percentileRange": "1-40",
+          "meanIncome": 3814.47,
+          "medianIncome": 3815.0,
+          "minIncome": 1556.0,
+          "maxIncome": 5858.0
+        },
+        {
+          "id": "m40",
+          "label": "M40",
+          "percentileRange": "41-80",
+          "meanIncome": 8743.88,
+          "medianIncome": 8601.0,
+          "minIncome": 5858.0,
+          "maxIncome": 12681.0
+        },
+        {
+          "id": "t20",
+          "label": "T20",
+          "percentileRange": "81-100",
+          "meanIncome": 20667.65,
+          "medianIncome": 16520.5,
+          "minIncome": 12682.0,
+          "maxIncome": 40194.0
+        }
+      ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
-      "message": "Latest state and national income-percentile data validated",
-      "lastAttemptAt": "2026-10-05T12:36:25Z"
+      "message": "State and national income groups refreshed from independently validated, same-period percentile data",
+      "lastAttemptAt": "2026-10-06T12:13:36Z"
     },
     "summaryCards": [
       {
@@ -55232,18 +56145,18 @@
       {
         "label": "KL spending pressure",
         "value": "RM 8,178",
-        "detail": "Mean monthly household expenditure in the latest HIES release."
+        "detail": "Mean monthly household expenditure in the latest validated HIES release."
       },
       {
         "label": "Sarawak spending pressure",
         "value": "RM 4,281",
-        "detail": "Mean monthly household expenditure in the latest HIES release."
+        "detail": "Mean monthly household expenditure in the latest validated HIES release."
       }
     ],
     "narratives": {
       "headline": "Regional living-cost pressure is not the same across Malaysia.",
-      "comparison": "KL's median household income is above Sarawak's, but its mean household spending is also higher. Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
-      "incomeGroups": "B40, M40 and T20 comparisons show whether a high-income state is broad-based or concentrated at the top of the distribution.",
+      "comparison": "KL's median household income is higher than Sarawak's; its mean household spending is higher than Sarawak's. Compare each source period and freshness before drawing conclusions.",
+      "incomeGroups": "B40, M40 and T20 comparisons describe household income distribution. Both state and national percentile datasets must be validated for a same-period comparison.",
       "district": "District data can show within-state differences, but coverage is survey-based and not available for every monthly indicator.",
       "nationalOnly": "Some financial indicators are national by design: BNM policy rates, government-bond yields, the ringgit and Bursa benchmarks do not have separate district values."
     },
@@ -55258,15 +56171,17 @@
       }
     ],
     "disclaimer": "Regional comparisons are descriptive and based on published official datasets. They are not a personal cost-of-living calculator, wage advice, property advice or investment advice.",
-    "calculationStatus": "fresh",
     "inputHealth": {
-      "status": "fresh",
-      "staleInputs": [],
-      "note": "All required inputs passed source validation; observation periods still differ."
+      "status": "partial",
+      "staleInputs": [
+        "regionalLens.cpi",
+        "regionalLens.labour"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: regionalLens.cpi, regionalLens.labour"
     }
   },
   "householdPressure": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "partial",
     "overallScore": 40.0,
     "overallLevel": "moderate",
@@ -55304,7 +56219,9 @@
         "id": "wealth-risk",
         "label": "Market wealth",
         "score": 55,
-        "evidence": "KLCI one-year price return is -0.2%.",
+        "level": "moderate",
+        "unavailableReason": null,
+        "evidence": "KLCI one-year price return is -0.3%.",
         "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."
       }
     ],
@@ -55343,7 +56260,7 @@
     }
   },
   "sectorDeepDive": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "fresh",
     "year": 2025,
     "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
@@ -55358,7 +56275,7 @@
         "exportLink": "moderate",
         "marketLink": "direct and indirect",
         "riskLevel": "low",
-        "narrative": "Services accounts for 57.2% of nominal GDP in 2025. Its current-price output change is +6.6% where prior-year comparison is available."
+        "narrative": "Services accounts for 57.2% of nominal GDP in 2025. Its current-price output change is +6.6%."
       },
       {
         "id": "p3",
@@ -55370,7 +56287,7 @@
         "exportLink": "high",
         "marketLink": "direct and indirect",
         "riskLevel": "low",
-        "narrative": "Manufacturing accounts for 22.1% of nominal GDP in 2025. Its current-price output change is +2.8% where prior-year comparison is available."
+        "narrative": "Manufacturing accounts for 22.1% of nominal GDP in 2025. Its current-price output change is +2.8%."
       },
       {
         "id": "p1",
@@ -55382,7 +56299,7 @@
         "exportLink": "high",
         "marketLink": "mostly indirect",
         "riskLevel": "low",
-        "narrative": "Agriculture accounts for 8.2% of nominal GDP in 2025. Its current-price output change is +5.9% where prior-year comparison is available."
+        "narrative": "Agriculture accounts for 8.2% of nominal GDP in 2025. Its current-price output change is +5.9%."
       },
       {
         "id": "p2",
@@ -55394,7 +56311,7 @@
         "exportLink": "high",
         "marketLink": "direct and indirect",
         "riskLevel": "moderate",
-        "narrative": "Mining and quarrying accounts for 6.8% of nominal GDP in 2025. Its current-price output change is -9.2% where prior-year comparison is available."
+        "narrative": "Mining and quarrying accounts for 6.8% of nominal GDP in 2025. Its current-price output change is -9.2%."
       },
       {
         "id": "p4",
@@ -55406,7 +56323,7 @@
         "exportLink": "low",
         "marketLink": "mostly indirect",
         "riskLevel": "low",
-        "narrative": "Construction accounts for 4.3% of nominal GDP in 2025. Its current-price output change is +11.3% where prior-year comparison is available."
+        "narrative": "Construction accounts for 4.3% of nominal GDP in 2025. Its current-price output change is +11.3%."
       },
       {
         "id": "p6",
@@ -55418,7 +56335,7 @@
         "exportLink": "low",
         "marketLink": "mostly indirect",
         "riskLevel": "low",
-        "narrative": "Import duties accounts for 1.3% of nominal GDP in 2025. Its current-price output change is +16.2% where prior-year comparison is available."
+        "narrative": "Import duties accounts for 1.3% of nominal GDP in 2025. Its current-price output change is +16.2%."
       }
     ],
     "source": "Department of Statistics Malaysia via data.gov.my",
@@ -55432,7 +56349,7 @@
     }
   },
   "macroTimeline": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "partial",
     "entries": [
       {
@@ -55553,13 +56470,13 @@
         "evidence": "Version-controlled event catalogue with official source link."
       },
       {
-        "date": "2026-10-05",
+        "date": "2026-10-06",
         "title": "Latest Bursa KLCI observation",
         "category": "Market data",
         "source": "Yahoo Finance delayed market data",
         "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
         "type": "latest-observation",
-        "evidence": "KLCI one-year price return -0.2%."
+        "evidence": "KLCI one-year price return: -0.3%."
       }
     ],
     "summary": "The timeline combines official Malaysian events, data-selected structural breaks and the latest market observation. Event proximity is context, not causal proof.",
@@ -55576,12 +56493,15 @@
     }
   },
   "riskHeatmap": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "partial",
     "overallScore": 37.2,
     "overallLevel": "low",
-    "summary": "The current macro risk screen is low. The highest-pressure signals are Policy rate, 10-year MGS yield, Bursa large-cap market.",
-    "method": "Deterministic rules combine latest levels, recent changes, historical percentile checks and market/trade summaries. Scores are descriptive screens, not forecasts or causal estimates.",
+    "availableCount": 9,
+    "totalCount": 9,
+    "coverageNote": "9 of 9 signals have score inputs. The overall score is their equal-weight mean; unavailable signals are excluded, not scored as zero.",
+    "summary": "The current macro risk screen is low, based on 9 of 9 signals. The highest-pressure available signals are Policy rate, 10-year MGS yield, Bursa large-cap market.",
+    "method": "Deterministic rules use the stated latest-level and market/trade/demand inputs. Recent core changes and FX historical percentiles are supporting context, not score inputs. The overall score is the equal-weight mean of available signals. Scores are descriptive screens, not forecasts or causal estimates.",
     "items": [
       {
         "id": "headline",
@@ -55589,8 +56509,10 @@
         "group": "Prices",
         "score": 25,
         "level": "low",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
         "evidence": "Latest headline CPI inflation is 1.9%.",
-        "rule": "Low below 2%, moderate from 2-3%, high at 3% or above.",
+        "rule": "Low below 2%, moderate from 2% to below 3%, high at 3% or above.",
         "period": "2026-08-01",
         "watch": "Watch food, transport and administered-price categories."
       },
@@ -55600,8 +56522,10 @@
         "group": "Prices",
         "score": 25,
         "level": "low",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
         "evidence": "Latest core inflation is 1.7%; 3-month change is -0.3 pp.",
-        "rule": "Low below 2%, moderate from 2-3%, high at 3% or above.",
+        "rule": "Low below 2%, moderate from 2% to below 3%, high at 3% or above. The score uses the level, not the change.",
         "period": "2026-08-01",
         "watch": "Persistent core pressure matters more than one monthly headline move."
       },
@@ -55611,8 +56535,10 @@
         "group": "Households",
         "score": 25,
         "level": "low",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
         "evidence": "Unemployment is 3.0%.",
-        "rule": "Low below 4%, moderate from 4-5%, high at 5% or above.",
+        "rule": "Low below 4%, moderate from 4% to below 5%, high at 5% or above.",
         "period": "2026-07-01",
         "watch": "National unemployment can hide sector and regional weakness."
       },
@@ -55622,8 +56548,10 @@
         "group": "Financial conditions",
         "score": 55,
         "level": "moderate",
+        "dataStatus": "stale",
+        "unavailableReason": null,
         "evidence": "OPR is 2.75%.",
-        "rule": "Low below 2.50%, moderate from 2.50-3.25%, high above 3.25%.",
+        "rule": "Low below 2.50%, moderate from 2.50% to below 3.25%, high at 3.25% or above.",
         "period": "2026-09-03",
         "watch": "The real policy stance also depends on expected inflation."
       },
@@ -55633,8 +56561,10 @@
         "group": "External",
         "score": 30,
         "level": "low",
-        "evidence": "USD/MYR is RM 4.0795, at the 68.9th percentile of this dashboard history.",
-        "rule": "Higher USD/MYR levels receive higher imported-cost pressure scores.",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
+        "evidence": "USD/MYR is RM 4.0795; at the 68.9th percentile of this dashboard history.",
+        "rule": "Low below RM 4.20, moderate from RM 4.20 to below RM 4.60, high at RM 4.60 or above. The historical percentile is context, not a score input.",
         "period": "2026-09-01",
         "watch": "A weaker ringgit can help exporters while raising imported costs."
       },
@@ -55644,8 +56574,10 @@
         "group": "Financial conditions",
         "score": 55,
         "level": "moderate",
+        "dataStatus": "stale",
+        "unavailableReason": null,
         "evidence": "10-year MGS yield is 4.14%.",
-        "rule": "Low below 3.50%, moderate from 3.50-4.25%, high above 4.25%.",
+        "rule": "Low below 3.50%, moderate from 3.50% to below 4.25%, high at 4.25% or above.",
         "period": "2026-09-10",
         "watch": "Bond yields reflect policy expectations, term premium and global rates."
       },
@@ -55655,9 +56587,11 @@
         "group": "Markets",
         "score": 55,
         "level": "moderate",
-        "evidence": "KLCI one-year price return is -0.2% with a 8.0% max drawdown.",
-        "rule": "Higher pressure when one-year return is negative or drawdown is large.",
-        "period": "2026-10-05",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
+        "evidence": "KLCI one-year price return is -0.3% with a 8.0% max drawdown.",
+        "rule": "Low for return at least 5% and drawdown below 10%; moderate otherwise when return is above -5%; high when return is -5% or lower. Both measurements are required.",
+        "period": "2026-10-06",
         "watch": "Index performance excludes dividends, fees and taxes."
       },
       {
@@ -55666,8 +56600,10 @@
         "group": "Growth",
         "score": 35,
         "level": "low",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
         "evidence": "Latest demand screen is export-led.",
-        "rule": "Lower pressure when a clear demand engine is visible; higher when only partial evidence is available.",
+        "rule": "Low for an identified consumption, export or investment engine; moderate for import-sensitive or broad-based demand. A comparable numerical demand contribution is required.",
         "period": "2025-12-31",
         "watch": "Current-price GDP combines volume and price effects."
       },
@@ -55677,8 +56613,10 @@
         "group": "External",
         "score": 30,
         "level": "low",
+        "dataStatus": "fresh",
+        "unavailableReason": null,
         "evidence": "Latest goods trade balance is RM +28.1 billion; exports YoY +45.5%, imports YoY +41.1%.",
-        "rule": "Higher pressure when trade balance is negative or imports grow faster than exports.",
+        "rule": "Low for a positive trade balance with export growth at least import growth; moderate for a positive balance otherwise; high for a zero or negative balance. All three inputs are required.",
         "period": "2026-08-01",
         "watch": "Goods trade excludes services and income flows."
       }
@@ -55694,14 +56632,14 @@
     }
   },
   "latestBrief": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "partial",
     "period": "2026-08-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.7%.",
     "whatChanged": [
       "Headline inflation moved +0.1 percentage points from the prior monthly release.",
       "The ringgit moved +0.01 against the US dollar over the latest three-month dashboard window.",
-      "The FBM KLCI one-year price return is -0.2%, while the latest goods trade balance is RM +28.1 billion."
+      "The FBM KLCI one-year price return is -0.3%, while the latest goods trade balance is RM +28.1 billion."
     ],
     "whyItMayHaveHappened": [
       "Inflation changes can reflect category-level CPI pressure, policy effects, administered prices and imported costs.",
@@ -55713,10 +56651,11 @@
       "10-year MGS yield: Bond yields reflect policy expectations, term premium and global rates.",
       "Bursa large-cap market: Index performance excludes dividends, fees and taxes."
     ],
+    "coverageNote": "9 of 9 signals have score inputs. The overall score is their equal-weight mean; unavailable signals are excluded, not scored as zero.",
     "implications": [
       "Individuals should stress-test savings, debt repayments and job resilience against the highest-pressure signals.",
       "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
-      "The three-month inflation forecast ends at 1.82%, but the prediction intervals are more important than the point estimate."
+      "The three-month inflation forecast ends at 1.40%, but the prediction intervals are more important than the point estimate."
     ],
     "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice.",
     "calculationStatus": "fresh",
@@ -55728,14 +56667,13 @@
         "opr"
       ],
       "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
-    },
-    "calculatedAt": "2026-10-05T15:11:50Z"
+    }
   },
   "decisionGuide": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "status": "partial",
     "title": "Decision guide for the current Malaysian economy",
-    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a -0.2% one-year KLCI price return. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 3.0% unemployment and a one-year KLCI price return of -0.3%. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
       {
         "label": "Headline inflation",
@@ -55775,8 +56713,8 @@
       },
       {
         "label": "KLCI 1-year",
-        "value": "-0.2%",
-        "period": "2026-10-05",
+        "value": "-0.3%",
+        "period": "2026-10-06",
         "reading": "broadly flat price performance"
       }
     ],
@@ -55800,7 +56738,7 @@
           "theme": "Stocks and long-term investing",
           "stance": "Avoid chasing",
           "title": "Use goals and diversification, not the latest index move",
-          "evidence": "The FBM KLCI's latest one-year price return is -0.2% and its measured one-year volatility is 9.5%.",
+          "evidence": "The FBM KLCI's latest one-year price return is -0.3% and its measured one-year volatility is 9.5%.",
           "actions": [
             "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
             "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
@@ -55852,7 +56790,7 @@
           "theme": "Daily prices and imported goods",
           "stance": "Compare baskets",
           "title": "Watch imported-cost pressure in your own spending",
-          "evidence": "USD/MYR is RM 4.0795; latest goods imports are RM 163.0 billion where trade data are available.",
+          "evidence": "USD/MYR is RM 4.0795; latest goods imports: RM 163.0 billion.",
           "actions": [
             "Track recurring imported or foreign-currency-linked spending separately.",
             "Compare total cost after shipping, tax, warranties and exchange-rate conversion.",
@@ -55906,7 +56844,7 @@
           "theme": "Hiring and investment",
           "stance": "Stage commitments",
           "title": "Link hiring and capital spending to demand evidence",
-          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is broadly flat at -0.2%.",
+          "evidence": "Unemployment is 3.0% and the KLCI's latest one-year price performance is broadly flat: -0.3%.",
           "actions": [
             "Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.",
             "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.",
@@ -55919,7 +56857,7 @@
           "theme": "Inventory and import exposure",
           "stance": "Stress landed cost",
           "title": "Tie inventory decisions to FX and trade evidence",
-          "evidence": "Goods imports grew +41.1% year on year, while USD/MYR is RM 4.0795.",
+          "evidence": "Goods imports year-on-year change: +41.1%, while USD/MYR is RM 4.0795.",
           "actions": [
             "Separate essential stock buffers from speculative over-ordering.",
             "Reprice landed cost assumptions using adverse FX and freight scenarios.",
@@ -55932,7 +56870,7 @@
           "theme": "Scenario governance",
           "stance": "Use triggers",
           "title": "Set decision gates around the highest-risk signals",
-          "evidence": "The current heatmap is low pressure, led by Headline inflation, Core inflation.",
+          "evidence": "The current heatmap is low pressure, led by Policy rate, 10-year MGS yield.",
           "actions": [
             "Define measurable triggers before hiring, capex, refinancing or price changes.",
             "Assign owners for inflation, FX, cash-flow and sales indicators.",
@@ -55974,7 +56912,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-10-05T12:36:25Z",
+    "lastSuccessfulRefresh": "2026-10-06T12:13:36Z",
     "vintageCount": 4,
     "latestVintagePeriod": "2026-08",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -56013,11 +56951,11 @@
   },
   "narratives": {
     "snapshot": "Headline inflation rose to 1.9% in the latest release, while core inflation was 1.7%.",
-    "forecast": "The selected SARIMA model places the three-month central forecast at 1.82%. Prediction intervals, rather than the point estimate alone, should guide interpretation.",
+    "forecast": "The selected Seasonal naive model places the three-month central forecast at 1.40%. Prediction intervals, rather than the point estimate alone, should guide interpretation.",
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "monthlyReport": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "title": "MacroLens Malaysia monthly research brief",
     "period": "2026-08-01",
     "sections": [
@@ -56027,7 +56965,7 @@
       },
       {
         "heading": "Risk heatmap",
-        "body": "The current macro risk screen is low. The highest-pressure signals are Policy rate, 10-year MGS yield, Bursa large-cap market."
+        "body": "The current macro risk screen is low, based on 9 of 9 signals. The highest-pressure available signals are Policy rate, 10-year MGS yield, Bursa large-cap market."
       },
       {
         "heading": "Household pressure",
@@ -56039,7 +56977,7 @@
       },
       {
         "heading": "Forecast",
-        "body": "The selected SARIMA model places the three-month central forecast at 1.82%. Prediction intervals, rather than the point estimate alone, should guide interpretation."
+        "body": "The selected Seasonal naive model places the three-month central forecast at 1.40%. Prediction intervals, rather than the point estimate alone, should guide interpretation."
       }
     ],
     "downloads": [
@@ -56063,32 +57001,32 @@
       "staleInputs": [
         "forecast",
         "mgs",
-        "opr"
+        "opr",
+        "regionalLens"
       ],
-      "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr"
+      "note": "Uses retained, stale or unavailable inputs: forecast, mgs, opr, regionalLens"
     },
-    "status": "partial",
-    "calculatedAt": "2026-10-05T15:11:50Z"
+    "status": "partial"
   },
   "dataHealth": {
-    "generatedAt": "2026-10-05T12:36:25Z",
+    "generatedAt": "2026-10-06T12:13:36Z",
     "schemaVersion": 9,
     "overall": "partial",
-    "note": "16 of 18 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time.",
+    "note": "22 of 26 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time.",
     "overallHealth": "partial",
-    "sourceCount": 18,
-    "staleCount": 2,
+    "sourceCount": 26,
+    "staleCount": 4,
     "sources": [
       {
         "id": "headline",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 65,
+          "observationAgeDays": 66,
           "maximumObservationAgeDays": 100,
           "note": "Conservative observation-age limit; not a verified official release calendar."
         }
@@ -56096,13 +57034,13 @@
       {
         "id": "core",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 65,
+          "observationAgeDays": 66,
           "maximumObservationAgeDays": 100,
           "note": "Conservative observation-age limit; not a verified official release calendar."
         }
@@ -56110,13 +57048,13 @@
       {
         "id": "unemployment",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2026-07-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 96,
+          "observationAgeDays": 97,
           "maximumObservationAgeDays": 110,
           "note": "Conservative observation-age limit; not a verified official release calendar."
         }
@@ -56127,18 +57065,18 @@
         "retrievedAt": null,
         "observationPeriod": "2026-09-03",
         "message": "Using last valid data: SSLError",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
       },
       {
         "id": "fx",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 34,
+          "observationAgeDays": 35,
           "maximumObservationAgeDays": 45,
           "note": "Conservative observation-age limit; not a verified official release calendar."
         }
@@ -56149,22 +57087,22 @@
         "retrievedAt": null,
         "observationPeriod": "2026-09-10",
         "message": "Using last valid data: RuntimeError",
-        "lastAttemptAt": "2026-10-05T12:36:25Z"
+        "lastAttemptAt": "2026-10-06T12:13:36Z"
       },
       {
         "id": "market",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": null,
-        "observationPeriod": "2026-10-05",
+        "observationPeriod": "2026-10-06",
         "message": "Delayed daily prices validated"
       },
       {
         "id": "economicStructure",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
         "observationPeriod": "2025-12-31",
         "message": "Official quarterly observations validated; only complete calendar years are published"
@@ -56172,8 +57110,8 @@
       {
         "id": "externalSector",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
         "observationPeriod": "2026-08-01",
         "message": "Official monthly trade headline data validated"
@@ -56181,8 +57119,8 @@
       {
         "id": "balancePayments",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
         "observationPeriod": "2026-04-01",
         "message": "Official quarterly BOP component balances validated"
@@ -56190,71 +57128,143 @@
       {
         "id": "growthDrivers.demand",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
         "observationPeriod": "2025-12-31",
         "message": "Official quarterly expenditure observations validated; complete years only"
       },
       {
+        "id": "regionalLens.nationalIncome",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
+        "observationPeriod": "2024-01-01",
+        "message": "Official national household benchmark validated; comparisons require the same survey period"
+      },
+      {
+        "id": "regionalLens.nationalPoverty",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
+        "observationPeriod": "2024-01-01",
+        "message": "Official national household benchmark validated; comparisons require the same survey period"
+      },
+      {
+        "id": "regionalLens.nationalInequality",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
+        "observationPeriod": "2024-01-01",
+        "message": "Official national household benchmark validated; comparisons require the same survey period"
+      },
+      {
         "id": "regionalLens.hiesState",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
         "observationPeriod": "2024-01-01",
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated"
       },
       {
+        "id": "regionalLens.nationalExpenditure",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
+        "observationPeriod": "2024-01-01",
+        "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
+      },
+      {
         "id": "regionalLens.hiesDistrict",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "observationPeriod": "2024-01-01",
         "message": "Latest district HIES data validated"
       },
       {
-        "id": "regionalLens.incomeGroups",
+        "id": "regionalLens.incomeGroupState",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
-        "message": "Latest state and national income-percentile data validated"
+        "message": "Official income percentiles validated independently"
+      },
+      {
+        "id": "regionalLens.incomeGroupNational",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
+        "observationPeriod": "2024-01-01",
+        "message": "Official income percentiles validated independently"
+      },
+      {
+        "id": "regionalLens.incomeGroups",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
+        "observationPeriod": "2024-01-01",
+        "message": "State and national income groups refreshed from independently validated, same-period percentile data"
       },
       {
         "id": "regionalLens.labour",
-        "status": "fresh",
+        "status": "stale",
         "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "observationPeriod": "2024-01-01",
-        "message": "District labour-force data validated and aggregated to state level"
+        "message": "Last valid observations retained; ValueError: source retrieval or validation failed"
       },
       {
-        "id": "regionalLens.gdp",
+        "id": "regionalLens.gdpState",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero"
       },
       {
-        "id": "regionalLens.cpi",
+        "id": "regionalLens.gdpDistrict",
         "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
+        "observationPeriod": "2020-01-01",
+        "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero"
+      },
+      {
+        "id": "regionalLens.gdp",
+        "status": "fresh",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
+        "observationPeriod": "2025-01-01",
+        "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time"
+      },
+      {
+        "id": "regionalLens.cpi",
+        "status": "stale",
         "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
         "observationPeriod": "2026-08-01",
-        "message": "Latest state headline CPI inflation validated"
+        "message": "Last valid observations retained; ValueError: source retrieval or validation failed"
       },
       {
         "id": "regionalLens.nationalExpenditure",
         "status": "fresh",
-        "retrievedAt": "2026-10-05T12:36:25Z",
-        "lastAttemptAt": "2026-10-05T12:36:25Z",
+        "retrievedAt": "2026-10-06T12:13:36Z",
+        "lastAttemptAt": "2026-10-06T12:13:36Z",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "observationPeriod": "2024-01-01",
         "message": "Exact survey-year national mean consumption expenditure validated from the official DOSM report"
@@ -56262,7 +57272,7 @@
     ],
     "refresh": {
       "schedule": "Daily at 13:45 Malaysia time",
-      "lastSuccessfulRefresh": "2026-10-05T12:36:25Z",
+      "lastSuccessfulRefresh": "2026-10-06T12:13:36Z",
       "vintageCount": 4,
       "latestVintagePeriod": "2026-08",
       "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -56299,6 +57309,6 @@
         }
       ]
     },
-    "summary": "16 of 18 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time."
+    "summary": "22 of 26 source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time."
   }
 }
