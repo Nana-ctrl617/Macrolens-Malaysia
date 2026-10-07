@@ -1,8 +1,8 @@
 {
   "refreshPolicy": "source-local-v1",
   "status": "partial",
-  "generatedAt": "2026-10-06T12:13:36Z",
-  "lastAttemptAt": "2026-10-06T12:13:36Z",
+  "generatedAt": "2026-10-07T11:59:44Z",
+  "lastAttemptAt": "2026-10-07T11:59:44Z",
   "calculationStatus": "fresh",
   "message": "10 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
   "defaultComparison": {
@@ -23,7 +23,7 @@
   "sources": {
     "nationalIncome": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
       "records": [
@@ -139,11 +139,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "nationalPoverty": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
       "records": [
@@ -233,11 +233,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "nationalInequality": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
       "records": [
@@ -327,11 +327,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "hiesState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -527,8 +527,8 @@
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-10-06T12:13:36Z",
-        "lastAttemptAt": "2026-10-06T12:13:36Z",
+        "retrievedAt": "2026-10-07T11:59:44Z",
+        "lastAttemptAt": "2026-10-07T11:59:44Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
@@ -536,15 +536,15 @@
       },
       "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
       "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "nationalExpenditure": {
       "status": "fresh",
       "value": 5566.0,
       "unit": "RM per household per month",
       "observationPeriod": "2024-01-01",
-      "retrievedAt": "2026-10-06T12:13:36Z",
-      "lastAttemptAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
+      "lastAttemptAt": "2026-10-07T11:59:44Z",
       "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
       "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
       "page": 24,
@@ -552,7 +552,7 @@
     },
     "hiesDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -2503,11 +2503,11 @@
         }
       ],
       "message": "Latest district HIES data validated",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "incomeGroupState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
@@ -3042,11 +3042,11 @@
         }
       ],
       "message": "Official income percentiles validated independently",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "incomeGroupNational": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
@@ -3080,11 +3080,11 @@
         }
       ],
       "message": "Official income percentiles validated independently",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -3700,7 +3700,7 @@
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
       "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "labour": {
       "status": "stale",
@@ -5201,12 +5201,12 @@
         }
       ],
       "message": "Last valid observations retained; ValueError: source retrieval or validation failed",
-      "lastAttemptAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-07T11:59:44Z",
       "failureReason": "ValueError: source retrieval or validation failed"
     },
     "gdpState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -5214,11 +5214,11 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "gdpDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2020-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -5226,11 +5226,11 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-      "lastAttemptAt": "2026-10-06T12:13:36Z"
+      "lastAttemptAt": "2026-10-07T11:59:44Z"
     },
     "gdp": {
       "status": "fresh",
-      "retrievedAt": "2026-10-06T12:13:36Z",
+      "retrievedAt": "2026-10-07T11:59:44Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -5238,7 +5238,7 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
-      "lastAttemptAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-07T11:59:44Z",
       "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
       "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
       "stateRecords": [
@@ -14666,7 +14666,7 @@
       ],
       "stateSource": {
         "status": "fresh",
-        "retrievedAt": "2026-10-06T12:13:36Z",
+        "retrievedAt": "2026-10-07T11:59:44Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -14674,11 +14674,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-06T12:13:36Z"
+        "lastAttemptAt": "2026-10-07T11:59:44Z"
       },
       "districtSource": {
         "status": "fresh",
-        "retrievedAt": "2026-10-06T12:13:36Z",
+        "retrievedAt": "2026-10-07T11:59:44Z",
         "observationPeriod": "2020-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -14686,7 +14686,7 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-06T12:13:36Z"
+        "lastAttemptAt": "2026-10-07T11:59:44Z"
       }
     },
     "cpi": {
@@ -14778,7 +14778,7 @@
         }
       ],
       "message": "Last valid observations retained; ValueError: source retrieval or validation failed",
-      "lastAttemptAt": "2026-10-06T12:13:36Z",
+      "lastAttemptAt": "2026-10-07T11:59:44Z",
       "failureReason": "ValueError: source retrieval or validation failed"
     }
   },
@@ -27793,7 +27793,7 @@
   ],
   "incomeGroups": {
     "status": "fresh",
-    "retrievedAt": "2026-10-06T12:13:36Z",
+    "retrievedAt": "2026-10-07T11:59:44Z",
     "observationPeriod": "2024-01-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -28409,7 +28409,7 @@
     ],
     "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
     "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-    "lastAttemptAt": "2026-10-06T12:13:36Z"
+    "lastAttemptAt": "2026-10-07T11:59:44Z"
   },
   "summaryCards": [
     {

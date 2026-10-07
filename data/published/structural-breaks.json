@@ -14,7 +14,7 @@
   "indicators": {
     "headline": {
       "indicatorId": "headline",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-09-18T10:02:12Z",
       "sample": {
         "start": "1981-01-01",
@@ -44,16 +44,14 @@
       "seriesFingerprint": "524117f14009f797682ccb80f809fd0cae1acec838c0d7f979908361f1c7db46",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "opr"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: opr"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "core": {
       "indicatorId": "core",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-09-18T10:02:12Z",
       "sample": {
         "start": "2019-01-01",
@@ -132,16 +130,14 @@
       "seriesFingerprint": "40694cbb3d6b3807c6d5b17d16c2d37dea38350df1e590c29d006ec4f08bc17e",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "opr"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: opr"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "unemployment": {
       "indicatorId": "unemployment",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-09-21T11:05:16Z",
       "sample": {
         "start": "2010-01-01",
@@ -351,16 +347,14 @@
       "seriesFingerprint": "2974ead5bfb195b256f58b67a5e9d1a8ce1c476a6157976eab56e07ecee0e88d",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "opr"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: opr"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "opr": {
       "indicatorId": "opr",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-09-11T06:46:04Z",
       "sample": {
         "start": "2010-01-01",
@@ -595,16 +589,14 @@
       "seriesFingerprint": "ce3eb23f2486df1f75f995d0fd8bfbc6100f3ab8a8d93a776c4b81ae94227f2c",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "opr"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: opr"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "fx": {
       "indicatorId": "fx",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-10-01T11:47:49Z",
       "sample": {
         "start": "1997-01-01",
@@ -681,11 +673,9 @@
       "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "opr"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: opr"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "mgs": {
@@ -725,10 +715,9 @@
       "inputHealth": {
         "status": "partial",
         "staleInputs": [
-          "mgs",
-          "opr"
+          "mgs"
         ],
-        "note": "Uses retained, stale or unavailable inputs: mgs, opr"
+        "note": "Uses retained, stale or unavailable inputs: mgs"
       }
     }
   },
@@ -737,14 +726,8 @@
     "status": "partial",
     "staleInputs": [
       "mgs",
-      "opr",
-      "structuralBreaks.core",
-      "structuralBreaks.fx",
-      "structuralBreaks.headline",
-      "structuralBreaks.mgs",
-      "structuralBreaks.opr",
-      "structuralBreaks.unemployment"
+      "structuralBreaks.mgs"
     ],
-    "note": "Uses retained, stale or unavailable inputs: mgs, opr, structuralBreaks.core, structuralBreaks.fx, structuralBreaks.headline, structuralBreaks.mgs, structuralBreaks.opr, structuralBreaks.unemployment"
+    "note": "Uses retained, stale or unavailable inputs: mgs, structuralBreaks.mgs"
   }
 }
