@@ -54,7 +54,7 @@ for (const size of sizes) {
         assert.equal(await status.textContent(),last,'snapshot pointer and keyboard parity');
         await lastBar.tap(); assert.equal(await status.textContent(),last,'snapshot touch and keyboard parity');
         await lastBar.press('Escape'); assert.equal(await lastBar.evaluate(el=>el===document.activeElement),true);
-        await page.getByRole('button', { name: /Open historical data for Headline inflation/ }).click();
+        await page.getByRole('button', { name: /Open history for Headline inflation/ }).click();
         await page.locator('.detail-chart-wrap canvas').waitFor();
       }
       item.overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
@@ -92,7 +92,6 @@ for (const size of sizes) {
         const viewportHeight = await page.evaluate(() => window.innerHeight);
         const visibleTop = Math.max(0,box.y), visibleBottom = Math.min(viewportHeight,box.y+box.height);
         assert.ok(visibleBottom>visibleTop,`chart must be scrolled into the visible viewport before pointer/touch inspection (${JSON.stringify({box,viewportHeight,scrollY:await page.evaluate(()=>window.scrollY)})})`);
-        const inspectY = visibleTop + (visibleBottom-visibleTop)/2;
         // The rightmost point is clamped to the last real observation.
         const isDonut = await canvas.evaluate(el => !!el.closest('[data-chart-kind="donut"]'));
         if (!isDonut) {

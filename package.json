@@ -19,7 +19,7 @@
     "release:ready": "node scripts/assert-release-ready.mjs",
     "typecheck:app": "tsc -p tsconfig.app.json",
     "data:refresh": "python pipeline/macrolens.py",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "lint": "eslint app scripts tests playwright.config.ts eslint.config.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

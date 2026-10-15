@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
 import { nextChartIndex, isChartInspectionKey, nearestChartIndex, chartSegments, canvasContentWidth, chartFontSize, sectorShareObservations } from "../app/lib/chart-inspection.ts";
 import { viewSource, functionSource } from './source-owners.mjs';
 

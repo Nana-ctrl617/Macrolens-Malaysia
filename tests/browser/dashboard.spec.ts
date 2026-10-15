@@ -13,6 +13,7 @@ test("all nineteen routes remain reachable through the compact navigation", asyn
     const toggle = page.getByRole("button", { name: /^Sections\. Current page:/ });
     if (await toggle.isVisible()) { await toggle.click(); await expect(toggle).toHaveAttribute("aria-expanded", "true"); }
     const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+    await navigation.getByRole("searchbox", { name: "Find a page" }).fill(label);
     await navigation.getByRole("link", { name: label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${path === "/" ? "/" : path}/?(?:\\?.*)?$`));
     if (path === "/news") await expect(page.locator(".news-meta [role=status]")).toContainText("verified-date headlines");
@@ -45,6 +46,31 @@ test("release gate browser negative control", async ({ page, context }) => {
   expect(process.env.PLAYWRIGHT_INJECT_FAILURE, "Deliberate required browser assertion: a failure must block the release gate.").not.toBe("1");
 });
 
+test("navigation search finds pages by label or topic and explains no matches", async ({ page, context }) => {
+  await installFixture(context, await dashboardFixture());
+  await ready(page, "/regional");
+  const toggle = page.getByRole("button", { name: /^Sections\. Current page:/ });
+  if (await toggle.isVisible()) await toggle.click();
+  const nav = page.getByRole("navigation", { name: "Primary navigation" });
+  const search = nav.getByRole("searchbox", { name: "Find a page" });
+  await search.fill("jobs");
+  await expect(nav.getByRole("link", { name: "Snapshot", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Households", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Regional Lens", exact: true })).toBeVisible();
+  await expect(nav.getByRole("status")).toContainText("pages found");
+  await search.fill("inflation");
+  await expect(nav.getByRole("link", { name: "Snapshot", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Forecast", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Inflation drivers", exact: true })).toBeVisible();
+  await search.fill("exchange rate");
+  await expect(nav.getByRole("link", { name: "External sector", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Snapshot", exact: true })).toHaveCount(0);
+  await search.fill("not a real section");
+  await expect(nav.getByRole("status")).toHaveText("No pages match that search. Try a page name or topic such as inflation, jobs, trade or markets.");
+  await search.clear();
+  await expect(nav.getByRole("link", { name: "Regional Lens", exact: true })).toBeVisible();
+});
+
 test("forecast page displays the information origin from its validated payload", async ({ page, context }) => {
   const payload = await dashboardFixture();
   await installFixture(context, payload);
@@ -58,6 +84,29 @@ test("forecast page displays the information origin from its validated payload",
   await expect(note).toContainText("released after its reference month");
 });
 
+test("Snapshot cards link each indicator to its official source and explain stale data", async ({ page, context }, info) => {
+  const payload = await dashboardFixture();
+  payload.health = "partial";
+  payload.usingFallback = false;
+  payload.sources.mgs.status = "stale";
+  await installFixture(context, payload);
+  await ready(page, "/");
+  const cards = page.locator(".metric-card");
+  await expect(cards).toHaveCount(6);
+  const ids = ["headline", "core", "opr", "unemployment", "fx", "mgs"] as const;
+  for (let index = 0; index < ids.length; index++) {
+    const card = cards.nth(index), series = payload.series[ids[index]];
+    const source = card.getByRole("link", { name: `Source: ${series.source}` });
+    await expect(source).toHaveAttribute("href", series.source_url);
+    await expect(card.getByRole("button")).toContainText("Release period");
+  }
+  const staleCard = cards.nth(ids.indexOf("mgs"));
+  await expect(staleCard).toContainText("Stale");
+  await expect(staleCard).toContainText("The latest refresh did not pass; showing the last validated observation.");
+  await readability(page, info);
+  await noOverflow(page);
+});
+
 test("news topic and source filters intersect, announce counts and recover from no matches", async ({ page, context }, info) => {
   await installFixture(context, await dashboardFixture());
   await ready(page, "/news"); await readability(page, info);
@@ -65,16 +114,39 @@ test("news topic and source filters intersect, announce counts and recover from 
   const sources = page.getByRole("group", { name: "Filter news by source" });
   await topics.getByRole("button", { name: "Inflation", exact: true }).click();
   await expect(topics.getByRole("button", { name: "Inflation", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".news-meta [role=status]")).toHaveText("1 matching verified-date headlines. Source status: fresh.");
+  await expect(page.locator(".news-meta [role=status]")).toHaveText("1 matching story across 1 verified-date headline. Source status: fresh.");
   await expect(page.locator(".news-featured h2")).toHaveText("Fixture inflation release");
   await sources.getByRole("button", { name: "Markets Desk", exact: true }).click();
   await expect(page.locator(".news-empty")).toContainText("No headlines match these filters");
-  await expect(page.locator(".news-meta [role=status]")).toContainText("0 matching");
+  await expect(page.locator(".news-meta [role=status]")).toContainText("0 matching stories across 0 verified-date headlines");
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
   await expect(topics.getByRole("button", { name: "All", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(sources.getByRole("button", { name: "All", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".news-meta [role=status]")).toContainText("3 matching");
+  await expect(page.locator(".news-meta [role=status]")).toContainText("6 matching stories across 9 verified-date headlines");
+  await expect(page.locator(".news-grid .news-card")).toHaveCount(5);
+  await expect(page.locator(".news-grid .news-coverage").first()).toContainText("Markets Desk");
   await noOverflow(page);
+});
+
+test("news groups overlapping publisher coverage without hiding links or changing date order", async ({ page, context }) => {
+  await installFixture(context, await dashboardFixture());
+  await ready(page, "/news");
+  await expect(page.locator(".news-featured h2")).toHaveText("Fixture inflation release");
+  await expect(page.locator(".news-featured .news-coverage")).toContainText("Test Desk");
+  const trade = page.locator(".news-grid .news-card").filter({ hasText: "Malaysia exports surge as trade surplus grows" });
+  await expect(trade).toHaveCount(1);
+  await trade.locator(".news-coverage summary").click();
+  await expect(trade.locator(".news-coverage a")).toHaveCount(2);
+  await expect(trade.locator(".news-coverage")).toContainText("3 Oct 2026");
+  const bursa = page.locator(".news-grid .news-card").filter({ hasText: "Bursa Malaysia snaps four-day winning streak" });
+  await expect(bursa).toHaveCount(1);
+  await bursa.locator(".news-coverage summary").click();
+  await expect(bursa.locator(".news-coverage a")).toHaveCount(2);
+  const ringgit = page.locator(".news-grid .news-card").filter({ hasText: "Ringgit firms against US dollar ahead of GDP estimates" });
+  await expect(ringgit).toHaveCount(1);
+  await ringgit.locator(".news-coverage summary").click();
+  await expect(ringgit.locator(".news-coverage a")).toHaveCount(2);
+  await expect(page.locator(".news-grid .news-card").filter({ hasText: "Ringgit slides against US dollar after oil price shock" })).toHaveCount(1);
 });
 
 test("regional filters keep official district values, metric years and source notes together", async ({ page, context }, info) => {

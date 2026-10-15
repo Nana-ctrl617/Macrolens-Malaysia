@@ -2,6 +2,10 @@
 import { validateForecastEvaluationIntegrity } from './forecast-evaluation-integrity.ts';
 import { validateRegionalNumbers } from './regional-integrity.ts';
 type Point = { date: string; value: number };
+// Runtime validation deliberately inspects versioned JSON before trusting its nested shape.
+// Keep this dynamic view private to this validator; exported values remain fully typed.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- unknown artifact fields are narrowed by these fail-closed checks.
+type UntrustedRecord = Record<string, any>;
 const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 const date = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
 const url = (value: unknown) => typeof value === 'string' && /^https:\/\//.test(value);
@@ -11,7 +15,7 @@ const instant = (value: unknown): value is string => typeof value === 'string' &
 
 function validVintageLedger(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  const ledger = value as Record<string, any>;
+  const ledger = value as UntrustedRecord;
   if (ledger.version !== 1 || ledger.requiredSourceCount !== 6 || !count(ledger.freshSourceCount)
       || ledger.freshSourceCount > ledger.requiredSourceCount || !count(ledger.sourceSnapshotCount)
       || ledger.freshSourceCount > ledger.sourceSnapshotCount
@@ -35,7 +39,7 @@ export function validateDashboardIntegrity(raw: unknown): boolean {
   try {
     if (!raw || typeof raw !== 'object') return false;
     // Schema shape remains guarded by isDashboard; this unit checks cross-field integrity.
-    const p = raw as Record<string, any>;
+    const p = raw as UntrustedRecord;
     if (!Number.isFinite(Date.parse(p.generatedAt))) return false;
     const bounds: Record<string, [number, number]> = { headline:[-50,100], core:[-50,100], opr:[0,20], unemployment:[0,100], fx:[0.01,100], mgs:[0,30] };
     for (const [key, [min, max]] of Object.entries(bounds)) {
@@ -56,7 +60,7 @@ export function validateDashboardIntegrity(raw: unknown): boolean {
       if (point.date !== expected || !['low95','low80','value','high80','high95'].every(k => finite(point[k]))) return false;
       if (!(point.low95 <= point.low80 && point.low80 <= point.value && point.value <= point.high80 && point.high80 <= point.high95)) return false;
     }
-    if (!Array.isArray(p.forecast.models) || p.forecast.models.filter((m: any) => m.selected).length !== 1) return false;
+    if (!Array.isArray(p.forecast.models) || p.forecast.models.filter((m: UntrustedRecord) => m.selected).length !== 1) return false;
     for (const m of p.forecast.models) {
       if (m.rmse === null || m.mae === null) { if (m.selected || m.eligible !== false) return false; }
       else if (!between(m.rmse,0,100) || !between(m.mae,0,100)) return false;
@@ -116,7 +120,7 @@ export function validateDashboardIntegrity(raw: unknown): boolean {
       if (risk.totalCount !== undefined && (!Number.isInteger(risk.totalCount) || risk.totalCount !== risk.items.length)) return false;
       if (risk.coverageNote !== undefined && (typeof risk.coverageNote !== 'string' || !risk.coverageNote.trim())) return false;
       if (available.length < risk.items.length && (risk.availableCount === undefined || risk.totalCount === undefined || typeof risk.coverageNote !== 'string' || !risk.coverageNote.trim() || risk.status === 'fresh')) return false;
-      if (risk.status === 'fresh' && risk.items.some((item: any) => item.dataStatus !== undefined && item.dataStatus !== 'fresh')) return false;
+      if (risk.status === 'fresh' && risk.items.some((item: UntrustedRecord) => item.dataStatus !== undefined && item.dataStatus !== 'fresh')) return false;
       if (!available.length) {
         if (risk.overallScore !== null || risk.overallLevel !== 'unavailable' || risk.status !== 'unavailable') return false;
       } else {

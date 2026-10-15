@@ -9,9 +9,9 @@ import { loadProjectionModule } from "../../scripts/measurement-projection.mjs";
 export const BASE = "http://127.0.0.1:4185";
 export const ROUTES = [
   ["/", "Snapshot"], ["/brief", "Brief"], ["/news", "News"], ["/risk", "Risk heatmap"],
-  ["/forecast", "Forecast"], ["/drivers", "Drivers"], ["/structure", "Growth drivers"],
-  ["/external", "External sector"], ["/bop", "BOP"], ["/household", "Households"],
-  ["/regional", "Regional Lens"], ["/sectors", "Sectors"], ["/bursa", "Bursa"],
+  ["/forecast", "Forecast"], ["/drivers", "Inflation drivers"], ["/structure", "Growth drivers"],
+  ["/external", "External sector"], ["/bop", "Balance of payments"], ["/household", "Households"],
+  ["/regional", "Regional Lens"], ["/sectors", "Industry mix"], ["/bursa", "Bursa"],
   ["/decisions", "Decision guide"], ["/timeline", "Timeline"], ["/structural", "Structural shifts"],
   ["/report", "Report"], ["/health", "Data health"], ["/methodology", "Methodology"],
 ] as const;
@@ -26,8 +26,14 @@ export const NEWS: NewsPayload = {
   sources: [{ id: "desk", label: "Test Desk", url: "https://example.com/desk", status: "fresh", message: "Controlled source" }],
   items: [
     { title: "Fixture inflation release", link: "https://example.com/inflation", publishedAt: "2026-10-04T02:00:00Z", source: "Test Desk", summary: "Controlled inflation story.", topics: ["Inflation"], relevanceScore: 10 },
-    { title: "Fixture trade release", link: "https://example.com/trade", publishedAt: "2026-10-03T02:00:00Z", source: "Markets Desk", summary: "Controlled trade story.", topics: ["Trade"], relevanceScore: 9 },
-    { title: "Fixture policy discussion", link: "https://example.com/policy", publishedAt: "2026-10-02T02:00:00Z", source: "Test Desk", summary: "Controlled policy story.", topics: ["Policy"], relevanceScore: 8 },
+    { title: "Malaysia exports surge as trade surplus grows", link: "https://example.com/trade", publishedAt: "2026-10-03T02:00:00Z", source: "Markets Desk", summary: "Controlled trade story.", topics: ["Trade"], relevanceScore: 9 },
+    { title: "Trade surplus grows as Malaysia exports surge", link: "https://example.com/trade-second", publishedAt: "2026-10-03T01:00:00Z", source: "Test Desk", summary: "Second controlled report about trade.", topics: ["Trade"], relevanceScore: 8 },
+    { title: "Bursa Malaysia snaps four-day winning streak", link: "https://example.com/bursa-a", publishedAt: "2026-10-02T02:00:00Z", source: "Markets Desk", summary: "Controlled market story.", topics: ["Bursa"], relevanceScore: 7 },
+    { title: "KLCI stocks end 4-day winning streak", link: "https://example.com/bursa-b", publishedAt: "2026-10-02T01:00:00Z", source: "Test Desk", summary: "Second report about the same market event.", topics: ["Bursa"], relevanceScore: 6 },
+    { title: "Ringgit firms against US dollar ahead of GDP estimates", link: "https://example.com/ringgit-a", publishedAt: "2026-10-01T04:00:00Z", source: "Markets Desk", summary: "Controlled currency story.", topics: ["Ringgit", "Growth"], relevanceScore: 5 },
+    { title: "Ringgit rises versus US dollar as GDP estimates approach", link: "https://example.com/ringgit-b", publishedAt: "2026-10-01T03:00:00Z", source: "Test Desk", summary: "Second report on the same currency catalyst.", topics: ["Ringgit", "Growth"], relevanceScore: 4 },
+    { title: "Ringgit slides against US dollar after oil price shock", link: "https://example.com/ringgit-oil", publishedAt: "2026-10-01T02:00:00Z", source: "Other Desk", summary: "Separate currency event with a different catalyst.", topics: ["Ringgit"], relevanceScore: 3 },
+    { title: "Fixture policy discussion", link: "https://example.com/policy", publishedAt: "2026-10-01T01:00:00Z", source: "Test Desk", summary: "Controlled policy story.", topics: ["Policy"], relevanceScore: 2 },
   ], disclaimer: "Browser fixture only, not factual news.",
 };
 

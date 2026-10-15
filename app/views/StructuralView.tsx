@@ -28,10 +28,13 @@ export function StructuralSection({ dashboard, loadHistory }: { dashboard: Dashb
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("indicator");
     if (requested && Object.hasOwn(structuralLabels, requested)) {
-      setSelected(requested as MetricId);
-      setRange(dashboard?.series[requested].history?.complete === false ? "RECENT" : "ALL");
+      const frame = window.requestAnimationFrame(() => {
+        setSelected(requested as MetricId);
+        setRange(dashboard?.series[requested as MetricId].history?.complete === false ? "RECENT" : "ALL");
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
-  }, []);
+  }, [dashboard]);
   const structural = dashboard?.structuralBreaks;
   const analysis = structural?.indicators[selected];
   const ref = dashboard?.deferred?.[`indicator:${selected}`];
@@ -40,18 +43,18 @@ export function StructuralSection({ dashboard, loadHistory }: { dashboard: Dashb
   const preview = dashboard?.series[selected]?.history;
   const isPreview = Boolean(preview && !preview.complete && history.data?.key !== selected);
   const selectRange = async (next: "10Y" | "25Y" | "ALL") => { if (isPreview && !await history.load()) return; setRange(next); };
-  useEffect(() => { if (!isPreview && range === "RECENT") setRange("ALL"); }, [isPreview, range]);
-  const series: IndicatorData | undefined = sourceSeries ? {
+  const effectiveRange = !isPreview && range === "RECENT" ? "ALL" : range;
+  const series: IndicatorData | undefined = useMemo(() => sourceSeries ? {
     id: selected, title: sourceSeries.title, unit: sourceSeries.unit, decimals: sourceSeries.decimals,
     source: sourceSeries.source, sourceUrl: sourceSeries.source_url, frequency: sourceSeries.frequency, points: sourceSeries.points,
-  } : undefined;
+  } : undefined, [selected, sourceSeries]);
   const points = useMemo(() => {
     if (!series) return [];
-    if (range === "ALL" || range === "RECENT") return series.points;
+    if (effectiveRange === "ALL" || effectiveRange === "RECENT") return series.points;
     const end = new Date(`${series.points.at(-1)?.date}T00:00:00`);
-    const start = new Date(end); start.setFullYear(start.getFullYear() - Number(range.replace("Y", "")));
+    const start = new Date(end); start.setFullYear(start.getFullYear() - Number(effectiveRange.replace("Y", "")));
     return series.points.filter((point) => new Date(`${point.date}T00:00:00`) >= start);
-  }, [series, range]);
+  }, [series, effectiveRange]);
   const candidates = analysis?.candidates ?? [];
   const featured = [...candidates].reverse().find((candidate) => candidate.status === "supported") ?? candidates.at(-1);
   const calculationTime = structural ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(structural.calculatedAt)) : "pending";
@@ -69,7 +72,7 @@ export function StructuralSection({ dashboard, loadHistory }: { dashboard: Dashb
             <div className="indicator-tabs" role="tablist" aria-label="Select structural indicator">
               {(Object.keys(structuralLabels) as MetricId[]).map((id) => <button key={id} role="tab" aria-selected={selected === id} disabled={history.loading} className={selected === id ? "active" : ""} onClick={() => { setSelected(id); setRange(dashboard?.series[id].history?.complete === false ? "RECENT" : "ALL"); }}>{structuralLabels[id]}</button>)}
             </div>
-            <div className="structural-range" aria-label="Structural chart time frame">{isPreview && <button aria-pressed={true} className="active" onClick={() => setRange("RECENT")}>Recent preview</button>}{(["10Y", "25Y", "ALL"] as const).map((option) => <button key={option} className={range === option ? "active" : ""} aria-pressed={range === option} disabled={history.loading} onClick={() => void selectRange(option)}>{option === "ALL" ? "All history" : option}</button>)}</div>
+            <div className="structural-range" aria-label="Structural chart time frame">{isPreview && <button aria-pressed={true} className="active" onClick={() => setRange("RECENT")}>Recent preview</button>}{(["10Y", "25Y", "ALL"] as const).map((option) => <button key={option} className={effectiveRange === option ? "active" : ""} aria-pressed={effectiveRange === option} disabled={history.loading} onClick={() => void selectRange(option)}>{option === "ALL" ? "All history" : option}</button>)}</div>
           </div>
 
           <div className="structural-summary">

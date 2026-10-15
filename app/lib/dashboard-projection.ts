@@ -133,15 +133,15 @@ export async function projectDashboardHistory(payload:DashboardPayload,request:H
   if(request.artifactId!==view.artifactId)throw new DashboardProjectionError(409,"The dashboard artifact changed. Refresh this page before loading history; old and new data are not mixed.");
   if(!view.deferred[request.id]?.available)throw new DashboardProjectionError(400,"This history is unavailable or does not belong to this view.");
   let data:unknown,totalRows=0,returnedRows=0,start:string|null=null,end:string|null=null;
-  const use=<T extends {date:string}>(rows:T[])=>{totalRows=rows.length;const selected=filtered(rows,request);returnedRows=selected.length;start=selected[0]?.date??null;end=selected.at(-1)?.date??null;return selected;};
-  if(request.id.startsWith("indicator:")){const source=payload.series[request.id.slice(10)];data={...structuredClone(source),points:use(source.points)};
+  const selectRows=<T extends {date:string}>(rows:T[])=>{totalRows=rows.length;const selected=filtered(rows,request);returnedRows=selected.length;start=selected[0]?.date??null;end=selected.at(-1)?.date??null;return selected;};
+  if(request.id.startsWith("indicator:")){const source=payload.series[request.id.slice(10)];data={...structuredClone(source),points:selectRows(source.points)};
   }else if(request.id==="forecast-audit"){data=structuredClone(payload.forecast.evaluation);totalRows=returnedRows=payload.forecast.evaluation!.windows.length;
   }else if(request.id==="regional-districts"){const source=payload.regionalLens!;data={districtRecords:structuredClone(source.districtRecords),districtLabourRecords:structuredClone(source.districtLabourRecords),districtGdpRecords:structuredClone(source.districtGdpRecords)};totalRows=returnedRows=districtRowCount(source);
-  }else if(request.id==="market-history"){const source=payload.market!;data={...structuredClone(source),benchmark:{...source.benchmark,points:use(source.benchmark.points)}};
-  }else if(request.id==="external-history"){const source=payload.externalSector!;data={...structuredClone(source),points:use(source.points)};
-  }else if(request.id==="bop-history"){const source=payload.balancePayments!;data={...structuredClone(source),quarters:use(source.quarters)};
+  }else if(request.id==="market-history"){const source=payload.market!;data={...structuredClone(source),benchmark:{...source.benchmark,points:selectRows(source.benchmark.points)}};
+  }else if(request.id==="external-history"){const source=payload.externalSector!;data={...structuredClone(source),points:selectRows(source.points)};
+  }else if(request.id==="bop-history"){const source=payload.balancePayments!;data={...structuredClone(source),quarters:selectRows(source.quarters)};
   }else if(request.id==="gdp-years"){data={economicStructure:structuredClone(payload.economicStructure),growthDrivers:structuredClone(payload.growthDrivers)};totalRows=returnedRows=payload.economicStructure?.years.length??0;
-  }else {const source=payload.macroTimeline!;data={...structuredClone(source),entries:use(source.entries)};}
+  }else {const source=payload.macroTimeline!;data={...structuredClone(source),entries:selectRows(source.entries)};}
   return {projectionVersion:1,artifactId:view.artifactId,view:request.view,id:request.id,schemaVersion:payload.schemaVersion,generatedAt:payload.generatedAt,usingFallback:payload.usingFallback,
     scope:{complete:request.range==="ALL",range:request.range,totalRows,returnedRows,start,end},data:data as HistoryDataMap[HistoryId]};
 }

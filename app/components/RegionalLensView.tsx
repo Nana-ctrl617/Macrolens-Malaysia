@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import type { RegionalLens, RegionalSourceMetadata } from "@/app/lib/dashboard";
 import type { RegionalPreview, HistoryDataMap } from "@/app/lib/dashboard-projection";
 import {
@@ -43,20 +43,24 @@ export default function RegionalLensView({ dashboard, loading = false, initialCo
   const [expandedChart, setExpandedChart] = useState(false);
   const [inspectionKey, setInspectionKey] = useState("");
   useEffect(() => {
-    if (!initialComparison) setComparison(parseRegionalComparison(window.location.search));
-    setLocationReady(true);
+    queueMicrotask(() => {
+      if (!initialComparison) setComparison(parseRegionalComparison(window.location.search));
+      setLocationReady(true);
+    });
   }, [initialComparison]);
   const selected = useMemo(() => resolveRegionalComparison(regional, comparison), [regional, comparison]);
-  const requestDistricts = async () => {
+  const requestDistricts = useCallback(async () => {
     if (!loadDistricts || districtReady || districtLoading) return;
     setDistrictLoading(true); setDistrictError("");
     try { setDistrictData(await loadDistricts()); }
     catch (error) { setDistrictError(error instanceof Error ? error.message : "District observations could not be loaded. Please retry."); }
     finally { setDistrictLoading(false); }
-  };
+  }, [loadDistricts, districtReady, districtLoading]);
   useEffect(() => {
-    if (locationReady && comparison.level === "district" && !districtReady && !districtLoading && !districtError) void requestDistricts();
-  }, [locationReady, comparison.level, districtReady, districtLoading, districtError]);
+    if (!locationReady || comparison.level !== "district" || districtReady || districtLoading || districtError) return;
+    const timer = window.setTimeout(() => { void requestDistricts(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [locationReady, comparison.level, districtReady, districtLoading, districtError, requestDistricts]);
   useEffect(() => {
     if (!locationReady || !regional || selected.level === "district" && !districtReady) return;
     const url = new URL(window.location.href);

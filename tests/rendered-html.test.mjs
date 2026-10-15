@@ -71,8 +71,7 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /Data health/);
   assert.doesNotMatch(html, /Malaysia inflation monitor|See the pressure|Read the direction/);
   assert.match(html, /Structural shifts/);
-  assert.match(html, /Open historical data for Headline inflation/);
-  assert.match(html, /View history/);
+  assert.match(html, /Open history for Headline inflation/);
   assert.match(html, /Headline versus core inflation/);
   assert.match(html, /full Consumer Price Index \(CPI\) basket/);
   assert.match(html, /selected volatile and administered-price items/);
@@ -87,13 +86,13 @@ test("renders each dashboard section on its own route", async () => {
     ["/news", "Latest Malaysia economy headlines", "News"],
     ["/risk", "Where pressure is building", "Risk heatmap"],
     ["/forecast", "Three-month inflation forecast", "Forecast"],
-    ["/drivers", "What contributes to inflation", "Drivers"],
+    ["/drivers", "What contributes to inflation", "Inflation drivers"],
     ["/structure", "What drives Malaysia(?:'|&#x27;)s economic value", "Growth drivers"],
     ["/external", "Trade, exports and imported-cost pressure", "External sector"],
-    ["/bop", "External financing position", "BOP"],
+    ["/bop", "External financing position", "Balance of payments"],
     ["/household", "Household pressure monitor", "Households"],
     ["/regional", "How different are Malaysia(?:'|&#x27;)s states and districts", "Regional Lens"],
-    ["/sectors", "How sectors connect to markets and external demand", "Sectors"],
+    ["/sectors", "How sectors connect to markets and external demand", "Industry mix"],
     ["/bursa", "The large-cap market pulse", "Bursa"],
     ["/decisions", "What the signals may mean for decisions", "Decision guide"],
     ["/timeline", "Macro event and evidence timeline", "Timeline"],
@@ -107,7 +106,7 @@ test("renders each dashboard section on its own route", async () => {
     assert.equal(response.status, 200);
     const html = await response.text();
     assert.match(html, new RegExp(heading));
-    assert.match(html, new RegExp(`aria-current="page" href="${path}">${activeLabel}`));
+    assert.match(html, new RegExp(`href="${path}" aria-current="page">${activeLabel}`));
     assert.match(html, /Educational analysis, not investment advice\./);
     assert.doesNotMatch(html, /Applied statistics × financial economics/);
     assert.doesNotMatch(html, /<h1>See the pressure/);
@@ -141,9 +140,12 @@ test("grouped navigation keeps all direct routes and a labelled mobile menu", as
   assert.equal((html.match(/class="dashboard-navigation-group"/g) ?? []).length, 5);
   const nav = html.slice(html.indexOf('aria-label="Primary navigation"'), html.indexOf('</nav>'));
   assert.equal((nav.match(/<a /g) ?? []).length, 19);
+  assert.match(nav, /aria-label="Find a page/);
+  assert.match(nav, /<details[^>]*open/);
+  assert.match(nav, /Balance of payments/);
   assert.match(html, /aria-expanded="false"/);
   assert.match(html, /Sections\. Current page: Regional Lens/);
-  assert.match(html, /aria-current="page" href="\/regional">Regional Lens/);
+  assert.match(html, /href="\/regional" aria-current="page">Regional Lens/);
 });
 
 test("regional presentation preserves data-first order and contained rank lists", () => {

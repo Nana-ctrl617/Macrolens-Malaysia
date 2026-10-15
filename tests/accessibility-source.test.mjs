@@ -14,14 +14,26 @@ test("explorer manages focus and background inertness with a stable mount lifecy
   assert.match(explorer, /event\.key === "Tab"/);
   assert.match(explorer, /event\.shiftKey/);
   assert.match(explorer, /previousFocus\.focus\(\)/);
-  assert.doesNotMatch(explorer, /\}, \[onClose\]\)/);
+  assert.match(explorer, /useEffect\(\(\) => \{ closeRef\.current = onClose; \}, \[onClose\]\)/);
 });
 
 test("KPI accessible names include value, release date and status", () => {
   const card = functionSource('views/SnapshotView.tsx', 'MetricCard');
-  assert.match(card, /aria-label=\{`Open historical data for \$\{metric\.label\}\. \$\{metric\.value\}/);
+  assert.match(card, /aria-label=\{`Open history for \$\{metric\.label\}\. \$\{metric\.value\}/);
   assert.match(card, /Release period: \$\{metric\.period\}/);
-  assert.match(card, /Data status: \$\{metric\.status/);
+  assert.match(card, /Data status: \$\{sourceStatus/);
+});
+
+test("Snapshot cards link each value to its source and explain stale or fallback status", () => {
+  const card = functionSource('views/SnapshotView.tsx', 'MetricCard');
+  const snapshot = functionSource('views/SnapshotView.tsx', 'SnapshotContent');
+  assert.match(card, /href=\{metric\.sourceUrl\}/);
+  assert.match(card, /Source: \{metric\.source\}/);
+  assert.match(card, /metric\.sourceNote/);
+  assert.match(snapshot, /source: series\.source/);
+  assert.match(snapshot, /sourceUrl: series\.source_url/);
+  assert.match(snapshot, /latest refresh did not pass; showing the last validated observation/i);
+  assert.match(snapshot, /bundled, last-validated dashboard snapshot/i);
 });
 
 test("diagnostic navigation carries the selected indicator to a validated query reader", () => {

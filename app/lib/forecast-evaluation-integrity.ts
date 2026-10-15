@@ -1,4 +1,6 @@
 // Optional audit checks: absence preserves legacy payloads; presence fails closed.
+// Forecast evaluations arrive as untrusted versioned JSON and are narrowed by this validator.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- this private raw-record alias is used only for runtime validation.
 type Row = Record<string, any>;
 type AuditPoint = { horizon: number; date:string; actual: number; predicted: number; error:number; low80:number; high80:number; low95:number; high95:number; covered80: boolean; covered95: boolean };
 const object = (value: unknown): value is Row => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -144,7 +146,7 @@ export function validateForecastEvaluationIntegrity(raw: unknown): boolean {
               const dates=prior.map((candidate:Row)=>candidate.date),errors=prior.map((candidate:Row)=>Math.abs(candidate.error));
               if(!same(adjusted.calibrationTargets,dates)||dates.some((value:string,i:number)=>!month(value)||value>=window.origin||(i>0&&value<=dates[i-1])))return false;
               const expected80=expectedRecalibratedBand(errors,80,point.predicted),expected95=expectedRecalibratedBand(errors,95,point.predicted);
-              let radius95=expected95[0]===null?null:Math.max(point.predicted-expected95[0],expected80[0]===null?0:point.predicted-expected80[0]);
+              const radius95=expected95[0]===null?null:Math.max(point.predicted-expected95[0],expected80[0]===null?0:point.predicted-expected80[0]);
               const bounds95: [number|null,number|null]=radius95===null?[null,null]:[Math.round((point.predicted-radius95)*1e6)/1e6,Math.round((point.predicted+radius95)*1e6)/1e6];
               if(adjusted.calibrationCount!==prior.length||!sameNullableNumber(adjusted.low80,expected80[0])||!sameNullableNumber(adjusted.high80,expected80[1])||!sameNullableNumber(adjusted.low95,bounds95[0])||!sameNullableNumber(adjusted.high95,bounds95[1]))return false;
               if(adjusted.low80!==null&&adjusted.low95!==null&&!(adjusted.low95<=adjusted.low80&&adjusted.low80<=point.predicted&&point.predicted<=adjusted.high80&&adjusted.high80<=adjusted.high95))return false;

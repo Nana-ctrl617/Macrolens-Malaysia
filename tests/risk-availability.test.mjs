@@ -33,6 +33,8 @@ const modules = new Map();
 const riskState={values:[],cursor:0};
 globalThis.__riskDisclosureState=riskState;
 const riskHooks=`data:text/javascript;base64,${Buffer.from('export const useState=initial=>{const state=globalThis.__riskDisclosureState,index=state.cursor++;if(!(index in state.values))state.values[index]=typeof initial==="function"?initial():initial;return[state.values[index],next=>{state.values[index]=typeof next==="function"?next(state.values[index]):next;}];};').toString('base64')}`;
+const imageShim=`import {createElement} from ${JSON.stringify(pathToFileURL(require.resolve('react')).href)}; export default function Image(props){const attributes=Object.fromEntries(Object.entries(props).filter(([key])=>key!=='priority'&&key!=='unoptimized')); return createElement('img',attributes);}`;
+const imageShimUrl=`data:text/javascript;base64,${Buffer.from(imageShim).toString('base64')}`;
 const nodes=tree=>Array.isArray(tree)?tree.flatMap(nodes):tree&&typeof tree==='object'?[tree,...nodes(tree.props?.children)]:[];
 async function sourceModule(filename) {
   if (modules.has(filename)) return modules.get(filename);
@@ -42,6 +44,7 @@ async function sourceModule(filename) {
     const specifier = match[2];
     let resolved;
     if(specifier==='react'&&filename.endsWith('RiskView.tsx'))resolved=riskHooks;
+    else if(specifier==='next/image')resolved=imageShimUrl;
     else if (specifier.startsWith("@/") || specifier.startsWith(".")) {
       const base = specifier.startsWith("@/") ? fileURLToPath(new URL(`../${specifier.slice(2)}`, import.meta.url)) : fileURLToPath(new URL(specifier, pathToFileURL(filename)));
       const target = [base, `${base}.ts`, `${base}.tsx`].find(existsSync);

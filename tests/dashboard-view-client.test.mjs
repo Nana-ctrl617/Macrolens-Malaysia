@@ -31,7 +31,7 @@ test("view loader never requests full dashboard or histories implicitly",async()
 });
 test("explicit history deduplicates by artifact/range and rejects mixed revisions",async()=>{
   const source=fixture(),view=await projectDashboard(source,"snapshot");let calls=0;
-  const client=createDashboardViewClient({fetch:async url=>{calls++;return response(await projectDashboardHistory(source,{view:"snapshot",id:"indicator:headline",artifactId:view.artifactId,range:"ALL"}));}});
+  const client=createDashboardViewClient({fetch:async()=>{calls++;return response(await projectDashboardHistory(source,{view:"snapshot",id:"indicator:headline",artifactId:view.artifactId,range:"ALL"}));}});
   const ref=view.deferred["indicator:headline"],a=client.loadHistory(ref),b=client.loadHistory(ref);assert.equal(a,b);await a;assert.equal(calls,1);
   const broken=createDashboardViewClient({fetch:async()=>({ok:false,status:409,json:async()=>({error:"changed"})})});
   await assert.rejects(broken.loadHistory(ref),error=>error instanceof DashboardArtifactChangedError&&error.status===409);

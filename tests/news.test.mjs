@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildNewsPayload, canonicalNewsUrl, cleanNewsText, parsePublicationDate, parseRss } from "../app/lib/news.ts";
+import { buildNewsPayload, canonicalNewsUrl, cleanNewsText, groupRelatedNewsStories, parsePublicationDate, parseRss } from "../app/lib/news.ts";
 
 const NOW = new Date("2026-10-05T07:00:00.000Z");
 const CUTOFF = Date.parse("2026-09-28T07:00:00.000Z");
@@ -63,6 +63,43 @@ test("publisher attribution prefers RSS source, creator and Bing metadata over d
   ), FEED, NOW);
   assert.deepEqual(parsed.items.map((story) => story.source), ["BERNAMA", "The Edge Malaysia", "Malay Mail", "MarketWatch", "specific-publisher.example"]);
   assert.ok(parsed.items.every((story) => story.source !== "News source"));
+});
+
+test("related headline groups retain distinct publisher coverage and do not merge same-source stories", () => {
+  const makeStory = (title, source, day, link) => ({ title, source, link: `https://example.com/${link}`, publishedAt: `2026-10-${day}T06:00:00.000Z`, sourceUrl: `https://${source.toLowerCase().replaceAll(" ", "")}.example`, summary: "A controlled economic headline.", topics: ["Trade"], relevanceScore: 10 });
+  const stories = groupRelatedNewsStories([
+    makeStory("Malaysia exports surge as trade surplus grows", "Test News", "04", "first"),
+    makeStory("Trade surplus grows as Malaysia exports surge", "Second Daily", "05", "second"),
+    makeStory("Malaysia exports rise as electronics shipments expand", "Test News", "03", "different"),
+  ]);
+  assert.equal(stories.length, 2);
+  assert.equal(stories[0].items.length, 2);
+  assert.deepEqual(stories[0].items.map((story) => story.source), ["Second Daily", "Test News"]);
+  assert.equal(stories[1].items[0].source, "Test News");
+});
+
+test("story matching groups paraphrased Bursa and ringgit event coverage but separates another catalyst", () => {
+  const makeStory = (title, source, day, hour, topic, link) => ({ title, source, link: `https://example.com/${link}`, publishedAt: `2026-10-${day}T${hour}:00:00.000Z`, sourceUrl: `https://${source.toLowerCase().replaceAll(" ", "")}.example`, summary: "A controlled economic headline.", topics: topic, relevanceScore: 10 });
+  const stories = groupRelatedNewsStories([
+    makeStory("Bursa Malaysia snaps four-day winning streak", "Daily A", "05", "08", ["Bursa"], "bursa-a"),
+    makeStory("KLCI stocks end 4-day winning streak", "Daily B", "05", "07", ["Bursa"], "bursa-b"),
+    makeStory("Bursa shares rise as oil prices jump", "Daily C", "05", "06", ["Bursa"], "bursa-oil"),
+    makeStory("Ringgit firms against US dollar ahead of GDP estimates", "Daily A", "05", "05", ["Ringgit", "Growth"], "ringgit-gdp-a"),
+    makeStory("Ringgit rises versus US dollar as GDP estimates approach", "Daily B", "05", "04", ["Ringgit", "Growth"], "ringgit-gdp-b"),
+    makeStory("Ringgit slides against US dollar after oil price shock", "Daily C", "05", "03", ["Ringgit"], "ringgit-oil"),
+    makeStory("Ringgit firm ahead of GDP estimate", "Daily B", "01", "03", ["Ringgit", "Growth"], "ringgit-old"),
+  ]);
+  assert.deepEqual(stories.map((story) => story.items.map((article) => article.link)), [
+    ["https://example.com/bursa-a", "https://example.com/bursa-b"],
+    ["https://example.com/bursa-oil"],
+    ["https://example.com/ringgit-gdp-a", "https://example.com/ringgit-gdp-b"],
+    ["https://example.com/ringgit-oil"],
+    ["https://example.com/ringgit-old"],
+  ]);
+  const bursa = stories.find((story) => story.items.some((article) => article.link.endsWith("bursa-a")));
+  assert.deepEqual(bursa?.items.map((article) => article.link), ["https://example.com/bursa-a", "https://example.com/bursa-b"]);
+  const ringgit = stories.find((story) => story.items.some((article) => article.link.endsWith("ringgit-gdp-a")));
+  assert.deepEqual(ringgit?.items.map((article) => article.link), ["https://example.com/ringgit-gdp-a", "https://example.com/ringgit-gdp-b"]);
 });
 
 test("news text decodes nested named/numeric entities and common UTF-8 mojibake", () => {

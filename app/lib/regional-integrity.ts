@@ -3,10 +3,13 @@ const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFi
 const between = (v: unknown, min: number, max: number) => finite(v) && v >= min && v <= max;
 const date = (v: unknown): v is string => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(`${v}T00:00:00Z`)) && new Date(`${v}T00:00:00Z`).toISOString().slice(0,10) === v;
 const clock = (v: unknown) => typeof v === 'string' && Number.isFinite(Date.parse(v));
+// The source-local contract is validated field-by-field before data enters regional consumers.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- keep the raw JSON view private to the fail-closed validator.
+type UntrustedRecord = Record<string, any>;
 
 export function validateRegionalShape(raw: unknown): boolean {
   try {
-    const r = raw as Record<string, any>;
+    const r = raw as UntrustedRecord;
     if (!r || !Array.isArray(r.stateRecords) || !Array.isArray(r.districtRecords) || !r.coverage?.nationalOnly?.includes('OPR')) return false;
     if (r.refreshPolicy !== 'source-local-v1') return r.stateRecords.length >= 15 && r.districtRecords.length >= 100 && r.incomeGroups?.nationalGroups?.length >= 3 && r.incomeGroups?.stateGroups?.length >= 15;
     const keys = ['hiesState','hiesDistrict','incomeGroupState','incomeGroupNational','labour','gdpState','gdpDistrict','cpi','nationalIncome','nationalPoverty','nationalInequality','nationalExpenditure'];
@@ -17,7 +20,7 @@ export function validateRegionalShape(raw: unknown): boolean {
       else if (!clock(s.retrievedAt) || !date(s.observationPeriod)) return false;
     }
     if (!Array.isArray(r.incomeGroups?.nationalGroups) || !Array.isArray(r.incomeGroups?.stateGroups)) return false;
-    if (r.sources.hiesState.status !== 'unavailable' && r.stateRecords.filter((row: any) => row.incomeMedian != null).length < 15) return false;
+    if (r.sources.hiesState.status !== 'unavailable' && r.stateRecords.filter((row: UntrustedRecord) => row.incomeMedian != null).length < 15) return false;
     if (r.sources.hiesDistrict.status === 'unavailable' ? r.districtRecords.length !== 0 : r.districtRecords.length < 100) return false;
     if (r.incomeGroups.status === 'unavailable') return r.incomeGroups.nationalGroups.length === 0 && r.incomeGroups.stateGroups.length === 0;
     return r.incomeGroups.nationalGroups.length >= 3 && r.incomeGroups.stateGroups.length >= 15;
@@ -26,7 +29,7 @@ export function validateRegionalShape(raw: unknown): boolean {
 
 export function validateRegionalNumbers(raw: unknown): boolean {
   try {
-    const regional = raw as Record<string, any>;
+    const regional = raw as UntrustedRecord;
     if (!regional) return true;
     for (const field of ['stateRecords','districtRecords']) {
       const records = regional[field]; if (!Array.isArray(records)) return false;

@@ -3,7 +3,7 @@
 import type { DashboardViewPayload } from "@/app/lib/dashboard-projection";
 
 import { type Metric, type DataPoint, type MetricId } from "@/app/lib/dashboard-ui-types";
-import { useId, useRef, useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useCallback, useId, useRef, useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { formatObservationDate } from "@/app/lib/visual-data";
 import { isChartInspectionKey, nextChartIndex } from "@/app/lib/chart-inspection";
 import { formatDate, levelLabel } from "@/app/lib/dashboard-format";
@@ -20,21 +20,30 @@ export const metrics = [
 ];
 
 export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: Metric) => void }) {
+  const sourceStatus = metric.status === "stale" ? "Stale" : metric.status === "fallback" ? "Fallback" : metric.status === "fresh" ? "Validated" : "Status unavailable";
   return (
-    <button
-      className={`metric-card ${metric.tone}`}
-      onClick={() => onSelect(metric)}
-      aria-label={`Open historical data for ${metric.label}. ${metric.value}. Release period: ${metric.period}. Data status: ${metric.status ?? "loading"}.`}
-    >
-      <div className="metric-topline"><span>{metric.label}</span><i /></div>
-      <strong>{metric.value}</strong>
-      <p>{metric.detail}</p>
-      <div className="metric-footer">
-        <small>Release period · {metric.period}</small>
-        {metric.status && <span className={`metric-status ${metric.status}`}>{metric.status}</span>}
-        <span className="metric-open">View history <b>↗</b></span>
-      </div>
-    </button>
+    <article className={`metric-card ${metric.tone}`}>
+      <button
+        className="metric-card-action"
+        onClick={() => onSelect(metric)}
+        aria-label={`Open history for ${metric.label}. ${metric.value}. Release period: ${metric.period}. Data status: ${sourceStatus}.`}
+      >
+        <div className="metric-topline"><span>{metric.label}</span><i /></div>
+        <strong>{metric.value}</strong>
+        <p>{metric.detail}</p>
+        <div className="metric-footer">
+          <small>Release period · {metric.period}</small>
+          <span className={`metric-status ${metric.status ?? "unavailable"}`}>{sourceStatus}</span>
+          <span className="metric-open">Open history</span>
+        </div>
+      </button>
+      {metric.source && metric.sourceUrl && <div className="metric-provenance">
+        <a className="metric-source-link" href={metric.sourceUrl} target="_blank" rel="noreferrer" aria-label={`Source: ${metric.source}`}>
+          Source: {metric.source} <span aria-hidden="true">↗</span>
+        </a>
+        {metric.sourceNote && <small className="metric-source-note">{metric.sourceNote}</small>}
+      </div>}
+    </article>
   );
 }
 
@@ -78,16 +87,16 @@ export function SnapshotHeadlineChart({ points }: { points: DataPoint[] }) {
 const IndicatorDetail = lazy(() => import("@/app/components/IndicatorDetail"));
 export function SnapshotContent({ dashboard, loadHistory }: { dashboard: DashboardViewPayload<"snapshot"> | null; loadHistory?: DashboardHistoryLoader }) {
 const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
-const loadSeries = async (id: MetricId) => {
+const loadSeries = useCallback(async (id: MetricId) => {
   const ref = dashboard?.deferred?.[`indicator:${id}`];
   if (!ref || !loadHistory) throw new Error("This indicator history is unavailable.");
   return (await loadHistory(ref)).data;
-};
-const loadComparison = async () => {
+}, [dashboard, loadHistory]);
+const loadComparison = useCallback(async () => {
   if (!dashboard) throw new Error("The summary is unavailable.");
   const entries = await Promise.all((Object.keys(dashboard.series) as MetricId[]).map(async id => [id, await loadSeries(id)] as const));
   return { ...dashboard, series: Object.fromEntries(entries) };
-};
+}, [dashboard, loadSeries]);
 useEffect(() => {
     
     const legacyRoutes: Record<string, string> = { "#brief": "/brief", "#news": "/news", "#risk": "/risk", "#forecast": "/forecast", "#drivers": "/drivers", "#structure": "/structure", "#external": "/external", "#bop": "/bop", "#household": "/household", "#regional": "/regional", "#sectors": "/sectors", "#bursa": "/bursa", "#decisions": "/decisions", "#timeline": "/timeline", "#structural": "/structural", "#report": "/report", "#health": "/health", "#method": "/methodology" };
@@ -107,7 +116,13 @@ const liveMetrics: Metric[] = useMemo(() => {
       const value = series.unit === "RM" ? `RM ${last.value.toFixed(series.decimals)}` : `${last.value.toFixed(series.decimals)}${series.unit}`;
       const daily = /day|trading/i.test(series.frequency);
       const period = new Intl.DateTimeFormat("en-MY", daily ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }).format(new Date(`${last.date}T00:00:00`));
-      return { id, label: id === "mgs" ? "10-year MGS" : series.title, value, detail: details[id], period, tone: tones[id], status: dashboard.usingFallback ? "fallback" : dashboard.sources[id]?.status };
+      const status = dashboard.usingFallback ? "fallback" : dashboard.sources[id]?.status;
+      const sourceNote = status === "fallback"
+        ? "Live data unavailable; showing the bundled, last-validated dashboard snapshot."
+        : status === "stale"
+          ? "The latest refresh did not pass; showing the last validated observation."
+          : undefined;
+      return { id, label: id === "mgs" ? "10-year MGS" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote };
     });
   }, [dashboard]);
 const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? [];

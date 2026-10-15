@@ -1,6 +1,20 @@
 import { test, expect } from "@playwright/test";
 import { dashboardFixture, installFixture, ready, regionalExporter, csvRows } from "./helpers";
 
+type ForecastEvaluationPoint = {
+  date: string;
+  actual?: number;
+  predicted?: number;
+  error?: number;
+  low80?: number;
+  high80?: number;
+  low95?: number;
+  high95?: number;
+  covered80?: boolean;
+  covered95?: boolean;
+  recalibrated?: { calibrationCount?: number; calibrationTargets?: string[]; low80?: number | null; high80?: number | null; low95?: number | null; high95?: number | null };
+};
+
 test("real Regional CSV and JSON downloads exactly preserve values, periods and provenance", async ({ request, page, context }, info) => {
   const json = await request.get("/api/regional-lens?format=json");
   expect(json.ok()).toBeTruthy();
@@ -43,7 +57,7 @@ test("real Forecast evaluation CSV rows exactly match their JSON audit records",
   const rows = csvRows(await csv.text());
   const headers = ["origin", "evaluation_phase", "target_date", "horizon_months", "model", "fit_status", "actual", "predicted", "error_pp", "low80", "high80", "low95", "high95", "covered80", "covered95", "calibration_count", "calibration_target_months", "recalibrated_low80", "recalibrated_high80", "recalibrated_low95", "recalibrated_high95", "failure_reason", "method", "calculated_at", "data_status"];
   expect(rows.shift()).toEqual(headers);
-  const expected: string[][] = metadata.evaluation.windows.flatMap((window: { origin: string; evaluationPhase?:string; targets: string[]; models: Array<{ name: string; status: string; failureReason: string | null; points: Array<Record<string, any>> }> }) => window.models.flatMap(model => window.targets.map((date, index) => {
+  const expected: string[][] = metadata.evaluation.windows.flatMap((window: { origin: string; evaluationPhase?:string; targets: string[]; models: Array<{ name: string; status: string; failureReason: string | null; points: ForecastEvaluationPoint[] }> }) => window.models.flatMap(model => window.targets.map((date, index) => {
     const point = model.points.find(item => item.date === date);
     const adjusted=point?.recalibrated;
     return [window.origin, window.evaluationPhase, date, index + 1, model.name, model.status, point?.actual, point?.predicted, point?.error, point?.low80, point?.high80, point?.low95, point?.high95, point?.covered80, point?.covered95, adjusted?.calibrationCount, adjusted?.calibrationTargets?.join("|"), adjusted?.low80, adjusted?.high80, adjusted?.low95, adjusted?.high95, model.failureReason, metadata.method, metadata.calculatedAt, metadata.usingFallback ? "fallback" : metadata.inputHealth?.status ?? metadata.status].map(value => value == null ? "" : String(value));

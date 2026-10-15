@@ -4,10 +4,11 @@ export type RawNewsItem = {
   link: string;
   publishedAt: string;
   source: string;
-  sourceUrl: string;
+  sourceUrl?: string;
   summary: string;
 };
 export type NewsItem = RawNewsItem & { topics: string[]; relevanceScore: number };
+export type NewsStoryGroup = { key: string; items: NewsItem[] };
 export type NewsExclusions = {
   parsed: number;
   eligible: number;
@@ -264,6 +265,37 @@ function deduplicate(items: NewsItem[]) {
     unique.push(item);
   }
   return { unique, duplicates };
+}
+
+const titleNoise = new Set(["a", "an", "and", "as", "at", "by", "for", "from", "in", "into", "is", "of", "on", "or", "the", "to", "with", "malaysia", "malaysian", "economy", "economic", "news", "says", "said", "over", "against", "ahead", "after", "before", "between", "down", "up", "via", "amid", "amidst", "rise", "rises", "rose", "fall", "falls", "fell", "firm", "firms", "weaken", "weakens", "strengthen", "strengthens", "gain", "gains", "lose", "loses", "end", "ends", "snap", "snaps", "close", "closes"]);
+const storyTokenAliases: Record<string, string> = { four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", stocks: "stock", shares: "share", estimates: "estimate", estimated: "estimate", streaks: "streak" };
+
+function storyTitleTokens(title: string) {
+  return new Set(title.normalize("NFKC").toLocaleLowerCase().replace(/^\s*\[(?:updated|update|breaking)\]\s*/i, "").match(/[\p{L}\p{N}]+/gu)?.map((word) => storyTokenAliases[word] ?? word).filter((word) => (word.length > 1 || /^\d+$/.test(word)) && !titleNoise.has(word)) ?? []);
+}
+
+function titlesDescribeSameStory(first: NewsItem, second: NewsItem) {
+  if (first.source.trim().toLocaleLowerCase() === second.source.trim().toLocaleLowerCase()) return false;
+  if (Math.abs(Date.parse(first.publishedAt) - Date.parse(second.publishedAt)) > 72 * 60 * 60 * 1000) return false;
+  if (!first.topics.some((topic) => second.topics.includes(topic))) return false;
+  const left = storyTitleTokens(first.title), right = storyTitleTokens(second.title);
+  const shared = [...left].filter((word) => right.has(word)).length;
+  const union = new Set([...left, ...right]).size;
+  // Allow paraphrases to cluster when they share a clear event fingerprint;
+  // topic overlap and the short time window prevent broad same-topic merging.
+  return union > 0 && ((shared >= 4 && shared / union >= 0.4) || (shared >= 3 && shared / union >= 0.58));
+}
+
+/** Group cross-publisher reports of the same recent event; retain every source article. */
+export function groupRelatedNewsStories(items: NewsItem[]): NewsStoryGroup[] {
+  const ordered = [...items].sort((left, right) => Date.parse(right.publishedAt) - Date.parse(left.publishedAt) || right.relevanceScore - left.relevanceScore);
+  const groups: NewsStoryGroup[] = [];
+  for (const item of ordered) {
+    const match = groups.find((group) => group.items.some((article) => titlesDescribeSameStory(article, item)));
+    if (match) match.items.push(item);
+    else groups.push({ key: `${item.link}::${item.publishedAt}`, items: [item] });
+  }
+  return groups;
 }
 
 export function buildNewsPayload(results: NewsFeedResult[], now: Date): NewsPayload {

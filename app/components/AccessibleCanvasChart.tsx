@@ -2,7 +2,7 @@
 
 import { type InspectionPoint, type ChartFrequency, canvasContentWidth, chartFontSize, chartSegments, nearestChartIndex, isChartInspectionKey, nextChartIndex } from "@/app/lib/chart-inspection";
 import { type StructuralCandidate } from "@/app/lib/dashboard";
-import { useId, useRef, useState, useEffect, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useId, useRef, useState, useEffect, type PointerEvent as ReactPointerEvent } from "react";
 import { formatObservationDate, pointEpoch } from "@/app/lib/visual-data";
 import { chartColours, resolveChartColour } from "@/app/lib/chart-colours";
 import { formatDate } from "@/app/lib/dashboard-format";
@@ -32,10 +32,9 @@ export function AccessibleCanvasChart({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const geometry = useRef<number[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
-  const pointLabel = (point: InspectionPoint) => point.label ?? formatObservationDate(point.date, frequency);
-  const reading = selected == null || !points[selected] ? "No observation selected." : `${pointLabel(points[selected])}: ${points[selected].value == null || !Number.isFinite(points[selected].value) ? "Unavailable" : valueLabel(points[selected].value)}`;
-
-  useEffect(() => { setSelected((current) => current == null || !points.length ? null : Math.min(current, points.length - 1)); }, [points.length]);
+  const pointLabel = useCallback((point: InspectionPoint) => point.label ?? formatObservationDate(point.date, frequency), [frequency]);
+  const selectedIndex = selected == null || !points.length ? null : Math.min(selected, points.length - 1);
+  const reading = selectedIndex == null ? "No observation selected." : `${pointLabel(points[selectedIndex])}: ${points[selectedIndex].value == null || !Number.isFinite(points[selectedIndex].value) ? "Unavailable" : valueLabel(points[selectedIndex].value)}`;
   useEffect(() => {
     const canvas = canvasRef.current, container = canvas?.parentElement;
     if (!canvas || !container) return;
@@ -132,9 +131,9 @@ export function AccessibleCanvasChart({
         const left = dateIndices.length === 1 ? (width - labelSize) / 2 : order ? width - labelSize - 2 : padding.left;
         context.fillText(label, Math.max(0, Math.min(left, width - labelSize)), height - font * (order ? .25 : 1.4));
       });
-      const active = selected == null ? null : points[selected];
+      const active = selectedIndex == null ? null : points[selectedIndex];
       if (active && active.value != null && Number.isFinite(active.value)) {
-        const x = geometry.current[selected!];
+        const x = geometry.current[selectedIndex!];
         context.strokeStyle = colours.selection; context.lineWidth = 1.5; context.setLineDash([3, 4]);
         context.beginPath(); context.moveTo(x, padding.top); context.lineTo(x, height - padding.bottom); context.stroke(); context.setLineDash([]);
         context.beginPath(); context.arc(x, y(active.value), 5, 0, Math.PI * 2); context.fillStyle = seriesColour; context.fill(); context.lineWidth = 2; context.stroke();
@@ -142,7 +141,7 @@ export function AccessibleCanvasChart({
     };
     draw(); const observer = new ResizeObserver(draw); observer.observe(container);
     return () => observer.disconnect();
-  }, [points, selected, candidates, valueLabel, axisLabel, colour, dark, fill, includeZero, minimumSpread, frequency, preferredHeight]);
+  }, [points, selectedIndex, candidates, pointLabel, valueLabel, axisLabel, colour, dark, fill, includeZero, minimumSpread, frequency, preferredHeight]);
 
   const selectPointer = (event: ReactPointerEvent<HTMLCanvasElement>) => setSelected(nearestChartIndex(geometry.current, event.clientX - event.currentTarget.getBoundingClientRect().left));
   return <div className={className} role="group" aria-label={title}>
@@ -154,7 +153,7 @@ export function AccessibleCanvasChart({
     <p id={`${id}-help`} className="chart-inspection-help">Hover or tap the chart, use Left/Right arrows, Home/End, or the observation slider. Escape clears the selection. Gaps mean no published observation, not zero.</p>
     <p id={`${id}-reading`} className="chart-inspection-status" role="status" aria-live="polite" aria-atomic="true">{reading}</p>
     {points.length > 0 && <label className="chart-inspection-controls">Observation
-      <input type="range" min={0} max={points.length - 1} value={selected ?? points.length - 1} aria-label={`${title} observation`} aria-valuetext={reading}
+      <input type="range" min={0} max={points.length - 1} value={selectedIndex ?? points.length - 1} aria-label={`${title} observation`} aria-valuetext={reading}
         onChange={(event) => setSelected(Number(event.currentTarget.value))} />
     </label>}
     {candidates.length > 0 && <div className="structural-legend"><span><i className="supported" />Supported</span><span><i className="possible" />Possible</span><span><b />Nearby official event</span></div>}

@@ -1,6 +1,6 @@
 "use client";
 
-
+import Image from "next/image";
 
 export type PictureVariant = "city" | "prices" | "trade" | "markets" | "household" | "research";
 
@@ -47,7 +47,7 @@ export function EditorialPicture({ variant }: { variant: PictureVariant }) {
   const copy = pictureCopy[variant];
   return (
     <figure className={`editorial-picture ${variant}`}>
-      <img className="editorial-photo" src={copy.src} alt={copy.aria} loading="lazy" />
+      <Image className="editorial-photo" src={copy.src} alt={copy.aria} width={1200} height={675} loading="lazy" unoptimized />
       <div className="picture-scene" aria-hidden="true">
         <i className="shape one" />
         <i className="shape two" />

@@ -1,6 +1,6 @@
 type CacheOptions<T> = {
   load: () => Promise<unknown>;
-  validate: (value: any) => boolean;
+  validate: (value: unknown) => boolean;
   fallback: T;
   now?: () => number;
   cacheMs?: number;

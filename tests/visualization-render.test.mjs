@@ -6,7 +6,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
-import { viewSource, appSource } from './source-owners.mjs';
+import { viewSource } from './source-owners.mjs';
 
 const require = createRequire(import.meta.url);
 const moduleUrls = new Map();

@@ -7,7 +7,7 @@ import ts from "typescript";
 
 const require = createRequire(import.meta.url);
 const runtimeKey = "__macrolens_chart_component_test_hooks__";
-const reactHooks = `export const useState = (initial) => globalThis[${JSON.stringify(runtimeKey)}].useState(initial); export const useRef = (initial) => globalThis[${JSON.stringify(runtimeKey)}].useRef(initial); export const useId = () => "chart-test"; export const useMemo = (calculate) => calculate(); export const useEffect = () => {};`;
+const reactHooks = `export const useState = (initial) => globalThis[${JSON.stringify(runtimeKey)}].useState(initial); export const useRef = (initial) => globalThis[${JSON.stringify(runtimeKey)}].useRef(initial); export const useId = () => "chart-test"; export const useMemo = (calculate) => calculate(); export const useCallback = (callback) => callback; export const useEffect = () => {};`;
 const hookUrl = `data:text/javascript;base64,${Buffer.from(reactHooks).toString("base64")}`;
 const modules = new Map();
 async function sourceModule(filename) {

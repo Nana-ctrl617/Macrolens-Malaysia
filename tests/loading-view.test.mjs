@@ -9,6 +9,8 @@ import ts from 'typescript';
 import {projectDashboard} from '../app/lib/dashboard-projection.ts';
 
 const require=createRequire(import.meta.url);
+const imageShim=`import {createElement} from ${JSON.stringify(pathToFileURL(require.resolve('react')).href)}; export default function Image(props){const attributes=Object.fromEntries(Object.entries(props).filter(([key])=>key!=='priority'&&key!=='unoptimized')); return createElement('img',attributes);}`;
+const imageShimUrl=`data:text/javascript;base64,${Buffer.from(imageShim).toString('base64')}`;
 const state={dashboard:null,error:'',loading:false};
 globalThis.__dashboardRenderState=state;
 
@@ -17,16 +19,21 @@ globalThis.__dashboardRenderState=state;
 function withShellState(filename, source){
  if(!filename.endsWith('DashboardShell.tsx'))return source;
  const file=ts.createSourceFile(filename,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
- const fields={dashboard:'dashboard',dashboardError:'error',dashboardLoading:'loading'};
+ const fields={
+  dashboard:'useState(globalThis.__dashboardRenderState.dashboard)',
+  dashboardError:'useState(globalThis.__dashboardRenderState.error ? {key:section + ":0",message:globalThis.__dashboardRenderState.error} : null)',
+  loadedKey:'useState(globalThis.__dashboardRenderState.loading ? "" : section + ":0")',
+  dashboardRefresh:'useState(0)',
+ };
  const edits=[];
  const visit=node=>{
   if(ts.isVariableDeclaration(node)&&ts.isArrayBindingPattern(node.name)&&node.initializer&&ts.isCallExpression(node.initializer)){
-   const name=node.name.elements[0]?.name?.getText(file),field=fields[name];
-   if(field){assert.equal(node.initializer.expression.getText(file),'useState');edits.push([node.initializer.getStart(file),node.initializer.end,`useState(globalThis.__dashboardRenderState.${field})`]);}
+   const name=node.name.elements[0]?.name?.getText(file),initializer=fields[name];
+   if(initializer){assert.equal(node.initializer.expression.getText(file),'useState');edits.push([node.initializer.getStart(file),node.initializer.end,initializer]);}
   }
   ts.forEachChild(node,visit);
  };
- visit(file);assert.equal(edits.length,3,'Shell has independently controlled data/error/loading state');
+ visit(file);assert.equal(edits.length,4,'Shell request identity derives loading and scopes errors to the active view');
  for(const[start,end,text]of edits.sort((a,b)=>b[0]-a[0]))source=source.slice(0,start)+text+source.slice(end);
  return source;
 }
@@ -41,7 +48,7 @@ async function moduleUrl(filename){
    const source=[base,`${base}.ts`,`${base}.tsx`].find(existsSync);
    if(!source)throw Error(`Missing dependency ${specifier}`);
    target=await moduleUrl(source);
-  }else target=pathToFileURL(require.resolve(specifier)).href;
+  }else target=specifier==='next/image'?imageShimUrl:pathToFileURL(require.resolve(specifier)).href;
   output=output.replaceAll(`${match[1]}${specifier}${match[1]}`,JSON.stringify(target));
  }
  const url=`data:text/javascript;base64,${Buffer.from(output).toString('base64')}`;modules.set(filename,url);return url;
@@ -78,7 +85,7 @@ test('validated fallback remains visible and provides explicit retry',async()=>{
  data.usingFallback=true;data.health='fallback';
  const html=render('snapshot',{data:await projectDashboard(data,'snapshot')});
  assert.match(html,/Try latest data again/);
- assert.match(html,/Open historical data for Headline inflation/);
+ assert.match(html,/Open history for Headline inflation/);
  assert.doesNotMatch(html,/Economic data is temporarily unavailable/);
 });
 test('failed sensitivity fitting never renders invented coefficients or sliders',async()=>{

@@ -92,7 +92,7 @@ test('stable data loading replaces timestamp cache bypass and internal schema me
   assert.match(shell, /role="status" aria-live="polite"/);
   assert.doesNotMatch(forecast, /coefficients\s*=\s*scenario\?\.coefficients\s*\?\?/);
   assert.match(forecast, /if \(!scenario\) return/);
-  assert.match(shell, /initialDataUnavailable\s*=\s*section !== "news" && !dashboard && !dashboardLoading && Boolean\(dashboardError\)/);
+  assert.match(shell, /initialDataUnavailable\s*=\s*section !== "news" && !currentDashboard && !dashboardLoading && Boolean\(currentError\)/);
   assert.match(shell, /initialDataUnavailable \? <section/);
   assert.match(shell, /Try latest data again/);
   assert.match(explorer, /Historical data is unavailable/);

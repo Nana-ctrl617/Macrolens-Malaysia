@@ -90,9 +90,10 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  const [data, setData] = useState<IndicatorData | null>(null);
-  const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState<{ metricId: MetricId; data: IndicatorData } | null>(null);
+  const [requestError, setRequestError] = useState<{ metricId: MetricId; message: string } | null>(null);
+  const data = loaded?.metricId === metric.id ? loaded.data : null;
+  const error = requestError?.metricId === metric.id ? requestError.message : "";
   const [detailRetry, setDetailRetry] = useState(0);
   const [range, setRange] = useState<RangeKey>("5Y");
   const [customStart, setCustomStart] = useState("");
@@ -101,6 +102,8 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
   const [comparisonContext, setComparisonContext] = useState<IndicatorContext | null>(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [comparisonError, setComparisonError] = useState("");
+  const structuralBreaks = dashboard?.structuralBreaks?.indicators[metric.id];
+  useEffect(() => { closeRef.current = onClose; }, [onClose]);
   const requestComparison = async () => {
     if (!loadComparison || comparisonLoading) return;
     setComparisonLoading(true); setComparisonError("");
@@ -167,11 +170,9 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
 
   useEffect(() => {
     let active = true;
-    setData(null);
-    setError("");
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
-    const request = loadSeries ? loadSeries(metric.id).then(series => ({ id: metric.id, title: series.title, unit: series.unit, decimals: series.decimals, source: series.source, sourceUrl: series.source_url, frequency: series.frequency, points: series.points, structuralBreaks: dashboard?.structuralBreaks?.indicators[metric.id] })) : fetch(`/api/indicator?id=${metric.id}`, { signal: controller.signal, ...(detailRetry ? {cache: "no-cache" as const} : {}) })
+    const request = loadSeries ? loadSeries(metric.id).then(series => ({ id: metric.id, title: series.title, unit: series.unit, decimals: series.decimals, source: series.source, sourceUrl: series.source_url, frequency: series.frequency, points: series.points, structuralBreaks })) : fetch(`/api/indicator?id=${metric.id}`, { signal: controller.signal, ...(detailRetry ? {cache: "no-cache" as const} : {}) })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || "Unable to load data");
@@ -179,14 +180,15 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
       });
     request.then((payload) => {
         if (!active) return;
-        setData(payload);
+        setLoaded({ metricId: metric.id, data: payload });
+        setRequestError(null);
         setCustomStart(payload.points[0]?.date ?? "");
         setCustomEnd(payload.points[payload.points.length - 1]?.date ?? "");
       })
-      .catch((reason: Error) => active && setError(reason.name === "AbortError" ? "Historical data took too long to load. Please retry." : reason.message))
+      .catch((reason: Error) => active && setRequestError({ metricId: metric.id, message: reason.name === "AbortError" ? "Historical data took too long to load. Please retry." : reason.message }))
       .finally(() => clearTimeout(timeout));
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
-  }, [metric, detailRetry]);
+  }, [metric.id, detailRetry, loadSeries, structuralBreaks]);
 
   const filtered = useMemo(() => {
     if (!data?.points.length) return [];

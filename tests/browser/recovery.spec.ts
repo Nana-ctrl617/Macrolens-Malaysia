@@ -45,7 +45,7 @@ test("artifact409 resets the old explorer and reloads its summary before serving
     return route.fulfill({ json: await projectDashboardHistory(next, request) });
   });
   await ready(page, "/");
-  const open = page.getByRole("button", { name: /Open historical data for Headline inflation/ });
+  const open = page.getByRole("button", { name: /Open history for Headline inflation/ });
   await open.click();
   await expect.poll(() => summaries).toBe(2);
   await expect(page.getByRole("dialog")).toHaveCount(0);
