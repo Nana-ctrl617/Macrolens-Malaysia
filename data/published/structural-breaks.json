@@ -1,5 +1,5 @@
 {
-  "status": "fresh",
+  "status": "partial",
   "calculatedAt": "2026-10-15T06:39:16Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
@@ -680,7 +680,7 @@
     },
     "mgs": {
       "indicatorId": "mgs",
-      "status": "fresh",
+      "status": "stale",
       "calculatedAt": "2026-10-15T06:39:16Z",
       "sample": {
         "start": "2021-11-01",
@@ -713,16 +713,21 @@
       "seriesFingerprint": "0e0ed03fd59038eee7ffc35b24cbb5403eb6643fcd909b940b7e5427ffc9f9e0",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "fresh",
-        "staleInputs": [],
-        "note": "All required inputs passed source validation; observation periods still differ."
+        "status": "partial",
+        "staleInputs": [
+          "mgs"
+        ],
+        "note": "Uses retained, stale or unavailable inputs: mgs"
       }
     }
   },
   "calculationStatus": "fresh",
   "inputHealth": {
-    "status": "fresh",
-    "staleInputs": [],
-    "note": "All required inputs passed source validation; observation periods still differ."
+    "status": "partial",
+    "staleInputs": [
+      "mgs",
+      "structuralBreaks.mgs"
+    ],
+    "note": "Uses retained, stale or unavailable inputs: mgs, structuralBreaks.mgs"
   }
 }
