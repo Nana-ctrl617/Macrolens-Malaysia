@@ -32,9 +32,17 @@ test("diagnostic navigation carries the selected indicator to a validated query 
 });
 
 test("main route headings are semantic h1 elements", () => {
-  for (const [owner, heading] of [['Snapshot', "Malaysia’s economy at a glance"], ['Brief', "Latest economic brief"], ['Risk', "Where pressure is building"], ['Forecast', "Three months ahead"], ['Structural', "When the pattern changed"], ['Health', "Source freshness and validation audit"], ['Methodology', "Built to be questioned."]]) {
+  for (const [owner, heading] of [['Snapshot', "Malaysia’s economy at a glance"], ['Brief', "Latest economic brief"], ['Risk', "Where pressure is building"], ['Forecast', "Three-month inflation forecast"], ['Structural', "When the pattern changed"], ['Health', "Source freshness and validation audit"], ['Methodology', "Built to be questioned."]]) {
     assert.ok(viewSource(owner).includes(`<h1>${heading}</h1>`), `Missing h1 in ${owner}: ${heading}`);
   }
+});
+
+test("forecast page labels the model's information origin and release lag", () => {
+  const forecast = viewSource('Forecast');
+  assert.match(forecast, /forecast\.informationOrigin/);
+  assert.match(forecast, /Model information origin/);
+  assert.match(forecast, /latest aligned data month/);
+  assert.match(forecast, /released after its reference month/);
 });
 
 test("regional chart rows retain their individual value and source semantics", () => {

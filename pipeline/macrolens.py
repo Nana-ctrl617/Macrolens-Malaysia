@@ -34,7 +34,8 @@ STRUCTURAL_JSON = ROOT / "data" / "published" / "structural-breaks.json"
 STRUCTURAL_CSV = ROOT / "data" / "published" / "structural-breaks.csv"
 VINTAGES = ROOT / "data" / "vintages"
 VINTAGE_LEDGER = VINTAGES / "ledger-v1"
-BACKTEST_MAX_ORIGINS = 36
+BACKTEST_MAX_ORIGINS = 60
+MIN_TRAINING_OBSERVATIONS = 24
 CALIBRATION_WARMUP_ORIGINS = 12
 USER_AGENT = "MacroLens-Malaysia/2.0 (public economics portfolio)"
 BNM_ACCEPT = "application/vnd.BNM.API.v1+json"
@@ -805,10 +806,16 @@ def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
         raise ValueError("District labour-force source is empty or duplicated")
     if selected["date"].isna().any():
         raise ValueError("District labour-force source has missing observation periods")
+    rate_columns = ["p_rate", "u_rate", "ep_ratio"]
     for column in ["lf", "lf_employed", "lf_unemployed", "p_rate", "u_rate", "ep_ratio"]:
         values = selected[column].dropna().to_numpy(dtype=float)
-        if not np.isfinite(values).all() or (values < 0).any() or (column in {"p_rate", "u_rate", "ep_ratio"} and (values > 100).any()):
+        if not np.isfinite(values).all() or (values < 0).any():
             raise ValueError("District labour-force source contains impossible observations")
+    out_of_range_rates = selected[rate_columns].gt(100).any(axis=1)
+    latest_date = selected["date"].max()
+    if (out_of_range_rates & selected["date"].eq(latest_date)).any():
+        raise ValueError("District labour-force source contains impossible latest-period rates")
+    historical_rate_anomalies = int(out_of_range_rates.sum())
     latest = selected[selected["date"].eq(selected["date"].max())].dropna(subset=["lf", "lf_unemployed", "u_rate"])
     if latest.empty:
         raise ValueError("District labour-force source has no usable latest observations")
@@ -828,7 +835,10 @@ def parse_regional_labour(frame: pd.DataFrame, retrieved: str) -> dict:
             "unemploymentRate": round(unemployed / lf * 100, 2) if lf else None,
             "employmentPopulationRatio": round(employed / (lf + float(state_frame["lf_outside"].sum())) * 100, 2) if "lf_outside" in state_frame else None,
         })
-    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": LFS_DISTRICT_SOURCE_URL, "datasetUrl": LFS_DISTRICT_URL, "stateRecords": state_records, "districtRecords": district_records, "message": "District labour-force data validated and aggregated to state level"}
+    message = "District labour-force data validated and aggregated to state level"
+    if historical_rate_anomalies:
+        message += f"; {historical_rate_anomalies} historical rate observation(s) above 100% were excluded from latest-period summaries"
+    return {"status": "fresh", "retrievedAt": retrieved, "observationPeriod": latest["date"].max().strftime("%Y-%m-%d"), "sourceUrl": LFS_DISTRICT_SOURCE_URL, "datasetUrl": LFS_DISTRICT_URL, "stateRecords": state_records, "districtRecords": district_records, "historicalRateAnomalies": historical_rate_anomalies, "message": message}
 
 
 REGIONAL_STATE_NAMES = ["Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis", "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu", "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya"]
@@ -951,9 +961,12 @@ def parse_state_cpi(frame: pd.DataFrame, retrieved: str) -> dict:
     if selected.empty or selected["date"].isna().any() or selected.duplicated(["date", "state", "division"]).any():
         raise ValueError("State CPI source has missing or duplicate observations")
     values = selected["inflation_yoy"].dropna().to_numpy(dtype=float)
-    if not np.isfinite(values).all() or (values < -20).any() or (values > 50).any():
-        raise ValueError("State CPI source contains implausible inflation observations")
+    if not np.isfinite(values).all():
+        raise ValueError("State CPI source contains non-finite inflation observations")
     selected = selected[selected["division"].eq("overall")].dropna(subset=["inflation_yoy"])
+    values = selected["inflation_yoy"].to_numpy(dtype=float)
+    if not np.isfinite(values).all() or (values < -20).any() or (values > 50).any():
+        raise ValueError("State CPI source contains implausible overall inflation observations")
     latest = selected[selected["date"].eq(selected["date"].max())]
     if latest["state"].nunique() < 16:
         raise ValueError("State CPI source has incomplete latest coverage")
@@ -2066,8 +2079,16 @@ def _apply_prequential_recalibration(windows: list[dict]) -> dict:
                     pool.extend(point for point in row["points"] if point["horizon"] == horizon)
             for level in (80, 95):
                 low_key, high_key = (f"low{level}", f"high{level}")
-                raw = [point for point in pool if point.get(low_key) is not None and point.get(high_key) is not None]
-                adjusted = [point for point in pool if point["recalibrated"].get(low_key) is not None and point["recalibrated"].get(high_key) is not None]
+                # Pair the comparison on exactly the same held-out forecasts.
+                # When a finite-sample recalibration band is unavailable, omit
+                # that point from both sides rather than comparing different
+                # samples and implying a like-for-like coverage change.
+                paired = [point for point in pool
+                          if point.get(low_key) is not None and point.get(high_key) is not None
+                          and point["recalibrated"].get(low_key) is not None
+                          and point["recalibrated"].get(high_key) is not None]
+                raw = paired
+                adjusted = paired
                 def interval_stats(points: list[dict], lower: Callable[[dict], float], upper: Callable[[dict], float]) -> dict:
                     count = len(points)
                     return {
@@ -2082,11 +2103,11 @@ def _apply_prequential_recalibration(windows: list[dict]) -> dict:
                     "evaluationPoints": len(pool),
                     "uncalibrated": interval_stats(raw, lambda point: point[low_key], lambda point: point[high_key]),
                     "recalibrated": interval_stats(adjusted, lambda point: point["recalibrated"][low_key], lambda point: point["recalibrated"][high_key]),
-                    "unavailableCalibrationPoints": len(pool) - len(adjusted),
+                    "unavailableCalibrationPoints": len(pool) - len(paired),
                 })
     return {
         "status": "experimental" if evaluation else "insufficient-evaluation-history",
-        "method": "Rolling absolute forecast-error quantiles by model and horizon; each held-out origin uses only targets observed strictly before that origin.",
+        "method": "Rolling absolute forecast-error quantiles by model and horizon; each held-out origin uses only targets observed strictly before that origin. Original and recalibrated intervals are compared on the identical subset with an available recalibrated band.",
         "warmupOrigins": warmup,
         "evaluationOrigins": evaluation,
         "minimumSampleRule": "Finite-sample order statistic at rank ceil((n+1) × nominal coverage); range unavailable when the rank exceeds the number of prior errors. This requires at least 4 prior errors for 80% and 19 for 95%.",
@@ -2101,14 +2122,15 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
     common = y_full.index.intersection(exog_full.index)
     y_full, exog_full = y_full.loc[common], exog_full.loc[common]
     names = ["Seasonal naive", "SARIMA", "ARIMAX"]
-    # Last origin must leave all three observed targets. Retain a documented
-    # reproducible recent cap: 36 origins, rather than the previous 12.
-    eligible_origins = [position for position in range(35, len(y_full) - 3)
+    # Two complete annual cycles are the minimum training history; retain up
+    # to five years of common origins so annual seasonality and more regimes
+    # are represented without comparing models on different windows.
+    eligible_origins = [position for position in range(MIN_TRAINING_OBSERVATIONS - 1, len(y_full) - 3)
                         if y_full.index[position + 1:position + 4].equals(
                             pd.date_range(y_full.index[position] + pd.offsets.MonthBegin(), periods=3, freq="MS"))]
     origins = eligible_origins[-BACKTEST_MAX_ORIGINS:]
     if not origins:
-        raise ValueError("At least 36 training months and three complete target months are required")
+        raise ValueError(f"At least {MIN_TRAINING_OBSERVATIONS} training months and three complete target months are required")
     windows = []
     audited_points = {name: [] for name in names}
     failures = {name: [] for name in names}
@@ -2183,7 +2205,7 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
         score["selected"] = score["name"] == selected
     evaluation = {
         "method": "Pseudo-real-time rolling-origin evaluation", "horizonMonths": 3, "origins": origin_dates,
-        "originPolicy": f"All eligible monthly origins in the latest {BACKTEST_MAX_ORIGINS} folds; minimum 36 training observations and three consecutive observed target months.",
+        "originPolicy": f"All eligible monthly origins in the latest {BACKTEST_MAX_ORIGINS} folds; minimum {MIN_TRAINING_OBSERVATIONS} training observations (two full annual cycles) and three consecutive observed target months.",
         "windows": windows, "candidateEligibility": eligibility, "coverage": coverage,
         "calibrationExperiment": calibration_experiment,
         "fallbackCount": 0, "errorDefinition": "predicted minus actual, percentage points",
@@ -2240,7 +2262,7 @@ def forecast(series: dict[str, list[dict]]) -> dict:
     except Exception as error:
         scenario = None
         evaluation["scenarioFit"] = {"status": "failed", "failureReason": f"{type(error).__name__}: {str(error)[:240]}"}
-    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages", "backtestWindows": len(evaluation["windows"]), "models": scores, "points": points, "scenario": scenario, "evaluation": evaluation,
+    return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages", "informationOrigin": y.index[-1].strftime("%Y-%m-%d"), "backtestWindows": len(evaluation["windows"]), "models": scores, "points": points, "scenario": scenario, "evaluation": evaluation,
             "status": "fallback" if failure_reason else "fresh", "calculationStatus": "fallback" if failure_reason else "fresh"}
 
 
@@ -3148,25 +3170,35 @@ def record_vintage_ledger(payload: dict, root: Path | None = None) -> dict:
         fresh_sources += 1
 
     # Issue records are prospective only when all six inputs were freshly fetched
-    # at this run's clock, a complete model fit succeeded, and all targets are future.
+    # at this run's clock, a complete fit succeeded, and targets lie beyond the
+    # model's information origin and were not yet published in the headline series.
     forecast = payload.get("forecast", {})
     evaluation = forecast.get("evaluation", {})
     final_fit = evaluation.get("finalFit", {})
-    issue_month = str(generated_at)[:7] if isinstance(generated_at, str) else ""
+    information_origin = forecast.get("informationOrigin")
     forecast_points = forecast.get("points", [])
+    headline_points = series.get("headline", {}).get("points", [])
+    headline_values = {point["date"]: point["value"] for point in headline_points if isinstance(point, dict) and isinstance(point.get("date"), str)}
+    targets_are_unobserved = all(
+        isinstance(point.get("date"), str)
+        and point["date"] > str(information_origin or "")
+        and point["date"] not in headline_values
+        for point in forecast_points
+    )
     issue_ready = (
         run_clock is not None and fresh_sources == len(SPECS) and not payload.get("usingFallback", False)
         and forecast.get("status") == "fresh" and forecast.get("calculationStatus") != "fallback"
         and forecast.get("calculatedAt") == generated_at and isinstance(final_fit, dict)
         and final_fit.get("fallbackUsed") is False and len(forecast_points) == 3
-        and all(isinstance(point.get("date"), str) and point["date"][:7] > issue_month for point in forecast_points)
+        and isinstance(information_origin, str) and targets_are_unobserved
         and set(source_ids) == set(SPECS)
     )
     forecast_dir = ledger / "forecasts"
     if issue_ready:
         model = next((item for item in forecast.get("models", []) if item.get("name") == forecast.get("selectedModel")), None)
         issue_content = {
-            "issueDate": str(generated_at)[:10], "targetMonths": [point["date"] for point in forecast_points],
+            "issueDate": str(generated_at)[:10], "informationOrigin": information_origin,
+            "targetMonths": [point["date"] for point in forecast_points],
             "selectedModel": forecast.get("selectedModel"), "modelScore": model,
             "forecastPoints": forecast_points, "methodLabel": forecast.get("methodLabel"),
             "sourceSnapshots": {key: source_ids[key] for key in sorted(source_ids)},
@@ -3193,9 +3225,10 @@ def record_vintage_ledger(payload: dict, root: Path | None = None) -> dict:
                 issue = json.loads(issue_path.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
                 continue
+            information_origin = issue.get("informationOrigin") or issue.get("issueDate")
             for target in issue.get("targetMonths", []):
                 value = headline_values.get(target)
-                if value is None or target[:7] <= issue.get("issueDate", "")[:7]:
+                if value is None or not isinstance(information_origin, str) or target <= information_origin:
                     continue
                 outcome_content = {
                     "forecastId": issue.get("forecastId"), "targetMonth": target,

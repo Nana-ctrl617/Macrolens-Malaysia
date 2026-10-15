@@ -13,7 +13,7 @@ const rejects = (mutations) => {
   }
 };
 const successful = (p) => p.forecast.evaluation.windows[0].models.find(m => m.status === 'success');
-const coverage = (p) => p.forecast.evaluation.coverage.find(row => row.name === 'SARIMA');
+const coverage = (p) => p.forecast.evaluation.coverage.find(row => row.name === p.forecast.models.find(model => model.eligible)?.name);
 
 test('current published audit reconciles all candidates, targets and intervals', () => {
   assert.equal(validateForecastEvaluationIntegrity(fixture()), true);
@@ -194,6 +194,32 @@ test('all-failed candidate has null scores and null zero-denominator coverage', 
   assert.equal(validateForecastEvaluationIntegrity(p), false);
 });
 
+test('recalibration comparisons reject unpaired original and adjusted samples', () => {
+  rejects([p => {
+    const row = p.forecast.evaluation.calibrationExperiment.byModelHorizon.find(item => item.unavailableCalibrationPoints > 0 && item.recalibrated.count > 0);
+    assert.ok(row, 'fixture must have a held-out row with both available and unavailable recalibration points');
+    row.uncalibrated.count += 1;
+  }]);
+});
+
+test('fully unavailable recalibrated bands exclude original bands from the paired comparison too', () => {
+  const p = fixture();
+  const experiment = p.forecast.evaluation.calibrationExperiment;
+  const row = experiment.byModelHorizon.find(item => item.nominalCoverage === 95 && item.recalibrated.count === 0 && item.evaluationPoints > 0);
+  assert.ok(row, 'fixture must include a 95% calibration range that is unavailable for every held-out point');
+  const points = p.forecast.evaluation.windows.slice(experiment.warmupOrigins.length).flatMap(window => {
+    const candidate = window.models.find(model => model.name === row.model && model.status === 'success');
+    return (candidate?.points ?? []).filter(point => point.horizon === row.horizon);
+  });
+  assert.ok(points.length > 0);
+  row.uncalibrated = {
+    count: points.length,
+    coverage: points.filter(point => point.low95 <= point.actual && point.actual <= point.high95).length / points.length,
+    meanWidth: points.reduce((sum, point) => sum + point.high95 - point.low95, 0) / points.length,
+  };
+  assert.equal(validateForecastEvaluationIntegrity(p), false, 'an unpaired 95% comparison must not report original-only coverage');
+});
+
 test('selected model and final-fit fallback disclosure are consistent', () => {
   rejects([
     p => p.forecast.evaluation.finalFit.usedModel = 'ARIMAX',
@@ -205,17 +231,29 @@ test('selected model and final-fit fallback disclosure are consistent', () => {
     p => p.forecast.selectedModel = 'Unknown model',
   ]);
   const p = fixture();
-  for (const model of p.forecast.models) model.selected = model.name === 'Seasonal naive';
-  p.forecast.selectedModel = 'Seasonal naive';
-  Object.assign(p.forecast.evaluation.finalFit, { requestedModel: 'Seasonal naive', usedModel: 'Seasonal naive' });
+  const eligible = p.forecast.models.filter(model => model.eligible).sort((left, right) => left.rmse - right.rmse || left.mae - right.mae);
+  const invalidChoice = eligible[1] ?? p.forecast.models.find(model => !model.eligible);
+  assert.ok(invalidChoice, 'fixture must contain a candidate other than the selected model');
+  for (const model of p.forecast.models) model.selected = model.name === invalidChoice.name;
+  p.forecast.selectedModel = invalidChoice.name;
+  Object.assign(p.forecast.evaluation.finalFit, { requestedModel: invalidChoice.name, usedModel: invalidChoice.name });
   assert.equal(validateForecastEvaluationIntegrity(p), false, 'Selection must request the lowest-error eligible candidate');
 });
 
-test('a disclosed final-fit failure may use an eligible correctly named baseline', () => {
+test('a disclosed final-fit failure may use the baseline only after an eligible non-baseline request', () => {
   const p = fixture();
+  const eligibleRequest = p.forecast.models.find(model => model.eligible && model.name !== 'Seasonal naive');
+  if (!eligibleRequest) {
+    const unavailableRequest = p.forecast.models.find(model => model.name !== 'Seasonal naive');
+    assert.ok(unavailableRequest, 'fixture must contain a non-baseline candidate');
+    Object.assign(p.forecast.evaluation.finalFit, { requestedModel: unavailableRequest.name, usedModel: 'Seasonal naive', fallbackUsed: true, failureReason: 'Synthetic final-fit failure' });
+    p.forecast.evaluation.fallbackCount = 1;
+    assert.equal(validateForecastEvaluationIntegrity(p), false, 'ineligible model cannot be disclosed as a valid fallback request');
+    return;
+  }
   for (const model of p.forecast.models) model.selected = model.name === 'Seasonal naive';
   p.forecast.selectedModel = 'Seasonal naive';
-  Object.assign(p.forecast.evaluation.finalFit, { requestedModel: 'SARIMA', usedModel: 'Seasonal naive', fallbackUsed: true, failureReason: 'Synthetic final-fit failure' });
+  Object.assign(p.forecast.evaluation.finalFit, { requestedModel: eligibleRequest.name, usedModel: 'Seasonal naive', fallbackUsed: true, failureReason: 'Synthetic final-fit failure' });
   p.forecast.evaluation.fallbackCount = 1;
   assert.equal(validateForecastEvaluationIntegrity(p), true);
 });

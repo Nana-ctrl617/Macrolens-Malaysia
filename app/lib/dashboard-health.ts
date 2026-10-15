@@ -15,7 +15,10 @@ const dependencies: Record<string, string[]> = {
 /** Compatibility guard: legacy artifacts must not label analyses fresh when an input failed. */
 export function normalizeDashboard(original: DashboardPayload): DashboardPayload {
   const result = structuredClone(original);
-  const fallback = !!result.usingFallback || result.health === "fallback";
+  const legacyHealth = (result.dataHealth as (DashboardPayload["dataHealth"] & { overallHealth?: string }) | undefined)?.overallHealth;
+  const declaredDataHealth = result.dataHealth?.overall ?? legacyHealth;
+  const fallback = !!result.usingFallback || result.health === "fallback" || declaredDataHealth === "fallback";
+  const previouslyPartial = result.health === "partial" || declaredDataHealth === "partial";
   for (const source of Object.values(result.sources)) {
     if (source.status !== "fresh" && !source.lastAttemptAt && source.retrievedAt) {
       source.lastAttemptAt = source.retrievedAt;
@@ -107,7 +110,7 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     rows.push({ id, status: (value.status ?? "stale") as "fresh" | "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
-  result.health = fallback ? "fallback" : staleCount || result.health === "partial" ? "partial" : "fresh";
+  result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";
   result.dataHealth = {
     generatedAt: result.generatedAt,
     overall: result.health,

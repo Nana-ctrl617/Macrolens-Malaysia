@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join,resolve} from 'node:path';
+import {delimiter,join,resolve} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash,createHmac,randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
@@ -93,6 +93,16 @@ test('native tool invocation preserves executable paths and arguments with space
   if(process.platform==='win32'){command=join(folder,'echo.cmd');await writeFile(command,`@echo off\r\n"${process.execPath}" "${script}" %*\r\n`);args=['a b','123'];}
   const result=await executeReleaseStage({name:'native-tool',command,args,timeoutMs:5000},root,releaseEnvironment(process.env,root),logs);
   assert.equal(result.exitCode,0);assert.equal(await readFile(join(logs,'native-tool.log'),'utf8'),'a b|123');
+});
+test('Windows cmd PATH lookup works without wrapping the entire /c command in quotes',async t=>{
+  if(process.platform!=='win32')return t.skip('Windows cmd.exe argument parsing only');
+  const root=await fixture(t),folder=join(root,'tool folder'),logs=join(root,'outputs/logs');await mkdir(folder,{recursive:true});await mkdir(logs,{recursive:true});
+  const script=join(folder,'echo.mjs'),command=join(folder,'path-tool.cmd');
+  await writeFile(script,'process.stdout.write(process.argv.slice(2).join("|"));');
+  await writeFile(command,`@echo off\r\n"${process.execPath}" "${script}" %*\r\n`);
+  const env=releaseEnvironment(process.env,root);env.PATH=`${folder}${delimiter}${env.PATH}`;
+  const result=await executeReleaseStage({name:'path-tool',command:'path-tool.cmd',args:['a b','123'],timeoutMs:5000},root,env,logs);
+  assert.equal(result.exitCode,0);assert.equal(await readFile(join(logs,'path-tool.log'),'utf8'),'a b|123');
 });
 async function signedFixture(root){
   const key=randomBytes(32),at=new Date().toISOString(),stages=[];

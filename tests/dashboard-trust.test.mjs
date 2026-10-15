@@ -7,6 +7,7 @@ const fixture = () => JSON.parse(readFileSync(new URL("../data/published/dashboa
 
 test("legacy health field names are normalised and omitted sources are included", () => {
   const payload = fixture();
+  payload.health = "fresh";
   payload.dataHealth = { overallHealth: "partial", summary: "old alias", sources: [] };
   const result = normalizeDashboard(payload);
   assert.equal(result.dataHealth.overall, "partial");

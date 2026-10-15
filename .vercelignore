@@ -1,0 +1,5 @@
+.env*
+.venv/
+data/vintages/
+**/__pycache__/
+**/.pytest_cache/

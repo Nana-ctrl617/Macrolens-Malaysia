@@ -27,13 +27,21 @@ test("Forecast summary explicitly defers per-origin details",async()=>{
   assert.deepEqual(view.forecast.evaluation.coverage,source.forecast.evaluation.coverage);
   assert.equal(view.deferred["forecast-audit"].totalRows,source.forecast.evaluation.windows.length);
 });
-test("Regional summary has state comparators but no embedded raw source rows",async()=>{
+test("Regional summary keeps compact national comparator history but defers large source rows",async()=>{
   const view=await projectDashboard(fixture(),"regional");
   assert.ok(view.regionalLens.stateRecords.length>10);
   assert.equal(view.regionalLens.districtRecords,undefined);
   assert.ok(view.regionalLens.districtIndex.length>100);
-  const json=JSON.stringify(view.regionalLens.sources);
-  assert.doesNotMatch(json,/percentileRecords|stateRecords|districtRecords|labourRecords|\"records\"/);
+  for(const id of ["nationalIncome","nationalPoverty","nationalInequality"])
+    assert.ok(view.regionalLens.sources[id].records.length<=25,`${id} comparator history remains compact`);
+  for(const id of ["hiesState","hiesDistrict","incomeGroupState","incomeGroupNational","labour","gdp","gdpState","gdpDistrict","cpi"]){
+    const source=view.regionalLens.sources[id];
+    assert.equal(source.records,undefined,id);
+    assert.equal(source.stateRecords,undefined,id);
+    assert.equal(source.districtRecords,undefined,id);
+    assert.equal(source.labourRecords,undefined,id);
+    assert.equal(source.percentileRecords,undefined,id);
+  }
   assert.ok(view.deferred["regional-districts"]);
 });
 test("history is requested by artifact and cannot silently cross revisions",async()=>{

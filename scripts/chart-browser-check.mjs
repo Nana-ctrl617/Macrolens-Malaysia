@@ -69,10 +69,13 @@ for (const size of sizes) {
       for (let index = 0; index < await canvases.count(); index++) {
         const canvas = canvases.nth(index);
         if (!await canvas.isVisible()) continue;
-        await canvas.scrollIntoViewIfNeeded();
-        await canvas.evaluate(el => el.scrollIntoView({block:'center',inline:'center'}));
+        // The app uses smooth page scrolling. Playwright's stability-based
+        // scrollIntoViewIfNeeded can wait forever on a tall chart while that
+        // smooth scroll is still settling, especially in short reflow views.
+        // Scroll immediately, then test the rendered position and interaction
+        // below; this avoids treating animation progress as a layout defect.
+        await canvas.evaluate(el => el.scrollIntoView({block:'center',inline:'center',behavior:'instant'}));
         await canvas.focus();
-        await canvas.scrollIntoViewIfNeeded();
         await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         assert.equal(await canvas.evaluate(el => el === document.activeElement), true);
         assert.ok((await canvas.getAttribute('aria-describedby'))?.trim(), 'chart needs linked instructions/status');

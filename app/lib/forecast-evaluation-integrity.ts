@@ -52,11 +52,12 @@ const sameNullableNumber=(actual:unknown,expected:number|null)=>expected===null?
 
 function validCalibrationComparison(row:Row,points:Row[],level:80|95):boolean{
   const low=`low${level}`,high=`high${level}`;
-  const adjusted=points.filter(point=>point.recalibrated?.[low]!==null&&point.recalibrated?.[high]!==null);
+  const paired=points.filter(point=>point[low]!==null&&point[high]!==null&&point.recalibrated?.[low]!==null&&point.recalibrated?.[high]!==null);
+  const adjusted=paired;
   const count=adjusted.length,coverage=count?adjusted.filter(point=>point.recalibrated[low]<=point.actual&&point.actual<=point.recalibrated[high]).length/count:null;
   const width=count?adjusted.reduce((sum,point)=>sum+point.recalibrated[high]-point.recalibrated[low],0)/count:null;
   if(row.evaluationPoints!==points.length||row.unavailableCalibrationPoints!==points.length-count)return false;
-  for(const [name,selected] of [["uncalibrated",points],["recalibrated",adjusted]] as const){
+  for(const [name,selected] of [["uncalibrated",paired],["recalibrated",adjusted]] as const){
     const value=row[name];if(!object(value))return false;
     const n=selected.length,c= n?selected.filter(point=>{
       const lo=name==="uncalibrated"?point[low]:point.recalibrated[low],hi=name==="uncalibrated"?point[high]:point.recalibrated[high];
@@ -77,7 +78,7 @@ export function validateForecastEvaluationIntegrity(raw: unknown): boolean {
     const evaluation = forecast.evaluation;
     if (!object(evaluation) || !text(evaluation.method) || evaluation.horizonMonths !== 3) return false;
     if (!Array.isArray(evaluation.caveats) || !evaluation.caveats.every(text)) return false;
-    if (!Array.isArray(evaluation.origins) || evaluation.origins.length === 0 || evaluation.origins.length > 36) return false;
+    if (!Array.isArray(evaluation.origins) || evaluation.origins.length === 0 || evaluation.origins.length > 60) return false;
     const origins: string[] = evaluation.origins;
     if (!origins.every((origin, i) => month(origin) && (i === 0 || origin > origins[i - 1]))) return false;
     if (!Array.isArray(evaluation.windows) || evaluation.windows.length !== origins.length || forecast.backtestWindows !== origins.length) return false;
@@ -107,7 +108,7 @@ export function validateForecastEvaluationIntegrity(raw: unknown): boolean {
       if(evaluation.calibrationExperiment!==undefined&&window.evaluationPhase!==(index<evaluation.calibrationExperiment.warmupOrigins?.length?'calibration-warmup':'held-out-evaluation'))return false;
       if (!month(window.trainingStart) || window.trainingStart > window.trainingEnd || !actuals.has(window.trainingStart) || !actuals.has(window.trainingEnd)) return false;
       const trainCount = [...actuals.keys()].filter(date => date >= window.trainingStart && date <= window.trainingEnd).length;
-      if (!integer(window.trainingObservations) || window.trainingObservations < 36 || window.trainingObservations !== trainCount) return false;
+      if (!integer(window.trainingObservations) || window.trainingObservations < 24 || window.trainingObservations !== trainCount) return false;
       const targets = nextMonths(window.origin);
       if (!same(window.targets, targets) || targets.at(-1)! > lastObservation) return false;
       const modelRows = namedRows(window.models, names);

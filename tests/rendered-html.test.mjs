@@ -86,7 +86,7 @@ test("renders each dashboard section on its own route", async () => {
     ["/brief", "Latest economic brief", "Brief"],
     ["/news", "Latest Malaysia economy headlines", "News"],
     ["/risk", "Where pressure is building", "Risk heatmap"],
-    ["/forecast", "Three months ahead", "Forecast"],
+    ["/forecast", "Three-month inflation forecast", "Forecast"],
     ["/drivers", "What contributes to inflation", "Drivers"],
     ["/structure", "What drives Malaysia(?:'|&#x27;)s economic value", "Growth drivers"],
     ["/external", "Trade, exports and imported-cost pressure", "External sector"],
@@ -211,7 +211,8 @@ test("serves a validated consolidated fallback dashboard", async () => {
   assert.equal(body.cpiDecomposition.weightReferenceYear, 2022);
   assert.equal(body.forecast.scenario, null);
   assert.equal(body.forecast.evaluation.scenarioFit.status, 'failed');
-  assert.equal(body.forecast.selectedModel, 'SARIMA');
+  assert.equal(body.forecast.selectedModel, body.forecast.evaluation.finalFit.usedModel);
+  assert.ok(body.forecast.models.some(model => model.name === body.forecast.selectedModel && model.selected));
   assert.ok(body.dataOperations.releaseLog.length > 0);
 });
 

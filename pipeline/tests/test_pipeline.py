@@ -40,9 +40,9 @@ def test_forecast_backtest_uses_complete_identical_origin_windows(monkeypatch):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     result = macrolens.forecast(forecast_fixture())
     evaluation = result["evaluation"]
-    assert len(evaluation["windows"]) == 21
+    assert len(evaluation["windows"]) == 33
     assert len(evaluation["calibrationExperiment"]["warmupOrigins"]) == 12
-    assert len(evaluation["calibrationExperiment"]["evaluationOrigins"]) == 9
+    assert len(evaluation["calibrationExperiment"]["evaluationOrigins"]) == 21
     assert all(len(score["metricsByHorizon"]) == 3 for score in result["models"])
     assert all(len(fold["targets"]) == 3 for fold in evaluation["windows"])
     assert all(candidate["origins"] == evaluation["origins"] for candidate in evaluation["candidateEligibility"])
@@ -56,8 +56,8 @@ def test_backtest_coverage_is_measured_from_historical_bounds(monkeypatch):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     _, _, evaluation = macrolens.backtest(forecast_fixture())
     coverage = next(row for row in evaluation["coverage"] if row["name"] == "SARIMA")
-    assert (coverage["covered80"], coverage["total80"]) == (21, 63)
-    assert (coverage["covered95"], coverage["total95"]) == (42, 63)
+    assert (coverage["covered80"], coverage["total80"]) == (33, 99)
+    assert (coverage["covered95"], coverage["total95"]) == (66, 99)
     assert coverage["coverage80"] == pytest.approx(1 / 3, abs=1e-6)
     assert coverage["coverage95"] == pytest.approx(2 / 3, abs=1e-6)
     assert len(coverage["byHorizon"]) == 3
@@ -73,7 +73,7 @@ def test_failed_fit_is_disclosed_and_not_scored_as_candidate(monkeypatch):
     failed = next(score for score in scores if score["name"] == "SARIMA")
     assert failed["eligible"] is False
     assert failed["rmse"] is None and failed["mae"] is None
-    assert failed["failedWindows"] == 21 and failed["fallbackCount"] == 0
+    assert failed["failedWindows"] == 33 and failed["fallbackCount"] == 0
     assert selected != "SARIMA"
     assert all(next(row for row in fold["models"] if row["name"] == "SARIMA")["points"] == [] for fold in evaluation["windows"])
     assert all("RuntimeError" in next(row for row in fold["models"] if row["name"] == "SARIMA")["failureReason"] for fold in evaluation["windows"])
@@ -104,17 +104,25 @@ def test_partially_failed_candidate_is_not_selected_on_easier_successful_folds(m
     scores, selected, evaluation = macrolens.backtest(forecast_fixture())
     sarima = next(row for row in scores if row["name"] == "SARIMA")
     assert sarima["rmse"] is not None
-    assert sarima["successfulWindows"] == 20 and sarima["failedWindows"] == 1
+    assert sarima["successfulWindows"] == 32 and sarima["failedWindows"] == 1
     assert sarima["eligible"] is False and selected != "SARIMA"
     assert all(row["origins"] == evaluation["origins"] for row in evaluation["candidateEligibility"])
 
 
-@pytest.mark.parametrize("count, expected_windows", [(40, 1), (45, 6), (60, 21), (180, macrolens.BACKTEST_MAX_ORIGINS)])
+@pytest.mark.parametrize("count, expected_windows", [(40, 13), (45, 18), (60, 33), (180, macrolens.BACKTEST_MAX_ORIGINS)])
 def test_backtest_reports_only_available_complete_windows(monkeypatch, count, expected_windows):
     monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
     _, _, evaluation = macrolens.backtest(forecast_fixture(count))
     assert len(evaluation["windows"]) == expected_windows
     assert all(len(window["targets"]) == 3 for window in evaluation["windows"])
+
+
+def test_backtest_uses_two_full_years_of_training_and_more_available_origins(monkeypatch):
+    monkeypatch.setattr(macrolens, "fit_model", lambda *args, **kwargs: FakeForecastFit())
+    _, _, evaluation = macrolens.backtest(forecast_fixture(60))
+    assert len(evaluation["windows"]) == 33
+    assert evaluation["windows"][0]["trainingObservations"] == 24
+    assert evaluation["windows"][-1]["trainingObservations"] == 56
 
 
 def test_recalibrated_intervals_only_use_pre_origin_errors_and_hold_out_later_origins(monkeypatch):
@@ -144,6 +152,7 @@ def test_recalibrated_intervals_only_use_pre_origin_errors_and_hold_out_later_or
     assert point["recalibrated"]["low95"] is None
     assert any(row["recalibrated"]["coverage"] is not None for row in experiment["byModelHorizon"])
     assert all(row["model"] in {"Seasonal naive", "SARIMA", "ARIMAX"} for row in experiment["byModelHorizon"])
+    assert all(row["uncalibrated"]["count"] == row["recalibrated"]["count"] for row in experiment["byModelHorizon"])
 
 
 def test_policy_rate_uses_last_decision_each_month_then_one_month_lag():

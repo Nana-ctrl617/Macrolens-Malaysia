@@ -29,6 +29,7 @@ def payload(clock="2026-10-05T05:45:00Z", latest="2026-10-01"):
     issue_dates = ["2026-11-01", "2026-12-01", "2027-01-01"]
     forecast = {
         "selectedModel": "Seasonal naive", "status": "fresh", "calculationStatus": "fresh", "calculatedAt": clock,
+        "informationOrigin": latest,
         "methodLabel": "Test-only forecast", "points": [{"date": date, "value": 2.0, "low80": 1.5, "high80": 2.5, "low95": 1.0, "high95": 3.0} for date in issue_dates],
         "models": [{"name": "Seasonal naive", "rmse": 0.1, "mae": 0.08, "selected": True}],
         "evaluation": {"finalFit": {"fallbackUsed": False}},
@@ -93,12 +94,25 @@ def test_stale_or_historically_clocked_sources_cannot_be_backdated_as_a_fresh_vi
     assert delayed["prospectiveForecastCount"] == 0
 
 
-def test_only_forecasts_wholly_after_the_real_issue_month_are_issued(tmp_path):
+def test_release_lagged_targets_are_issued_when_unpublished_after_information_origin(tmp_path):
     current = payload(latest="2026-08-01")
     current["forecast"]["points"] = [{"date": date, "value": 2.0, "low80": 1.5, "high80": 2.5, "low95": 1.0, "high95": 3.0} for date in ["2026-09-01", "2026-10-01", "2026-11-01"]]
     result = macrolens.record_vintage_ledger(current, tmp_path / "ledger-v1")
+    assert result["prospectiveForecastCount"] == 1
+    assert result["pendingForecastTargetCount"] == 3
+    issue = json.loads(next((tmp_path / "ledger-v1" / "forecasts").glob("*.json")).read_text(encoding="utf-8"))
+    assert issue["issueDate"] == "2026-10-05"
+    assert issue["informationOrigin"] == "2026-08-01"
+    assert issue["targetMonths"] == ["2026-09-01", "2026-10-01", "2026-11-01"]
+
+
+def test_forecast_target_already_observed_at_issue_is_not_recorded(tmp_path):
+    current = payload(latest="2026-08-01")
+    current["series"]["headline"]["points"].append({"date": "2026-09-01", "value": 2.3})
+    current["forecast"]["points"] = [{"date": date, "value": 2.0, "low80": 1.5, "high80": 2.5, "low95": 1.0, "high95": 3.0} for date in ["2026-09-01", "2026-10-01", "2026-11-01"]]
+    result = macrolens.record_vintage_ledger(current, tmp_path / "ledger-v1")
     assert result["prospectiveForecastCount"] == 0
-    assert "not represented as release vintages" in result["note"]
+    assert not list((tmp_path / "ledger-v1" / "forecasts").glob("*.json"))
 
 
 def test_outcomes_record_first_seen_values_and_later_revisions_as_new_files(tmp_path):

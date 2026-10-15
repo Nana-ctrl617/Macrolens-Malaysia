@@ -100,10 +100,11 @@ const finalForecast = liveForecasts.at(-1);
 return <section className="section forecast-section page-section compact-forecast" id="forecast">
         <div className="shell">
           <div className="section-heading light">
-            <div><span className="section-number">04 / Forecast</span><h1>Three months ahead</h1></div>
+            <div><span className="section-number">04 / Forecast</span><h1>Three-month inflation forecast</h1></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
           <InputHealthNotice health={dashboard?.inputHealth?.forecast} />
+          {dashboard?.forecast.informationOrigin && <p className="forecast-origin"><b>Model information origin: {formatDate(dashboard.forecast.informationOrigin)}.</b> Forecast months are counted from the latest aligned data month, not always from today. Because official CPI is released after its reference month, a month on the calendar may have passed before its CPI value is available to the model.</p>}
           <div className="forecast-layout">
             <div className="forecast-card">
               <h2>Headline inflation forecast</h2>
@@ -152,7 +153,7 @@ return <section className="section forecast-section page-section compact-forecas
                 <li><b>Collect official data.</b><p>Use monthly inflation and related macro variables from the dashboard payload.</p></li>
                 <li><b>Compare models fairly.</b><p>Seasonal naive, SARIMA and ARIMAX are tested over the same rolling historical windows.</p></li>
                 <li><b>Select the lowest-error model.</b><p>The chosen model is the one with the best backtest performance, mainly lowest RMSE.</p></li>
-                <li><b>Forecast three months ahead.</b><p>Show the central forecast for each future month.</p></li>
+                <li><b>Forecast three months beyond the information origin.</b><p>That origin is shown near the top of this page; release delays mean it can be earlier than the current calendar month.</p></li>
                 <li><b>Show uncertainty.</b><p>Display 80% and 95% prediction intervals and explain the limits.</p></li>
               </ol>
             </div>

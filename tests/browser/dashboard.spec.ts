@@ -45,6 +45,19 @@ test("release gate browser negative control", async ({ page, context }) => {
   expect(process.env.PLAYWRIGHT_INJECT_FAILURE, "Deliberate required browser assertion: a failure must block the release gate.").not.toBe("1");
 });
 
+test("forecast page displays the information origin from its validated payload", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  await installFixture(context, payload);
+  await ready(page, "/forecast");
+  const origin = payload.forecast.informationOrigin;
+  expect(origin, "forecast payload includes the model's aligned information origin").toBeTruthy();
+  const expected = new Intl.DateTimeFormat("en-MY", { month: "short", year: "numeric" }).format(new Date(`${origin}T00:00:00`));
+  const note = page.locator(".forecast-origin");
+  await expect(note).toContainText(`Model information origin: ${expected}.`);
+  await expect(note).toContainText("latest aligned data month");
+  await expect(note).toContainText("released after its reference month");
+});
+
 test("news topic and source filters intersect, announce counts and recover from no matches", async ({ page, context }, info) => {
   await installFixture(context, await dashboardFixture());
   await ready(page, "/news"); await readability(page, info);

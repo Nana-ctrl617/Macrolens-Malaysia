@@ -229,6 +229,42 @@ def test_cpi_duplicates_fail_validation_instead_of_ambiguous_point(monkeypatch):
         macrolens.parse_state_cpi(pd.concat([frame, frame.iloc[:1]], ignore_index=True), NOW)
 
 
+def test_cpi_category_extremes_do_not_block_valid_overall_state_inflation():
+    frame = source_frames()["cpi"]
+    category_extremes = pd.DataFrame([
+        {"date": "2020-05-01", "state": state, "division": "07", "inflation_yoy": -29.8}
+        for state in macrolens.REGIONAL_STATE_NAMES
+    ] + [
+        {"date": "2020-06-01", "state": state, "division": "07", "inflation_yoy": 41.4}
+        for state in macrolens.REGIONAL_STATE_NAMES
+    ])
+    result = macrolens.parse_state_cpi(pd.concat([frame, category_extremes], ignore_index=True), NOW)
+    assert result["status"] == "fresh"
+    assert result["observationPeriod"] == "2026-08-01"
+    assert len(result["records"]) == 16
+    assert all(item["headlineInflation"] == 1.5 for item in result["records"])
+
+
+def test_cpi_overall_extremes_still_fail_validation():
+    frame = source_frames()["cpi"]
+    frame.loc[0, "inflation_yoy"] = 999
+    with pytest.raises(ValueError, match="overall inflation"):
+        macrolens.parse_state_cpi(frame, NOW)
+
+
+def test_historical_anomalous_labour_rate_is_reported_without_freezing_latest_source():
+    frame = source_frames()["labour"]
+    anomaly = frame.iloc[[0]].copy()
+    anomaly["date"] = "2018-01-01"
+    anomaly[["lf", "lf_employed", "lf_unemployed", "p_rate", "ep_ratio"]] = float("nan")
+    anomaly["u_rate"] = 293
+    result = macrolens.parse_regional_labour(pd.concat([frame, anomaly], ignore_index=True), NOW)
+    assert result["status"] == "fresh"
+    assert result["observationPeriod"] == "2025-01-01"
+    assert "1 historical rate observation" in result["message"]
+    assert len(result["districtRecords"]) == 120
+
+
 def test_legacy_source_metadata_is_migrated_without_losing_last_valid_benchmarks(monkeypatch):
     install_sources(monkeypatch)
     prior = macrolens.build_regional_lens(None, OLD)

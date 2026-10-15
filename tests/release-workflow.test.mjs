@@ -38,6 +38,16 @@ test('published validator accepts the exact current snapshot without fetching', 
   } finally { globalThis.fetch = original; }
 });
 
+test('published validator checks remotely fetched bytes with the same integrity guard', async () => {
+  const { validatePublishedPayload } = await import(validator.href);
+  const result = await validatePublishedPayload(Buffer.from(JSON.stringify(published)), 'remote fixture');
+  assert.equal(result.path, 'remote fixture');
+  assert.equal(result.schemaVersion, published.schemaVersion);
+  assert.equal(result.generatedAt, published.generatedAt);
+  assert.equal(result.bytes, Buffer.byteLength(JSON.stringify(published)));
+  await assert.rejects(validatePublishedPayload('{not json', 'remote fixture'), /not valid JSON/);
+});
+
 test('published validator invokes shape, regional, risk and forecast cross-field guards', async () => {
   const { validatePublishedArtifact } = await import(validator.href);
   const mutations = [

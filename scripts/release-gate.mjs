@@ -43,8 +43,15 @@ export async function runRequiredStages(stages,execute,onPassed=async()=>{}){
 function nativeInvocation(command,args){
   if(process.platform!=='win32'||! /\.(?:cmd|bat)$/i.test(command))return {command,args};
   // Only fixed arguments and executable paths reach cmd.exe, never shell text.
-  const quote=value=>{if(/[\r\n"&|<>^%!]/.test(value))throw Error('Unsafe characters in native Windows command argument.');return `"${value}"`;};
-  return {command:process.env.ComSpec||'cmd.exe',args:['/d','/s','/c',`"${[command.replaceAll('/','\\'),...args].map(quote).join(' ')}"`],windowsVerbatimArguments:true};
+  const safe=value=>{if(/[\r\n"&|<>^%!]/.test(value))throw Error('Unsafe characters in native Windows command argument.');return value;};
+  const commandPath=safe(command.replaceAll('/','\\'));
+  const commandToken=commandPath.includes(' ')?`"${commandPath}"`:commandPath;
+  const argumentTokens=args.map(value=>{const argument=safe(value);return /\s/.test(argument)?`"${argument}"`:argument;});
+  const line=[commandToken,...argumentTokens].join(' ');
+  // The outer /S /C pair is required for executable paths with spaces, but a
+  // bare PATH-resolved command must remain unquoted at the beginning of line.
+  const commandLine=commandPath.includes(' ')?`"${line}"`:line;
+  return {command:process.env.ComSpec||'cmd.exe',args:['/d','/s','/c',commandLine],windowsVerbatimArguments:true};
 }
 function startProcess(command,args,root,env){
   const launch=nativeInvocation(command,args);

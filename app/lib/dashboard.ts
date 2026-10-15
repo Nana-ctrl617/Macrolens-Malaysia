@@ -237,6 +237,7 @@ export type DashboardPayload = {
     inputHealth?: InputHealth;
     models: Array<{ name: string; rmse: number | null; mae: number | null; selected: boolean; eligible?: boolean; successfulWindows?: number; failedWindows?: number; metricsByHorizon?:Array<{horizon:number;count:number;mae:number|null;rmse:number|null}> }>;
     points: Array<{ date: string; value: number; low80: number; high80: number; low95: number; high95: number }>;
+    informationOrigin?: string;
     scenario?: { model: string; lag: string; baseline: Record<"core" | "fx" | "opr", number>; coefficients: Record<"core" | "fx" | "opr", number>; warning: string } | null;
     calculatedAt?: string;
     vintageLedger?: { version:number; status:"collecting"|"partial"|"waiting"; freshSourceCount:number; requiredSourceCount:number; sourceSnapshotCount:number; revisedSourcePeriodCount:number; prospectiveForecastCount:number; capturedOutcomeCount:number; pendingForecastTargetCount:number; firstSnapshotAt:string|null; lastSnapshotAt:string|null; note:string };
@@ -346,7 +347,7 @@ export async function getDashboard(): Promise<DashboardPayload> {
       fallback: local,
       validate: (remote) => isDashboard(remote) && remote.schemaVersion >= local.schemaVersion,
       load: async () => {
-        const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" } });
+        const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" }, cache: "no-store" });
         if (!response.ok) throw new Error(`Remote dashboard returned ${response.status}`);
         return response.json();
       },

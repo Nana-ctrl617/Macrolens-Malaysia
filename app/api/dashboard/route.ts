@@ -7,7 +7,7 @@ export async function GET() {
     headers: {
       "Cache-Control": payload.usingFallback
         ? "public, max-age=30, s-maxage=30, stale-while-revalidate=30"
-        : "public, max-age=300, s-maxage=900, stale-while-revalidate=3600",
+        : "public, max-age=60, s-maxage=300, stale-while-revalidate=300",
       "X-MacroLens-Data": payload.usingFallback ? "fallback" : payload.health,
     },
   });
