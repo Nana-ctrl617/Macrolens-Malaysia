@@ -1,5 +1,6 @@
 import importlib.util
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -385,13 +386,86 @@ def test_mgs_refresh_checks_recent_calendar_dates_and_appends_latest_benchmark(m
     observations = [None, {"date": "2026-10-15", "value": 3.8}]
     monkeypatch.setattr(macrolens, "fetch_mgs_for_date", lambda date: (requests.append(date), observations.pop(0))[1])
     previous = {"series": {"mgs": {"points": [{"date": "2026-10-14", "value": 3.83}]}}}
-    result = macrolens.fetch_mgs(previous)
+    result = macrolens.fetch_mgs(previous, include_backfill=False)
     assert len(requests) == 2
     assert requests[0] > requests[1]
     assert result == [
         {"date": "2026-10-14", "value": 3.83},
         {"date": "2026-10-15", "value": 3.8},
     ]
+
+
+def test_mgs_backfill_is_checkpointed_rate_limited_and_preserves_only_official_daily_values(tmp_path, monkeypatch):
+    monkeypatch.setattr(macrolens, "MGS_BACKFILL_STATE", tmp_path / "mgs-history.json")
+    requests = []
+    sleeps = []
+    observations = {
+        "2021-11-01": {"date": "2021-11-01", "value": 3.64},
+        "2021-11-02": None,
+        "2021-11-03": {"date": "2021-11-03", "value": 3.66},
+        "2021-11-04": {"date": "2021-11-04", "value": 3.67},
+        "2021-11-05": None,
+        "2021-11-08": {"date": "2021-11-08", "value": 3.68},
+        "2021-11-09": {"date": "2021-11-09", "value": 3.69},
+    }
+
+    def fetcher(day):
+        requests.append(day)
+        return observations[day]
+
+    legacy = [{"date": "2021-11-01", "value": 3.73}, {"date": "2021-11-02", "value": 3.74}, {"date": "2021-11-10", "value": 3.75}]
+    first, state = macrolens.backfill_mgs_history(
+        legacy, datetime.strptime("2021-11-09", "%Y-%m-%d").date(), max_requests=3,
+        fetcher=fetcher, sleep=sleeps.append,
+    )
+    assert requests == ["2021-11-01", "2021-11-02", "2021-11-03"]
+    assert [row["date"] for row in first] == ["2021-11-01", "2021-11-03", "2021-11-10"]
+    assert state["nextDate"] == "2021-11-04" and state["completed"] is False
+    assert state["coverageThrough"] == "2021-11-03"
+    assert state["requests"] == 3 and state["observations"] == 2
+    assert len(sleeps) == 2 and all(wait >= 1.0 for wait in sleeps)
+
+    second, state = macrolens.backfill_mgs_history(
+        first, datetime.strptime("2021-11-09", "%Y-%m-%d").date(), max_requests=10,
+        fetcher=fetcher, sleep=sleeps.append,
+    )
+    assert requests[3:] == ["2021-11-04", "2021-11-05", "2021-11-08", "2021-11-09"]
+    assert state["completed"] is True and state["coverageThrough"] == "2021-11-09"
+    assert state["requests"] == 7 and state["observations"] == 5
+    assert {row["date"] for row in second} == {"2021-11-01", "2021-11-03", "2021-11-04", "2021-11-08", "2021-11-09", "2021-11-10"}
+
+
+def test_mgs_backfill_resumes_failed_day_and_rolls_forward_after_completion(tmp_path, monkeypatch):
+    monkeypatch.setattr(macrolens, "MGS_BACKFILL_STATE", tmp_path / "mgs-history.json")
+    requests = []
+
+    def fail_second(day):
+        requests.append(day)
+        if day == "2021-11-02":
+            raise TimeoutError("temporary BNM failure")
+        return {"date": day, "value": 3.6}
+
+    partial_points, interrupted = macrolens.backfill_mgs_history(
+        [], datetime.strptime("2021-11-02", "%Y-%m-%d").date(), max_requests=5,
+        fetcher=fail_second, sleep=lambda _: None,
+    )
+    assert interrupted["lastError"] == "TimeoutError"
+    assert interrupted["nextDate"] == "2021-11-02"
+    assert interrupted["coverageThrough"] == "2021-11-01"
+    resumed, complete = macrolens.backfill_mgs_history(
+        partial_points, datetime.strptime("2021-11-02", "%Y-%m-%d").date(), max_requests=5,
+        fetcher=lambda day: (requests.append(day), {"date": day, "value": 3.6})[1], sleep=lambda _: None,
+    )
+    assert complete["completed"] is True
+    assert requests[-1] == "2021-11-02"
+    assert len(resumed) == 2
+
+    _, rolling = macrolens.backfill_mgs_history(
+        resumed, datetime.strptime("2021-11-04", "%Y-%m-%d").date(), max_requests=5,
+        fetcher=lambda day: (requests.append(day), {"date": day, "value": 3.7})[1], sleep=lambda _: None,
+    )
+    assert rolling["completed"] is True and rolling["coverageThrough"] == "2021-11-04"
+    assert requests[-2:] == ["2021-11-03", "2021-11-04"]
 
 
 def test_partial_failure_preserves_last_valid_series():
@@ -416,6 +490,20 @@ def test_old_observation_is_stale_but_old_opr_decision_is_not():
     assert monthly_status["status"] == "stale"
     assert opr_status["status"] == "fresh"
     assert monthly_status["freshness"]["basis"] == "observation-recency"
+
+
+def test_data_health_exposes_official_source_links_and_age_rules():
+    source = {
+        "status": "stale", "retrievedAt": "2026-06-01T00:00:00Z",
+        "lastAttemptAt": "2026-10-05T12:00:00Z", "observationPeriod": "2026-02-01",
+        "freshness": {"basis": "observation-recency", "observationAgeDays": 246, "maximumObservationAgeDays": 100, "note": "Not a release calendar."},
+        "message": "Retained after source age check.",
+    }
+    health = macrolens.build_data_health({"sources": {"headline": source}}, "2026-10-05T12:00:00Z")
+    row = next(item for item in health["sources"] if item["id"] == "headline")
+    assert row["label"] == macrolens.SPECS["headline"].title
+    assert row["sourceUrl"] == macrolens.SPECS["headline"].source_url
+    assert row["freshness"] == source["freshness"]
 
 
 def test_derived_sections_inherit_stale_inputs_and_health_lists_regional_and_demand():

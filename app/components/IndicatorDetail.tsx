@@ -172,7 +172,7 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
     let active = true;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
-    const request = loadSeries ? loadSeries(metric.id).then(series => ({ id: metric.id, title: series.title, unit: series.unit, decimals: series.decimals, source: series.source, sourceUrl: series.source_url, frequency: series.frequency, points: series.points, structuralBreaks })) : fetch(`/api/indicator?id=${metric.id}`, { signal: controller.signal, ...(detailRetry ? {cache: "no-cache" as const} : {}) })
+    const request = loadSeries ? loadSeries(metric.id).then(series => ({ id: metric.id, title: series.title, unit: series.unit, decimals: series.decimals, source: series.source, sourceUrl: series.source_url, frequency: series.frequency, historyCoverage: series.historyCoverage, points: series.points, structuralBreaks })) : fetch(`/api/indicator?id=${metric.id}`, { signal: controller.signal, ...(detailRetry ? {cache: "no-cache" as const} : {}) })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || "Unable to load data");
@@ -221,6 +221,8 @@ export function IndicatorDetail({ metric, dashboard, onClose, loadSeries, loadCo
           </div>
           <button className="detail-close" onClick={onClose} aria-label="Close indicator details">×</button>
         </header>
+
+        {metric.id === "mgs" && data?.historyCoverage && <aside className={`indicator-history-coverage ${data.historyCoverage.status}`} aria-label="MGS history coverage"><strong>{data.historyCoverage.completed ? "Daily history complete" : "Daily history backfill in progress"}</strong><span>{data.historyCoverage.message}</span></aside>}
 
         {error && <div className="detail-error" role="alert"><p>{error}</p><button type="button" onClick={() => setDetailRetry(value => value + 1)}>Retry historical data</button></div>}
         {!data && !error && <div className="detail-loading"><i /><span>Retrieving and validating the official series…</span></div>}

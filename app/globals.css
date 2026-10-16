@@ -293,6 +293,19 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .deep-table-wrap table { width:100%; min-width:820px; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums; }
 .deep-table-wrap th,.deep-table-wrap td { padding:13px 15px; border-bottom:1px solid #e2ddd4; text-align:left; }
 .deep-table-wrap th { background:var(--border-default); color:var(--text-secondary); text-transform:uppercase; letter-spacing:.06em; font-size:12px; }
+.health-source-publisher,.health-source-link { display:block; margin-top:4px; }
+.health-source-publisher { color:var(--text-secondary-on-dark); }
+.health-source-link { width:max-content; font-weight:650; }
+.health-recency-note { margin:0 0 12px; padding:12px 15px; border:1px solid var(--border-on-dark); border-radius:12px; background:var(--surface-dark-panel); color:var(--text-secondary-on-dark); font-size:14px; line-height:1.55; }
+.health-source-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+.health-source-filters { display:flex; flex-wrap:wrap; gap:7px; }
+.health-source-filters button { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:8px 13px; border:1px solid var(--border-on-dark); border-radius:999px; background:var(--surface-dark-panel); color:var(--text-on-dark); cursor:pointer; font:600 14px/1.2 'DM Sans',sans-serif; }
+.health-source-filters button:hover { border-color:var(--text-link-on-dark); }
+.health-source-filters button:focus-visible { outline:3px solid var(--text-link-on-dark); outline-offset:2px; }
+.health-source-filters button.active { border-color:var(--text-link-on-dark); background:#29473f; color:var(--text-on-accent); }
+.health-source-filters button span { min-width:1.7em; padding:2px 5px; border-radius:999px; background:rgba(255,255,255,.12); text-align:center; font-variant-numeric:tabular-nums; }
+.health-source-count { color:var(--text-secondary-on-dark); font-size:14px; }
+.health-filter-empty { padding:20px; border:1px solid var(--border-on-dark); border-radius:12px; background:var(--surface-dark-panel); color:var(--text-secondary-on-dark); font-size:15px; }
 .bop-section .deep-table-wrap,.health-section .deep-table-wrap { border-color:var(--border-on-dark); background:var(--surface-dark-panel); }
 .bop-section .deep-table-wrap th,.bop-section .deep-table-wrap td,.health-section .deep-table-wrap th,.health-section .deep-table-wrap td { border-bottom-color:var(--border-on-dark); color:var(--text-on-dark); }
 .bop-section .deep-table-wrap th,.health-section .deep-table-wrap th { background:#263e38; color:var(--text-link-on-dark); }
@@ -314,6 +327,7 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .risk-pill.unavailable { background:var(--source-unavailable-background); color:var(--source-unavailable-text); border:1px dashed var(--source-unavailable-border); }
 @media(max-width:900px){ .deep-hero,.deep-card-grid,.scenario-grid,.sector-deep-grid,.report-grid{grid-template-columns:1fr}.timeline-list article{grid-template-columns:1fr}.deep-hero strong{font-size:32px} }
 @media(max-width:600px){ .deep-hero,.deep-card,.scenario-grid article,.sector-deep-card,.report-grid article{padding:19px}.sector-deep-card dl{grid-template-columns:1fr}.deep-hero p,.deep-card p,.scenario-grid p,.report-grid li{font-size:14px} }
+@media(max-width:600px){ .health-source-toolbar{align-items:flex-start;flex-direction:column}.health-source-filters{width:100%}.health-source-filters button{justify-content:center;flex:1 1 auto}.health-source-count{font-size:13px} }
 
 .news-section { background:var(--surface-page); }
 .news-meta { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:14px; color:var(--text-secondary); font-size:14px; }
@@ -1004,6 +1018,13 @@ th { font-weight:900; }
 }
 @media(max-width:900px){ .sector-composition-grid{grid-template-columns:1fr} }
 @media(max-width:600px){ .sector-composition-panel{padding:18px}.sector-composition-grid ul{grid-template-columns:1fr} }
+
+.indicator-history-coverage { display:grid; gap:4px; margin:-6px 0 16px; padding:12px 15px; border:1px solid #bed8cf; border-left:4px solid var(--teal); border-radius:0 11px 11px 0; background:#edf6f2; color:#274c43; font-size:13px; line-height:1.5; }
+.indicator-history-coverage strong { font-size:14px; }
+.indicator-history-coverage span { color:#52635e; }
+.indicator-history-coverage.partial { border-color:#e6c694; border-left-color:#a36618; background:#fff5e3; color:#664315; }
+.indicator-history-coverage.partial span { color:#765b37; }
+@media(max-width:600px){ .indicator-history-coverage { font-size:14px; } }
 
 /* Forecast explanation upgrade */
 .forecast-guide,

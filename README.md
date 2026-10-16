@@ -20,6 +20,8 @@ The GitHub Actions workflow `.github/workflows/update-dashboard.yml` runs daily 
 
 The website reads the public artifact at `data/published/dashboard.json` through `/api/dashboard`. Successful responses are cached. If the upstream artifact is unavailable or fails validation, the site serves its bundled last-valid snapshot with a fallback label; fallback data are not described as live. `DASHBOARD_DATA_URL` can override the default raw-GitHub artifact URL.
 
+Vercel's Git ignore-build check skips deployments only when a commit changes files exclusively under `data/published/`, `data/vintages/` or `data/backfill/`. The runtime API reads the published artifact directly, so data-only refreshes appear without a website rebuild. If the previous commit cannot be compared, or any code/configuration or unexpected file changed, the guard fails open and Vercel builds as usual.
+
 The news page fetches public RSS/search feeds separately at request time. News items can change between visits and are not part of the official statistical dashboard payload.
 
 ## Main sources

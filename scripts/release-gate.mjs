@@ -1,6 +1,6 @@
 import {spawn} from 'node:child_process';
 import {createHash,createHmac,randomBytes} from 'node:crypto';
-import {createWriteStream} from 'node:fs';
+import {createWriteStream,existsSync} from 'node:fs';
 import {chmod,mkdir,readFile,rename,unlink,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:net';
 import {dirname,join,relative,resolve} from 'node:path';
@@ -11,6 +11,11 @@ export const REQUIRED_STAGES=Object.freeze(['payload','python-unit','node-unit',
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const BASE='http://127.0.0.1:4185';
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+export function resolvePython({configured,platform=process.platform,root=ROOT,exists=existsSync}={}){
+  if(configured)return configured;
+  const candidate=join(root,'.venv',platform==='win32'?'Scripts/python.exe':'bin/python');
+  return exists(candidate)?candidate:'python';
+}
 export function createReleaseStages({node=process.execPath,python='python',pnpm=process.platform==='win32'?'pnpm.cmd':'pnpm'}={}){
   return [
     {name:'payload',command:node,args:['scripts/validate-published.mjs'],timeoutMs:60000},
@@ -112,7 +117,7 @@ async function removeIfExists(path){try{await unlink(path);}catch(error){if(erro
 async function main(){
   const root=ROOT,output=join(root,'outputs'),logDir=join(output,'release-gate-logs'),receiptPath=join(output,'release-gate.json'),keyPath=join(output,'.release-gate-key');
   await mkdir(logDir,{recursive:true});await removeIfExists(receiptPath);await removeIfExists(keyPath);
-  const startedAt=new Date().toISOString(),env=releaseEnvironment(process.env,root),pnpm=process.env.PNPM_EXE||(process.platform==='win32'?'pnpm.cmd':'pnpm'),python=process.env.PYTHON_EXE||'python';
+  const startedAt=new Date().toISOString(),env=releaseEnvironment(process.env,root),pnpm=process.env.PNPM_EXE||(process.platform==='win32'?'pnpm.cmd':'pnpm'),python=resolvePython({configured:process.env.PYTHON_EXE,root});
   let worker,buildBeforeBrowser;
   try{
     if(process.argv.length>2)throw Error('Usage: node scripts/release-gate.mjs (no skip flags).');

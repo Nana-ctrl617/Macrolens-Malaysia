@@ -5,7 +5,7 @@ import {pathToFileURL} from 'node:url';
 
 const SOURCE_DIRS=['app','src','components','lib','styles','types','pipeline','public','scripts','tests','build','config','.github/workflows'];
 const IGNORED=new Set(['node_modules','.git','.openai','.wrangler','.next','.vinext','outputs','playwright-report','test-results','__pycache__','.pytest_cache','.venv','venv']);
-const ROOT_CONFIG=/^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.npmrc|\.gitignore|requirements[^/]*\.txt|pyproject\.toml|pytest\.ini|playwright\.config\.[cm]?[jt]s|tsconfig[^/]*\.json|(?:vite|vinext|wrangler|postcss|eslint|next|tailwind)[^/]*\.(?:[cm]?[jt]s|jsonc?|toml))$/;
+const ROOT_CONFIG=/^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vercel\.json|\.npmrc|\.gitignore|requirements[^/]*\.txt|pyproject\.toml|pytest\.ini|playwright\.config\.[cm]?[jt]s|tsconfig[^/]*\.json|(?:vite|vinext|wrangler|postcss|eslint|next|tailwind)[^/]*\.(?:[cm]?[jt]s|jsonc?|toml))$/;
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function exists(path){try{await lstat(path);return true;}catch(error){if(error.code==='ENOENT')return false;throw error;}}
 async function walk(root,path,files){

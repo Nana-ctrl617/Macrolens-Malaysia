@@ -1,4 +1,4 @@
-import type { DashboardPayload, InputHealth } from "./dashboard";
+import type { DashboardPayload, DataHealth, InputHealth, SeriesHistoryCoverage } from "./dashboard";
 
 const macroInputs = ["headline", "core", "unemployment", "opr", "fx", "mgs"];
 const dependencies: Record<string, string[]> = {
@@ -12,9 +12,34 @@ const dependencies: Record<string, string[]> = {
   monthlyReport: [...macroInputs, "market", "production", "demand", "externalSector", "balancePayments"],
 };
 
+function looksMonthlySpaced(points: Array<{ date: string }>): boolean {
+  const times = points.map(({ date }) => Date.parse(date)).filter(Number.isFinite).sort((a, b) => a - b);
+  if (times.length < 5) return false;
+  const gaps = times.slice(1).map((time, index) => (time - times[index]) / 86_400_000);
+  const monthly = gaps.filter((gap) => gap >= 20 && gap <= 40).length;
+  const daily = gaps.filter((gap) => gap <= 7).length;
+  return monthly / gaps.length >= 0.75 && daily / gaps.length <= 0.1;
+}
+
 /** Compatibility guard: legacy artifacts must not label analyses fresh when an input failed. */
 export function normalizeDashboard(original: DashboardPayload): DashboardPayload {
   const result = structuredClone(original);
+  // Older published snapshots labelled a mostly monthly-spaced MGS series as
+  // daily without carrying a history-completeness checkpoint. Keep those
+  // observations, but remove the unsupported frequency claim until a pipeline
+  // run publishes validated daily coverage metadata.
+  const mgs = result.series?.mgs;
+  if (mgs && !mgs.historyCoverage && /trading|daily/i.test(mgs.frequency) && looksMonthlySpaced(mgs.points)) {
+    const startDate = [...mgs.points].sort((a, b) => a.date.localeCompare(b.date))[0]?.date ?? "";
+    const legacyCoverage: SeriesHistoryCoverage = {
+      status: "partial", startDate, throughDate: null, completed: false,
+      requests: null, observations: null, retrievedAt: null,
+      message: "This saved series is mostly monthly-spaced, not a verified complete daily trading-day history. No backfill checkpoint is recorded in this snapshot.",
+    };
+    mgs.frequency = "Mixed cadence; daily history not yet verified";
+    mgs.historyCoverage = legacyCoverage;
+    if (result.sources.mgs) result.sources.mgs.historyCoverage = legacyCoverage;
+  }
   const legacyHealth = (result.dataHealth as (DashboardPayload["dataHealth"] & { overallHealth?: string }) | undefined)?.overallHealth;
   const declaredDataHealth = result.dataHealth?.overall ?? legacyHealth;
   const fallback = !!result.usingFallback || result.health === "fallback" || declaredDataHealth === "fallback";
@@ -25,6 +50,14 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
       source.retrievedAt = null;
       source.message = `${source.message ?? "Saved series retained."} Legacy refresh time records an attempt; the last successful retrieval is not recorded.`;
     }
+  }
+  for (const [id, source] of Object.entries(result.sources)) {
+    const series = result.series[id];
+    if (!series) continue;
+    source.label ??= series.title;
+    source.source ??= series.source;
+    source.sourceUrl ??= series.source_url;
+    source.unit ??= series.unit;
   }
   const hies = result.regionalLens?.sources?.hiesState as ({ national?: { expenditureMean: number | null }; nationalExpenditure?: { status: string; value: number | null; observationPeriod?: string; retrievedAt?: string | null; lastAttemptAt?: string; sourceUrl?: string; message?: string }; observationPeriod?: string; status?: string } | undefined);
   // Legacy national expenditure was a mean of state means. Never serve it as an official benchmark.
@@ -41,6 +74,7 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
   );
   const extraSources = {
     market: result.market,
+    mgsDailyHistory: result.series.mgs.historyCoverage,
     production: result.growthDrivers?.production ?? result.economicStructure,
     demand: result.growthDrivers?.demand,
     externalSector: result.externalSector,
@@ -102,12 +136,12 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     }
     if (Object.values(result.structuralBreaks.indicators).some((item) => item.status !== "fresh")) result.structuralBreaks.status = "partial";
   }
-  const rows = Object.entries(result.sources).map(([id, source]) => ({ id, ...source }));
+  const rows: DataHealth["sources"] = Object.entries(result.sources).map(([id, source]) => ({ id, ...source }));
   for (const [id, source] of Object.entries(extraSources)) {
     if (!source) continue;
-    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; summary?: { latestDate?: string }; message?: string };
+    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"] };
     const legacyAttempt = value.status !== "fresh" && !value.lastAttemptAt ? value.retrievedAt : undefined;
-    rows.push({ id, status: (value.status ?? "stale") as "fresh" | "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
+    rows.push({ id, label: id, source: value.source, sourceUrl: value.sourceUrl ?? value.datasetUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
   result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";

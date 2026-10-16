@@ -17,18 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@c336a2788d9774dccfdeb4823a5058ccc9f07453 # v4.3.0
         with:
           version: "11.19.0"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22.22"
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
           cache: pip
@@ -40,20 +40,35 @@ jobs:
       # Validate the newly generated artifact here: GITHUB_TOKEN pushes do not
       # trigger the separate push verification workflow.
       - name: Validate generated dashboard before committing
-        run: node scripts/validate-published.mjs
-      - name: Commit validated changes
+        id: validation
         run: |
-          if [ -z "$(git status --porcelain --untracked-files=all -- data/published data/vintages)" ]; then
-            echo "Official data are unchanged."
+          node scripts/validate-published.mjs
+          echo "validated=true" >> "$GITHUB_OUTPUT"
+      - name: Commit validated changes
+        id: commit
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain --untracked-files=all -- data/published data/vintages data/backfill)" ]; then
+            echo "No published dashboard artifacts changed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "macrolens-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- data/published data/vintages
-          if git diff --cached --quiet -- data/published data/vintages; then
+          git add -- data/published data/vintages data/backfill
+          if git diff --cached --quiet -- data/published data/vintages data/backfill; then
             echo "There are no staged dashboard changes."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "data: refresh dashboard $(date -u +%F)"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Summarize dashboard refresh
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          DASHBOARD_CHANGED: ${{ steps.commit.outputs.changed }}
+          DASHBOARD_VALIDATED: ${{ steps.validation.outputs.validated }}
+        run: node scripts/refresh-summary.mjs data/published/dashboard.json
 

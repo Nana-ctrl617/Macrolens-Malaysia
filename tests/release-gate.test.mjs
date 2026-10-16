@@ -8,13 +8,13 @@ import {createHash,createHmac,randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {releaseFingerprint,sourceFingerprint} from '../scripts/release-fingerprint.mjs';
 import {assertReleaseReady,assertFingerprintMatches} from '../scripts/assert-release-ready.mjs';
-import {createReleaseStages,REQUIRED_STAGES,releaseEnvironment,runRequiredStages,executeReleaseStage} from '../scripts/release-gate.mjs';
+import {createReleaseStages,REQUIRED_STAGES,releaseEnvironment,runRequiredStages,executeReleaseStage,resolvePython} from '../scripts/release-gate.mjs';
 
 async function fixture(t){
   const prefix=join(tmpdir(),'macrolens-release-test-'),root=await mkdtemp(prefix);
   assert.ok(resolve(root).startsWith(resolve(prefix)));
   t.after(async()=>{assert.ok(resolve(root).startsWith(resolve(prefix)));await rm(root,{recursive:true,force:true});});
-  const files={'app/page.tsx':'export default 1','pipeline/example.py':'value = 1','public/logo.svg':'<svg/>','scripts/example.mjs':'export const a=1','tests/example.mjs':'test example','package.json':'{}','pnpm-lock.yaml':'version: 1','tsconfig.app.json':'{}','data/published/dashboard.json':'{"schemaVersion":9}','dist/server/index.js':'export default {}','dist/server/wrangler.json':'{}','dist/client/.vite/manifest.json':'{}','dist/client/assets/app.js':'console.log(1)'};
+  const files={'app/page.tsx':'export default 1','pipeline/example.py':'value = 1','public/logo.svg':'<svg/>','scripts/example.mjs':'export const a=1','tests/example.mjs':'test example','package.json':'{}','pnpm-lock.yaml':'version: 1','vercel.json':'{}','tsconfig.app.json':'{}','data/published/dashboard.json':'{"schemaVersion":9}','dist/server/index.js':'export default {}','dist/server/wrangler.json':'{}','dist/client/.vite/manifest.json':'{}','dist/client/assets/app.js':'console.log(1)'};
   for(const[file,value]of Object.entries(files)){const path=join(root,file);await mkdir(resolve(path,'..'),{recursive:true});await writeFile(path,value);}
   return root;
 }
@@ -29,6 +29,11 @@ test('changing tested source rejects an otherwise matching fingerprint',async t=
   const root=await fixture(t),expected=await releaseFingerprint(root);
   await assertFingerprintMatches(root,expected);await writeFile(join(root,'app/page.tsx'),'export default 2');
   await assert.rejects(assertFingerprintMatches(root,expected),/source/i);
+});
+test('Vercel deployment configuration is included in the release fingerprint',async t=>{
+  const root=await fixture(t),expected=await sourceFingerprint(root);
+  await writeFile(join(root,'vercel.json'),'{"ignoreCommand":"node scripts/vercel-ignore-build.mjs"}');
+  assert.notEqual((await sourceFingerprint(root)).hash,expected.hash);
 });
 test('changing built output rejects an otherwise matching fingerprint',async t=>{
   const root=await fixture(t),expected=await releaseFingerprint(root);
@@ -54,6 +59,15 @@ test('required stage order includes every data, build and browser gate',()=>{
   assert.deepEqual(stages.map(s=>s.name),REQUIRED_STAGES);
   assert.ok(stages.find(s=>s.name==='python-unit').args.includes('pipeline/tests'));
   assert.ok(stages.find(s=>s.name==='playwright').args.includes('playwright'));
+});
+test('release gate prefers the project virtual environment and respects an explicit Python override',()=>{
+  const root=resolve('C:/macrolens');
+  const winPath=resolvePython({root,platform:'win32',exists:path=>path===join(root,'.venv','Scripts','python.exe')});
+  assert.equal(winPath,join(root,'.venv','Scripts','python.exe'));
+  const posixPath=resolvePython({root,platform:'linux',exists:path=>path===join(root,'.venv','bin','python')});
+  assert.equal(posixPath,join(root,'.venv','bin','python'));
+  assert.equal(resolvePython({configured:'C:/python/python.exe',root,platform:'win32',exists:()=>true}),'C:/python/python.exe');
+  assert.equal(resolvePython({root,platform:'win32',exists:()=>false}),'python');
 });
 test('failed required browser child rejects the gate instead of making a success record',async()=>{
   const stages=createReleaseStages({node:process.execPath,python:'python',pnpm:'pnpm'}),seen=[];

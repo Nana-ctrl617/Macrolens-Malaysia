@@ -37,7 +37,23 @@ test("fallback is explicit across derived health and does not alter figures", ()
   assert.equal(result.dataHealth.overall, "fallback");
   assert.equal(result.forecast.inputHealth.status, "fallback");
   assert.deepEqual(result.forecast.points, payload.forecast.points);
-  assert.deepEqual(result.series, payload.series);
+  assert.deepEqual(result.series.headline.points, payload.series.headline.points);
+  assert.deepEqual(result.series.mgs.points, payload.series.mgs.points);
+});
+
+test("legacy MGS snapshots with monthly-spaced observations are never called a daily trading-day history", () => {
+  const payload = fixture();
+  delete payload.series.mgs.historyCoverage;
+  delete payload.sources.mgs.historyCoverage;
+  payload.series.mgs.frequency = "Trading days";
+  const result = normalizeDashboard(payload);
+  assert.equal(result.series.mgs.frequency, "Mixed cadence; daily history not yet verified");
+  assert.equal(result.series.mgs.historyCoverage.status, "partial");
+  assert.equal(result.series.mgs.historyCoverage.requests, null);
+  assert.match(result.series.mgs.historyCoverage.message, /not a verified complete daily trading-day history/);
+  assert.equal(result.dataHealth.sources.find((source) => source.id === "mgsDailyHistory")?.status, "partial");
+  assert.equal(result.health, "partial");
+  assert.equal(payload.series.mgs.frequency, "Trading days", "normalization does not mutate the original artifact");
 });
 
 test("failed analysis stays non-fresh even with successful source inputs", () => {
@@ -57,4 +73,19 @@ test("legacy failed-attempt times are never described as successful retrievals",
   assert.equal(result.sources.opr.lastAttemptAt, "2026-10-04T11:16:32Z");
   assert.equal(result.dataHealth.sources.find((source) => source.id === "opr").retrievedAt, null);
   assert.equal(payload.sources.opr.retrievedAt, "2026-10-04T11:16:32Z");
+});
+
+test("Data Health restores source links from the validated series and carries recency rules", () => {
+  const payload = fixture();
+  delete payload.sources.headline.sourceUrl;
+  delete payload.sources.headline.label;
+  payload.sources.headline.freshness = {
+    basis: "observation-recency", observationAgeDays: 24, maximumObservationAgeDays: 100,
+    note: "Conservative source-age check; not a release calendar.",
+  };
+  const result = normalizeDashboard(payload);
+  const headline = result.dataHealth.sources.find((source) => source.id === "headline");
+  assert.equal(headline.label, payload.series.headline.title);
+  assert.equal(headline.sourceUrl, payload.series.headline.source_url);
+  assert.deepEqual(headline.freshness, payload.sources.headline.freshness);
 });

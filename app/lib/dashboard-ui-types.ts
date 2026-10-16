@@ -1,4 +1,4 @@
-import { type StructuralIndicator } from "@/app/lib/dashboard";
+import { type SeriesHistoryCoverage, type StructuralIndicator } from "@/app/lib/dashboard";
 
 export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecast" | "drivers" | "structure" | "external" | "bop" | "household" | "regional" | "sectors" | "bursa" | "decisions" | "timeline" | "structural" | "report" | "health" | "methodology";
 
@@ -18,6 +18,7 @@ export type IndicatorData = {
   source: string;
   sourceUrl: string;
   frequency: string;
+  historyCoverage?: SeriesHistoryCoverage;
   points: DataPoint[];
   structuralBreaks?: StructuralIndicator;
 };

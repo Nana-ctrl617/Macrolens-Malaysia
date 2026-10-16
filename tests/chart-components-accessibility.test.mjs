@@ -178,6 +178,7 @@ test("Model error metric and row inspection announce the exact displayed values"
   assert.match(content(live(tree)), /Selected fit.*RMSE.*0\.37 pp/);
   const baseline = nodes(tree).find((node) => node.type === "li" && content(node).includes("Baseline"));
   assert.equal(baseline.props.tabIndex, 0);
+  assert.equal(baseline.props.onClick, undefined, "keyboard focus is the inspection mechanism; the row is not a click-only control");
   baseline.props.onFocus();
   tree = view.render();
   const focusText = content(live(tree));
@@ -321,6 +322,7 @@ test("Regional chart and income groups expose pointer/keyboard/touch metadata vi
   let tree = view.render();
   const row = byClass(tree, "regional-bar");
   assert.equal(row.props.tabIndex, 0);
+  assert.equal(row.props.onClick, undefined, "the focusable chart row must not expose a click-only action");
   row.props.onFocus();
   tree = view.render();
   const description = content(live(tree));
@@ -333,6 +335,7 @@ test("Regional chart and income groups expose pointer/keyboard/touch metadata vi
   const group = byClass(view.render(), "income-group-row");
   assert.equal(group.props.tabIndex, 0);
   assert.equal(group.props.role, "group");
+  assert.equal(group.props.onClick, undefined, "the focusable income group must not expose a click-only action");
   assert.match(group.props["aria-label"], /percentiles.*Observation period:.*Source:.*Data status:/);
   assert.match(content(group), /percentiles.*202[0-9].*(?:DOSM|Department)/);
   group.props.onFocus();

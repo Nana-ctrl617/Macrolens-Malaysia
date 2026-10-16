@@ -12,7 +12,7 @@ import math
 import re
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -34,6 +34,10 @@ STRUCTURAL_JSON = ROOT / "data" / "published" / "structural-breaks.json"
 STRUCTURAL_CSV = ROOT / "data" / "published" / "structural-breaks.csv"
 VINTAGES = ROOT / "data" / "vintages"
 VINTAGE_LEDGER = VINTAGES / "ledger-v1"
+MGS_BACKFILL_STATE = ROOT / "data" / "backfill" / "mgs-history.json"
+MGS_BACKFILL_START = "2021-11-01"
+MGS_BACKFILL_MAX_REQUESTS = 240
+MGS_BACKFILL_REQUEST_INTERVAL_SECONDS = 1.1
 BACKTEST_MAX_ORIGINS = 60
 MIN_TRAINING_OBSERVATIONS = 24
 CALIBRATION_WARMUP_ORIGINS = 12
@@ -239,7 +243,7 @@ def fetch_mgs_for_date(date: str | None = None) -> dict | None:
     return {"date": observation_date, "value": round(value, 2)}
 
 
-def fetch_mgs(previous: dict | None) -> list[dict]:
+def fetch_mgs(previous: dict | None, *, include_backfill: bool = True) -> list[dict]:
     old = (previous or {}).get("series", {}).get("mgs", {}).get("points", [])
     if not old:
         legacy = ROOT / "app" / "api" / "indicator" / "route.ts"
@@ -262,7 +266,125 @@ def fetch_mgs(previous: dict | None) -> list[dict]:
     combined = {point["date"]: point for point in old}
     if latest:
         combined[latest["date"]] = latest
+    if include_backfill:
+        merged, _ = backfill_mgs_history(combined.values(), datetime.now(timezone.utc).date() - timedelta(days=1))
+        combined = {point["date"]: point for point in merged}
     return [combined[date] for date in sorted(combined)]
+
+
+def _mgs_backfill_state(target_date: date) -> dict:
+    if MGS_BACKFILL_STATE.exists():
+        try:
+            state = json.loads(MGS_BACKFILL_STATE.read_text(encoding="utf-8"))
+            if (state.get("schemaVersion") != 1 or state.get("startDate") != MGS_BACKFILL_START
+                    or not isinstance(state.get("completed"), bool)):
+                raise ValueError("MGS backfill checkpoint schema changed")
+            datetime.strptime(state["nextDate"], "%Y-%m-%d")
+            datetime.strptime(state["targetDate"], "%Y-%m-%d")
+            if not isinstance(state.get("requests"), int) or not isinstance(state.get("observations"), int):
+                raise ValueError("MGS backfill counters are invalid")
+        except (OSError, KeyError, TypeError, json.JSONDecodeError, ValueError) as error:
+            raise ValueError("MGS backfill checkpoint is invalid; refusing to skip or misstate history") from error
+        # Keep the checkpoint rolling after the initial backfill. Otherwise a
+        # later source outage could leave missed trading dates unrecovered.
+        state["targetDate"] = max(state["targetDate"], target_date.isoformat())
+        return state
+    return {
+        "schemaVersion": 1,
+        "startDate": MGS_BACKFILL_START,
+        "nextDate": MGS_BACKFILL_START,
+        "targetDate": max(MGS_BACKFILL_START, target_date.isoformat()),
+        "completed": False,
+        "requests": 0,
+        "observations": 0,
+        "updatedAt": None,
+        "lastError": None,
+    }
+
+
+def backfill_mgs_history(points: list[dict], target_date: date, *, max_requests: int = MGS_BACKFILL_MAX_REQUESTS,
+                         fetcher: Callable[[str], dict | None] | None = None,
+                         sleep: Callable[[float], None] | None = None) -> tuple[list[dict], dict]:
+    """Append official daily 10-year MGS closes, checkpointing at most one rate-limited batch."""
+    if isinstance(max_requests, bool) or not isinstance(max_requests, int) or max_requests < 1:
+        raise ValueError("MGS backfill request limit must be a positive integer")
+    fetcher = fetcher or fetch_mgs_for_date
+    sleep = sleep or time.sleep
+    merged = {row["date"]: row for row in points if isinstance(row, dict) and isinstance(row.get("date"), str)}
+    state = _mgs_backfill_state(target_date)
+    cursor = datetime.strptime(state["nextDate"], "%Y-%m-%d").date()
+    end = datetime.strptime(state["targetDate"], "%Y-%m-%d").date()
+    used = 0
+    last_request = None
+    state["lastError"] = None
+    while cursor <= end and used < max_requests:
+        if cursor.weekday() >= 5:
+            cursor += timedelta(days=1)
+            continue
+        if last_request is not None:
+            wait = MGS_BACKFILL_REQUEST_INTERVAL_SECONDS - (time.monotonic() - last_request)
+            if wait > 0:
+                sleep(wait)
+        last_request = time.monotonic()
+        query = cursor.isoformat()
+        try:
+            observation = fetcher(query)
+            if observation is not None:
+                if observation.get("date") != query:
+                    raise ValueError("BNM backfill returned a different trading date")
+                value = float(observation["value"])
+                if not math.isfinite(value) or not 0 < value <= 20:
+                    raise ValueError("BNM backfill returned an implausible 10-year yield")
+                merged[query] = {"date": query, "value": round(value, 2)}
+                state["observations"] += 1
+            else:
+                merged.pop(query, None)
+            state["requests"] += 1
+            used += 1
+            cursor += timedelta(days=1)
+        except Exception as error:
+            state["lastError"] = type(error).__name__
+            break
+    state["nextDate"] = cursor.isoformat()
+    state["completed"] = cursor > end
+    state["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    checked_through = cursor - timedelta(days=1)
+    for point_date in list(merged):
+        if (MGS_BACKFILL_START <= point_date <= checked_through.isoformat()
+                and point_date.endswith("-01")
+                and datetime.strptime(point_date, "%Y-%m-%d").weekday() >= 5):
+            merged.pop(point_date, None)
+    coverage_through = end if state["completed"] else checked_through
+    state["coverageThrough"] = coverage_through.isoformat() if coverage_through >= datetime.strptime(MGS_BACKFILL_START, "%Y-%m-%d").date() else None
+    state["coverageStatus"] = "fresh" if state["completed"] else "partial"
+    state["message"] = (
+        "Daily 10-year MGS history is complete from November 2021."
+        if state["completed"] else
+        (f"Daily MGS history backfill is in progress; official history is checked through {state['coverageThrough']}."
+         if state["coverageThrough"] else "Daily MGS history backfill is in progress; no historical dates have been verified yet.")
+    )
+    MGS_BACKFILL_STATE.parent.mkdir(parents=True, exist_ok=True)
+    temporary = MGS_BACKFILL_STATE.with_suffix(".tmp")
+    temporary.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(MGS_BACKFILL_STATE)
+    return [merged[key] for key in sorted(merged)], state
+
+
+def mgs_history_coverage() -> dict:
+    if not MGS_BACKFILL_STATE.exists():
+        return {
+            "status": "partial", "startDate": MGS_BACKFILL_START, "throughDate": None,
+            "completed": False, "requests": 0, "observations": 0, "retrievedAt": None,
+            "message": "Daily MGS history backfill has not started; the saved series is not yet a complete trading-day history.",
+        }
+    state = _mgs_backfill_state(datetime.now(timezone.utc).date() - timedelta(days=1))
+    return {
+        "status": "fresh" if state["completed"] else "partial",
+        "startDate": state["startDate"], "throughDate": state.get("coverageThrough"),
+        "completed": state["completed"], "requests": state["requests"],
+        "observations": state["observations"], "retrievedAt": state.get("updatedAt"),
+        "message": state.get("message", "Daily MGS history backfill status is unavailable."),
+    }
 
 
 def parse_klci(payload: dict) -> list[dict]:
@@ -1551,7 +1673,15 @@ def build_macro_timeline(series: dict[str, dict], structural: dict, market: dict
 def build_data_health(payload: dict, generated_at: str) -> dict:
     source_rows = []
     for key, source in payload.get("sources", {}).items():
-        source_rows.append({"id": key, **source})
+        spec = SPECS.get(key)
+        source_rows.append({
+            "id": key,
+            "label": spec.title if spec else key,
+            "source": spec.source if spec else None,
+            "sourceUrl": spec.source_url if spec else None,
+            "unit": spec.unit if spec else None,
+            **source,
+        })
     extra = [
         ("market", payload.get("market", {})),
         ("economicStructure", payload.get("economicStructure", {})),
@@ -1565,16 +1695,28 @@ def build_data_health(payload: dict, generated_at: str) -> dict:
         if source:
             source_rows.append({
                 "id": key,
+                "label": source.get("label") or key,
+                "source": source.get("source"),
                 "status": source.get("status", "unavailable"),
                 "retrievedAt": source.get("retrievedAt"),
                 "lastAttemptAt": source.get("lastAttemptAt"),
                 "sourceUrl": source.get("sourceUrl") or source.get("datasetUrl"),
                 "observationPeriod": source.get("observationPeriod") or source.get("summary", {}).get("latestDate", ""),
+                "freshness": source.get("freshness"),
                 "message": source.get("message", "Validated"),
             })
+    mgs_coverage = payload.get("series", {}).get("mgs", {}).get("historyCoverage")
+    if mgs_coverage:
+        source_rows.append({
+            "id": "mgsDailyHistory",
+            "status": mgs_coverage.get("status", "partial"),
+            "retrievedAt": mgs_coverage.get("retrievedAt"),
+            "observationPeriod": mgs_coverage.get("throughDate") or "",
+            "message": mgs_coverage.get("message", "Daily MGS history coverage is incomplete."),
+        })
     stale_count = sum(1 for row in source_rows if row.get("status") != "fresh")
     overall = "fresh" if source_rows and stale_count == 0 else "partial"
-    note = f"{len(source_rows) - stale_count} of {len(source_rows)} source groups validated successfully and passed available recency checks. Observation periods differ; fresh does not mean real-time."
+    note = f"{len(source_rows) - stale_count} of {len(source_rows)} source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately."
     return {
         "generatedAt": generated_at,
         "schemaVersion": payload.get("schemaVersion"),
@@ -2342,6 +2484,10 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
         max_age = {"headline": 100, "core": 100, "unemployment": 110, "fx": 45, "mgs": 10}.get(key)
         if max_age is not None:
             status = apply_observation_recency(status, retrieved, max_age)
+        if key == "mgs":
+            coverage = mgs_history_coverage()
+            status["historyCoverage"] = coverage
+            status["message"] = f"Latest official close validated. {coverage['message']}"
     except Exception as error:
         old = previous and previous.get("series", {}).get(key)
         if not old:
@@ -2349,7 +2495,12 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
         points = old["points"]
         previous_source = (previous or {}).get("sources", {}).get(key, {})
         status = {**copy.deepcopy(previous_source), "status": "stale", "retrievedAt": previous_source.get("retrievedAt"), "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": f"Using last valid data: {type(error).__name__}"}
-    return {**spec.__dict__, "points": points}, status
+    series = {**spec.__dict__, "points": points}
+    if key == "mgs":
+        coverage = status.get("historyCoverage") or mgs_history_coverage()
+        series["historyCoverage"] = coverage
+        series["frequency"] = "Trading days" if coverage["completed"] else "Mixed cadence; daily history backfill in progress"
+    return series, status
 
 
 def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days: int) -> dict:
@@ -2894,6 +3045,7 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     payload["monthlyReport"] = build_monthly_report(payload, retrieved)
     finalize_data_trust(payload)
     payload["dataHealth"] = build_data_health(payload, retrieved)
+    payload["health"] = payload["dataHealth"]["overall"]
     if previous:
         candidate = copy.deepcopy(payload)
         baseline = copy.deepcopy(previous)

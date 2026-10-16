@@ -182,7 +182,7 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .input-health-notice a { font-size:14px; color:var(--accent-interactive); text-decoration:underline; }
 .dashboard-app :is(.risk-section,.forecast-section) .input-health-notice { background:var(--surface-dark-control); border-color:var(--border-control-on-dark); color:var(--text-on-dark); }
 .dashboard-app :is(.risk-section,.forecast-section) .input-health-notice a { color:var(--text-link-on-dark); }
-.dashboard-app .forecast-origin { margin:0 0 16px; padding:12px 16px; border-left:4px solid var(--accent-interactive); color:var(--text-on-dark); background:var(--surface-dark-control); font-size:15px; line-height:1.55; }
+.dashboard-app .forecast-origin { margin:0 0 16px; padding:12px 16px; border:1px solid var(--border-control-on-dark); border-radius:6px; color:var(--text-on-dark); background:var(--surface-dark-control); font-size:15px; line-height:1.55; }
 .dashboard-app .forecast-origin b { color:var(--text-link-on-dark); }
 .dashboard-app .risk-card .risk-source-status { display:block; margin:10px 0; color:var(--text-link-on-dark); font-size:14px; }
 .dashboard-app .input-health-note { margin:0 0 16px; padding:12px 16px; border:1px solid var(--border-control); border-radius:4px; font-size:14px; line-height:1.5; }
@@ -198,12 +198,21 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .dashboard-load-error { margin:20px auto; padding:16px; border:1px solid var(--notice-warning-border); background:var(--notice-warning-background); color:var(--text-primary); border-radius:4px; }
 .dashboard-app .dashboard-load-error button { min-height:44px; padding:8px 14px; margin-top:8px; color:var(--text-primary); border:1px solid var(--border-strong); background:var(--surface-card); cursor:pointer; }
 .dashboard-app .dashboard-load-status { font-size:14px; line-height:1.5; color:var(--muted); padding:10px 0; min-height:40px; }
+.dashboard-app .dashboard-load-status.fallback { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:10px auto; padding:10px 14px; border:1px solid var(--notice-warning-border); border-radius:6px; background:var(--notice-warning-background); color:var(--source-stale-text); }
+.dashboard-app .dashboard-load-status.fallback button { flex:0 0 auto; min-height:44px; padding:8px 14px; border:1px solid var(--source-stale-text); border-radius:4px; background:var(--surface-card); color:var(--source-stale-text); font-size:14px; font-weight:700; cursor:pointer; }
+.dashboard-app .dashboard-load-status.fallback button:hover { background:var(--source-stale-background); }
+.dashboard-app .dashboard-load-status.fallback button:focus-visible { outline:3px solid var(--chart-focus); outline-offset:3px; }
 .dashboard-app :is(.risk-section,.forecast-section,.health-section,.bop-section,.market-section) .dashboard-load-status { color:var(--text-on-dark); }
+.dashboard-app :is(.risk-section,.forecast-section,.health-section,.bop-section,.market-section) .dashboard-load-status.fallback { color:var(--source-stale-text); }
 .dashboard-app main :is(h1,h2,h3) { scroll-margin-top:150px; text-wrap:balance; }
 @media(forced-colors:active) { .dashboard-app :is(button,a,select,summary,[tabindex]):focus-visible { outline:3px solid Highlight; } .dashboard-app :is(.score-visual-track,.regional-bar-track) { border:1px solid CanvasText; } }
 
 @media(min-width:1450px) {
   .dashboard-app .regional-controls { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media(max-width:600px) {
+  .dashboard-app .dashboard-load-status.fallback { align-items:stretch; flex-direction:column; gap:10px; }
+  .dashboard-app .dashboard-load-status.fallback button { width:100%; }
 }
 
 .dashboard-app .decision-watch { color:var(--text-secondary); }

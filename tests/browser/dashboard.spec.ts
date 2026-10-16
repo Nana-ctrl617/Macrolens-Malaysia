@@ -55,6 +55,39 @@ test("the global footer is exposed as a separate contentinfo landmark", async ({
   expect(await footer.evaluate(element => element.closest("main"))).toBeNull();
 });
 
+test("Data Health links the indicator to its source and explains the observation-age limit", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  await installFixture(context, payload);
+  await ready(page, "/health");
+  const row = page.getByRole("row").filter({ hasText: "Headline inflation" });
+  await expect(row.getByRole("link", { name: "Open source ↗" })).toHaveAttribute("href", payload.series.headline.source_url);
+  await expect(row).toContainText(/\d+ days old \/ 100-day limit/);
+});
+
+test("Data Health filters source groups without hiding their saved validation status", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  payload.sources.headline.status = "stale";
+  await installFixture(context, payload);
+  await ready(page, "/health");
+
+  const filterGroup = page.getByRole("group", { name: "Filter data-health sources" });
+  await filterGroup.getByRole("button", { name: /Needs attention/ }).click();
+  await expect(filterGroup.getByRole("button", { name: /Needs attention/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("row").filter({ hasText: "Headline inflation" })).toContainText("stale");
+  const attentionRows = page.locator(".deep-table-wrap tbody tr");
+  const attentionStatuses = await attentionRows.locator("td:nth-child(2)").allTextContents();
+  expect(attentionStatuses.length).toBeGreaterThan(0);
+  expect(attentionStatuses.every((status) => status.trim() !== "fresh")).toBe(true);
+  const attentionBadge = await filterGroup.getByRole("button", { name: /Needs attention/ }).innerText();
+  expect(attentionStatuses).toHaveLength(Number(attentionBadge.match(/\d+/)?.[0]));
+
+  await filterGroup.getByRole("button", { name: /Last validation successful/ }).click();
+  await expect(page.getByRole("row").filter({ hasText: "Headline inflation" })).toHaveCount(0);
+  const validatedStatuses = await page.locator(".deep-table-wrap tbody tr td:nth-child(2)").allTextContents();
+  expect(validatedStatuses.every((status) => status.trim() === "fresh")).toBe(true);
+  await expect(page.locator(".health-source-count")).toContainText(/Showing \d+ of \d+ source groups/);
+});
+
 test("navigation search finds pages by label or topic and explains no matches", async ({ page, context }) => {
   await installFixture(context, await dashboardFixture());
   await ready(page, "/regional");
@@ -125,6 +158,35 @@ test("Snapshot cards link each indicator to its official source and explain stal
   await expect(pressurePanel).toContainText("show where measured inflation is concentrated, not why prices changed");
   await expect(pressurePanel.getByRole("link", { name: "OpenDOSM division inflation data ↗" })).toHaveAttribute("href", "https://open.dosm.gov.my/data-catalogue/cpi_headline_inflation");
   await expect(pressurePanel.getByRole("link", { name: "DOSM weight reference & method (2022 weights) ↗" })).toHaveAttribute("href", payload.cpiDecomposition.sourceUrl);
+  await readability(page, info);
+  await noOverflow(page);
+});
+
+test("MGS history explorer visibly warns while saved history is mixed-cadence", async ({ page, context }, info) => {
+  const payload = await dashboardFixture();
+  const coverage = {
+    status: "partial" as const,
+    startDate: payload.series.mgs.points[0].date,
+    throughDate: null,
+    completed: false,
+    requests: null,
+    observations: null,
+    retrievedAt: null,
+    message: "This saved series is mostly monthly-spaced, not a verified complete daily trading-day history. No backfill checkpoint is recorded in this snapshot.",
+  };
+  payload.series.mgs.frequency = "Mixed cadence; daily history not yet verified";
+  payload.series.mgs.historyCoverage = coverage;
+  payload.sources.mgs.historyCoverage = coverage;
+  await installFixture(context, payload);
+  await ready(page, "/");
+  await page.getByRole("button", { name: /Open history for 10-year government bond yield/i }).click();
+  const dialog = page.getByRole("dialog", { name: "10-year MGS yield" });
+  await expect(dialog).toBeVisible();
+  const warning = dialog.getByRole("complementary", { name: "MGS history coverage" });
+  await expect(warning).toHaveClass(/partial/);
+  await expect(warning).toContainText("Daily history backfill in progress");
+  await expect(warning).toContainText("not a verified complete daily trading-day history");
+  await expect(dialog).toContainText("Mixed cadence; daily history not yet verified");
   await readability(page, info);
   await noOverflow(page);
 });

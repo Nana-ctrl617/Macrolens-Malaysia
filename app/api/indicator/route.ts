@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     source: series.source,
     sourceUrl: series.source_url,
     frequency: series.frequency,
+    historyCoverage: series.historyCoverage,
     points: series.points,
     status: payload.usingFallback ? "fallback" : sourceStatus?.status || payload.health,
     generatedAt: payload.generatedAt,

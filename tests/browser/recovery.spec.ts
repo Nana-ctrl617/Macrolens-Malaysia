@@ -83,8 +83,12 @@ for (const variant of ["fresh", "stale", "fallback", "partial", "unavailable"] a
     await zero.focus(); await zero.press("Enter");
     await expect(page.getByRole("region", { name: "Selected signal evidence" })).toContainText(variant === "stale" ? "Stale" : variant === "fallback" ? "Fallback" : "Fresh");
     if (variant === "fallback") {
-      await expect(page.locator(".dashboard-load-status.shell").first()).toContainText("Saved validated data loaded");
-      await expect(page.getByRole("button", { name: "Try latest data again", exact: true })).toBeVisible();
+      const fallbackStatus = page.locator(".dashboard-load-status.shell.fallback");
+      await expect(fallbackStatus).toContainText("Saved validated data loaded");
+      await expect(fallbackStatus).toHaveCSS("display", "flex");
+      const retry = page.getByRole("button", { name: "Try latest data again", exact: true });
+      await expect(retry).toBeVisible();
+      await expect(retry).toHaveCSS("min-height", "44px");
     }
   }
   await page.getByRole("button", { name: "Heatmap", exact: true }).click();

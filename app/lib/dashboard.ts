@@ -19,6 +19,10 @@ export type ForecastEvaluation = {
 };
 
 export type DataPoint = { date: string; value: number };
+export type SeriesHistoryCoverage = {
+  status: "fresh" | "partial"; startDate: string; throughDate: string | null; completed: boolean;
+  requests: number | null; observations: number | null; retrievedAt: string | null; message: string;
+};
 export type SeriesData = {
   key: string;
   title: string;
@@ -28,6 +32,7 @@ export type SeriesData = {
   source: string;
   source_url: string;
   points: DataPoint[];
+  historyCoverage?: SeriesHistoryCoverage;
 };
 export type StructuralEvent = { date: string; title: string; category: string; source: string; sourceUrl: string; monthDistance: number };
 export type StructuralCandidate = {
@@ -210,7 +215,7 @@ export type MacroTimeline = {
 };
 export type DataHealth = {
   generatedAt: string; overall: "fresh" | "partial" | "fallback"; schemaVersion: number; staleCount: number;
-  sources: Array<{ id: string; label?: string; status: string; period?: string; observationPeriod?: string; retrievedAt: string | null; lastAttemptAt?: string; message: string }>;
+  sources: Array<{ id: string; label?: string; source?: string | null; sourceUrl?: string | null; unit?: string | null; status: string; period?: string; observationPeriod?: string; retrievedAt: string | null; lastAttemptAt?: string; freshness?: { basis: string; observationAgeDays: number; maximumObservationAgeDays: number; note: string }; message: string }>;
   note: string;
 };
 export type MonthlyReport = {
@@ -222,7 +227,7 @@ export type DashboardPayload = {
   generatedAt: string;
   health: "fresh" | "partial" | "fallback";
   usingFallback?: boolean;
-  sources: Record<string, { status: "fresh" | "stale"; retrievedAt: string | null; lastAttemptAt?: string; observationPeriod: string; message: string }>;
+  sources: Record<string, { status: "fresh" | "stale"; retrievedAt: string | null; lastAttemptAt?: string; observationPeriod: string; message: string; label?: string; source?: string; sourceUrl?: string; unit?: string; freshness?: { basis: string; observationAgeDays: number; maximumObservationAgeDays: number; note: string }; historyCoverage?: SeriesHistoryCoverage }>;
   series: Record<string, SeriesData>;
   categories: Array<{ code: string; name: string; value: number; weight?: number; contribution?: number }>;
   cpiDecomposition?: {

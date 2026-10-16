@@ -130,6 +130,16 @@ test("closing history unmounts rows and changing the observation window resets t
   assert.match(html(tree), /Page 1 of 3/);
 });
 
+test("MGS daily-history coverage travels through the indicator API and is visible in its explorer", async () => {
+  const api = readFileSync(fileURLToPath(new URL("../app/api/indicator/route.ts", import.meta.url)), "utf8");
+  const explorer = readFileSync(fileURLToPath(new URL("../app/components/IndicatorDetail.tsx", import.meta.url)), "utf8");
+  const styles = readFileSync(fileURLToPath(new URL("../app/globals.css", import.meta.url)), "utf8");
+  assert.match(api, /historyCoverage:\s*series\.historyCoverage/);
+  assert.match(explorer, /Daily history backfill in progress/);
+  assert.match(explorer, /data\.historyCoverage\.message/);
+  assert.match(styles, /\.indicator-history-coverage\.partial/);
+});
+
 test("empty history retains honest empty state and semantic heading", async () => {
   const history = await harness([]);
   const markup = html(history.render());
