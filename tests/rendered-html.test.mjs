@@ -80,6 +80,31 @@ test("renders the MacroLens public dashboard", async () => {
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
+test("publishes canonical metadata, a crawl policy and a complete public-page sitemap", async () => {
+  const page = await render("/");
+  const html = await page.text();
+  assert.match(html, /<link rel="canonical" href="https:\/\/macrolens-malaysia\.vercel\.app\/"/);
+  assert.match(html, /property="og:url" content="https:\/\/macrolens-malaysia\.vercel\.app\/"/);
+  assert.match(html, /name="twitter:card" content="summary"/);
+  assert.match(html, /Track Malaysia’s latest prices, jobs, policy rates/);
+
+  const robots = await render("/robots.txt");
+  assert.equal(robots.status, 200);
+  const robotsText = await robots.text();
+  assert.match(robotsText, /User-Agent: \*/);
+  assert.match(robotsText, /Allow: \/\n/);
+  assert.match(robotsText, /Disallow: \/api\//);
+  assert.match(robotsText, /Sitemap: https:\/\/macrolens-malaysia\.vercel\.app\/sitemap\.xml/);
+
+  const sitemap = await render("/sitemap.xml");
+  assert.equal(sitemap.status, 200);
+  const sitemapText = await sitemap.text();
+  assert.equal((sitemapText.match(/<url>/g) ?? []).length, 19);
+  for (const path of ["/", "/brief", "/news", "/risk", "/forecast", "/drivers", "/structure", "/external", "/bop", "/household", "/regional", "/decisions", "/sectors", "/bursa", "/timeline", "/structural", "/report", "/health", "/methodology"]) {
+    assert.ok(sitemapText.includes(`https://macrolens-malaysia.vercel.app${path}`), `Missing public route ${path} from sitemap`);
+  }
+});
+
 test("renders each dashboard section on its own route", async () => {
   const routes = [
     ["/brief", "Latest economic brief", "Brief"],
@@ -107,6 +132,8 @@ test("renders each dashboard section on its own route", async () => {
     const html = await response.text();
     assert.match(html, new RegExp(heading));
     assert.match(html, new RegExp(`href="${path}" aria-current="page">${activeLabel}`));
+    assert.ok(html.includes(`<link rel="canonical" href="https://macrolens-malaysia.vercel.app${path}"`), `${path} has its own canonical URL`);
+    assert.ok(html.includes(`property="og:url" content="https://macrolens-malaysia.vercel.app${path}"`), `${path} has its own share URL`);
     assert.match(html, /Educational analysis, not investment advice\./);
     assert.doesNotMatch(html, /Applied statistics × financial economics/);
     assert.doesNotMatch(html, /<h1>See the pressure/);

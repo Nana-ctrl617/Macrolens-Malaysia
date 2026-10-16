@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./design-tokens.css";
 import "./globals.css";
 import "./compact-dashboard.css";
@@ -7,13 +6,12 @@ import "./compact-forecast.css";
 import "./compact-navigation.css";
 import "./chart-accessibility.css";
 
+const SITE_ORIGIN = "https://macrolens-malaysia.vercel.app";
+
 export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const base = new URL(`${protocol}://${host}`);
+  const base = new URL(SITE_ORIGIN);
   const title = "MacroLens Malaysia | Economy & Markets Dashboard";
-  const description = "Official Malaysian economic indicators, market performance, forecasts and statistical research in one self-updating dashboard.";
+  const description = "Explore Malaysia’s economy through sourced indicators, financial markets, statistical forecasts, regional comparisons and research.";
   return {
     metadataBase: base,
     title,
@@ -26,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     },
     manifest: "/site.webmanifest",
-    openGraph: { title, description, type: "website" },
+    openGraph: { title, description, siteName: "MacroLens Malaysia", type: "website" },
     twitter: { card: "summary", title, description },
   };
 }
