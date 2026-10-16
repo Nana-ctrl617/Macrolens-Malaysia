@@ -16,7 +16,7 @@ export const metrics = [
   { id: "opr", label: "Overnight Policy Rate", detail: "BNM policy setting", tone: "navy" },
   { id: "unemployment", label: "Unemployment", detail: "Share of labour force", tone: "teal" },
   { id: "fx", label: "USD / MYR", detail: "Monthly average", tone: "navy" },
-  { id: "mgs", label: "10-year MGS", detail: "Government bond yield", tone: "rust" },
+  { id: "mgs", label: "10-year government bond yield", detail: "Malaysian Government Securities (MGS)", tone: "rust" },
 ];
 
 export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: Metric) => void }) {
@@ -107,7 +107,7 @@ const liveMetrics: Metric[] = useMemo(() => {
     if (!dashboard) return metrics.map((metric) => ({ ...metric, value: "—", period: "Loading" })) as Metric[];
     const details: Record<MetricId, string> = {
       headline: "Full CPI basket, year on year", core: "Underlying price pressure", opr: "BNM policy setting",
-      unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Government bond yield",
+      unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Malaysian Government Securities (MGS)",
     };
     const tones: Record<MetricId, string> = { headline: "rust", core: "teal", opr: "navy", unemployment: "teal", fx: "navy", mgs: "rust" };
     return (["headline", "core", "opr", "unemployment", "fx", "mgs"] as MetricId[]).map((id) => {
@@ -122,7 +122,7 @@ const liveMetrics: Metric[] = useMemo(() => {
         : status === "stale"
           ? "The latest refresh did not pass; showing the last validated observation."
           : undefined;
-      return { id, label: id === "mgs" ? "10-year MGS" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote };
+      return { id, label: id === "mgs" ? "10-year government bond yield" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote };
     });
   }, [dashboard]);
 const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? [];

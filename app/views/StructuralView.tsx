@@ -13,7 +13,7 @@ import { DeferredHistoryControl, useDeferredHistory } from "@/app/components/Def
 
 export const structuralLabels: Record<MetricId, string> = {
   headline: "Headline inflation", core: "Core inflation", opr: "OPR",
-  unemployment: "Unemployment", fx: "USD / MYR", mgs: "10-year MGS",
+  unemployment: "Unemployment", fx: "USD / MYR", mgs: "10-year government bond yield",
 };
 
 export function StructuralChart({ data, points, candidates }: { data: IndicatorData; points: DataPoint[]; candidates: StructuralCandidate[] }) {

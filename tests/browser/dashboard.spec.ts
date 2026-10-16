@@ -112,6 +112,8 @@ test("Snapshot cards link each indicator to its official source and explain stal
     await expect(card.getByRole("button")).toContainText("Release period");
   }
   const staleCard = cards.nth(ids.indexOf("mgs"));
+  await expect(staleCard).toContainText("10-year government bond yield");
+  await expect(staleCard).toContainText("Malaysian Government Securities (MGS)");
   await expect(staleCard).toContainText("Stale");
   await expect(staleCard).toContainText("The latest refresh did not pass; showing the last validated observation.");
   await readability(page, info);
