@@ -72,6 +72,9 @@ test("data health gives partial MGS history an explicit BNM label and source lin
   assert.equal(history.label, "10-year MGS historical coverage");
   assert.equal(history.source, "Bank Negara Malaysia (BNM) Financial Markets");
   assert.equal(history.sourceUrl, "https://financialmarkets.bnm.gov.my/benchmark-yields");
+  assert.equal(history.observationPeriod, "2022-09-30");
+  assert.equal(history.retrievedAt, null, "checkpoint time is not mislabelled as a complete history retrieval");
+  assert.equal(history.lastAttemptAt, "2026-10-16T13:24:12Z");
 });
 
 test("failed analysis stays non-fresh even with successful source inputs", () => {

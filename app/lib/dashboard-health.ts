@@ -139,12 +139,12 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
   const rows: DataHealth["sources"] = Object.entries(result.sources).map(([id, source]) => ({ id, ...source }));
   for (const [id, source] of Object.entries(extraSources)) {
     if (!source) continue;
-    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"] };
+    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; throughDate?: string | null; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"] };
     const legacyAttempt = value.status !== "fresh" && !value.lastAttemptAt ? value.retrievedAt : undefined;
     const display: { label?: string; source?: string; sourceUrl?: string } = id === "mgsDailyHistory"
       ? { label: "10-year MGS historical coverage", source: "Bank Negara Malaysia (BNM) Financial Markets", sourceUrl: "https://financialmarkets.bnm.gov.my/benchmark-yields" }
       : {};
-    rows.push({ id, label: display.label ?? id, source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
+    rows.push({ id, label: display.label ?? id, source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.throughDate ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
   result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";
