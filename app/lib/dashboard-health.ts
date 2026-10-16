@@ -173,14 +173,16 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; throughDate?: string | null; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"]; benchmark?: { source?: string; sourceUrl?: string; benchmarkSource?: string; benchmarkSourceUrl?: string } };
     const legacyAttempt = value.status !== "fresh" && !value.lastAttemptAt ? value.retrievedAt : undefined;
     const display = id === "market"
-      ? { source: "Yahoo Finance (delayed market data)", sourceUrl: value.benchmark?.sourceUrl, relatedSource: value.benchmark?.benchmarkSource ?? "FTSE Russell / Bursa Malaysia", relatedSourceUrl: value.benchmark?.benchmarkSourceUrl }
+      ? { source: "Yahoo Finance (delayed market data)", sourceUrl: value.benchmark?.sourceUrl, relatedSource: value.benchmark?.benchmarkSource || "FTSE Russell / Bursa Malaysia", relatedSourceUrl: value.benchmark?.benchmarkSourceUrl }
       : id === "mgsDailyHistory"
         ? { source: "Bank Negara Malaysia (BNM) Financial Markets", sourceUrl: "https://financialmarkets.bnm.gov.my/benchmark-yields" }
         : id.startsWith("regional:")
           ? { source: "Department of Statistics Malaysia via data.gov.my" }
           : {};
     const declaredLabel = (source as { label?: string }).label;
-    rows.push({ id, label: declaredLabel && declaredLabel !== id ? declaredLabel : sourceLabels[id] ?? humanizeSourceId(id), source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, relatedSource: "relatedSource" in display ? display.relatedSource : undefined, relatedSourceUrl: "relatedSourceUrl" in display ? display.relatedSourceUrl : undefined, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.throughDate ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
+    const publisher = typeof value.source === "string" && value.source.trim() ? value.source : display.source;
+    const sourceUrl = [value.sourceUrl, value.datasetUrl, display.sourceUrl].find((url) => typeof url === "string" && url.trim());
+    rows.push({ id, label: declaredLabel && declaredLabel !== id ? declaredLabel : sourceLabels[id] ?? humanizeSourceId(id), source: publisher, sourceUrl, relatedSource: "relatedSource" in display ? display.relatedSource : undefined, relatedSourceUrl: "relatedSourceUrl" in display ? display.relatedSourceUrl : undefined, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.throughDate ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
   result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";

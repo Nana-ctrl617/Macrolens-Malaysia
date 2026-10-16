@@ -28,6 +28,7 @@ test("Data Health uses readable source names, explicit market attribution and un
   assert.equal(byId.get("market")?.relatedSource, payload.market.benchmark.benchmarkSource);
   assert.equal(byId.get("market")?.relatedSourceUrl, payload.market.benchmark.benchmarkSourceUrl);
   assert.equal(byId.get("regional:hiesState")?.label, "Household income and spending by state");
+  assert.equal(byId.get("regional:nationalIncome")?.source, "Department of Statistics Malaysia via data.gov.my");
   assert.equal(byId.get("regional:nationalExpenditure")?.label, "National household spending benchmark");
   assert.equal(rows.filter((row) => row.id === "regional:nationalExpenditure").length, 1);
   assert.ok(rows.every((row) => row.label !== row.id), "internal ids are not presented as user-facing source names");

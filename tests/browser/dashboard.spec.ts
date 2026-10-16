@@ -72,8 +72,11 @@ test("Data Health links the indicator to its source and explains the observation
   const payload = await dashboardFixture();
   await installFixture(context, payload);
   await ready(page, "/health");
-  const row = page.getByRole("row").filter({ hasText: "Headline inflation" });
-  await expect(row.getByRole("link", { name: "Open source ↗" })).toHaveAttribute("href", payload.series.headline.source_url);
+  const row = page.getByRole("row").filter({ has: page.getByText("Headline inflation", { exact: true }) });
+  await expect(row.getByRole("link", { name: "Open dataset or source page ↗" })).toHaveAttribute("href", payload.series.headline.source_url);
+  const marketRow = page.getByRole("row").filter({ has: page.getByText("FBM KLCI (delayed market prices)", { exact: true }) });
+  await expect(marketRow.getByRole("link", { name: "Open delayed price data ↗" })).toHaveAttribute("href", payload.market.benchmark.sourceUrl);
+  await expect(marketRow.getByRole("link", { name: "Open index publisher reference ↗" })).toHaveAttribute("href", payload.market.benchmark.benchmarkSourceUrl);
   await expect(row).toContainText(/\d+ days old \/ 100-day limit/);
 });
 
@@ -86,7 +89,8 @@ test("Data Health filters source groups without hiding their saved validation st
   const filterGroup = page.getByRole("group", { name: "Filter data-health sources" });
   await filterGroup.getByRole("button", { name: /Needs attention/ }).click();
   await expect(filterGroup.getByRole("button", { name: /Needs attention/ })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("row").filter({ hasText: "Headline inflation" })).toContainText("stale");
+  const headlineRow = () => page.getByRole("row").filter({ has: page.getByText("Headline inflation", { exact: true }) });
+  await expect(headlineRow()).toContainText("stale");
   const attentionRows = page.locator(".deep-table-wrap tbody tr");
   const attentionStatuses = await attentionRows.locator("td:nth-child(2)").allTextContents();
   expect(attentionStatuses.length).toBeGreaterThan(0);
@@ -95,7 +99,7 @@ test("Data Health filters source groups without hiding their saved validation st
   expect(attentionStatuses).toHaveLength(Number(attentionBadge.match(/\d+/)?.[0]));
 
   await filterGroup.getByRole("button", { name: /Last validation successful/ }).click();
-  await expect(page.getByRole("row").filter({ hasText: "Headline inflation" })).toHaveCount(0);
+  await expect(headlineRow()).toHaveCount(0);
   const validatedStatuses = await page.locator(".deep-table-wrap tbody tr td:nth-child(2)").allTextContents();
   expect(validatedStatuses.every((status) => status.trim() === "fresh")).toBe(true);
   await expect(page.locator(".health-source-count")).toContainText(/Showing \d+ of \d+ source groups/);
