@@ -18,9 +18,11 @@ The 19 routes share one versioned dashboard payload so a figure and its source n
 
 The GitHub Actions workflow `.github/workflows/update-dashboard.yml` runs daily at 13:45 Malaysia time (05:45 UTC) and can also be started manually. It validates official-source data, preserves the last valid series when a source fails, regenerates the dashboard, and commits only changed validated data. GitHub may start a scheduled run later than its requested time.
 
-The website reads the public artifact at `data/published/dashboard.json` through `/api/dashboard`. Successful responses are cached. If the upstream artifact is unavailable or fails validation, the site serves its bundled last-valid snapshot with a fallback label; fallback data are not described as live. `DASHBOARD_DATA_URL` can override the default raw-GitHub artifact URL.
+The website reads the public artifact at `data/published/dashboard.json` through `/api/dashboard`. Successful responses are cached for up to five minutes per warm serverless function instance. If the upstream artifact is unavailable or fails validation, the site serves the last valid or bundled snapshot with a fallback label; fallback data are not described as live. `DASHBOARD_DATA_URL` can override the default raw-GitHub artifact URL.
 
 Vercel's Git ignore-build check skips deployments only when a commit changes files exclusively under `data/published/`, `data/vintages/` or `data/backfill/`. The runtime API reads the published artifact directly, so data-only refreshes appear without a website rebuild. If the previous commit cannot be compared, or any code/configuration or unexpected file changed, the guard fails open and Vercel builds as usual.
+
+After each scheduled refresh validates and pushes its artifact, the workflow polls the public Vercel `/api/dashboard` endpoint for up to 13 attempts, allowing its five-minute cache to expire. It succeeds only when the public response has the same schema version and `generatedAt` as the artifact and explicitly reports `usingFallback: false`. If propagation is not confirmed, the workflow fails and its summary says not to treat that refresh as live; inspect the Vercel/API response before retiring the previous host.
 
 The news page fetches public RSS/search feeds separately at request time. News items can change between visits and are not part of the official statistical dashboard payload.
 

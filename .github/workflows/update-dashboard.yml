@@ -64,11 +64,18 @@ jobs:
           git commit -m "data: refresh dashboard $(date -u +%F)"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Verify public dashboard reflects the validated artifact
+        id: live
+        if: steps.validation.outputs.validated == 'true'
+        env:
+          DASHBOARD_API_URL: https://macrolens-malaysia.vercel.app/api/dashboard
+        run: node scripts/verify-live-dashboard.mjs
       - name: Summarize dashboard refresh
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
           DASHBOARD_CHANGED: ${{ steps.commit.outputs.changed }}
           DASHBOARD_VALIDATED: ${{ steps.validation.outputs.validated }}
+          DASHBOARD_LIVE_VERIFIED: ${{ steps.live.outputs.verified }}
         run: node scripts/refresh-summary.mjs data/published/dashboard.json
 

@@ -13,7 +13,7 @@ function cell(value) {
   return String(value ?? 'Not available').replaceAll('|', '\\|').replace(/[\r\n]+/g, ' ');
 }
 
-export function renderRefreshSummary({ jobStatus, dashboardChanged, dashboardValidated, dashboard }) {
+export function renderRefreshSummary({ jobStatus, dashboardChanged, dashboardValidated, dashboardLiveVerified, dashboard }) {
   const succeeded = jobStatus === 'success';
   const lines = [
     '# MacroLens dashboard refresh',
@@ -44,6 +44,12 @@ export function renderRefreshSummary({ jobStatus, dashboardChanged, dashboardVal
     lines.push('', 'The validated dashboard artifact could not be read for this summary. Check the workflow log.');
   }
 
+  if (dashboardLiveVerified === 'true') {
+    lines.push('', 'The public Vercel API served the matching validated artifact with fallback off.');
+  } else {
+    lines.push('', 'Public Vercel propagation was not confirmed in this run. Review the live-verification step; keep the last valid public snapshot available and do not retire the previous host.');
+  }
+
   if (!succeeded) {
     lines.push('', 'The run was not marked successful. Review the failed step above. Any validated candidate shown here may not have been pushed; the public dashboard remains on the last version known to have been published.');
   } else {
@@ -68,6 +74,7 @@ async function main() {
     jobStatus: process.env.JOB_STATUS,
     dashboardChanged: process.env.DASHBOARD_CHANGED,
     dashboardValidated: process.env.DASHBOARD_VALIDATED,
+    dashboardLiveVerified: process.env.DASHBOARD_LIVE_VERIFIED,
     dashboard,
   });
   if (process.env.GITHUB_STEP_SUMMARY) {

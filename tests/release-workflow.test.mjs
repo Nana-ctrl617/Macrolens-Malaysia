@@ -101,12 +101,18 @@ test('daily source workflow keeps its schedule and validates before staging data
   assert.match(yaml, /id:\s*validation[\s\S]*echo "validated=true" >> "\$GITHUB_OUTPUT"/);
   assert.match(yaml, /id:\s*commit[\s\S]*echo "changed=false" >> "\$GITHUB_OUTPUT"/);
   assert.match(yaml, /git push[\s\S]*echo "changed=true" >> "\$GITHUB_OUTPUT"/);
+  assert.match(yaml, /name:\s*Verify public dashboard reflects the validated artifact[\s\S]*id:\s*live[\s\S]*if:\s*steps\.validation\.outputs\.validated == 'true'[\s\S]*DASHBOARD_API_URL:\s*https:\/\/macrolens-malaysia\.vercel\.app\/api\/dashboard[\s\S]*node scripts\/verify-live-dashboard\.mjs/);
+  assert.ok(yaml.indexOf('node scripts/validate-published.mjs') < yaml.indexOf('git add -- data/published data/vintages data/backfill'));
+  assert.ok(yaml.indexOf('git push') < yaml.indexOf('node scripts/verify-live-dashboard.mjs'));
+  assert.ok(yaml.indexOf('node scripts/verify-live-dashboard.mjs') < yaml.indexOf('name: Summarize dashboard refresh'));
+  assert.doesNotMatch(yaml, /VERCEL_TOKEN|secrets\./);
   assert.match(yaml, /name:\s*Summarize dashboard refresh[\s\S]*if:\s*always\(\)/);
   assert.match(yaml, /DASHBOARD_VALIDATED:\s*\$\{\{ steps\.validation\.outputs\.validated \}\}/);
+  assert.match(yaml, /DASHBOARD_LIVE_VERIFIED:\s*\$\{\{ steps\.live\.outputs\.verified \}\}/);
   assert.match(yaml, /node scripts\/refresh-summary\.mjs data\/published\/dashboard\.json/);
 });
 
-test('Vercel skips only validated data-only commits and builds on uncertainty or code changes', async t => {
+test('Vercel skips only validated data-only commits and builds on uncertainty or code changes', async () => {
   const config = JSON.parse(await source('vercel.json'));
   assert.equal(config.ignoreCommand, 'node scripts/vercel-ignore-build.mjs');
   const { isDataOnlyChange, shouldSkipBuild } = await import(new URL('../scripts/vercel-ignore-build.mjs', import.meta.url));
@@ -160,6 +166,85 @@ test('Vercel skips only validated data-only commits and builds on uncertainty or
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
+test('live dashboard verification accepts only the matching non-fallback public artifact', async () => {
+  const { verifyLiveDashboard } = await import(new URL('../scripts/verify-live-dashboard.mjs', import.meta.url));
+  const expected = { schemaVersion: 9, generatedAt: '2026-10-16T03:14:33Z' };
+  await withArtifact(expected, async artifactPath => {
+    let options;
+    const result = await verifyLiveDashboard({
+      artifactPath,
+      apiUrl: 'https://macrolens-malaysia.vercel.app/api/dashboard',
+      fetcher: async (_url, init) => {
+        options = init;
+        return { ok: true, status: 200, json: async () => ({ ...expected, usingFallback: false }) };
+      },
+      attempts: 1,
+      intervalMs: 0,
+    });
+    assert.deepEqual(result, { ...expected, attempts: 1 });
+    assert.equal(options.headers.Accept, 'application/json');
+    assert.equal(options.headers['Cache-Control'], 'no-cache');
+    assert.ok(options.signal instanceof AbortSignal);
+  });
+});
+
+test('live dashboard verification retries fallback and outdated artifacts until the public API catches up', async () => {
+  const { verifyLiveDashboard } = await import(new URL('../scripts/verify-live-dashboard.mjs', import.meta.url));
+  const expected = { schemaVersion: 9, generatedAt: '2026-10-16T03:14:33Z' };
+  const responses = [
+    { ...expected, usingFallback: true },
+    { schemaVersion: 9, generatedAt: '2026-10-15T03:14:33Z', usingFallback: false },
+    { ...expected, usingFallback: false },
+  ];
+  let calls = 0;
+  const waits = [];
+  await withArtifact(expected, async artifactPath => {
+    const result = await verifyLiveDashboard({
+      artifactPath,
+      apiUrl: 'https://macrolens-malaysia.vercel.app/api/dashboard',
+      fetcher: async () => ({ ok: true, status: 200, json: async () => responses[calls++] }),
+      attempts: 3,
+      intervalMs: 30_000,
+      sleep: async milliseconds => waits.push(milliseconds),
+    });
+    assert.deepEqual(result, { ...expected, attempts: 3 });
+  });
+  assert.equal(calls, 3);
+  assert.deepEqual(waits, [30_000, 30_000]);
+});
+
+test('live dashboard verification fails closed on HTTP, malformed, missing, mismatched, or exhausted responses', async t => {
+  const { verifyLiveDashboard } = await import(new URL('../scripts/verify-live-dashboard.mjs', import.meta.url));
+  const expected = { schemaVersion: 9, generatedAt: '2026-10-16T03:14:33Z' };
+  const failures = [
+    ['HTTP errors', async () => ({ ok: false, status: 503, json: async () => ({}) })],
+    ['malformed JSON', async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('invalid JSON'); } })],
+    ['missing required metadata', async () => ({ ok: true, status: 200, json: async () => ({ usingFallback: false }) })],
+    ['different schema', async () => ({ ok: true, status: 200, json: async () => ({ ...expected, schemaVersion: 8, usingFallback: false }) })],
+    ['different artifact timestamp', async () => ({ ok: true, status: 200, json: async () => ({ ...expected, generatedAt: '2026-10-15T03:14:33Z', usingFallback: false }) })],
+  ];
+  for (const [name, fetcher] of failures) await t.test(name, async () => {
+    await withArtifact(expected, async artifactPath => {
+      await assert.rejects(
+        verifyLiveDashboard({ artifactPath, apiUrl: 'https://macrolens-malaysia.vercel.app/api/dashboard', fetcher, attempts: 1, intervalMs: 0 }),
+        /did not serve the validated artifact after 1 attempts/,
+      );
+    });
+  });
+  await withArtifact(expected, async artifactPath => {
+    await assert.rejects(
+      verifyLiveDashboard({ artifactPath, apiUrl: 'http://macrolens-malaysia.vercel.app/api/dashboard', fetcher: async () => ({}), attempts: 1 }),
+      /must use HTTPS/,
+    );
+  });
+  await withArtifact({ schemaVersion: 9, generatedAt: 'not-a-date' }, async artifactPath => {
+    await assert.rejects(
+      verifyLiveDashboard({ artifactPath, apiUrl: 'https://macrolens-malaysia.vercel.app/api/dashboard', fetcher: async () => ({}), attempts: 1 }),
+      /invalid schema or generatedAt metadata/,
+    );
+  });
+});
+
 test('refresh summary distinguishes changed, unchanged, unvalidated, and failed runs', async () => {
   const { renderRefreshSummary } = await import(new URL('../scripts/refresh-summary.mjs', import.meta.url));
   const dashboard = {
@@ -170,19 +255,22 @@ test('refresh summary distinguishes changed, unchanged, unvalidated, and failed 
     },
   };
 
-  const changed = renderRefreshSummary({ jobStatus: 'success', dashboardChanged: 'true', dashboardValidated: 'true', dashboard });
+  const changed = renderRefreshSummary({ jobStatus: 'success', dashboardChanged: 'true', dashboardValidated: 'true', dashboardLiveVerified: 'true', dashboard });
   assert.match(changed, /Succeeded/);
   assert.match(changed, /validated changes were pushed/);
   assert.match(changed, /2026-08-01/);
   assert.match(changed, /stale/);
   assert.match(changed, /does not mean the scheduled job was skipped/);
+  assert.match(changed, /public Vercel API served the matching validated artifact/);
 
-  const unchanged = renderRefreshSummary({ jobStatus: 'success', dashboardChanged: 'false', dashboardValidated: 'true', dashboard });
+  const unchanged = renderRefreshSummary({ jobStatus: 'success', dashboardChanged: 'false', dashboardValidated: 'true', dashboardLiveVerified: 'true', dashboard });
   assert.match(unchanged, /No repository artifact change was needed/);
   assert.doesNotMatch(unchanged, /no data was released/i);
 
   const failed = renderRefreshSummary({ jobStatus: 'failure', dashboardChanged: undefined, dashboardValidated: undefined, dashboard: null });
   assert.match(failed, /not marked successful/);
+  assert.match(failed, /Public Vercel propagation was not confirmed/);
+  assert.match(failed, /do not retire the previous host/);
   assert.match(failed, /Do not treat its generated files as a fresh publication/);
   assert.match(failed, /public dashboard remains on the last version known to have been published/);
 });
