@@ -123,7 +123,8 @@ test("Snapshot cards link each indicator to its official source and explain stal
   await expect(pressurePanel.locator("ol li").first()).toContainText(leadingPressure.name);
   await expect(pressurePanel.locator("ol li").first()).toContainText(`+${leadingPressure.contribution.toFixed(2)} pp`);
   await expect(pressurePanel).toContainText("show where measured inflation is concentrated, not why prices changed");
-  await expect(pressurePanel.getByRole("link", { name: "DOSM CPI weights and method ↗" })).toHaveAttribute("href", payload.cpiDecomposition.sourceUrl);
+  await expect(pressurePanel.getByRole("link", { name: "OpenDOSM division inflation data ↗" })).toHaveAttribute("href", "https://open.dosm.gov.my/data-catalogue/cpi_headline_inflation");
+  await expect(pressurePanel.getByRole("link", { name: "DOSM weight reference & method (2022 weights) ↗" })).toHaveAttribute("href", payload.cpiDecomposition.sourceUrl);
   await readability(page, info);
   await noOverflow(page);
 });

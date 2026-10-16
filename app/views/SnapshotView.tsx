@@ -99,7 +99,7 @@ export function SnapshotPricePressures({ dashboard }: { dashboard: DashboardView
     .sort((a, b) => (a.contribution ?? 0) - (b.contribution ?? 0));
   return <section className="snapshot-price-pressures" aria-labelledby="snapshot-price-pressures-title">
     <div className="snapshot-pressure-heading">
-      <div><h3 id="snapshot-price-pressures-title">Where price pressure is concentrated</h3><p>Largest upward CPI category contributions · {period}</p></div>
+      <div><h3 id="snapshot-price-pressures-title">Where price pressure is concentrated</h3><p>Largest upward CPI division contributions · {period}</p></div>
       <span className={`snapshot-pressure-status ${status}`}>{status === "fresh" ? "Validated estimate" : status === "stale" ? "Last validated estimate" : status === "fallback" ? "Saved estimate" : "Estimate unavailable"}</span>
     </div>
     {top.length ? <ol className="snapshot-pressure-list">
@@ -110,8 +110,9 @@ export function SnapshotPricePressures({ dashboard }: { dashboard: DashboardView
       </li>)}
     </ol> : <p className="snapshot-pressure-empty">A validated category breakdown is not available for this snapshot.</p>}
     {offsets.length > 0 && <p className="snapshot-pressure-offset">Largest downward offset: {offsets[0].name} ({offsets[0].contribution!.toFixed(2)} pp).</p>}
-    <p className="snapshot-pressure-caveat">Weighted estimates use DOSM’s {decomposition?.weightReferenceYear ?? "published"} CPI basket weights. They show where measured inflation is concentrated, not why prices changed; chained CPI means the estimates may not sum exactly to headline inflation.</p>
-    {decomposition?.sourceUrl && <a className="snapshot-pressure-source" href={decomposition.sourceUrl} target="_blank" rel="noreferrer">DOSM CPI weights and method ↗</a>}
+    <p className="snapshot-pressure-caveat">Division inflation comes from DOSM’s monthly CPI data. Contributions are estimates using DOSM’s {decomposition?.weightReferenceYear ?? "published"} basket weights (effective {decomposition?.effectiveFrom ?? "period unavailable"}); they show where measured inflation is concentrated, not why prices changed. Chained CPI means estimates may not sum exactly to headline inflation.</p>
+    <a className="snapshot-pressure-source" href="https://open.dosm.gov.my/data-catalogue/cpi_headline_inflation" target="_blank" rel="noreferrer">OpenDOSM division inflation data ↗</a>
+    {decomposition?.sourceUrl && <a className="snapshot-pressure-source" href={decomposition.sourceUrl} target="_blank" rel="noreferrer">DOSM weight reference & method ({decomposition?.weightReferenceYear ?? "CPI"} weights) ↗</a>}
     <a className="snapshot-pressure-more" href="/drivers">Explore all CPI divisions and the calculation ↗</a>
   </section>;
 }
