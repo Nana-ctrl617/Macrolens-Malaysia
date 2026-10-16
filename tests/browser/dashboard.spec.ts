@@ -100,6 +100,8 @@ test("Snapshot cards link each indicator to its official source and explain stal
   payload.sources.mgs.status = "stale";
   await installFixture(context, payload);
   await ready(page, "/");
+  await expect(page.locator(".snapshot-meta .data-status")).toContainText("Dashboard sources · partial");
+  await expect(page.locator(".snapshot-meta .data-status")).not.toContainText("Official data");
   const cards = page.locator(".metric-card");
   await expect(cards).toHaveCount(6);
   const ids = ["headline", "core", "opr", "unemployment", "fx", "mgs"] as const;
