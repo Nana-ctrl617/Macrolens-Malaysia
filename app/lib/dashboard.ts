@@ -228,6 +228,7 @@ export type DashboardPayload = {
   cpiDecomposition?: {
     observationPeriod: string; weightReferenceYear: number; effectiveFrom: string; source: string; sourceUrl: string;
     headline: number; estimatedTotal: number; reconciliationGap: number; method: string; warning: string;
+    calculationStatus?: "fresh" | "stale" | "unavailable"; inputHealth?: InputHealth;
   };
   forecast: {
     selectedModel: string;

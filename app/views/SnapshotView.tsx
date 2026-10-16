@@ -85,6 +85,37 @@ export function SnapshotHeadlineChart({ points }: { points: DataPoint[] }) {
 }
 
 const IndicatorDetail = lazy(() => import("@/app/components/IndicatorDetail"));
+
+export function SnapshotPricePressures({ dashboard }: { dashboard: DashboardViewPayload<"snapshot"> | null }) {
+  const categories = dashboard?.categories ?? [];
+  const ranked = categories.filter((item) => Number.isFinite(item.contribution) && item.contribution! > 0)
+    .sort((a, b) => (b.contribution ?? 0) - (a.contribution ?? 0));
+  const top = ranked.slice(0, 3);
+  const maximum = Math.max(...top.map((item) => item.contribution ?? 0), 0.01);
+  const decomposition = dashboard?.cpiDecomposition;
+  const period = decomposition?.observationPeriod ? formatObservationDate(decomposition.observationPeriod, "Monthly") : "period unavailable";
+  const status = dashboard?.usingFallback ? "fallback" : decomposition?.calculationStatus ?? dashboard?.sources.headline?.status ?? "unavailable";
+  const offsets = categories.filter((item) => Number.isFinite(item.contribution) && item.contribution! < 0)
+    .sort((a, b) => (a.contribution ?? 0) - (b.contribution ?? 0));
+  return <section className="snapshot-price-pressures" aria-labelledby="snapshot-price-pressures-title">
+    <div className="snapshot-pressure-heading">
+      <div><h3 id="snapshot-price-pressures-title">Where price pressure is concentrated</h3><p>Largest upward CPI category contributions · {period}</p></div>
+      <span className={`snapshot-pressure-status ${status}`}>{status === "fresh" ? "Validated estimate" : status === "stale" ? "Last validated estimate" : status === "fallback" ? "Saved estimate" : "Estimate unavailable"}</span>
+    </div>
+    {top.length ? <ol className="snapshot-pressure-list">
+      {top.map((item) => <li key={item.code} aria-label={`${item.name}: ${item.value.toFixed(1)} percent category inflation, ${item.weight == null ? "basket weight unavailable" : `${item.weight.toFixed(1)} percent basket weight`}, contribution estimate plus ${item.contribution!.toFixed(2)} percentage points`}>
+        <div className="snapshot-pressure-copy"><strong>{item.name}</strong><small>{item.value.toFixed(1)}% category inflation · {item.weight == null ? "Weight unavailable" : `${item.weight.toFixed(1)}% basket weight`}</small></div>
+        <div className="snapshot-pressure-track" aria-hidden="true"><i style={{ width: `${(item.contribution! / maximum) * 100}%` }} /></div>
+        <b className="snapshot-pressure-value">+{item.contribution!.toFixed(2)} pp</b>
+      </li>)}
+    </ol> : <p className="snapshot-pressure-empty">A validated category breakdown is not available for this snapshot.</p>}
+    {offsets.length > 0 && <p className="snapshot-pressure-offset">Largest downward offset: {offsets[0].name} ({offsets[0].contribution!.toFixed(2)} pp).</p>}
+    <p className="snapshot-pressure-caveat">Weighted estimates use DOSM’s {decomposition?.weightReferenceYear ?? "published"} CPI basket weights. They show where measured inflation is concentrated, not why prices changed; chained CPI means the estimates may not sum exactly to headline inflation.</p>
+    {decomposition?.sourceUrl && <a className="snapshot-pressure-source" href={decomposition.sourceUrl} target="_blank" rel="noreferrer">DOSM CPI weights and method ↗</a>}
+    <a className="snapshot-pressure-more" href="/drivers">Explore all CPI divisions and the calculation ↗</a>
+  </section>;
+}
+
 export function SnapshotContent({ dashboard, loadHistory }: { dashboard: DashboardViewPayload<"snapshot"> | null; loadHistory?: DashboardHistoryLoader }) {
 const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
 const loadSeries = useCallback(async (id: MetricId) => {
@@ -140,8 +171,8 @@ return <><>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h2>The recent path</h2></div><div className="legend"><i /> Year-on-year change</div></div>
-          <SnapshotHeadlineChart points={headlinePoints} />
-          <div className="interpretation"><b>How to read this</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
+          <div className="snapshot-inflation-analysis"><SnapshotHeadlineChart points={headlinePoints} /><SnapshotPricePressures dashboard={dashboard} /></div>
+          <div className="interpretation"><b>Latest reading</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
           <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>
         <div className="snapshot-completion" aria-label="Explore related analysis">

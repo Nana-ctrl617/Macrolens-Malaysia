@@ -98,6 +98,7 @@ test("Snapshot cards link each indicator to its official source and explain stal
   payload.health = "partial";
   payload.usingFallback = false;
   payload.sources.mgs.status = "stale";
+  payload.cpiDecomposition.calculationStatus = "stale";
   await installFixture(context, payload);
   await ready(page, "/");
   await expect(page.locator(".snapshot-meta .data-status")).toContainText("Dashboard sources · partial");
@@ -116,6 +117,13 @@ test("Snapshot cards link each indicator to its official source and explain stal
   await expect(staleCard).toContainText("Malaysian Government Securities (MGS)");
   await expect(staleCard).toContainText("Stale");
   await expect(staleCard).toContainText("The latest refresh did not pass; showing the last validated observation.");
+  const pressurePanel = page.locator(".snapshot-price-pressures");
+  const leadingPressure = payload.categories.filter((item: { contribution?: number }) => Number.isFinite(item.contribution) && item.contribution! > 0).sort((a: { contribution?: number }, b: { contribution?: number }) => (b.contribution ?? 0) - (a.contribution ?? 0))[0];
+  await expect(pressurePanel.locator(".snapshot-pressure-status")).toHaveText("Last validated estimate");
+  await expect(pressurePanel.locator("ol li").first()).toContainText(leadingPressure.name);
+  await expect(pressurePanel.locator("ol li").first()).toContainText(`+${leadingPressure.contribution.toFixed(2)} pp`);
+  await expect(pressurePanel).toContainText("show where measured inflation is concentrated, not why prices changed");
+  await expect(pressurePanel.getByRole("link", { name: "DOSM CPI weights and method ↗" })).toHaveAttribute("href", payload.cpiDecomposition.sourceUrl);
   await readability(page, info);
   await noOverflow(page);
 });

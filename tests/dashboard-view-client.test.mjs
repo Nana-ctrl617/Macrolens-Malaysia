@@ -29,6 +29,11 @@ test("view loader never requests full dashboard or histories implicitly",async()
   const view=await client.load("forecast");assert.ok(view.deferred["forecast-audit"]);
   assert.deepEqual(urls,["/api/dashboard-view?section=forecast"]);
 });
+test("Snapshot projection includes the category weights and method needed to explain observed price pressure",async()=>{
+  const source=fixture(),view=await projectDashboard(source,"snapshot");
+  assert.deepEqual(view.categories,source.categories);
+  assert.deepEqual(view.cpiDecomposition,source.cpiDecomposition);
+});
 test("explicit history deduplicates by artifact/range and rejects mixed revisions",async()=>{
   const source=fixture(),view=await projectDashboard(source,"snapshot");let calls=0;
   const client=createDashboardViewClient({fetch:async()=>{calls++;return response(await projectDashboardHistory(source,{view:"snapshot",id:"indicator:headline",artifactId:view.artifactId,range:"ALL"}));}});
