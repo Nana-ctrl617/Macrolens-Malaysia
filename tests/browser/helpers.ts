@@ -46,7 +46,7 @@ export async function installFixture(context: BrowserContext, payload: Dashboard
 export async function ready(page: Page, path: string) {
   await page.goto(path);
   if (path.startsWith("/news")) await expect(page.locator(".news-meta [role=status]")).toContainText("verified-date headlines");
-  else await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Saved validated data loaded/);
+  else await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Saved validated data loaded|Some data coverage is partial/);
   await expect(page.locator("main h1")).toHaveCount(1);
 }
 

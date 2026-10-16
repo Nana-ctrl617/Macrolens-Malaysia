@@ -74,10 +74,12 @@ test('transport failures replace route loading bodies with honest unavailable st
 test('every data-backed view renders from its own projected DTO without fetching deferred details',async()=>{
  const source=JSON.parse(readFileSync(new URL('../data/published/dashboard.json',import.meta.url),'utf8'));
  for(const section of views.keys()){
-  const html=render(section,{data:await projectDashboard(source,section)});
+  const projected=await projectDashboard(source,section);
+  const html=render(section,{data:projected});
   assert.equal((html.match(/<h1\b/g)??[]).length,1,`${section} retains one semantic main heading`);
   assert.doesNotMatch(html,/Economic data is temporarily unavailable|NaN|Infinity/,section);
-  assert.match(html,/Validated data loaded/);
+  if(projected.health==='partial')assert.match(html,/Some data coverage is partial/);
+  else assert.match(html,/Validated data loaded/);
  }
 });
 test('validated fallback remains visible and provides explicit retry',async()=>{
@@ -87,6 +89,15 @@ test('validated fallback remains visible and provides explicit retry',async()=>{
  assert.match(html,/Try latest data again/);
  assert.match(html,/Open history for Headline inflation/);
  assert.doesNotMatch(html,/Economic data is temporarily unavailable/);
+});
+test('partial source coverage is visible globally and links to the detailed audit',async()=>{
+ const data=JSON.parse(readFileSync(new URL('../data/published/dashboard.json',import.meta.url),'utf8'));
+ data.usingFallback=false;data.health='partial';
+ const html=render('snapshot',{data:await projectDashboard(data,'snapshot')});
+ assert.match(html,/Some data coverage is partial/);
+ assert.match(html,/Values shown passed validation/);
+ assert.match(html,/<a href="\/health">Review data health<\/a>/);
+ assert.doesNotMatch(html,/Validated data loaded\. Check individual source periods/);
 });
 test('failed sensitivity fitting never renders invented coefficients or sliders',async()=>{
  const data=JSON.parse(readFileSync(new URL('../data/published/dashboard.json',import.meta.url),'utf8'));

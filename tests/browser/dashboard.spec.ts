@@ -17,7 +17,7 @@ test("all nineteen routes remain reachable through the compact navigation", asyn
     await navigation.getByRole("link", { name: label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${path === "/" ? "/" : path}/?(?:\\?.*)?$`));
     if (path === "/news") await expect(page.locator(".news-meta [role=status]")).toContainText("verified-date headlines");
-    else await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Saved validated data loaded/);
+    else await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Saved validated data loaded|Some data coverage is partial/);
     await expect(page.locator("main h1")).toHaveCount(1);
     // Compact navigation unmounts after a selection. Reopen it as a user
     // would, then inspect the current-page semantics on a visible link.
@@ -38,6 +38,19 @@ test("all nineteen routes remain reachable through the compact navigation", asyn
     }
   });
   expect(pageErrors, "Hydrated production routes must not throw browser exceptions").toEqual([]);
+});
+
+test("partial dashboard health is clearly announced with a direct route to source details", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  payload.health = "partial";
+  payload.usingFallback = false;
+  await installFixture(context, payload);
+  await ready(page, "/");
+  const status = page.locator(".dashboard-load-status.shell").first();
+  await expect(status).toContainText("Some data coverage is partial");
+  await expect(status).toContainText("Values shown passed validation");
+  await expect(status.getByRole("link", { name: "Review data health" })).toHaveAttribute("href", "/health");
+  await noOverflow(page);
 });
 
 test("release gate browser negative control", async ({ page, context }) => {

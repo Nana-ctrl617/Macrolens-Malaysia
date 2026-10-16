@@ -199,6 +199,9 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .dashboard-load-error button { min-height:44px; padding:8px 14px; margin-top:8px; color:var(--text-primary); border:1px solid var(--border-strong); background:var(--surface-card); cursor:pointer; }
 .dashboard-app .dashboard-load-status { font-size:14px; line-height:1.5; color:var(--muted); padding:10px 0; min-height:40px; }
 .dashboard-app .dashboard-load-status.fallback { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:10px auto; padding:10px 14px; border:1px solid var(--notice-warning-border); border-radius:6px; background:var(--notice-warning-background); color:var(--source-stale-text); }
+.dashboard-app .dashboard-load-status.partial { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:10px auto; padding:10px 14px; border:1px solid var(--notice-warning-border); border-radius:6px; background:var(--notice-warning-background); color:var(--source-stale-text); }
+.dashboard-app .dashboard-load-status.partial a { display:inline-flex; flex:0 0 auto; align-items:center; min-height:44px; color:inherit; font-weight:700; text-underline-offset:3px; }
+.dashboard-app .dashboard-load-status.partial a:focus-visible { outline:3px solid var(--chart-focus); outline-offset:3px; }
 .dashboard-app .dashboard-load-status.fallback button { flex:0 0 auto; min-height:44px; padding:8px 14px; border:1px solid var(--source-stale-text); border-radius:4px; background:var(--surface-card); color:var(--source-stale-text); font-size:14px; font-weight:700; cursor:pointer; }
 .dashboard-app .dashboard-load-status.fallback button:hover { background:var(--source-stale-background); }
 .dashboard-app .dashboard-load-status.fallback button:focus-visible { outline:3px solid var(--chart-focus); outline-offset:3px; }
@@ -211,8 +214,9 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
   .dashboard-app .regional-controls { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
 @media(max-width:600px) {
-  .dashboard-app .dashboard-load-status.fallback { align-items:stretch; flex-direction:column; gap:10px; }
+  .dashboard-app .dashboard-load-status:is(.fallback,.partial) { align-items:stretch; flex-direction:column; gap:10px; }
   .dashboard-app .dashboard-load-status.fallback button { width:100%; }
+  .dashboard-app .dashboard-load-status.partial a { width:100%; }
 }
 
 .dashboard-app .decision-watch { color:var(--text-secondary); }

@@ -46,6 +46,16 @@ test("legacy MGS snapshots with monthly-spaced observations are never called a d
   delete payload.series.mgs.historyCoverage;
   delete payload.sources.mgs.historyCoverage;
   payload.series.mgs.frequency = "Trading days";
+  // The checked-in dashboard now contains daily history, so make the legacy
+  // monthly-only shape explicit instead of relying on the live fixture cadence.
+  payload.series.mgs.points = [
+    { date: "2025-01-31", value: 3.72 },
+    { date: "2025-02-28", value: 3.70 },
+    { date: "2025-03-31", value: 3.69 },
+    { date: "2025-04-30", value: 3.68 },
+    { date: "2025-05-31", value: 3.66 },
+    { date: "2025-06-30", value: 3.65 },
+  ];
   const result = normalizeDashboard(payload);
   assert.equal(result.series.mgs.frequency, "Mixed cadence; daily history not yet verified");
   assert.equal(result.series.mgs.historyCoverage.status, "partial");
