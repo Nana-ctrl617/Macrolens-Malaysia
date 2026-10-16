@@ -66,6 +66,14 @@ test("legacy MGS snapshots with monthly-spaced observations are never called a d
   assert.equal(payload.series.mgs.frequency, "Trading days", "normalization does not mutate the original artifact");
 });
 
+test("data health gives partial MGS history an explicit BNM label and source link", () => {
+  const payload = JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
+  const history = normalizeDashboard(payload).dataHealth.sources.find((source) => source.id === "mgsDailyHistory");
+  assert.equal(history.label, "10-year MGS historical coverage");
+  assert.equal(history.source, "Bank Negara Malaysia (BNM) Financial Markets");
+  assert.equal(history.sourceUrl, "https://financialmarkets.bnm.gov.my/benchmark-yields");
+});
+
 test("failed analysis stays non-fresh even with successful source inputs", () => {
   const payload = fixture();
   for (const source of Object.values(payload.sources)) source.status = "fresh";

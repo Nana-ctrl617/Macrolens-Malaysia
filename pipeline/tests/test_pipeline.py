@@ -506,6 +506,21 @@ def test_data_health_exposes_official_source_links_and_age_rules():
     assert row["freshness"] == source["freshness"]
 
 
+def test_data_health_labels_mgs_history_as_separate_bnm_coverage_check():
+    coverage = {
+        "status": "partial", "throughDate": "2022-09-30",
+        "retrievedAt": "2026-10-16T13:24:12Z",
+        "message": "Daily MGS history backfill is in progress; official history is checked through 2022-09-30.",
+    }
+    health = macrolens.build_data_health({"series": {"mgs": {"historyCoverage": coverage}}}, "2026-10-16T13:24:12Z")
+    row = next(item for item in health["sources"] if item["id"] == "mgsDailyHistory")
+    assert row["label"] == "10-year MGS historical coverage"
+    assert row["source"] == "Bank Negara Malaysia (BNM) Financial Markets"
+    assert row["sourceUrl"] == "https://financialmarkets.bnm.gov.my/benchmark-yields"
+    assert row["observationPeriod"] == "2022-09-30"
+    assert row["status"] == "partial"
+
+
 def test_derived_sections_inherit_stale_inputs_and_health_lists_regional_and_demand():
     payload = {
         "schemaVersion": 9, "generatedAt": "2026-10-05T12:00:00Z", "health": "fresh",

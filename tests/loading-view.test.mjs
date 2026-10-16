@@ -93,9 +93,11 @@ test('validated fallback remains visible and provides explicit retry',async()=>{
 test('partial source coverage is visible globally and links to the detailed audit',async()=>{
  const data=JSON.parse(readFileSync(new URL('../data/published/dashboard.json',import.meta.url),'utf8'));
  data.usingFallback=false;data.health='partial';
+ data.sources.mgs.historyCoverage={status:'partial',startDate:'2021-11-01',throughDate:'2022-09-30',completed:false,requests:240,observations:222,retrievedAt:'2026-10-16T13:24:12Z',message:'Daily MGS history backfill is in progress; official history is checked through 2022-09-30.'};
  const html=render('snapshot',{data:await projectDashboard(data,'snapshot')});
  assert.match(html,/Some data coverage is partial/);
  assert.match(html,/Values shown passed validation/);
+ assert.match(html,/latest 10-year MGS close is validated; its historical daily series is still being checked through 30 Sept 2022 as a one-time backfill runs/);
  assert.match(html,/<a href="\/health">Review data health<\/a>/);
  assert.doesNotMatch(html,/Validated data loaded\. Check individual source periods/);
 });

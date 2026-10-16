@@ -141,7 +141,10 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     if (!source) continue;
     const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"] };
     const legacyAttempt = value.status !== "fresh" && !value.lastAttemptAt ? value.retrievedAt : undefined;
-    rows.push({ id, label: id, source: value.source, sourceUrl: value.sourceUrl ?? value.datasetUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
+    const display: { label?: string; source?: string; sourceUrl?: string } = id === "mgsDailyHistory"
+      ? { label: "10-year MGS historical coverage", source: "Bank Negara Malaysia (BNM) Financial Markets", sourceUrl: "https://financialmarkets.bnm.gov.my/benchmark-yields" }
+      : {};
+    rows.push({ id, label: display.label ?? id, source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
   result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";

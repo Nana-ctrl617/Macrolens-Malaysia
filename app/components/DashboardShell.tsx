@@ -6,6 +6,7 @@ import { DashboardNavigation } from "./DashboardNavigation";
 import { DashboardArtifactChangedError, loadDashboardHistory, loadDashboardView, retryDashboardView } from "@/app/lib/dashboard-view-client";
 import type { DashboardView, DashboardViewPayload, DashboardHistoryPayload, DeferredHistory, HistoryId } from "@/app/lib/dashboard-projection";
 import type { DashboardSection } from "@/app/lib/dashboard-ui-types";
+import { formatDate } from "@/app/lib/dashboard-format";
 
 export type DashboardHistoryLoader = <H extends HistoryId>(ref: DeferredHistory<H>) => Promise<DashboardHistoryPayload<H>>;
 export type DashboardDataState<S extends DashboardView = DashboardView> = { dashboard: DashboardViewPayload<S> | null; loading: boolean; error: string; retry: () => void; refreshSummary: () => void; loadHistory: DashboardHistoryLoader };
@@ -26,6 +27,7 @@ export default function DashboardShell({ section, children }: { section: Dashboa
   const dashboardLoading = section !== "news" && loadedKey !== requestKey;
   const currentError = dashboardError?.key === requestKey ? dashboardError.message : "";
   const currentDashboard = section !== "news" && dashboard?.view === section ? dashboard : null;
+  const mgsHistoryCoverage = currentDashboard?.sources?.mgs?.historyCoverage;
   useEffect(() => {
     if (section === "news") return;
     let active = true;
@@ -47,7 +49,7 @@ export default function DashboardShell({ section, children }: { section: Dashboa
       <a className="skip-link" href="#top">Skip to main content</a>
       <DashboardNavigation active={section} />
       <main id="top" tabIndex={-1}>
-      {section !== "news" && <div className={`dashboard-load-status shell${!currentError && currentDashboard?.usingFallback ? " fallback" : ""}${!currentError && !currentDashboard?.usingFallback && currentDashboard?.health === "partial" ? " partial" : ""}`} role="status" aria-live="polite" aria-atomic="true">{dashboardLoading ? "Loading validated economic data…" : currentError ? "Data could not be loaded. Retry below." : currentDashboard?.usingFallback ? <>Saved validated data loaded. The upstream artifact is unavailable; source periods and fallback labels remain visible.<button type="button" onClick={retry}>Try latest data again</button></> : currentDashboard?.health === "partial" ? <>Some data coverage is partial. Values shown passed validation, but one or more source groups need attention.<a href="/health">Review data health</a></> : "Validated data loaded. Check individual source periods and freshness labels."}</div>}
+      {section !== "news" && <div className={`dashboard-load-status shell${!currentError && currentDashboard?.usingFallback ? " fallback" : ""}${!currentError && !currentDashboard?.usingFallback && currentDashboard?.health === "partial" ? " partial" : ""}`} role="status" aria-live="polite" aria-atomic="true">{dashboardLoading ? "Loading validated economic data…" : currentError ? "Data could not be loaded. Retry below." : currentDashboard?.usingFallback ? <>Saved validated data loaded. The upstream artifact is unavailable; source periods and fallback labels remain visible.<button type="button" onClick={retry}>Try latest data again</button></> : currentDashboard?.health === "partial" ? <>Some data coverage is partial. Values shown passed validation, but one or more source groups need attention.{mgsHistoryCoverage?.status === "partial" && <> The latest 10-year MGS close is validated; its historical daily series is still being checked{mgsHistoryCoverage.throughDate ? ` through ${formatDate(mgsHistoryCoverage.throughDate)}` : ""} as a one-time backfill runs.</>}<a href="/health">Review data health</a></> : "Validated data loaded. Check individual source periods and freshness labels."}</div>}
       {section !== "news" && currentError && <div className="dashboard-load-error shell" role="alert"><p>{currentError}</p><button type="button" onClick={retry}>Retry dashboard</button></div>}
       {initialDataUnavailable ? <section className="section shell"><h1>Economic data is temporarily unavailable</h1><p>Use “Retry dashboard” above to try again. No figures, forecasts or source dates are estimated while the validated dataset is unavailable.</p></section> : <Fragment key={currentDashboard?.artifactId ?? "loading"}>{children}</Fragment>}
       </main>

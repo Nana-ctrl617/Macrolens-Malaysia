@@ -1709,6 +1709,9 @@ def build_data_health(payload: dict, generated_at: str) -> dict:
     if mgs_coverage:
         source_rows.append({
             "id": "mgsDailyHistory",
+            "label": "10-year MGS historical coverage",
+            "source": "Bank Negara Malaysia (BNM) Financial Markets",
+            "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
             "status": mgs_coverage.get("status", "partial"),
             "retrievedAt": mgs_coverage.get("retrievedAt"),
             "observationPeriod": mgs_coverage.get("throughDate") or "",
