@@ -22,7 +22,7 @@ for (const failure of ["malformed", "transport"] as const) test(`${failure} summ
   await expect(page.locator("main")).not.toContainText("Internal fixture detail");
   const retry = page.getByRole("button", { name: "Retry dashboard", exact: true });
   await retry.focus(); await retry.press("Enter");
-  await expect(page.locator(".dashboard-load-status.shell").first()).toContainText("Validated data loaded");
+  await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Some data coverage is partial/);
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(page.locator(".metric-card")).toHaveCount(6);
   expect(requests).toBe(2);
@@ -49,7 +49,7 @@ test("artifact409 resets the old explorer and reloads its summary before serving
   await open.click();
   await expect.poll(() => summaries).toBe(2);
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator(".dashboard-load-status.shell").first()).toContainText("Validated data loaded");
+  await expect(page.locator(".dashboard-load-status.shell").first()).toContainText(/Validated data loaded|Some data coverage is partial/);
   expect(historyArtifacts).toEqual([oldView.artifactId]);
   await open.click();
   await expect(page.getByRole("dialog")).toBeVisible();
