@@ -137,6 +137,11 @@ test("renders each dashboard section on its own route", async () => {
     assert.match(html, /Educational analysis, not investment advice\./);
     assert.doesNotMatch(html, /Applied statistics × financial economics/);
     assert.doesNotMatch(html, /<h1>See the pressure/);
+    if (path === "/methodology") {
+      assert.match(html, /scheduled start, not a guaranteed publish time/i);
+      assert.match(html, /GitHub may delay a run/i);
+      assert.match(html, /data update only after source checks pass/i);
+    }
   }
 });
 
