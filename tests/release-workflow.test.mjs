@@ -319,7 +319,7 @@ test('verification CI is read-only, reproducible and invokes the required releas
   assert.match(yaml, /pip install -r pipeline\/requirements\.txt/);
   assert.match(yaml, /pnpm exec playwright install --with-deps chromium/);
   assert.match(yaml, /node scripts\/release-gate\.mjs/);
-  assert.match(yaml, /actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4\.6\.2/);
+  assert.match(yaml, /actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6\.0\.0/);
   assert.match(yaml, /if:\s*always\(\)/);
   assert.match(yaml, /outputs\/|playwright-report\/|test-results\//);
   assert.match(yaml, /!outputs\/\.release-gate-key/);
@@ -332,11 +332,11 @@ test('all third-party workflow actions are pinned to verified release commits an
     source('.github/workflows/verify-dashboard.yml'),
   ]);
   const expected = new Map([
-    ['actions/checkout', '11d5960a326750d5838078e36cf38b85af677262'],
-    ['pnpm/action-setup', 'c336a2788d9774dccfdeb4823a5058ccc9f07453'],
-    ['actions/setup-node', '49933ea5288caeca8642d1e84afbd3f7d6820020'],
-    ['actions/setup-python', 'a26af69be951a213d495a4c3e4e4022e16d87065'],
-    ['actions/upload-artifact', 'ea165f8d65b6e75b540449e92b4886f43607fa02'],
+    ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
+    ['pnpm/action-setup', 'ea17c68df8912ef543352723c149a84f56e3d413'],
+    ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
+    ['actions/setup-python', '5fda3b95a4ea91299a34e894583c3862153e4b97'],
+    ['actions/upload-artifact', 'b7c566a772e6b6bfb58ed0dc250532a479d7789f'],
   ]);
 
   for (const yaml of workflows) {
