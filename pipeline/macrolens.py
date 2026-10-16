@@ -1670,8 +1670,60 @@ def build_macro_timeline(series: dict[str, dict], structural: dict, market: dict
     }
 
 
+DATA_HEALTH_EXTRA_LABELS = {
+    "market": "FBM KLCI (delayed market prices)",
+    "economicStructure": "GDP by production sector",
+    "production": "GDP by production sector",
+    "growthDrivers.demand": "GDP by expenditure components",
+    "demand": "GDP by expenditure components",
+    "externalSector": "Trade in goods",
+    "balancePayments": "Balance of payments",
+    "regionalLens.nationalIncome": "National household income benchmark",
+    "regionalLens.nationalPoverty": "National poverty benchmark",
+    "regionalLens.nationalInequality": "National income-inequality benchmark",
+    "regionalLens.hiesState": "Household income and spending by state",
+    "regionalLens.nationalExpenditure": "National household spending benchmark",
+    "regionalLens.hiesDistrict": "Household income and spending by district",
+    "regionalLens.incomeGroupState": "Household income groups by state",
+    "regionalLens.incomeGroupNational": "National household income groups",
+    "regionalLens.incomeGroups": "Household income groups",
+    "regionalLens.labour": "Labour-force indicators by district",
+    "regionalLens.gdpState": "GDP by state and sector",
+    "regionalLens.gdpDistrict": "GDP by district and sector",
+    "regionalLens.gdp": "Regional GDP data",
+    "regionalLens.cpi": "Headline inflation by state",
+    "mgsDailyHistory": "10-year MGS historical coverage",
+}
+
+
+def _health_extra_source_metadata(key: str, source: dict) -> dict:
+    benchmark = source.get("benchmark", {}) if isinstance(source, dict) else {}
+    regional = key.startswith("regionalLens.")
+    defaults = {
+        "label": DATA_HEALTH_EXTRA_LABELS.get(key, key.replace("regionalLens.", "Regional · ").replace(".", " ").title()),
+        "source": "Department of Statistics Malaysia via data.gov.my" if regional else None,
+        "sourceUrl": None,
+        "relatedSource": None,
+        "relatedSourceUrl": None,
+    }
+    if key == "market":
+        defaults.update({
+            "source": benchmark.get("source") or "Yahoo Finance (delayed market data)",
+            "sourceUrl": benchmark.get("sourceUrl"),
+            "relatedSource": benchmark.get("benchmarkSource") or "FTSE Russell / Bursa Malaysia",
+            "relatedSourceUrl": benchmark.get("benchmarkSourceUrl"),
+        })
+    elif key == "mgsDailyHistory":
+        defaults.update({
+            "source": "Bank Negara Malaysia (BNM) Financial Markets",
+            "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
+        })
+    return defaults
+
+
 def build_data_health(payload: dict, generated_at: str) -> dict:
     source_rows = []
+    included_ids = set()
     for key, source in payload.get("sources", {}).items():
         spec = SPECS.get(key)
         source_rows.append({
@@ -1682,31 +1734,40 @@ def build_data_health(payload: dict, generated_at: str) -> dict:
             "unit": spec.unit if spec else None,
             **source,
         })
+        included_ids.add(key)
+    regional_sources = payload.get("regionalLens", {}).get("sources", {})
     extra = [
         ("market", payload.get("market", {})),
         ("economicStructure", payload.get("economicStructure", {})),
         ("externalSector", payload.get("externalSector", {})),
         ("balancePayments", payload.get("balancePayments", {})),
         ("growthDrivers.demand", payload.get("growthDrivers", {}).get("demand", {})),
-        *((f"regionalLens.{key}", source) for key, source in payload.get("regionalLens", {}).get("sources", {}).items()),
-        ("regionalLens.nationalExpenditure", payload.get("regionalLens", {}).get("sources", {}).get("hiesState", {}).get("nationalExpenditure", {})),
+        *((f"regionalLens.{key}", source) for key, source in regional_sources.items()),
     ]
+    if not regional_sources.get("nationalExpenditure"):
+        extra.append(("regionalLens.nationalExpenditure", (regional_sources.get("hiesState") or {}).get("nationalExpenditure", {})))
     for key, source in extra:
         if source:
+            if key in included_ids:
+                continue
+            display = _health_extra_source_metadata(key, source)
             source_rows.append({
                 "id": key,
-                "label": source.get("label") or key,
-                "source": source.get("source"),
+                "label": source.get("label") if source.get("label") and source.get("label") != key else display["label"],
+                "source": source.get("source") or display["source"],
+                "relatedSource": display["relatedSource"],
+                "relatedSourceUrl": display["relatedSourceUrl"],
                 "status": source.get("status", "unavailable"),
                 "retrievedAt": source.get("retrievedAt"),
                 "lastAttemptAt": source.get("lastAttemptAt"),
-                "sourceUrl": source.get("sourceUrl") or source.get("datasetUrl"),
+                "sourceUrl": source.get("sourceUrl") or source.get("datasetUrl") or display["sourceUrl"],
                 "observationPeriod": source.get("observationPeriod") or source.get("summary", {}).get("latestDate", ""),
                 "freshness": source.get("freshness"),
                 "message": source.get("message", "Validated"),
             })
+            included_ids.add(key)
     mgs_coverage = payload.get("series", {}).get("mgs", {}).get("historyCoverage")
-    if mgs_coverage:
+    if mgs_coverage and "mgsDailyHistory" not in included_ids:
         source_rows.append({
             "id": "mgsDailyHistory",
             "label": "10-year MGS historical coverage",

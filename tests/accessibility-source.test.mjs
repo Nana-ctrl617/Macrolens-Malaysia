@@ -82,7 +82,9 @@ test("data health uses canonical status and separates last success from attempt"
   assert.match(page, /Last successful retrieval/);
   assert.match(page, /Last refresh attempt/);
   assert.match(page, /source\.lastAttemptAt/);
-  assert.match(page, /Open source/);
+  assert.match(page, /Open dataset or source page/);
+  assert.match(page, /Open delayed price data/);
+  assert.match(page, /Open index publisher reference/);
   assert.match(page, /Recency check/);
   assert.match(page, /maximumObservationAgeDays/);
 });

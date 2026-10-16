@@ -16,6 +16,23 @@ test("legacy health field names are normalised and omitted sources are included"
   assert.ok(result.dataHealth.sources.some((item) => item.id.startsWith("regional:")));
 });
 
+test("Data Health uses readable source names, explicit market attribution and unique rows", () => {
+  const payload = fixture();
+  const result = normalizeDashboard(payload);
+  const rows = result.dataHealth.sources;
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  assert.equal(byId.size, rows.length, "normalized Data Health rows have unique ids");
+  assert.equal(byId.get("market")?.label, "FBM KLCI (delayed market prices)");
+  assert.equal(byId.get("market")?.source, "Yahoo Finance (delayed market data)");
+  assert.equal(byId.get("market")?.sourceUrl, payload.market.benchmark.sourceUrl);
+  assert.equal(byId.get("market")?.relatedSource, payload.market.benchmark.benchmarkSource);
+  assert.equal(byId.get("market")?.relatedSourceUrl, payload.market.benchmark.benchmarkSourceUrl);
+  assert.equal(byId.get("regional:hiesState")?.label, "Household income and spending by state");
+  assert.equal(byId.get("regional:nationalExpenditure")?.label, "National household spending benchmark");
+  assert.equal(rows.filter((row) => row.id === "regional:nationalExpenditure").length, 1);
+  assert.ok(rows.every((row) => row.label !== row.id), "internal ids are not presented as user-facing source names");
+});
+
 test("stale OPR affects every dependent analysis without mutating original", () => {
   const payload = fixture();
   payload.sources.opr.status = "stale";

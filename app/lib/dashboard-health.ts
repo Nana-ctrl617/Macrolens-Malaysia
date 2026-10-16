@@ -1,6 +1,35 @@
 import type { DashboardPayload, DataHealth, InputHealth, SeriesHistoryCoverage } from "./dashboard";
 
 const macroInputs = ["headline", "core", "unemployment", "opr", "fx", "mgs"];
+const sourceLabels: Record<string, string> = {
+  market: "FBM KLCI (delayed market prices)",
+  mgsDailyHistory: "10-year MGS historical coverage",
+  production: "GDP by production sector",
+  economicStructure: "GDP by production sector",
+  demand: "GDP by expenditure components",
+  "growthDrivers.demand": "GDP by expenditure components",
+  externalSector: "Trade in goods",
+  balancePayments: "Balance of payments",
+  "regional:nationalIncome": "National household income benchmark",
+  "regional:nationalPoverty": "National poverty benchmark",
+  "regional:nationalInequality": "National income-inequality benchmark",
+  "regional:hiesState": "Household income and spending by state",
+  "regional:nationalExpenditure": "National household spending benchmark",
+  "regional:hiesDistrict": "Household income and spending by district",
+  "regional:incomeGroupState": "Household income groups by state",
+  "regional:incomeGroupNational": "National household income groups",
+  "regional:incomeGroups": "Household income groups",
+  "regional:labour": "Labour-force indicators by district",
+  "regional:gdpState": "GDP by state and sector",
+  "regional:gdpDistrict": "GDP by district and sector",
+  "regional:gdp": "Regional GDP data",
+  "regional:cpi": "Headline inflation by state",
+};
+
+function humanizeSourceId(id: string): string {
+  return id.replace(/^regional:/, "Regional · ").replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 const dependencies: Record<string, string[]> = {
   forecast: macroInputs,
   riskHeatmap: [...macroInputs, "market", "production", "demand", "externalSector"],
@@ -72,6 +101,7 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
   const sourceStatus: Record<string, string> = Object.fromEntries(
     Object.entries(result.sources).map(([key, value]) => [key, value.status]),
   );
+  const regionalSources = Object.fromEntries(Object.entries(result.regionalLens?.sources ?? {}).map(([id, source]) => [`regional:${id}`, source]));
   const extraSources = {
     market: result.market,
     mgsDailyHistory: result.series.mgs.historyCoverage,
@@ -79,8 +109,8 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     demand: result.growthDrivers?.demand,
     externalSector: result.externalSector,
     balancePayments: result.balancePayments,
-    ...Object.fromEntries(Object.entries(result.regionalLens?.sources ?? {}).map(([id, source]) => [`regional:${id}`, source])),
-    ...(hies?.nationalExpenditure ? { "regional:nationalExpenditure": hies.nationalExpenditure } : {}),
+    ...regionalSources,
+    ...(!regionalSources["regional:nationalExpenditure"] && hies?.nationalExpenditure ? { "regional:nationalExpenditure": hies.nationalExpenditure } : {}),
   };
   for (const [id, source] of Object.entries(extraSources)) {
     if (source) sourceStatus[id] = source.status ?? "unavailable";
@@ -139,12 +169,18 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
   const rows: DataHealth["sources"] = Object.entries(result.sources).map(([id, source]) => ({ id, ...source }));
   for (const [id, source] of Object.entries(extraSources)) {
     if (!source) continue;
-    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; throughDate?: string | null; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"] };
+    if (rows.some((row) => row.id === id)) continue;
+    const value = source as { status?: string; retrievedAt?: string; lastAttemptAt?: string; observationPeriod?: string; throughDate?: string | null; summary?: { latestDate?: string }; message?: string; source?: string; sourceUrl?: string; datasetUrl?: string; freshness?: DataHealth["sources"][number]["freshness"]; benchmark?: { source?: string; sourceUrl?: string; benchmarkSource?: string; benchmarkSourceUrl?: string } };
     const legacyAttempt = value.status !== "fresh" && !value.lastAttemptAt ? value.retrievedAt : undefined;
-    const display: { label?: string; source?: string; sourceUrl?: string } = id === "mgsDailyHistory"
-      ? { label: "10-year MGS historical coverage", source: "Bank Negara Malaysia (BNM) Financial Markets", sourceUrl: "https://financialmarkets.bnm.gov.my/benchmark-yields" }
-      : {};
-    rows.push({ id, label: display.label ?? id, source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.throughDate ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
+    const display = id === "market"
+      ? { source: "Yahoo Finance (delayed market data)", sourceUrl: value.benchmark?.sourceUrl, relatedSource: value.benchmark?.benchmarkSource ?? "FTSE Russell / Bursa Malaysia", relatedSourceUrl: value.benchmark?.benchmarkSourceUrl }
+      : id === "mgsDailyHistory"
+        ? { source: "Bank Negara Malaysia (BNM) Financial Markets", sourceUrl: "https://financialmarkets.bnm.gov.my/benchmark-yields" }
+        : id.startsWith("regional:")
+          ? { source: "Department of Statistics Malaysia via data.gov.my" }
+          : {};
+    const declaredLabel = (source as { label?: string }).label;
+    rows.push({ id, label: declaredLabel && declaredLabel !== id ? declaredLabel : sourceLabels[id] ?? humanizeSourceId(id), source: value.source ?? display.source, sourceUrl: value.sourceUrl ?? value.datasetUrl ?? display.sourceUrl, relatedSource: "relatedSource" in display ? display.relatedSource : undefined, relatedSourceUrl: "relatedSourceUrl" in display ? display.relatedSourceUrl : undefined, freshness: value.freshness, status: value.status ?? "stale", retrievedAt: legacyAttempt ? null : value.retrievedAt ?? null, lastAttemptAt: value.lastAttemptAt ?? legacyAttempt, observationPeriod: value.observationPeriod ?? value.throughDate ?? value.summary?.latestDate ?? "", message: legacyAttempt ? `${value.message ?? "Saved source retained."} Last successful retrieval is not recorded.` : value.message ?? "Source status validated" });
   }
   const staleCount = rows.filter((source) => source.status !== "fresh").length;
   result.health = fallback ? "fallback" : staleCount || previouslyPartial ? "partial" : "fresh";

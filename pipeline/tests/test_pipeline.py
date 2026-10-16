@@ -521,6 +521,43 @@ def test_data_health_labels_mgs_history_as_separate_bnm_coverage_check():
     assert row["status"] == "partial"
 
 
+def test_data_health_uses_clear_labels_market_provenance_and_unique_regional_sources():
+    market = {
+        "status": "fresh",
+        "benchmark": {
+            "source": "Yahoo Finance delayed market data",
+            "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
+            "benchmarkSource": "FTSE Russell / Bursa Malaysia",
+            "benchmarkSourceUrl": "https://example.test/index-methodology",
+        },
+    }
+    national_expenditure = {"status": "fresh", "sourceUrl": "https://data.gov.my/data-catalogue/hies_national_expenditure"}
+    payload = {
+        "market": market,
+        "economicStructure": {"status": "fresh"},
+        "growthDrivers": {"demand": {"status": "fresh"}},
+        "regionalLens": {"sources": {
+            "nationalExpenditure": national_expenditure,
+            "hiesState": {"status": "fresh", "nationalExpenditure": national_expenditure},
+            "gdpState": {"status": "fresh", "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply"},
+        }},
+    }
+    health = macrolens.build_data_health(payload, "2026-10-16T00:00:00Z")
+    rows = health["sources"]
+    indexed = {row["id"]: row for row in rows}
+    assert len(indexed) == len(rows), "source rows must not contain duplicate ids"
+    assert indexed["market"]["label"] == "FBM KLCI (delayed market prices)"
+    assert indexed["market"]["source"] == "Yahoo Finance delayed market data"
+    assert indexed["market"]["sourceUrl"] == "https://finance.yahoo.com/quote/%5EKLSE/history/"
+    assert indexed["market"]["relatedSource"] == "FTSE Russell / Bursa Malaysia"
+    assert indexed["market"]["relatedSourceUrl"] == "https://example.test/index-methodology"
+    assert indexed["regionalLens.hiesState"]["label"] == "Household income and spending by state"
+    assert indexed["regionalLens.hiesState"]["source"] == "Department of Statistics Malaysia via data.gov.my"
+    assert indexed["regionalLens.gdpState"]["label"] == "GDP by state and sector"
+    assert indexed["regionalLens.nationalExpenditure"]["label"] == "National household spending benchmark"
+    assert sum(row["id"] == "regionalLens.nationalExpenditure" for row in rows) == 1
+
+
 def test_derived_sections_inherit_stale_inputs_and_health_lists_regional_and_demand():
     payload = {
         "schemaVersion": 9, "generatedAt": "2026-10-05T12:00:00Z", "health": "fresh",
