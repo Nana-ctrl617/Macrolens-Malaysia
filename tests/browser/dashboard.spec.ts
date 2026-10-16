@@ -46,6 +46,15 @@ test("release gate browser negative control", async ({ page, context }) => {
   expect(process.env.PLAYWRIGHT_INJECT_FAILURE, "Deliberate required browser assertion: a failure must block the release gate.").not.toBe("1");
 });
 
+test("the global footer is exposed as a separate contentinfo landmark", async ({ page, context }) => {
+  await installFixture(context, await dashboardFixture());
+  await ready(page, "/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer).toContainText("MacroLens Malaysia");
+  await expect(footer).toContainText("Educational analysis, not investment advice.");
+  expect(await footer.evaluate(element => element.closest("main"))).toBeNull();
+});
+
 test("navigation search finds pages by label or topic and explains no matches", async ({ page, context }) => {
   await installFixture(context, await dashboardFixture());
   await ready(page, "/regional");

@@ -51,8 +51,8 @@ export default function DashboardShell({ section, children }: { section: Dashboa
       {section !== "news" && currentError && <div className="dashboard-load-error shell" role="alert"><p>{currentError}</p><button type="button" onClick={retry}>Retry dashboard</button></div>}
       {section !== "news" && !dashboardLoading && !currentError && currentDashboard?.usingFallback && <div className="dashboard-load-status shell"><button type="button" onClick={retry}>Try latest data again</button></div>}
       {initialDataUnavailable ? <section className="section shell"><h1>Economic data is temporarily unavailable</h1><p>Use “Retry dashboard” above to try again. No figures, forecasts or source dates are estimated while the validated dataset is unavailable.</p></section> : <Fragment key={currentDashboard?.artifactId ?? "loading"}>{children}</Fragment>}
-      <footer className="shell"><div className="brand"><Image className="brand-logo" src="/macrolens-logo.png" alt="" width={30} height={30} unoptimized /><span>MacroLens Malaysia</span></div><p>Educational analysis, not investment advice.</p><div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div></footer>
       </main>
+      <footer className="shell"><div className="brand"><Image className="brand-logo" src="/macrolens-logo.png" alt="" width={30} height={30} unoptimized /><span>MacroLens Malaysia</span></div><p>Educational analysis, not investment advice.</p><div><a href="https://data.gov.my/" target="_blank" rel="noreferrer">data.gov.my ↗</a><a href="https://apikijangportal.bnm.gov.my/" target="_blank" rel="noreferrer">BNM OpenAPI ↗</a></div></footer>
     </div>
   </DashboardDataContext.Provider>;
 }
