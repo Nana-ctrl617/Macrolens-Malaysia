@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "startDate": "2021-11-01",
+  "nextDate": "2022-10-01",
+  "targetDate": "2026-10-15",
+  "completed": false,
+  "requests": 240,
+  "observations": 222,
+  "updatedAt": "2026-10-16T13:24:12Z",
+  "lastError": null,
+  "coverageThrough": "2022-09-30",
+  "coverageStatus": "partial",
+  "message": "Daily MGS history backfill is in progress; official history is checked through 2022-09-30."
+}
