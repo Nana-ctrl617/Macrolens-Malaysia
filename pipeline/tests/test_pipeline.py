@@ -336,6 +336,64 @@ def test_validation_rejects_implausible_values():
         macrolens.validate_points("headline", points)
 
 
+def test_mgs_parser_uses_the_versioned_bnm_openapi(monkeypatch):
+    from types import SimpleNamespace
+    calls = []
+    payload = {"data": {"malaysian_government_securities": [
+        {"tenure": "3Y", "trading_date": "2026-10-15", "tra_yie_close": "3.43"},
+        {"tenure": "10Y", "trading_date": "2026-10-15", "tra_yie_close": "3.80"},
+    ]}}
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return SimpleNamespace(json=lambda: payload)
+
+    monkeypatch.setattr(macrolens, "get", fake_get)
+    assert macrolens.fetch_mgs_for_date("2026-10-15") == {"date": "2026-10-15", "value": 3.8}
+    assert calls == [(
+        "https://api.bnm.gov.my/public/gov-sec-yield",
+        {"params": {"date": "2026-10-15"}, "headers": {"Accept": macrolens.BNM_ACCEPT}},
+    )]
+
+
+def test_mgs_parser_distinguishes_nontrading_dates_from_changed_structure(monkeypatch):
+    from types import SimpleNamespace
+    monkeypatch.setattr(macrolens, "get", lambda *args, **kwargs: SimpleNamespace(json=lambda: {
+        "data": {"malaysian_government_securities": []},
+    }))
+    assert macrolens.fetch_mgs_for_date("2026-10-18") is None
+
+    for payload in ({}, {"data": {}}, {"data": {"malaysian_government_securities": "empty"}}):
+        monkeypatch.setattr(macrolens, "get", lambda *args, _payload=payload, **kwargs: SimpleNamespace(json=lambda: _payload))
+        with pytest.raises(ValueError, match="BNM"):
+            macrolens.fetch_mgs_for_date("2026-10-15")
+
+
+@pytest.mark.parametrize(("date", "yield_value"), [("15/10/2026", "3.80"), ("2026-10-15", "nan"), ("2026-10-15", "99")])
+def test_mgs_parser_rejects_malformed_or_implausible_observations(monkeypatch, date, yield_value):
+    from types import SimpleNamespace
+    payload = {"data": {"malaysian_government_securities": [
+        {"tenure": "10Y", "trading_date": date, "tra_yie_close": yield_value},
+    ]}}
+    monkeypatch.setattr(macrolens, "get", lambda *args, **kwargs: SimpleNamespace(json=lambda: payload))
+    with pytest.raises(ValueError):
+        macrolens.fetch_mgs_for_date("2026-10-15")
+
+
+def test_mgs_refresh_checks_recent_calendar_dates_and_appends_latest_benchmark(monkeypatch):
+    requests = []
+    observations = [None, {"date": "2026-10-15", "value": 3.8}]
+    monkeypatch.setattr(macrolens, "fetch_mgs_for_date", lambda date: (requests.append(date), observations.pop(0))[1])
+    previous = {"series": {"mgs": {"points": [{"date": "2026-10-14", "value": 3.83}]}}}
+    result = macrolens.fetch_mgs(previous)
+    assert len(requests) == 2
+    assert requests[0] > requests[1]
+    assert result == [
+        {"date": "2026-10-14", "value": 3.83},
+        {"date": "2026-10-15", "value": 3.8},
+    ]
+
+
 def test_partial_failure_preserves_last_valid_series():
     old = {"series": {"headline": {"points": sample()}}}
     result, status = macrolens.merge_or_stale("headline", lambda: (_ for _ in ()).throw(RuntimeError()), old, "2026-01-01T00:00:00Z")

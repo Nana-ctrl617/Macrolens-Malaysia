@@ -12,7 +12,7 @@ import math
 import re
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -114,7 +114,7 @@ SPECS = {
     "unemployment": SeriesSpec("unemployment", "Unemployment rate", "%", 1, "Monthly", "Department of Statistics Malaysia via data.gov.my", "https://data.gov.my/data-catalogue/lfs_month", 0, 30, 60),
     "opr": SeriesSpec("opr", "Overnight Policy Rate", "%", 2, "Policy decisions", "Bank Negara Malaysia OpenAPI", "https://apikijangportal.bnm.gov.my/", 0, 20, 20),
     "fx": SeriesSpec("fx", "USD / MYR", "RM", 4, "Monthly end rate", "Bank Negara Malaysia via data.gov.my", "https://data.gov.my/data-catalogue/exchangerates", 1, 10, 60),
-    "mgs": SeriesSpec("mgs", "10-year MGS yield", "%", 2, "Trading days", "Bank Negara Malaysia Financial Markets", "https://financialmarkets.bnm.gov.my/benchmark-yields", 0, 20, 1),
+    "mgs": SeriesSpec("mgs", "10-year MGS yield", "%", 2, "Trading days", "Bank Negara Malaysia OpenAPI", "https://financialmarkets.bnm.gov.my/benchmark-yields", 0, 20, 1),
 }
 
 CATEGORY_NAMES = {
@@ -207,15 +207,36 @@ def fetch_daily_fx() -> list[dict]:
 
 
 def fetch_mgs_for_date(date: str | None = None) -> dict | None:
-    url = SPECS["mgs"].source_url + (f"?date={date}" if date else "")
-    html = get(url).text
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text(" ", strip=True)
-    trading = re.search(r"Trading Date:\s*(\d{1,2}\s+\w+\s+\d{4})", text)
-    value = re.search(r"10Y\s+\w+\s+\d{4}\s+[\d.]+\s+[\d.*-]+\s+[\d.*-]+\s+([\d.]+)", text)
-    if not trading or not value:
+    query_date = date or datetime.now(timezone.utc).date().isoformat()
+    payload = get(
+        "https://api.bnm.gov.my/public/gov-sec-yield",
+        params={"date": query_date},
+        headers={"Accept": BNM_ACCEPT},
+    ).json()
+    if not isinstance(payload, dict) or not isinstance(payload.get("data"), dict):
+        raise ValueError("BNM government-securities response has an unexpected structure")
+    rows = payload["data"].get("malaysian_government_securities")
+    if not isinstance(rows, list):
+        raise ValueError("BNM government-securities response is missing conventional MGS rows")
+    benchmarks = [row for row in rows if isinstance(row, dict) and row.get("tenure") == "10Y"]
+    if not benchmarks:
         return None
-    return {"date": datetime.strptime(trading.group(1), "%d %b %Y").strftime("%Y-%m-%d"), "value": float(value.group(1))}
+    if len(benchmarks) != 1:
+        raise ValueError("BNM response contains multiple 10-year MGS benchmark rows")
+    row = benchmarks[0]
+    required = {"trading_date", "tra_yie_close"}
+    if not required.issubset(row):
+        raise ValueError("BNM 10-year MGS row is missing its trading date or closing yield")
+    try:
+        observation_date = datetime.strptime(str(row["trading_date"]), "%Y-%m-%d").date().isoformat()
+        value = float(row["tra_yie_close"])
+    except (TypeError, ValueError) as error:
+        raise ValueError("BNM 10-year MGS row has a malformed date or closing yield") from error
+    if observation_date != query_date:
+        raise ValueError("BNM returned an MGS observation for a different requested date")
+    if not math.isfinite(value) or not 0 < value <= 20:
+        raise ValueError(f"BNM 10-year MGS closing yield is implausible: {value}")
+    return {"date": observation_date, "value": round(value, 2)}
 
 
 def fetch_mgs(previous: dict | None) -> list[dict]:
@@ -227,12 +248,17 @@ def fetch_mgs(previous: dict | None) -> list[dict]:
                 {"date": date, "value": float(value)}
                 for date, value in re.findall(r'\["(\d{4}-\d{2}-\d{2})",\s*([\d.]+)\]', legacy.read_text(encoding="utf-8"))
             ]
-    try:
-        latest = fetch_mgs_for_date()
-    except requests.RequestException:
-        latest = None
+    today = datetime.now(timezone.utc).date()
+    latest = None
+    for days_back in range(11):
+        query_date = (today - timedelta(days=days_back)).isoformat()
+        latest = fetch_mgs_for_date(query_date)
+        if latest:
+            break
     if not latest and previous:
-        raise RuntimeError("BNM benchmark-yield page rejected the automated refresh")
+        raise RuntimeError("BNM OpenAPI returned no 10-year MGS benchmark in the last 11 calendar days")
+    if not latest:
+        raise RuntimeError("BNM OpenAPI returned no recent 10-year MGS benchmark")
     combined = {point["date"]: point for point in old}
     if latest:
         combined[latest["date"]] = latest

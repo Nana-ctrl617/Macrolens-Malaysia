@@ -1,6 +1,6 @@
 {
-  "status": "partial",
-  "calculatedAt": "2026-10-15T06:39:16Z",
+  "status": "fresh",
+  "calculatedAt": "2026-10-16T03:14:33Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -680,8 +680,8 @@
     },
     "mgs": {
       "indicatorId": "mgs",
-      "status": "stale",
-      "calculatedAt": "2026-10-15T06:39:16Z",
+      "status": "fresh",
+      "calculatedAt": "2026-10-16T03:14:33Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",
@@ -695,14 +695,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 0,
-        "bic": -219.461668
+        "bic": -218.927015
       },
       "diagnostics": {
-        "adfStatistic": -2.347505,
-        "adfPValue": 0.15710395,
+        "adfStatistic": -2.365712,
+        "adfPValue": 0.15164854,
         "adfLags": 0,
-        "cusumStatistic": 0.455884,
-        "cusumPValue": 0.98547134
+        "cusumStatistic": 0.459197,
+        "cusumPValue": 0.98429117
       },
       "warnings": [
         "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -710,24 +710,19 @@
       ],
       "candidates": [],
       "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-      "seriesFingerprint": "0e0ed03fd59038eee7ffc35b24cbb5403eb6643fcd909b940b7e5427ffc9f9e0",
+      "seriesFingerprint": "bf0fc2827a38d94d7bc2d78955ec07f84afd393b3e7538b263f7350e2797a3c4",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "mgs"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: mgs"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     }
   },
   "calculationStatus": "fresh",
   "inputHealth": {
-    "status": "partial",
-    "staleInputs": [
-      "mgs",
-      "structuralBreaks.mgs"
-    ],
-    "note": "Uses retained, stale or unavailable inputs: mgs, structuralBreaks.mgs"
+    "status": "fresh",
+    "staleInputs": [],
+    "note": "All required inputs passed source validation; observation periods still differ."
   }
 }
