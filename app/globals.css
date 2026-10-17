@@ -528,6 +528,7 @@ a:hover { text-decoration:underline; text-underline-offset:3px; }
 }
 .metric-card p { font-size:15px; color:#1f2925; }
 .metric-card small,.metric-open,.metric-source-link,.metric-source-note { font-size:13px; }
+.metric-validation-time { flex-basis:100%; color:var(--text-secondary); }
 .trend-card { padding:24px; }
 .card-heading :is(h2,h3) { font-size:28px; }
 .snapshot-chart-empty { min-height:263px; display:grid; place-items:center; border-bottom:1px solid var(--line); color:var(--muted); font-size:15px; }

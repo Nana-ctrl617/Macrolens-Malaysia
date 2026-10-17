@@ -4,7 +4,7 @@ export type DashboardSection = "snapshot" | "brief" | "news" | "risk" | "forecas
 
 export type MetricId = "headline" | "core" | "opr" | "unemployment" | "fx" | "mgs";
 
-export type Metric = { id: MetricId; label: string; value: string; detail: string; period: string; tone: string; status?: string; source?: string; sourceUrl?: string; sourceNote?: string };
+export type Metric = { id: MetricId; label: string; value: string; detail: string; period: string; tone: string; status?: string; source?: string; sourceUrl?: string; sourceNote?: string; validationLabel?: string };
 
 export type RangeKey = "1Y" | "3Y" | "5Y" | "10Y" | "ALL" | "CUSTOM";
 

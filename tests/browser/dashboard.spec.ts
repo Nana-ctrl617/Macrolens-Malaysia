@@ -168,6 +168,12 @@ test("Snapshot cards link each indicator to its official source and explain stal
     const source = card.getByRole("link", { name: `Source: ${series.source}` });
     await expect(source).toHaveAttribute("href", series.source_url);
     await expect(card.getByRole("button")).toContainText("Release period");
+    const validationLabel = payload.sources[ids[index]].status === "stale" ? "Last validated" : "Retrieved";
+    const retrievedAt = payload.sources[ids[index]].retrievedAt;
+    if (retrievedAt) {
+      const retrievedDate = new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(retrievedAt));
+      await expect(card.locator(".metric-validation-time")).toHaveText(`${validationLabel} · ${retrievedDate}`);
+    } else await expect(card.locator(".metric-validation-time")).toHaveText("Validation time unavailable");
   }
   const staleCard = cards.nth(ids.indexOf("mgs"));
   await expect(staleCard).toContainText("10-year government bond yield");

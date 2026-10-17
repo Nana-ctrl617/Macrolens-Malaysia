@@ -33,6 +33,7 @@ export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (me
         <p>{metric.detail}</p>
         <div className="metric-footer">
           <small>Release period · {metric.period}</small>
+          {metric.validationLabel && <small className="metric-validation-time">{metric.validationLabel}</small>}
           <span className={`metric-status ${metric.status ?? "unavailable"}`}>{sourceStatus}</span>
           <span className="metric-open">Open history</span>
         </div>
@@ -151,12 +152,20 @@ const liveMetrics: Metric[] = useMemo(() => {
       const daily = /day|trading/i.test(series.frequency);
       const period = new Intl.DateTimeFormat("en-MY", daily ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }).format(new Date(`${last.date}T00:00:00`));
       const status = dashboard.usingFallback ? "fallback" : dashboard.sources[id]?.status;
+      const retrievedAt = dashboard.sources[id]?.retrievedAt;
+      const parsedRetrievedAt = retrievedAt ? new Date(retrievedAt) : null;
+      const validationDate = parsedRetrievedAt && Number.isFinite(parsedRetrievedAt.getTime()) ? new Intl.DateTimeFormat("en-MY", {
+        day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur",
+      }).format(parsedRetrievedAt) : null;
+      const validationLabel = validationDate
+        ? `${status === "stale" || status === "fallback" ? "Last validated" : "Retrieved"} · ${validationDate}`
+        : "Validation time unavailable";
       const sourceNote = status === "fallback"
         ? "Live data unavailable; showing the bundled, last-validated dashboard snapshot."
         : status === "stale"
           ? "The latest refresh did not pass; showing the last validated observation."
           : undefined;
-      return { id, label: id === "mgs" ? "10-year government bond yield" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote };
+      return { id, label: id === "mgs" ? "10-year government bond yield" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote, validationLabel };
     });
   }, [dashboard]);
 const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? [];
