@@ -80,6 +80,16 @@ test("model chart labels malformed errors unavailable and keeps empty states hon
   assert.match(renderToStaticMarkup(createElement(Model, { models:[] })), /No model errors/);
 });
 
+test("Snapshot headline chart distinguishes loading from a genuinely empty published series", async () => {
+  const { SnapshotHeadlineChart } = await import(await sourceModule(fileURLToPath(new URL("../app/views/SnapshotView.tsx", import.meta.url))));
+  const loadingHtml = renderToStaticMarkup(createElement(SnapshotHeadlineChart, { points:[], loading:true }));
+  assert.match(loadingHtml, /Loading headline inflation observations/);
+  assert.doesNotMatch(loadingHtml, /No published observations available/);
+  const emptyHtml = renderToStaticMarkup(createElement(SnapshotHeadlineChart, { points:[] }));
+  assert.match(emptyHtml, /No published observations available/);
+  assert.doesNotMatch(emptyHtml, /Loading headline inflation observations/);
+});
+
 test("brief trend component preserves unit, source, dated values and controls", async () => {
   const Trend = await component("SeriesTrendPanel");
   const data = payload();

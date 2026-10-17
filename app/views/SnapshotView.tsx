@@ -47,7 +47,7 @@ export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (me
   );
 }
 
-export function SnapshotHeadlineChart({ points }: { points: DataPoint[] }) {
+export function SnapshotHeadlineChart({ points, loading = false }: { points: DataPoint[]; loading?: boolean }) {
   const id = useId();
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const [selected, setSelected] = useState<number | null>(null);
@@ -57,26 +57,28 @@ export function SnapshotHeadlineChart({ points }: { points: DataPoint[] }) {
   const minimum = Math.min(0, ...values), maximum = Math.max(2.3, ...values), span = maximum - minimum;
   const baseline = -minimum / span * 100;
   const labels = points.filter((_, index) => index === 0 || index === points.length - 1 || index % Math.max(1, Math.floor(points.length / 6)) === 0).map((point) => formatObservationDate(point.date, "Monthly"));
-  return <div data-chart-kind="snapshot" role="group" aria-label="Latest headline inflation history">
-    <div className="bar-chart" style={{ gridTemplateColumns: `repeat(${Math.max(1, points.length)},minmax(0,1fr))` }}>
-      {points.map((point, index) => <button type="button" className="bar-column" key={point.date}
-        ref={(element) => { buttons.current[index] = element; }} tabIndex={(selected ?? points.length - 1) === index ? 0 : -1}
-        aria-label={describe(point)} aria-pressed={selected === index} aria-describedby={`${id}-help ${id}-reading`}
-        onFocus={() => setSelected(index)} onPointerMove={() => setSelected(index)} onClick={() => setSelected(index)}
-        onKeyDown={(event) => {
-          if (!isChartInspectionKey(event.key)) return;
-          event.preventDefault();
-          const next = nextChartIndex(event.key, index, points.length);
-          setSelected(next);
-          if (next != null) buttons.current[next]?.focus();
-        }}>
-        <i aria-hidden="true" style={{ position: "absolute", height: `${Number.isFinite(point.value) ? Math.abs(point.value) / span * 100 : 0}%`, bottom: `${baseline + (point.value < 0 ? point.value / span * 100 : 0)}%` }} />
-        <span aria-hidden="true">{index === points.length - 1 && Number.isFinite(point.value) ? `${point.value.toFixed(1)}%` : ""}</span>
-      </button>)}
-    </div>
-    <div className="chart-axis" aria-hidden="true">{labels.map((label) => <span key={label}>{label}</span>)}</div>
-    <p id={`${id}-help`} className="chart-inspection-help">Hover or tap a bar, use Left/Right arrows and Home/End, or choose an observation below. Escape clears the selection.</p>
-    <p id={`${id}-reading`} className="chart-inspection-status" role="status" aria-live="polite" aria-atomic="true">{points.length ? reading : "No published observations available."}</p>
+  return <div data-chart-kind="snapshot" role="group" aria-label={loading ? "Loading latest headline inflation history" : "Latest headline inflation history"}>
+    {points.length ? <>
+      <div className="bar-chart" style={{ gridTemplateColumns: `repeat(${points.length},minmax(0,1fr))` }}>
+        {points.map((point, index) => <button type="button" className="bar-column" key={point.date}
+          ref={(element) => { buttons.current[index] = element; }} tabIndex={(selected ?? points.length - 1) === index ? 0 : -1}
+          aria-label={describe(point)} aria-pressed={selected === index} aria-describedby={`${id}-help ${id}-reading`}
+          onFocus={() => setSelected(index)} onPointerMove={() => setSelected(index)} onClick={() => setSelected(index)}
+          onKeyDown={(event) => {
+            if (!isChartInspectionKey(event.key)) return;
+            event.preventDefault();
+            const next = nextChartIndex(event.key, index, points.length);
+            setSelected(next);
+            if (next != null) buttons.current[next]?.focus();
+          }}>
+          <i aria-hidden="true" style={{ position: "absolute", height: `${Number.isFinite(point.value) ? Math.abs(point.value) / span * 100 : 0}%`, bottom: `${baseline + (point.value < 0 ? point.value / span * 100 : 0)}%` }} />
+          <span aria-hidden="true">{index === points.length - 1 && Number.isFinite(point.value) ? `${point.value.toFixed(1)}%` : ""}</span>
+        </button>)}
+      </div>
+      <div className="chart-axis" aria-hidden="true">{labels.map((label) => <span key={label}>{label}</span>)}</div>
+    </> : <div className="snapshot-chart-empty" aria-hidden="true">{loading ? "Loading monthly observations…" : "No published observations"}</div>}
+    <p id={`${id}-help`} className="chart-inspection-help">{points.length ? "Hover or tap a bar, use Left/Right arrows and Home/End, or choose an observation below. Escape clears the selection." : loading ? "Headline inflation history is loading; point inspection will be available when observations arrive." : "No observations are available to inspect in this snapshot."}</p>
+    <p id={`${id}-reading`} className="chart-inspection-status" role="status" aria-live="polite" aria-atomic="true">{loading ? "Loading headline inflation observations…" : points.length ? reading : "No published observations available."}</p>
     {points.length > 0 && <label className="chart-inspection-controls">Observation
       <input type="range" min={0} max={points.length - 1} value={selected ?? points.length - 1} aria-label="Headline inflation observation" aria-valuetext={reading}
         onChange={(event) => setSelected(Number(event.currentTarget.value))} onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); setSelected(null); } }} />
@@ -172,7 +174,7 @@ return <><>
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h2>The recent path</h2></div><div className="legend"><i /> Year-on-year change</div></div>
-          <div className="snapshot-inflation-analysis"><SnapshotHeadlineChart points={headlinePoints} /><SnapshotPricePressures dashboard={dashboard} /></div>
+          <div className="snapshot-inflation-analysis"><SnapshotHeadlineChart points={headlinePoints} loading={!dashboard} /><SnapshotPricePressures dashboard={dashboard} /></div>
           <div className="interpretation"><b>Latest reading</b><p>{dashboard?.narratives.snapshot ?? "Loading the latest validated inflation interpretation."}</p></div>
           <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>

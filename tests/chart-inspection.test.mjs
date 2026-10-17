@@ -78,8 +78,10 @@ test("Snapshot bars use native selections, persistent readings and shared keys",
   assert.match(body,/nextChartIndex/);
   assert.match(body,/role="status" aria-live="polite" aria-atomic="true"/);
   assert.match(body,/type="range"/);
+  assert.match(body,/loading \? "Loading headline inflation observations/);
+  assert.match(body,/points\.length \? reading : "No published observations available/);
   assert.doesNotMatch(body,/bar-tooltip/);
-  assert.match(source,/<SnapshotHeadlineChart points=\{headlinePoints\}/);
+  assert.match(source,/<SnapshotHeadlineChart points=\{headlinePoints\} loading=\{!dashboard\}/);
 });
 
 test("Forecast keyboard selection also moves native button focus", () => {
