@@ -9,6 +9,7 @@ import { useDashboardData } from "@/app/components/DashboardShell";
 
 export function DataHealthSection({ dashboard }: { dashboard: DashboardViewPayload<"health"> | null }) {
   const health = dashboard?.dataHealth;
+  const mgsHistory = health?.mgsDailyHistory;
   const [sourceFilter, setSourceFilter] = useState<"all" | "attention" | "validated">("all");
   const sourceCounts = useMemo(() => ({
     all: health?.sources.length ?? 0,
@@ -23,7 +24,16 @@ export function DataHealthSection({ dashboard }: { dashboard: DashboardViewPaylo
   return <section className="section deep-section health-section page-section" id="health"><div className="shell">
     <div className="section-heading light"><div><span className="section-number">16 / Data health</span><h1>Source freshness and validation audit</h1></div><p>Shows whether the dashboard is fresh, stale or using fallback data. Cached data is never labelled as live.</p></div>
     {!health ? <div className="deep-empty">{dashboard ? "No validated data is available for this section in the current dataset." : "Loading validated data…"}</div> : <>
-      <div className="deep-hero"><div><span>Schema version {health.schemaVersion}</span><strong>{healthStatusLabel(health.overall)}</strong><b className={`risk-pill ${health.overall}`}>{health.staleCount} source groups need attention</b></div><p>{health.note}</p></div>
+      <div className="deep-hero"><div><span>Schema version {health.schemaVersion}</span><strong>{healthStatusLabel(health.overall)}</strong><b className={`risk-pill ${health.overall}`}>{health.staleCount} source group{health.staleCount === 1 ? " needs" : "s need"} attention</b></div><p>{health.note}</p></div>
+      {mgsHistory && <section className={`mgs-history-coverage ${mgsHistory.status}`} aria-labelledby="mgs-history-coverage-title">
+        <div className="mgs-history-heading"><div><h2 id="mgs-history-coverage-title">10-year MGS daily-history coverage</h2><p>{mgsHistory.completed ? "The historical backfill has reached its current target." : "The latest close is available; this status tracks how far the continuous historical check has reached."}</p></div><span className={`risk-pill ${mgsHistory.status}`}>{mgsHistory.completed ? "History check complete" : "Backfill in progress"}</span></div>
+        <ol className="mgs-history-timeline" aria-label="MGS history dates">
+          <li><span>Backfill begins</span><time dateTime={mgsHistory.startDate}>{mgsHistory.startDate ? formatDate(mgsHistory.startDate) : "Not recorded"}</time></li>
+          <li><span>Daily dates verified through</span><time dateTime={mgsHistory.throughDate ?? undefined}>{mgsHistory.throughDate ? formatDate(mgsHistory.throughDate) : "No dates verified yet"}</time></li>
+          <li><span>Latest close in dashboard</span><time dateTime={mgsHistory.latestObservationDate || undefined}>{mgsHistory.latestObservationDate ? formatDate(mgsHistory.latestObservationDate) : "Not available"}</time></li>
+        </ol>
+        <p className="mgs-history-detail">{mgsHistory.completed ? "A checked date can have no yield when markets were closed; the count below records source requests and returned closes separately." : "The latest close and historical coverage are different checks. Dates after the verified-through point have not yet been confirmed as a continuous daily history."} {mgsHistory.requests !== null && mgsHistory.observations !== null ? `${mgsHistory.requests.toLocaleString("en-MY")} weekday dates checked · ${mgsHistory.observations.toLocaleString("en-MY")} official daily closes returned.` : "Backfill request counts are not available in this saved snapshot."}</p>
+      </section>}
       <p className="health-recency-note">Age limits are conservative checks, not official release calendars. “No fixed age limit” means this source is checked using retrieval and coverage rules; it does not mean it updates daily. Status describes the latest validation recorded in this dashboard.</p>
       <div className="health-source-toolbar"><div className="health-source-filters" role="group" aria-label="Filter data-health sources">
         <button type="button" aria-pressed={sourceFilter === "all"} className={sourceFilter === "all" ? "active" : ""} onClick={() => setSourceFilter("all")}>All sources <span>{sourceCounts.all}</span></button>

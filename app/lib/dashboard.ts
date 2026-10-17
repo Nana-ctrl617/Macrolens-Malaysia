@@ -216,6 +216,7 @@ export type MacroTimeline = {
 export type DataHealth = {
   generatedAt: string; overall: "fresh" | "partial" | "fallback"; schemaVersion: number; staleCount: number;
   sources: Array<{ id: string; label?: string; source?: string | null; sourceUrl?: string | null; relatedSource?: string | null; relatedSourceUrl?: string | null; unit?: string | null; status: string; period?: string; observationPeriod?: string; retrievedAt: string | null; lastAttemptAt?: string; freshness?: { basis: string; reference?: "period-end" | "observation-date"; observationAgeDays: number; maximumObservationAgeDays: number; note: string }; message: string }>;
+  mgsDailyHistory?: SeriesHistoryCoverage & { latestObservationDate: string };
   note: string;
 };
 export type MonthlyReport = {

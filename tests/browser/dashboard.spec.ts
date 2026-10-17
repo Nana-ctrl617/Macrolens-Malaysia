@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { formatDate } from "../../app/lib/dashboard-format";
 import { ROUTES, dashboardFixture, installFixture, ready, readability, noOverflow, chartStatus, regionalFunctions } from "./helpers";
 
 test("all nineteen routes remain reachable through the compact navigation", async ({ page, context }, info) => {
@@ -78,6 +79,12 @@ test("Data Health links the indicator to its source and explains the observation
   await expect(marketRow.getByRole("link", { name: "Open delayed price data ↗" })).toHaveAttribute("href", payload.market.benchmark.sourceUrl);
   await expect(marketRow.getByRole("link", { name: "Open index publisher reference ↗" })).toHaveAttribute("href", payload.market.benchmark.benchmarkSourceUrl);
   await expect(row).toContainText(/\d+ days since period end \/ 100-day limit/);
+  const mgsCoverage = page.getByRole("region", { name: "10-year MGS daily-history coverage" });
+  await expect(mgsCoverage).toContainText("Daily dates verified through");
+  await expect(mgsCoverage).toContainText("Latest close in dashboard");
+  await expect(mgsCoverage).toContainText(formatDate(payload.series.mgs.historyCoverage.throughDate));
+  await expect(mgsCoverage).toContainText(formatDate(payload.series.mgs.points.at(-1).date));
+  await expect(mgsCoverage).toContainText(`${payload.series.mgs.historyCoverage.requests.toLocaleString("en-MY")} weekday dates checked`);
 });
 
 test("Data Health filters source groups without hiding their saved validation status", async ({ page, context }) => {

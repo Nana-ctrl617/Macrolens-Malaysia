@@ -297,6 +297,16 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .health-source-publisher { color:var(--text-secondary-on-dark); }
 .health-source-link { width:max-content; font-weight:650; }
 .health-recency-note { margin:0 0 12px; padding:12px 15px; border:1px solid var(--border-on-dark); border-radius:12px; background:var(--surface-dark-panel); color:var(--text-secondary-on-dark); font-size:14px; line-height:1.55; }
+.mgs-history-coverage { margin:0 0 12px; padding:18px 20px; border:1px solid var(--border-on-dark); border-radius:14px; background:var(--surface-dark-panel); }
+.mgs-history-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+.mgs-history-heading h2 { margin:0; color:var(--text-on-dark); font:700 21px/1.25 'DM Sans',sans-serif; }
+.mgs-history-heading p { max-width:72ch; margin:5px 0 0; color:var(--text-secondary-on-dark); font-size:14px; line-height:1.5; }
+.mgs-history-timeline { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; margin:17px 0 0; padding:0; list-style:none; }
+.mgs-history-timeline li { position:relative; display:grid; gap:5px; padding:12px 16px 12px 0; border-top:2px solid var(--text-link-on-dark); }
+.mgs-history-timeline li:not(:last-child)::after { position:absolute; top:-5px; right:8px; width:8px; height:8px; border:1px solid var(--surface-dark-panel); border-radius:50%; background:var(--text-link-on-dark); content:""; }
+.mgs-history-timeline span { color:var(--text-secondary-on-dark); font-size:13px; line-height:1.35; }
+.mgs-history-timeline time { color:var(--text-on-dark); font-size:16px; font-weight:750; font-variant-numeric:tabular-nums; }
+.mgs-history-detail { margin:9px 0 0; color:var(--text-secondary-on-dark); font-size:13px; line-height:1.5; }
 .health-source-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
 .health-source-filters { display:flex; flex-wrap:wrap; gap:7px; }
 .health-source-filters button { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:8px 13px; border:1px solid var(--border-on-dark); border-radius:999px; background:var(--surface-dark-panel); color:var(--text-on-dark); cursor:pointer; font:600 14px/1.2 'DM Sans',sans-serif; }
@@ -327,6 +337,7 @@ body { line-height:1.5; }small { font-size:12px; line-height:1.5; }
 .risk-pill.unavailable { background:var(--source-unavailable-background); color:var(--source-unavailable-text); border:1px dashed var(--source-unavailable-border); }
 @media(max-width:900px){ .deep-hero,.deep-card-grid,.scenario-grid,.sector-deep-grid,.report-grid{grid-template-columns:1fr}.timeline-list article{grid-template-columns:1fr}.deep-hero strong{font-size:32px} }
 @media(max-width:600px){ .deep-hero,.deep-card,.scenario-grid article,.sector-deep-card,.report-grid article{padding:19px}.sector-deep-card dl{grid-template-columns:1fr}.deep-hero p,.deep-card p,.scenario-grid p,.report-grid li{font-size:14px} }
+@media(max-width:700px){ .mgs-history-heading{align-items:flex-start;flex-direction:column}.mgs-history-timeline{grid-template-columns:1fr;margin-left:4px}.mgs-history-timeline li{padding:9px 4px 12px 18px;border-top:0;border-left:2px solid var(--text-link-on-dark)}.mgs-history-timeline li:not(:last-child)::after{top:14px;right:auto;left:-5px}.mgs-history-detail{font-size:14px} }
 @media(max-width:600px){ .health-source-toolbar{align-items:flex-start;flex-direction:column}.health-source-filters{width:100%}.health-source-filters button{justify-content:center;flex:1 1 auto}.health-source-count{font-size:13px} }
 
 .news-section { background:var(--surface-page); }

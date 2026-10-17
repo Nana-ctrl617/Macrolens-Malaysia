@@ -192,6 +192,12 @@ export function normalizeDashboard(original: DashboardPayload): DashboardPayload
     schemaVersion: result.schemaVersion,
     staleCount,
     sources: rows,
+    ...(result.series.mgs.historyCoverage ? {
+      mgsDailyHistory: {
+        ...result.series.mgs.historyCoverage,
+        latestObservationDate: result.series.mgs.points.at(-1)?.date ?? "",
+      },
+    } : {}),
     note: fallback
       ? "A saved fallback snapshot is displayed. Observation periods are unchanged; this is not a live refresh."
       : `${rows.length - staleCount} of ${rows.length} source groups were retrieved successfully. Fresh means a successful retrieval, not a same-day observation. Older surveys can be the latest official release.`,
