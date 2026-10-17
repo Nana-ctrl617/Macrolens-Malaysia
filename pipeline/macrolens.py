@@ -2547,7 +2547,7 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
         # a successful response with an older last decision is not itself stale.
         max_age = {"headline": 100, "core": 100, "unemployment": 110, "fx": 45, "mgs": 10}.get(key)
         if max_age is not None:
-            status = apply_observation_recency(status, retrieved, max_age)
+            status = apply_observation_recency(status, retrieved, max_age, monthly_period=SPECS[key].frequency.lower().startswith("monthly"))
         if key == "mgs":
             coverage = mgs_history_coverage()
             status["historyCoverage"] = coverage
@@ -2567,8 +2567,8 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
     return series, status
 
 
-def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days: int) -> dict:
-    """Conservative age screen, not an assertion about an official release date."""
+def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days: int, monthly_period: bool = False) -> dict:
+    """Conservative age screen anchored to period end for monthly series, not release date."""
     source["lastAttemptAt"] = attempted_at
     period = source.get("observationPeriod") or source.get("summary", {}).get("latestDate")
     if not period:
@@ -2577,8 +2577,15 @@ def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days:
     attempted = pd.Timestamp(attempted_at)
     observation = observation.tz_localize("UTC") if observation.tzinfo is None else observation.tz_convert("UTC")
     attempted = attempted.tz_localize("UTC") if attempted.tzinfo is None else attempted.tz_convert("UTC")
+    if monthly_period:
+        # Monthly datasets encode the period as its first calendar day (e.g.
+        # 2026-08-01), not as an observation made on that exact date. Anchor
+        # recency to that month's end so comparisons use the period users see.
+        observation = observation.tz_localize(None).to_period("M").end_time.normalize().tz_localize("UTC")
     age = (attempted.normalize() - observation.normalize()).days
-    source["freshness"] = {"basis": "observation-recency", "observationAgeDays": age, "maximumObservationAgeDays": maximum_age_days, "note": "Conservative observation-age limit; not a verified official release calendar."}
+    reference = "period-end" if monthly_period else "observation-date"
+    note = "Age is measured from the end of the observation month, not the publication date." if monthly_period else "Age is measured from the observation date, not the publication date."
+    source["freshness"] = {"basis": "observation-recency", "reference": reference, "observationAgeDays": age, "maximumObservationAgeDays": maximum_age_days, "note": note}
     if age > maximum_age_days:
         source["status"] = "stale"
         source["message"] = f"Response validated but latest observation exceeds the {maximum_age_days}-day recency limit; showing last available observation"

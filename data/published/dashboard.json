@@ -1,78 +1,83 @@
 {
   "schemaVersion": 9,
-  "generatedAt": "2026-10-17T09:40:19Z",
+  "generatedAt": "2026-10-17T14:17:38Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 77,
+        "reference": "period-end",
+        "observationAgeDays": 47,
         "maximumObservationAgeDays": 100,
-        "note": "Conservative observation-age limit; not a verified official release calendar."
+        "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 77,
+        "reference": "period-end",
+        "observationAgeDays": 47,
         "maximumObservationAgeDays": 100,
-        "note": "Conservative observation-age limit; not a verified official release calendar."
+        "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 77,
+        "reference": "period-end",
+        "observationAgeDays": 47,
         "maximumObservationAgeDays": 110,
-        "note": "Conservative observation-age limit; not a verified official release calendar."
+        "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-09-03",
       "message": "Official source validated"
     },
     "fx": {
-      "status": "stale",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "status": "fresh",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-09-01",
       "message": "Response validated but latest observation exceeds the 45-day recency limit; showing last available observation",
       "freshness": {
         "basis": "observation-recency",
-        "observationAgeDays": 46,
+        "reference": "period-end",
+        "observationAgeDays": 17,
         "maximumObservationAgeDays": 45,
-        "note": "Conservative observation-age limit; not a verified official release calendar."
+        "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "mgs": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
-      "lastAttemptAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
+      "lastAttemptAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2026-10-16",
       "message": "Latest official close validated. Daily MGS history backfill is in progress; official history is checked through 2023-09-01.",
       "freshness": {
         "basis": "observation-recency",
+        "reference": "observation-date",
         "observationAgeDays": 1,
         "maximumObservationAgeDays": 10,
-        "note": "Conservative observation-age limit; not a verified official release calendar."
+        "note": "Age is measured from the observation date, not the publication date."
       },
       "historyCoverage": {
         "status": "partial",
@@ -81,7 +86,7 @@
         "completed": false,
         "requests": 480,
         "observations": 439,
-        "retrievedAt": "2026-10-17T09:45:04Z",
+        "retrievedAt": "2026-10-17T14:22:08Z",
         "message": "Daily MGS history backfill is in progress; official history is checked through 2023-09-01."
       }
     }
@@ -7281,7 +7286,7 @@
         "completed": false,
         "requests": 480,
         "observations": 439,
-        "retrievedAt": "2026-10-17T09:45:04Z",
+        "retrievedAt": "2026-10-17T14:22:08Z",
         "message": "Daily MGS history backfill is in progress; official history is checked through 2023-09-01."
       }
     }
@@ -7437,8 +7442,8 @@
       },
       {
         "name": "SARIMA",
-        "rmse": 0.213,
-        "mae": 0.165,
+        "rmse": 0.2131,
+        "mae": 0.1651,
         "selected": true,
         "eligible": true,
         "successfulWindows": 31,
@@ -7448,20 +7453,20 @@
           {
             "horizon": 1,
             "count": 31,
-            "mae": 0.1183,
-            "rmse": 0.1498
+            "mae": 0.1184,
+            "rmse": 0.1499
           },
           {
             "horizon": 2,
             "count": 31,
-            "mae": 0.1696,
-            "rmse": 0.2166
+            "mae": 0.1697,
+            "rmse": 0.2168
           },
           {
             "horizon": 3,
             "count": 31,
-            "mae": 0.2072,
-            "rmse": 0.2583
+            "mae": 0.2073,
+            "rmse": 0.2584
           }
         ],
         "scoreBasis": "Identical complete three-month windows"
@@ -7480,7 +7485,7 @@
             "horizon": 1,
             "count": 4,
             "mae": 0.1337,
-            "rmse": 0.1494
+            "rmse": 0.1495
           },
           {
             "horizon": 2,
@@ -7655,12 +7660,12 @@
                   "horizon": 1,
                   "date": "2023-12-01",
                   "actual": 1.5,
-                  "predicted": 1.519734,
-                  "error": 0.019734,
-                  "low80": 1.386609,
-                  "high80": 1.652858,
-                  "low95": 1.316137,
-                  "high95": 1.72333,
+                  "predicted": 1.520665,
+                  "error": 0.020665,
+                  "low80": 1.387506,
+                  "high80": 1.653824,
+                  "low95": 1.317016,
+                  "high95": 1.724314,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7676,12 +7681,12 @@
                   "horizon": 2,
                   "date": "2024-01-01",
                   "actual": 1.5,
-                  "predicted": 1.413996,
-                  "error": -0.086004,
-                  "low80": 1.281198,
-                  "high80": 1.546794,
-                  "low95": 1.210899,
-                  "high95": 1.617093,
+                  "predicted": 1.415293,
+                  "error": -0.084707,
+                  "low80": 1.282463,
+                  "high80": 1.548124,
+                  "low95": 1.212146,
+                  "high95": 1.61844,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7697,12 +7702,12 @@
                   "horizon": 3,
                   "date": "2024-02-01",
                   "actual": 1.8,
-                  "predicted": 1.2898,
-                  "error": -0.5102,
-                  "low80": 1.1573,
-                  "high80": 1.422299,
-                  "low95": 1.087159,
-                  "high95": 1.49244,
+                  "predicted": 1.291463,
+                  "error": -0.508537,
+                  "low80": 1.158932,
+                  "high80": 1.423994,
+                  "low95": 1.088775,
+                  "high95": 1.494152,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -7818,12 +7823,12 @@
                   "horizon": 1,
                   "date": "2024-01-01",
                   "actual": 1.5,
-                  "predicted": 1.401503,
-                  "error": -0.098497,
-                  "low80": 1.274249,
-                  "high80": 1.528758,
-                  "low95": 1.206885,
-                  "high95": 1.596122,
+                  "predicted": 1.400095,
+                  "error": -0.099905,
+                  "low80": 1.27279,
+                  "high80": 1.527401,
+                  "low95": 1.205398,
+                  "high95": 1.594792,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -7839,12 +7844,12 @@
                   "horizon": 2,
                   "date": "2024-02-01",
                   "actual": 1.8,
-                  "predicted": 1.274658,
-                  "error": -0.525342,
-                  "low80": 1.147678,
-                  "high80": 1.401637,
-                  "low95": 1.080459,
-                  "high95": 1.468857,
+                  "predicted": 1.272802,
+                  "error": -0.527198,
+                  "low80": 1.14577,
+                  "high80": 1.399834,
+                  "low95": 1.078523,
+                  "high95": 1.467081,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -7860,12 +7865,12 @@
                   "horizon": 3,
                   "date": "2024-03-01",
                   "actual": 1.8,
-                  "predicted": 1.225578,
-                  "error": -0.574422,
-                  "low80": 1.09885,
-                  "high80": 1.352306,
-                  "low95": 1.031764,
-                  "high95": 1.419391,
+                  "predicted": 1.223221,
+                  "error": -0.576779,
+                  "low80": 1.096439,
+                  "high80": 1.350003,
+                  "low95": 1.029325,
+                  "high95": 1.417117,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -7981,12 +7986,12 @@
                   "horizon": 1,
                   "date": "2024-02-01",
                   "actual": 1.8,
-                  "predicted": 1.335439,
-                  "error": -0.464561,
-                  "low80": 1.21091,
-                  "high80": 1.459968,
-                  "low95": 1.144989,
-                  "high95": 1.52589,
+                  "predicted": 1.334889,
+                  "error": -0.465111,
+                  "low80": 1.210373,
+                  "high80": 1.459406,
+                  "low95": 1.144458,
+                  "high95": 1.525321,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8002,12 +8007,12 @@
                   "horizon": 2,
                   "date": "2024-03-01",
                   "actual": 1.8,
-                  "predicted": 1.301762,
-                  "error": -0.498238,
-                  "low80": 1.177497,
-                  "high80": 1.426026,
-                  "low95": 1.111716,
-                  "high95": 1.491807,
+                  "predicted": 1.301053,
+                  "error": -0.498947,
+                  "low80": 1.176801,
+                  "high80": 1.425305,
+                  "low95": 1.111026,
+                  "high95": 1.49108,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8023,12 +8028,12 @@
                   "horizon": 3,
                   "date": "2024-04-01",
                   "actual": 1.8,
-                  "predicted": 1.223609,
-                  "error": -0.576391,
-                  "low80": 1.099582,
-                  "high80": 1.347635,
-                  "low95": 1.033927,
-                  "high95": 1.41329,
+                  "predicted": 1.222735,
+                  "error": -0.577265,
+                  "low80": 1.098721,
+                  "high80": 1.34675,
+                  "low95": 1.033072,
+                  "high95": 1.412399,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -8144,12 +8149,12 @@
                   "horizon": 1,
                   "date": "2024-03-01",
                   "actual": 1.8,
-                  "predicted": 1.839222,
-                  "error": 0.039222,
-                  "low80": 1.645709,
-                  "high80": 2.032735,
-                  "low95": 1.543269,
-                  "high95": 2.135174,
+                  "predicted": 1.839335,
+                  "error": 0.039335,
+                  "low80": 1.645806,
+                  "high80": 2.032864,
+                  "low95": 1.543358,
+                  "high95": 2.135312,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8165,12 +8170,12 @@
                   "horizon": 2,
                   "date": "2024-04-01",
                   "actual": 1.8,
-                  "predicted": 1.827389,
-                  "error": 0.027389,
-                  "low80": 1.570914,
-                  "high80": 2.083863,
-                  "low95": 1.435145,
-                  "high95": 2.219633,
+                  "predicted": 1.827529,
+                  "error": 0.027529,
+                  "low80": 1.571015,
+                  "high80": 2.084042,
+                  "low95": 1.435225,
+                  "high95": 2.219832,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8186,12 +8191,12 @@
                   "horizon": 3,
                   "date": "2024-05-01",
                   "actual": 2.0,
-                  "predicted": 1.930111,
-                  "error": -0.069889,
-                  "low80": 1.635435,
-                  "high80": 2.224786,
-                  "low95": 1.479443,
-                  "high95": 2.380778,
+                  "predicted": 1.930299,
+                  "error": -0.069701,
+                  "low80": 1.635579,
+                  "high80": 2.225018,
+                  "low95": 1.479564,
+                  "high95": 2.381034,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8310,9 +8315,9 @@
                   "predicted": 1.787016,
                   "error": -0.012984,
                   "low80": 1.599856,
-                  "high80": 1.974177,
+                  "high80": 1.974179,
                   "low95": 1.500779,
-                  "high95": 2.073254,
+                  "high95": 2.073256,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8328,12 +8333,12 @@
                   "horizon": 2,
                   "date": "2024-05-01",
                   "actual": 2.0,
-                  "predicted": 1.886282,
-                  "error": -0.113718,
-                  "low80": 1.642566,
-                  "high80": 2.129998,
-                  "low95": 1.51355,
-                  "high95": 2.259014,
+                  "predicted": 1.886284,
+                  "error": -0.113716,
+                  "low80": 1.642563,
+                  "high80": 2.130005,
+                  "low95": 1.513545,
+                  "high95": 2.259023,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8349,12 +8354,12 @@
                   "horizon": 3,
                   "date": "2024-06-01",
                   "actual": 2.0,
-                  "predicted": 1.963279,
-                  "error": -0.036721,
-                  "low80": 1.684398,
-                  "high80": 2.242161,
-                  "low95": 1.536767,
-                  "high95": 2.389792,
+                  "predicted": 1.963283,
+                  "error": -0.036717,
+                  "low80": 1.684394,
+                  "high80": 2.242171,
+                  "low95": 1.53676,
+                  "high95": 2.389805,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8470,12 +8475,12 @@
                   "horizon": 1,
                   "date": "2024-05-01",
                   "actual": 2.0,
-                  "predicted": 1.899418,
-                  "error": -0.100582,
-                  "low80": 1.718157,
-                  "high80": 2.08068,
-                  "low95": 1.622203,
-                  "high95": 2.176633,
+                  "predicted": 1.899415,
+                  "error": -0.100585,
+                  "low80": 1.718153,
+                  "high80": 2.080676,
+                  "low95": 1.622199,
+                  "high95": 2.176631,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8491,12 +8496,12 @@
                   "horizon": 2,
                   "date": "2024-06-01",
                   "actual": 2.0,
-                  "predicted": 1.976938,
-                  "error": -0.023062,
-                  "low80": 1.741031,
-                  "high80": 2.212846,
-                  "low95": 1.616149,
-                  "high95": 2.337728,
+                  "predicted": 1.976931,
+                  "error": -0.023069,
+                  "low80": 1.741023,
+                  "high80": 2.21284,
+                  "low95": 1.616141,
+                  "high95": 2.337722,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8512,12 +8517,12 @@
                   "horizon": 3,
                   "date": "2024-07-01",
                   "actual": 2.0,
-                  "predicted": 2.058523,
-                  "error": 0.058523,
-                  "low80": 1.788721,
-                  "high80": 2.328324,
-                  "low95": 1.645896,
-                  "high95": 2.471149,
+                  "predicted": 2.058513,
+                  "error": 0.058513,
+                  "low80": 1.78871,
+                  "high80": 2.328316,
+                  "low95": 1.645885,
+                  "high95": 2.47114,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8633,12 +8638,12 @@
                   "horizon": 1,
                   "date": "2024-06-01",
                   "actual": 2.0,
-                  "predicted": 2.082526,
-                  "error": 0.082526,
-                  "low80": 1.904527,
-                  "high80": 2.260524,
-                  "low95": 1.810301,
-                  "high95": 2.354751,
+                  "predicted": 2.082505,
+                  "error": 0.082505,
+                  "low80": 1.904502,
+                  "high80": 2.260508,
+                  "low95": 1.810273,
+                  "high95": 2.354737,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8654,12 +8659,12 @@
                   "horizon": 2,
                   "date": "2024-07-01",
                   "actual": 2.0,
-                  "predicted": 2.172341,
-                  "error": 0.172341,
-                  "low80": 1.941647,
-                  "high80": 2.403036,
-                  "low95": 1.819524,
-                  "high95": 2.525159,
+                  "predicted": 2.172301,
+                  "error": 0.172301,
+                  "low80": 1.9416,
+                  "high80": 2.403003,
+                  "low95": 1.819474,
+                  "high95": 2.525129,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8675,12 +8680,12 @@
                   "horizon": 3,
                   "date": "2024-08-01",
                   "actual": 1.9,
-                  "predicted": 2.14996,
-                  "error": 0.24996,
-                  "low80": 1.887253,
-                  "high80": 2.412667,
-                  "low95": 1.748184,
-                  "high95": 2.551736,
+                  "predicted": 2.149915,
+                  "error": 0.249915,
+                  "low80": 1.8872,
+                  "high80": 2.41263,
+                  "low95": 1.748127,
+                  "high95": 2.551703,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8796,11 +8801,11 @@
                   "horizon": 1,
                   "date": "2024-07-01",
                   "actual": 2.0,
-                  "predicted": 2.090452,
-                  "error": 0.090452,
+                  "predicted": 2.090453,
+                  "error": 0.090453,
                   "low80": 1.91604,
-                  "high80": 2.264864,
-                  "low95": 1.823711,
+                  "high80": 2.264865,
+                  "low95": 1.823712,
                   "high95": 2.357193,
                   "covered80": true,
                   "covered95": true,
@@ -8817,12 +8822,12 @@
                   "horizon": 2,
                   "date": "2024-08-01",
                   "actual": 1.9,
-                  "predicted": 2.068698,
-                  "error": 0.168698,
-                  "low80": 1.844393,
+                  "predicted": 2.068699,
+                  "error": 0.168699,
+                  "low80": 1.844395,
                   "high80": 2.293004,
-                  "low95": 1.725653,
-                  "high95": 2.411744,
+                  "low95": 1.725655,
+                  "high95": 2.411743,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8840,10 +8845,10 @@
                   "actual": 1.8,
                   "predicted": 2.077748,
                   "error": 0.277748,
-                  "low80": 1.822478,
-                  "high80": 2.333017,
-                  "low95": 1.687347,
-                  "high95": 2.468148,
+                  "low80": 1.822481,
+                  "high80": 2.333016,
+                  "low95": 1.687351,
+                  "high95": 2.468146,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -8959,12 +8964,12 @@
                   "horizon": 1,
                   "date": "2024-08-01",
                   "actual": 1.9,
-                  "predicted": 1.982693,
-                  "error": 0.082693,
-                  "low80": 1.811231,
-                  "high80": 2.154156,
-                  "low95": 1.720465,
-                  "high95": 2.244922,
+                  "predicted": 1.982684,
+                  "error": 0.082684,
+                  "low80": 1.811222,
+                  "high80": 2.154146,
+                  "low95": 1.720456,
+                  "high95": 2.244913,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -8980,12 +8985,12 @@
                   "horizon": 2,
                   "date": "2024-09-01",
                   "actual": 1.8,
-                  "predicted": 1.991512,
-                  "error": 0.191512,
-                  "low80": 1.768138,
-                  "high80": 2.214887,
-                  "low95": 1.64989,
-                  "high95": 2.333134,
+                  "predicted": 1.991493,
+                  "error": 0.191493,
+                  "low80": 1.768119,
+                  "high80": 2.214868,
+                  "low95": 1.649871,
+                  "high95": 2.333116,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9001,12 +9006,12 @@
                   "horizon": 3,
                   "date": "2024-10-01",
                   "actual": 1.9,
-                  "predicted": 2.002627,
-                  "error": 0.102627,
-                  "low80": 1.74688,
-                  "high80": 2.258374,
-                  "low95": 1.611495,
-                  "high95": 2.393758,
+                  "predicted": 2.002599,
+                  "error": 0.102599,
+                  "low80": 1.746851,
+                  "high80": 2.258347,
+                  "low95": 1.611466,
+                  "high95": 2.393731,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9122,12 +9127,12 @@
                   "horizon": 1,
                   "date": "2024-09-01",
                   "actual": 1.8,
-                  "predicted": 1.912064,
-                  "error": 0.112064,
-                  "low80": 1.743462,
-                  "high80": 2.080665,
-                  "low95": 1.65421,
-                  "high95": 2.169918,
+                  "predicted": 1.912071,
+                  "error": 0.112071,
+                  "low80": 1.743469,
+                  "high80": 2.080673,
+                  "low95": 1.654216,
+                  "high95": 2.169926,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9143,12 +9148,12 @@
                   "horizon": 2,
                   "date": "2024-10-01",
                   "actual": 1.9,
-                  "predicted": 1.924397,
-                  "error": 0.024397,
-                  "low80": 1.702552,
-                  "high80": 2.146241,
-                  "low95": 1.585115,
-                  "high95": 2.263679,
+                  "predicted": 1.924409,
+                  "error": 0.024409,
+                  "low80": 1.702565,
+                  "high80": 2.146254,
+                  "low95": 1.585127,
+                  "high95": 2.263691,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9164,12 +9169,12 @@
                   "horizon": 3,
                   "date": "2024-11-01",
                   "actual": 1.8,
-                  "predicted": 1.990629,
-                  "error": 0.190629,
-                  "low80": 1.735397,
-                  "high80": 2.245862,
-                  "low95": 1.600285,
-                  "high95": 2.380973,
+                  "predicted": 1.990647,
+                  "error": 0.190647,
+                  "low80": 1.735414,
+                  "high80": 2.245879,
+                  "low95": 1.600303,
+                  "high95": 2.380991,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9330,9 +9335,9 @@
                   "predicted": 1.86957,
                   "error": 0.16957,
                   "low80": 1.611727,
-                  "high80": 2.127413,
-                  "low95": 1.475233,
-                  "high95": 2.263907,
+                  "high80": 2.127412,
+                  "low95": 1.475234,
+                  "high95": 2.263906,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9644,12 +9649,12 @@
                   "horizon": 1,
                   "date": "2024-12-01",
                   "actual": 1.7,
-                  "predicted": 1.80037,
-                  "error": 0.10037,
-                  "low80": 1.63418,
-                  "high80": 1.966561,
-                  "low95": 1.546204,
-                  "high95": 2.054537,
+                  "predicted": 1.800369,
+                  "error": 0.100369,
+                  "low80": 1.634178,
+                  "high80": 1.96656,
+                  "low95": 1.546202,
+                  "high95": 2.054536,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9667,8 +9672,8 @@
                       "2024-09-01",
                       "2024-10-01"
                     ],
-                    "low80": 1.688306,
-                    "high80": 1.912434,
+                    "low80": 1.688298,
+                    "high80": 1.91244,
                     "low95": null,
                     "high95": null
                   }
@@ -9677,12 +9682,12 @@
                   "horizon": 2,
                   "date": "2025-01-01",
                   "actual": 1.7,
-                  "predicted": 1.792303,
-                  "error": 0.092303,
-                  "low80": 1.576478,
-                  "high80": 2.008128,
-                  "low95": 1.462227,
-                  "high95": 2.122379,
+                  "predicted": 1.792302,
+                  "error": 0.092302,
+                  "low80": 1.576476,
+                  "high80": 2.008129,
+                  "low95": 1.462224,
+                  "high95": 2.122381,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9699,8 +9704,8 @@
                       "2024-09-01",
                       "2024-10-01"
                     ],
-                    "low80": 1.294065,
-                    "high80": 2.290541,
+                    "low80": 1.293355,
+                    "high80": 2.291249,
                     "low95": null,
                     "high95": null
                   }
@@ -9709,12 +9714,12 @@
                   "horizon": 3,
                   "date": "2025-02-01",
                   "actual": 1.5,
-                  "predicted": 1.711043,
-                  "error": 0.211043,
-                  "low80": 1.462988,
-                  "high80": 1.959099,
-                  "low95": 1.331675,
-                  "high95": 2.090412,
+                  "predicted": 1.711044,
+                  "error": 0.211044,
+                  "low80": 1.462986,
+                  "high80": 1.959102,
+                  "low95": 1.331672,
+                  "high95": 2.090416,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9730,8 +9735,8 @@
                       "2024-09-01",
                       "2024-10-01"
                     ],
-                    "low80": 1.136621,
-                    "high80": 2.285465,
+                    "low80": 1.134265,
+                    "high80": 2.287823,
                     "low95": null,
                     "high95": null
                   }
@@ -9876,12 +9881,12 @@
                   "horizon": 1,
                   "date": "2025-01-01",
                   "actual": 1.7,
-                  "predicted": 1.696054,
-                  "error": -0.003946,
-                  "low80": 1.531542,
-                  "high80": 1.860565,
-                  "low95": 1.444454,
-                  "high95": 1.947653,
+                  "predicted": 1.696057,
+                  "error": -0.003943,
+                  "low80": 1.531546,
+                  "high80": 1.860569,
+                  "low95": 1.444459,
+                  "high95": 1.947656,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9900,8 +9905,8 @@
                       "2024-10-01",
                       "2024-11-01"
                     ],
-                    "low80": 1.532215,
-                    "high80": 1.859893,
+                    "low80": 1.532218,
+                    "high80": 1.859896,
                     "low95": null,
                     "high95": null
                   }
@@ -9910,12 +9915,12 @@
                   "horizon": 2,
                   "date": "2025-02-01",
                   "actual": 1.5,
-                  "predicted": 1.616938,
-                  "error": 0.116938,
-                  "low80": 1.399395,
-                  "high80": 1.834481,
-                  "low95": 1.284234,
-                  "high95": 1.949641,
+                  "predicted": 1.616942,
+                  "error": 0.116942,
+                  "low80": 1.399402,
+                  "high80": 1.834482,
+                  "low95": 1.284244,
+                  "high95": 1.94964,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9933,8 +9938,8 @@
                       "2024-10-01",
                       "2024-11-01"
                     ],
-                    "low80": 1.1187,
-                    "high80": 2.115176,
+                    "low80": 1.117995,
+                    "high80": 2.115889,
                     "low95": null,
                     "high95": null
                   }
@@ -9943,12 +9948,12 @@
                   "horizon": 3,
                   "date": "2025-03-01",
                   "actual": 1.4,
-                  "predicted": 1.611589,
-                  "error": 0.211589,
-                  "low80": 1.359592,
-                  "high80": 1.863587,
-                  "low95": 1.226192,
-                  "high95": 1.996986,
+                  "predicted": 1.611594,
+                  "error": 0.211594,
+                  "low80": 1.359602,
+                  "high80": 1.863586,
+                  "low95": 1.226205,
+                  "high95": 1.996983,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -9965,8 +9970,8 @@
                       "2024-10-01",
                       "2024-11-01"
                     ],
-                    "low80": 1.037167,
-                    "high80": 2.186011,
+                    "low80": 1.034815,
+                    "high80": 2.188373,
                     "low95": null,
                     "high95": null
                   }
@@ -10114,11 +10119,11 @@
                   "horizon": 1,
                   "date": "2025-02-01",
                   "actual": 1.5,
-                  "predicted": 1.620723,
-                  "error": 0.120723,
-                  "low80": 1.459532,
-                  "high80": 1.781914,
-                  "low95": 1.374203,
+                  "predicted": 1.620722,
+                  "error": 0.120722,
+                  "low80": 1.45953,
+                  "high80": 1.781913,
+                  "low95": 1.3742,
                   "high95": 1.867243,
                   "covered80": true,
                   "covered95": true,
@@ -10149,12 +10154,12 @@
                   "horizon": 2,
                   "date": "2025-03-01",
                   "actual": 1.4,
-                  "predicted": 1.615348,
-                  "error": 0.215348,
-                  "low80": 1.402294,
-                  "high80": 1.828403,
-                  "low95": 1.28951,
-                  "high95": 1.941187,
+                  "predicted": 1.615346,
+                  "error": 0.215346,
+                  "low80": 1.402293,
+                  "high80": 1.828399,
+                  "low95": 1.289509,
+                  "high95": 1.941183,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -10173,8 +10178,8 @@
                       "2024-11-01",
                       "2024-12-01"
                     ],
-                    "low80": 1.11711,
-                    "high80": 2.113586,
+                    "low80": 1.116399,
+                    "high80": 2.114293,
                     "low95": null,
                     "high95": null
                   }
@@ -10183,12 +10188,12 @@
                   "horizon": 3,
                   "date": "2025-04-01",
                   "actual": 1.4,
-                  "predicted": 1.610547,
-                  "error": 0.210547,
-                  "low80": 1.363805,
-                  "high80": 1.857289,
+                  "predicted": 1.610544,
+                  "error": 0.210544,
+                  "low80": 1.363804,
+                  "high80": 1.857284,
                   "low95": 1.233187,
-                  "high95": 1.987907,
+                  "high95": 1.9879,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -10206,8 +10211,8 @@
                       "2024-11-01",
                       "2024-12-01"
                     ],
-                    "low80": 1.036125,
-                    "high80": 2.184969,
+                    "low80": 1.033765,
+                    "high80": 2.187323,
                     "low95": null,
                     "high95": null
                   }
@@ -10362,7 +10367,7 @@
                   "error": 0.099559,
                   "low80": 1.338963,
                   "high80": 1.660155,
-                  "low95": 1.253948,
+                  "low95": 1.253949,
                   "high95": 1.74517,
                   "covered80": true,
                   "covered95": true,
@@ -10384,8 +10389,8 @@
                       "2024-12-01",
                       "2025-01-01"
                     ],
-                    "low80": 1.387495,
-                    "high80": 1.611623,
+                    "low80": 1.387488,
+                    "high80": 1.61163,
                     "low95": null,
                     "high95": null
                   }
@@ -10394,11 +10399,11 @@
                   "horizon": 2,
                   "date": "2025-04-01",
                   "actual": 1.4,
-                  "predicted": 1.494493,
-                  "error": 0.094493,
-                  "low80": 1.282861,
+                  "predicted": 1.494494,
+                  "error": 0.094494,
+                  "low80": 1.282862,
                   "high80": 1.706125,
-                  "low95": 1.17083,
+                  "low95": 1.170831,
                   "high95": 1.818156,
                   "covered80": true,
                   "covered95": true,
@@ -10419,8 +10424,8 @@
                       "2024-12-01",
                       "2025-01-01"
                     ],
-                    "low80": 0.996255,
-                    "high80": 1.992731,
+                    "low80": 0.995547,
+                    "high80": 1.993441,
                     "low95": null,
                     "high95": null
                   }
@@ -10431,9 +10436,9 @@
                   "actual": 1.2,
                   "predicted": 1.439206,
                   "error": 0.239206,
-                  "low80": 1.193743,
+                  "low80": 1.193744,
                   "high80": 1.684669,
-                  "low95": 1.063802,
+                  "low95": 1.063804,
                   "high95": 1.814609,
                   "covered80": true,
                   "covered95": true,
@@ -10453,8 +10458,8 @@
                       "2024-12-01",
                       "2025-01-01"
                     ],
-                    "low80": 0.864784,
-                    "high80": 2.013628,
+                    "low80": 0.862427,
+                    "high80": 2.015985,
                     "low95": null,
                     "high95": null
                   }
@@ -10635,8 +10640,8 @@
                       "2025-01-01",
                       "2025-02-01"
                     ],
-                    "low80": 1.276343,
-                    "high80": 1.517789,
+                    "low80": 1.276344,
+                    "high80": 1.517788,
                     "low95": null,
                     "high95": null
                   }
@@ -10647,9 +10652,9 @@
                   "actual": 1.2,
                   "predicted": 1.341424,
                   "error": 0.141424,
-                  "low80": 1.129025,
+                  "low80": 1.129026,
                   "high80": 1.553823,
-                  "low95": 1.016588,
+                  "low95": 1.016589,
                   "high95": 1.66626,
                   "covered80": true,
                   "covered95": true,
@@ -10706,8 +10711,8 @@
                       "2025-01-01",
                       "2025-02-01"
                     ],
-                    "low80": 0.762499,
-                    "high80": 1.911343,
+                    "low80": 0.760142,
+                    "high80": 1.9137,
                     "low95": null,
                     "high95": null
                   }
@@ -10902,12 +10907,12 @@
                   "horizon": 2,
                   "date": "2025-06-01",
                   "actual": 1.1,
-                  "predicted": 1.339816,
-                  "error": 0.239816,
+                  "predicted": 1.339815,
+                  "error": 0.239815,
                   "low80": 1.131312,
-                  "high80": 1.54832,
+                  "high80": 1.548319,
                   "low95": 1.020937,
-                  "high95": 1.658695,
+                  "high95": 1.658693,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -10939,12 +10944,12 @@
                   "horizon": 3,
                   "date": "2025-07-01",
                   "actual": 1.2,
-                  "predicted": 1.335745,
-                  "error": 0.135745,
+                  "predicted": 1.335744,
+                  "error": 0.135744,
                   "low80": 1.092544,
-                  "high80": 1.578945,
+                  "high80": 1.578944,
                   "low95": 0.963802,
-                  "high95": 1.707688,
+                  "high95": 1.707686,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -10965,8 +10970,8 @@
                       "2025-02-01",
                       "2025-03-01"
                     ],
-                    "low80": 0.825545,
-                    "high80": 1.845945,
+                    "low80": 0.827207,
+                    "high80": 1.844281,
                     "low95": null,
                     "high95": null
                   }
@@ -11126,12 +11131,12 @@
                   "horizon": 1,
                   "date": "2025-06-01",
                   "actual": 1.1,
-                  "predicted": 1.19886,
-                  "error": 0.09886,
-                  "low80": 1.041803,
-                  "high80": 1.355917,
-                  "low95": 0.958662,
-                  "high95": 1.439058,
+                  "predicted": 1.198859,
+                  "error": 0.098859,
+                  "low80": 1.041802,
+                  "high80": 1.355916,
+                  "low95": 0.958661,
+                  "high95": 1.439057,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -11156,7 +11161,7 @@
                       "2025-04-01"
                     ],
                     "low80": 1.078137,
-                    "high80": 1.319583,
+                    "high80": 1.319581,
                     "low95": null,
                     "high95": null
                   }
@@ -11167,9 +11172,9 @@
                   "actual": 1.2,
                   "predicted": 1.19231,
                   "error": -0.00769,
-                  "low80": 0.983652,
+                  "low80": 0.983651,
                   "high80": 1.400968,
-                  "low95": 0.873195,
+                  "low95": 0.873194,
                   "high95": 1.511426,
                   "covered80": true,
                   "covered95": true,
@@ -11203,11 +11208,11 @@
                   "horizon": 3,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.212613,
-                  "error": -0.087387,
-                  "low80": 0.968828,
+                  "predicted": 1.212612,
+                  "error": -0.087388,
+                  "low80": 0.968827,
                   "high80": 1.456397,
-                  "low95": 0.839777,
+                  "low95": 0.839775,
                   "high95": 1.585449,
                   "covered80": true,
                   "covered95": true,
@@ -11230,8 +11235,8 @@
                       "2025-03-01",
                       "2025-04-01"
                     ],
-                    "low80": 0.702413,
-                    "high80": 1.722813,
+                    "low80": 0.704075,
+                    "high80": 1.721149,
                     "low95": null,
                     "high95": null
                   }
@@ -11394,12 +11399,12 @@
                   "horizon": 1,
                   "date": "2025-07-01",
                   "actual": 1.2,
-                  "predicted": 1.093753,
-                  "error": -0.106247,
-                  "low80": 0.937821,
-                  "high80": 1.249686,
-                  "low95": 0.855275,
-                  "high95": 1.332232,
+                  "predicted": 1.093759,
+                  "error": -0.106241,
+                  "low80": 0.937834,
+                  "high80": 1.249683,
+                  "low95": 0.855293,
+                  "high95": 1.332224,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -11424,8 +11429,8 @@
                       "2025-04-01",
                       "2025-05-01"
                     ],
-                    "low80": 0.949454,
-                    "high80": 1.238052,
+                    "low80": 0.94946,
+                    "high80": 1.238058,
                     "low95": null,
                     "high95": null
                   }
@@ -11434,12 +11439,12 @@
                   "horizon": 2,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.112348,
-                  "error": -0.187652,
-                  "low80": 0.902499,
-                  "high80": 1.322196,
-                  "low95": 0.791412,
-                  "high95": 1.433283,
+                  "predicted": 1.112374,
+                  "error": -0.187626,
+                  "low80": 0.902524,
+                  "high80": 1.322224,
+                  "low95": 0.791437,
+                  "high95": 1.433311,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -11463,8 +11468,8 @@
                       "2025-04-01",
                       "2025-05-01"
                     ],
-                    "low80": 0.859126,
-                    "high80": 1.36557,
+                    "low80": 0.859152,
+                    "high80": 1.365596,
                     "low95": null,
                     "high95": null
                   }
@@ -11473,12 +11478,12 @@
                   "horizon": 3,
                   "date": "2025-09-01",
                   "actual": 1.5,
-                  "predicted": 1.131535,
-                  "error": -0.368465,
-                  "low80": 0.884875,
-                  "high80": 1.378196,
-                  "low95": 0.7543,
-                  "high95": 1.50877,
+                  "predicted": 1.131582,
+                  "error": -0.368418,
+                  "low80": 0.884915,
+                  "high80": 1.37825,
+                  "low95": 0.754337,
+                  "high95": 1.508827,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -11501,8 +11506,8 @@
                       "2025-04-01",
                       "2025-05-01"
                     ],
-                    "low80": 0.621335,
-                    "high80": 1.641735,
+                    "low80": 0.623045,
+                    "high80": 1.640119,
                     "low95": null,
                     "high95": null
                   }
@@ -11668,12 +11673,12 @@
                   "horizon": 1,
                   "date": "2025-08-01",
                   "actual": 1.3,
-                  "predicted": 1.216662,
-                  "error": -0.083338,
+                  "predicted": 1.216663,
+                  "error": -0.083337,
                   "low80": 1.061549,
                   "high80": 1.371776,
-                  "low95": 0.979436,
-                  "high95": 1.453888,
+                  "low95": 0.979437,
+                  "high95": 1.453889,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -11699,10 +11704,10 @@
                       "2025-05-01",
                       "2025-06-01"
                     ],
-                    "low80": 1.095939,
+                    "low80": 1.095941,
                     "high80": 1.337385,
-                    "low95": 0.752101,
-                    "high95": 1.681223
+                    "low95": 0.751552,
+                    "high95": 1.681774
                   }
                 },
                 {
@@ -11754,7 +11759,7 @@
                   "low80": 0.964413,
                   "high80": 1.44806,
                   "low95": 0.836399,
-                  "high95": 1.576073,
+                  "high95": 1.576074,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -11778,8 +11783,8 @@
                       "2025-05-01",
                       "2025-06-01"
                     ],
-                    "low80": 0.696036,
-                    "high80": 1.716436,
+                    "low80": 0.697699,
+                    "high80": 1.714773,
                     "low95": null,
                     "high95": null
                   }
@@ -11951,9 +11956,9 @@
                   "predicted": 1.320287,
                   "error": -0.179713,
                   "low80": 1.166587,
-                  "high80": 1.473986,
+                  "high80": 1.473987,
                   "low95": 1.085223,
-                  "high95": 1.55535,
+                  "high95": 1.555351,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -11980,22 +11985,22 @@
                       "2025-06-01",
                       "2025-07-01"
                     ],
-                    "low80": 1.199564,
-                    "high80": 1.44101,
-                    "low95": 0.855726,
-                    "high95": 1.784848
+                    "low80": 1.199565,
+                    "high80": 1.441009,
+                    "low95": 0.855176,
+                    "high95": 1.785398
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.289527,
-                  "error": -0.010473,
-                  "low80": 1.082729,
-                  "high80": 1.496326,
-                  "low95": 0.973257,
-                  "high95": 1.605798,
+                  "predicted": 1.289529,
+                  "error": -0.010471,
+                  "low80": 1.082731,
+                  "high80": 1.496327,
+                  "low95": 0.973258,
+                  "high95": 1.605799,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12021,22 +12026,22 @@
                       "2025-06-01",
                       "2025-07-01"
                     ],
-                    "low80": 1.049711,
-                    "high80": 1.529343,
-                    "low95": 0.764185,
-                    "high95": 1.814869
+                    "low80": 1.049714,
+                    "high80": 1.529344,
+                    "low95": 0.762331,
+                    "high95": 1.816727
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.311613,
-                  "error": -0.088387,
-                  "low80": 1.06935,
-                  "high80": 1.553877,
-                  "low95": 0.941104,
-                  "high95": 1.682123,
+                  "predicted": 1.311616,
+                  "error": -0.088384,
+                  "low80": 1.069353,
+                  "high80": 1.553878,
+                  "low95": 0.941107,
+                  "high95": 1.682124,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12061,8 +12066,8 @@
                       "2025-06-01",
                       "2025-07-01"
                     ],
-                    "low80": 0.801413,
-                    "high80": 1.821813,
+                    "low80": 0.803079,
+                    "high80": 1.820153,
                     "low95": null,
                     "high95": null
                   }
@@ -12234,12 +12239,12 @@
                   "horizon": 1,
                   "date": "2025-10-01",
                   "actual": 1.3,
-                  "predicted": 1.469662,
-                  "error": 0.169662,
-                  "low80": 1.31356,
-                  "high80": 1.625763,
-                  "low95": 1.230925,
-                  "high95": 1.708398,
+                  "predicted": 1.469647,
+                  "error": 0.169647,
+                  "low80": 1.313536,
+                  "high80": 1.625759,
+                  "low95": 1.230896,
+                  "high95": 1.708399,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -12267,22 +12272,22 @@
                       "2025-07-01",
                       "2025-08-01"
                     ],
-                    "low80": 1.348939,
-                    "high80": 1.590385,
-                    "low95": 1.005101,
-                    "high95": 1.934223
+                    "low80": 1.348925,
+                    "high80": 1.590369,
+                    "low95": 1.004536,
+                    "high95": 1.934758
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.488457,
-                  "error": 0.088457,
-                  "low80": 1.275601,
-                  "high80": 1.701313,
-                  "low95": 1.162922,
-                  "high95": 1.813992,
+                  "predicted": 1.48844,
+                  "error": 0.08844,
+                  "low80": 1.275575,
+                  "high80": 1.701305,
+                  "low95": 1.162891,
+                  "high95": 1.813988,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12309,22 +12314,22 @@
                       "2025-07-01",
                       "2025-08-01"
                     ],
-                    "low80": 1.248641,
-                    "high80": 1.728273,
-                    "low95": 0.963115,
-                    "high95": 2.013799
+                    "low80": 1.248625,
+                    "high80": 1.728255,
+                    "low95": 0.961242,
+                    "high95": 2.015638
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.507984,
-                  "error": -0.092016,
-                  "low80": 1.258221,
-                  "high80": 1.757747,
-                  "low95": 1.126004,
-                  "high95": 1.889963,
+                  "predicted": 1.507964,
+                  "error": -0.092036,
+                  "low80": 1.258192,
+                  "high80": 1.757737,
+                  "low95": 1.125971,
+                  "high95": 1.889958,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12350,10 +12355,10 @@
                       "2025-07-01",
                       "2025-08-01"
                     ],
-                    "low80": 1.230236,
-                    "high80": 1.785732,
-                    "low95": 0.931593,
-                    "high95": 2.084375
+                    "low80": 1.230216,
+                    "high80": 1.785712,
+                    "low95": 0.930699,
+                    "high95": 2.085229
                   }
                 }
               ]
@@ -12526,12 +12531,12 @@
                   "horizon": 1,
                   "date": "2025-11-01",
                   "actual": 1.4,
-                  "predicted": 1.330721,
-                  "error": -0.069279,
-                  "low80": 1.173057,
-                  "high80": 1.488385,
-                  "low95": 1.089595,
-                  "high95": 1.571847,
+                  "predicted": 1.330719,
+                  "error": -0.069281,
+                  "low80": 1.173056,
+                  "high80": 1.488383,
+                  "low95": 1.089594,
+                  "high95": 1.571845,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12560,21 +12565,21 @@
                       "2025-08-01",
                       "2025-09-01"
                     ],
-                    "low80": 1.186422,
-                    "high80": 1.47502,
-                    "low95": 0.86616,
-                    "high95": 1.795282
+                    "low80": 1.18642,
+                    "high80": 1.475018,
+                    "low95": 0.865608,
+                    "high95": 1.79583
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2025-12-01",
                   "actual": 1.6,
-                  "predicted": 1.354741,
-                  "error": -0.245259,
-                  "low80": 1.146003,
-                  "high80": 1.563479,
-                  "low95": 1.035504,
+                  "predicted": 1.354739,
+                  "error": -0.245261,
+                  "low80": 1.146001,
+                  "high80": 1.563478,
+                  "low95": 1.035501,
                   "high95": 1.673978,
                   "covered80": false,
                   "covered95": true,
@@ -12603,21 +12608,21 @@
                       "2025-08-01",
                       "2025-09-01"
                     ],
-                    "low80": 1.101519,
-                    "high80": 1.607963,
-                    "low95": 0.829399,
-                    "high95": 1.880083
+                    "low80": 1.101517,
+                    "high80": 1.607961,
+                    "low95": 0.827541,
+                    "high95": 1.881937
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-01-01",
                   "actual": 1.6,
-                  "predicted": 1.351845,
-                  "error": -0.248155,
-                  "low80": 1.108724,
+                  "predicted": 1.351844,
+                  "error": -0.248156,
+                  "low80": 1.108721,
                   "high80": 1.594967,
-                  "low95": 0.980023,
+                  "low95": 0.98002,
                   "high95": 1.723668,
                   "covered80": false,
                   "covered95": true,
@@ -12645,10 +12650,10 @@
                       "2025-08-01",
                       "2025-09-01"
                     ],
-                    "low80": 0.98338,
-                    "high80": 1.72031,
-                    "low95": 0.775454,
-                    "high95": 1.928236
+                    "low80": 0.983426,
+                    "high80": 1.720262,
+                    "low95": 0.774579,
+                    "high95": 1.929109
                   }
                 }
               ]
@@ -12688,8 +12693,8 @@
                   "error": -0.15487,
                   "low80": 1.105483,
                   "high80": 1.784777,
-                  "low95": 0.925684,
-                  "high95": 1.964575,
+                  "low95": 0.925685,
+                  "high95": 1.964576,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -12707,7 +12712,7 @@
                   "actual": 1.6,
                   "predicted": 1.528284,
                   "error": -0.071716,
-                  "low80": 1.141691,
+                  "low80": 1.141692,
                   "high80": 1.914877,
                   "low95": 0.937042,
                   "high95": 2.119527,
@@ -12925,8 +12930,8 @@
                     ],
                     "low80": 1.253999,
                     "high80": 1.581677,
-                    "low95": 0.953277,
-                    "high95": 1.882399
+                    "low95": 0.952727,
+                    "high95": 1.882949
                   }
                 },
                 {
@@ -12969,8 +12974,8 @@
                     ],
                     "low80": 1.159714,
                     "high80": 1.666158,
-                    "low95": 0.887594,
-                    "high95": 1.938278
+                    "low95": 0.885738,
+                    "high95": 1.940134
                   }
                 },
                 {
@@ -12980,9 +12985,9 @@
                   "predicted": 1.463267,
                   "error": 0.063267,
                   "low80": 1.225748,
-                  "high80": 1.700787,
+                  "high80": 1.700786,
                   "low95": 1.100013,
-                  "high95": 1.826522,
+                  "high95": 1.826521,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -13010,10 +13015,10 @@
                       "2025-09-01",
                       "2025-10-01"
                     ],
-                    "low80": 1.094802,
-                    "high80": 1.831732,
-                    "low95": 0.886876,
-                    "high95": 2.039658
+                    "low80": 1.094849,
+                    "high80": 1.831685,
+                    "low95": 0.886002,
+                    "high95": 2.040532
                   }
                 }
               ]
@@ -13031,8 +13036,8 @@
                   "predicted": 1.509737,
                   "error": -0.090263,
                   "low80": 1.271405,
-                  "high80": 1.74807,
-                  "low95": 1.14524,
+                  "high80": 1.748069,
+                  "low95": 1.145239,
                   "high95": 1.874235,
                   "covered80": true,
                   "covered95": true,
@@ -13073,7 +13078,7 @@
                   "predicted": 1.647555,
                   "error": 0.247555,
                   "low80": 1.267343,
-                  "high80": 2.027767,
+                  "high80": 2.027766,
                   "low95": 1.066071,
                   "high95": 2.229038,
                   "covered80": true,
@@ -13259,8 +13264,8 @@
                   "predicted": 1.5824,
                   "error": -0.0176,
                   "low80": 1.424012,
-                  "high80": 1.740788,
-                  "low95": 1.340167,
+                  "high80": 1.740787,
+                  "low95": 1.340166,
                   "high95": 1.824633,
                   "covered80": true,
                   "covered95": true,
@@ -13294,20 +13299,20 @@
                     ],
                     "low80": 1.438101,
                     "high80": 1.726699,
-                    "low95": 1.117839,
-                    "high95": 2.046961
+                    "low95": 1.117289,
+                    "high95": 2.047511
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-02-01",
                   "actual": 1.4,
-                  "predicted": 1.627098,
-                  "error": 0.227098,
-                  "low80": 1.417028,
-                  "high80": 1.837167,
-                  "low95": 1.305824,
-                  "high95": 1.948372,
+                  "predicted": 1.627096,
+                  "error": 0.227096,
+                  "low80": 1.417027,
+                  "high80": 1.837166,
+                  "low95": 1.305822,
+                  "high95": 1.94837,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -13337,22 +13342,22 @@
                       "2025-10-01",
                       "2025-11-01"
                     ],
-                    "low80": 1.373876,
-                    "high80": 1.88032,
-                    "low95": 1.101756,
-                    "high95": 2.15244
+                    "low80": 1.373874,
+                    "high80": 1.880318,
+                    "low95": 1.099898,
+                    "high95": 2.154294
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.645185,
-                  "error": -0.054815,
-                  "low80": 1.400976,
-                  "high80": 1.889393,
-                  "low95": 1.2717,
-                  "high95": 2.01867,
+                  "predicted": 1.645182,
+                  "error": -0.054818,
+                  "low80": 1.400973,
+                  "high80": 1.889392,
+                  "low95": 1.271697,
+                  "high95": 2.018668,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -13381,10 +13386,10 @@
                       "2025-10-01",
                       "2025-11-01"
                     ],
-                    "low80": 1.27672,
-                    "high80": 2.01365,
-                    "low95": 1.068794,
-                    "high95": 2.221576
+                    "low80": 1.276764,
+                    "high80": 2.0136,
+                    "low95": 1.067917,
+                    "high95": 2.222447
                   }
                 }
               ]
@@ -13605,8 +13610,8 @@
                     ],
                     "low80": 1.479546,
                     "high80": 1.807224,
-                    "low95": 1.178824,
-                    "high95": 2.107946
+                    "low95": 1.178274,
+                    "high95": 2.108496
                   }
                 },
                 {
@@ -13618,7 +13623,7 @@
                   "low80": 1.452823,
                   "high80": 1.868576,
                   "low95": 1.342779,
-                  "high95": 1.978619,
+                  "high95": 1.97862,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -13649,10 +13654,10 @@
                       "2025-11-01",
                       "2025-12-01"
                     ],
-                    "low80": 1.41544,
-                    "high80": 1.905958,
-                    "low95": 1.135357,
-                    "high95": 2.186041
+                    "low80": 1.415439,
+                    "high80": 1.905961,
+                    "low95": 1.133502,
+                    "high95": 2.187898
                   }
                 },
                 {
@@ -13662,9 +13667,9 @@
                   "predicted": 1.651408,
                   "error": -0.248592,
                   "low80": 1.409553,
-                  "high80": 1.893263,
-                  "low95": 1.281523,
-                  "high95": 2.021293,
+                  "high80": 1.893264,
+                  "low95": 1.281522,
+                  "high95": 2.021295,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -13694,10 +13699,10 @@
                       "2025-11-01",
                       "2025-12-01"
                     ],
-                    "low80": 1.282943,
-                    "high80": 2.019873,
-                    "low95": 1.075017,
-                    "high95": 2.227799
+                    "low80": 1.28299,
+                    "high80": 2.019826,
+                    "low95": 1.074143,
+                    "high95": 2.228673
                   }
                 }
               ]
@@ -13922,8 +13927,8 @@
                     ],
                     "low80": 1.274039,
                     "high80": 1.601717,
-                    "low95": 0.973317,
-                    "high95": 1.902439
+                    "low95": 0.972767,
+                    "high95": 1.902989
                   }
                 },
                 {
@@ -13935,7 +13940,7 @@
                   "low80": 1.224851,
                   "high80": 1.653515,
                   "low95": 1.111391,
-                  "high95": 1.766976,
+                  "high95": 1.766975,
                   "covered80": false,
                   "covered95": false,
                   "recalibrated": {
@@ -13967,10 +13972,10 @@
                       "2025-12-01",
                       "2026-01-01"
                     ],
-                    "low80": 1.193924,
-                    "high80": 1.684442,
-                    "low95": 0.913841,
-                    "high95": 1.964525
+                    "low80": 1.193922,
+                    "high80": 1.684444,
+                    "low95": 0.911985,
+                    "high95": 1.966381
                   }
                 },
                 {
@@ -14015,8 +14020,8 @@
                     ],
                     "low80": 1.215528,
                     "high80": 1.771024,
-                    "low95": 0.916885,
-                    "high95": 2.069667
+                    "low95": 0.916011,
+                    "high95": 2.070541
                   }
                 }
               ]
@@ -14031,12 +14036,12 @@
                   "horizon": 1,
                   "date": "2026-03-01",
                   "actual": 1.7,
-                  "predicted": 1.462148,
-                  "error": -0.237852,
-                  "low80": 1.230576,
-                  "high80": 1.693721,
+                  "predicted": 1.462147,
+                  "error": -0.237853,
+                  "low80": 1.230575,
+                  "high80": 1.69372,
                   "low95": 1.107988,
-                  "high95": 1.816308,
+                  "high95": 1.816307,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -14055,12 +14060,12 @@
                   "horizon": 2,
                   "date": "2026-04-01",
                   "actual": 1.9,
-                  "predicted": 1.512368,
-                  "error": -0.387632,
+                  "predicted": 1.512366,
+                  "error": -0.387634,
                   "low80": 1.186747,
-                  "high80": 1.837989,
+                  "high80": 1.837985,
                   "low95": 1.014374,
-                  "high95": 2.010362,
+                  "high95": 2.010357,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -14079,12 +14084,12 @@
                   "horizon": 3,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.551126,
-                  "error": -0.448874,
-                  "low80": 1.180665,
-                  "high80": 1.921587,
+                  "predicted": 1.551122,
+                  "error": -0.448878,
+                  "low80": 1.180664,
+                  "high80": 1.921581,
                   "low95": 0.984555,
-                  "high95": 2.117697,
+                  "high95": 2.11769,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -14276,12 +14281,12 @@
                   "horizon": 1,
                   "date": "2026-04-01",
                   "actual": 1.9,
-                  "predicted": 1.650111,
-                  "error": -0.249889,
-                  "low80": 1.482865,
-                  "high80": 1.817357,
-                  "low95": 1.39433,
-                  "high95": 1.905892,
+                  "predicted": 1.650115,
+                  "error": -0.249885,
+                  "low80": 1.482868,
+                  "high80": 1.817362,
+                  "low95": 1.394334,
+                  "high95": 1.905896,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -14315,22 +14320,22 @@
                       "2026-01-01",
                       "2026-02-01"
                     ],
-                    "low80": 1.480449,
-                    "high80": 1.819773,
-                    "low95": 1.18555,
-                    "high95": 2.114672
+                    "low80": 1.480468,
+                    "high80": 1.819762,
+                    "low95": 1.185004,
+                    "high95": 2.115226
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.696016,
-                  "error": -0.303984,
-                  "low80": 1.487372,
-                  "high80": 1.90466,
-                  "low95": 1.376922,
-                  "high95": 2.015109,
+                  "predicted": 1.696022,
+                  "error": -0.303978,
+                  "low80": 1.487378,
+                  "high80": 1.904667,
+                  "low95": 1.376928,
+                  "high95": 2.015117,
                   "covered80": false,
                   "covered95": true,
                   "recalibrated": {
@@ -14363,22 +14368,22 @@
                       "2026-01-01",
                       "2026-02-01"
                     ],
-                    "low80": 1.450757,
-                    "high80": 1.941275,
-                    "low95": 1.170674,
-                    "high95": 2.221358
+                    "low80": 1.450761,
+                    "high80": 1.941283,
+                    "low95": 1.168824,
+                    "high95": 2.22322
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.715013,
-                  "error": -0.184987,
-                  "low80": 1.477841,
-                  "high80": 1.952185,
-                  "low95": 1.35229,
-                  "high95": 2.077736,
+                  "predicted": 1.715022,
+                  "error": -0.184978,
+                  "low80": 1.477849,
+                  "high80": 1.952195,
+                  "low95": 1.352297,
+                  "high95": 2.077746,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14410,10 +14415,10 @@
                       "2026-01-01",
                       "2026-02-01"
                     ],
-                    "low80": 1.437265,
-                    "high80": 1.992761,
-                    "low95": 1.138622,
-                    "high95": 2.291404
+                    "low80": 1.437274,
+                    "high80": 1.99277,
+                    "low95": 1.137757,
+                    "high95": 2.292287
                   }
                 }
               ]
@@ -14428,12 +14433,12 @@
                   "horizon": 1,
                   "date": "2026-04-01",
                   "actual": 1.9,
-                  "predicted": 1.756164,
-                  "error": -0.143836,
-                  "low80": 1.525712,
-                  "high80": 1.986616,
-                  "low95": 1.403718,
-                  "high95": 2.10861,
+                  "predicted": 1.756159,
+                  "error": -0.143841,
+                  "low80": 1.525709,
+                  "high80": 1.986609,
+                  "low95": 1.403716,
+                  "high95": 2.108601,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14452,12 +14457,12 @@
                   "horizon": 2,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.771903,
-                  "error": -0.228097,
-                  "low80": 1.448103,
-                  "high80": 2.095704,
-                  "low95": 1.276693,
-                  "high95": 2.267113,
+                  "predicted": 1.771891,
+                  "error": -0.228109,
+                  "low80": 1.448099,
+                  "high80": 2.095683,
+                  "low95": 1.276694,
+                  "high95": 2.267088,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14476,12 +14481,12 @@
                   "horizon": 3,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.783991,
-                  "error": -0.116009,
-                  "low80": 1.416074,
-                  "high80": 2.151908,
-                  "low95": 1.22131,
-                  "high95": 2.346672,
+                  "predicted": 1.783973,
+                  "error": -0.116027,
+                  "low80": 1.416071,
+                  "high80": 2.151875,
+                  "low95": 1.221316,
+                  "high95": 2.34663,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14677,12 +14682,12 @@
                   "horizon": 1,
                   "date": "2026-05-01",
                   "actual": 2.0,
-                  "predicted": 1.921469,
-                  "error": -0.078531,
-                  "low80": 1.749702,
-                  "high80": 2.093236,
-                  "low95": 1.658774,
-                  "high95": 2.184164,
+                  "predicted": 1.921467,
+                  "error": -0.078533,
+                  "low80": 1.7497,
+                  "high80": 2.093234,
+                  "low95": 1.658772,
+                  "high95": 2.184163,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14717,22 +14722,22 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.741756,
-                    "high80": 2.101182,
-                    "low95": 1.456908,
-                    "high95": 2.38603
+                    "low80": 1.741754,
+                    "high80": 2.10118,
+                    "low95": 1.456356,
+                    "high95": 2.386578
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.927131,
-                  "error": 0.027131,
-                  "low80": 1.700903,
-                  "high80": 2.153358,
+                  "predicted": 1.927129,
+                  "error": 0.027129,
+                  "low80": 1.700902,
+                  "high80": 2.153356,
                   "low95": 1.581145,
-                  "high95": 2.273116,
+                  "high95": 2.273113,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14766,22 +14771,22 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.681872,
+                    "low80": 1.681868,
                     "high80": 2.17239,
-                    "low95": 1.401789,
-                    "high95": 2.452473
+                    "low95": 1.399931,
+                    "high95": 2.454327
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.880487,
-                  "error": 0.080487,
-                  "low80": 1.61871,
-                  "high80": 2.142265,
-                  "low95": 1.480133,
-                  "high95": 2.280842,
+                  "predicted": 1.880485,
+                  "error": 0.080485,
+                  "low80": 1.618709,
+                  "high80": 2.142262,
+                  "low95": 1.480132,
+                  "high95": 2.280838,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -14814,10 +14819,10 @@
                       "2026-02-01",
                       "2026-03-01"
                     ],
-                    "low80": 1.602739,
-                    "high80": 2.158235,
-                    "low95": 1.304096,
-                    "high95": 2.456878
+                    "low80": 1.602737,
+                    "high80": 2.158233,
+                    "low95": 1.30322,
+                    "high95": 2.45775
                   }
                 }
               ]
@@ -15011,12 +15016,12 @@
                   "horizon": 1,
                   "date": "2026-06-01",
                   "actual": 1.9,
-                  "predicted": 1.99989,
-                  "error": 0.09989,
-                  "low80": 1.829596,
-                  "high80": 2.170185,
-                  "low95": 1.739448,
-                  "high95": 2.260333,
+                  "predicted": 1.999899,
+                  "error": 0.099899,
+                  "low80": 1.829607,
+                  "high80": 2.170191,
+                  "low95": 1.73946,
+                  "high95": 2.260338,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -15052,22 +15057,22 @@
                       "2026-03-01",
                       "2026-04-01"
                     ],
-                    "low80": 1.820177,
-                    "high80": 2.179603,
-                    "low95": 1.535329,
-                    "high95": 2.464451
+                    "low80": 1.820186,
+                    "high80": 2.179612,
+                    "low95": 1.534788,
+                    "high95": 2.46501
                   }
                 },
                 {
                   "horizon": 2,
                   "date": "2026-07-01",
                   "actual": 1.8,
-                  "predicted": 1.948027,
-                  "error": 0.148027,
-                  "low80": 1.720369,
-                  "high80": 2.175685,
-                  "low95": 1.599854,
-                  "high95": 2.2962,
+                  "predicted": 1.948047,
+                  "error": 0.148047,
+                  "low80": 1.720397,
+                  "high80": 2.175696,
+                  "low95": 1.599887,
+                  "high95": 2.296206,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -15102,22 +15107,22 @@
                       "2026-03-01",
                       "2026-04-01"
                     ],
-                    "low80": 1.694805,
-                    "high80": 2.201249,
-                    "low95": 1.422685,
-                    "high95": 2.473369
+                    "low80": 1.694825,
+                    "high80": 2.201269,
+                    "low95": 1.420849,
+                    "high95": 2.475245
                   }
                 },
                 {
                   "horizon": 3,
                   "date": "2026-08-01",
                   "actual": 1.9,
-                  "predicted": 1.898771,
-                  "error": -0.001229,
-                  "low80": 1.634156,
-                  "high80": 2.163387,
-                  "low95": 1.494077,
-                  "high95": 2.303466,
+                  "predicted": 1.898801,
+                  "error": -0.001199,
+                  "low80": 1.634197,
+                  "high80": 2.163405,
+                  "low95": 1.494124,
+                  "high95": 2.303478,
                   "covered80": true,
                   "covered95": true,
                   "recalibrated": {
@@ -15151,10 +15156,10 @@
                       "2026-03-01",
                       "2026-04-01"
                     ],
-                    "low80": 1.621023,
-                    "high80": 2.176519,
-                    "low95": 1.32238,
-                    "high95": 2.475162
+                    "low80": 1.621053,
+                    "high80": 2.176549,
+                    "low95": 1.321536,
+                    "high95": 2.476066
                   }
                 }
               ]
@@ -15377,8 +15382,8 @@
           "covered95": 83,
           "total95": 93,
           "coverage95": 0.892473,
-          "meanWidth80": 0.407722,
-          "meanWidth95": 0.623557,
+          "meanWidth80": 0.40773,
+          "meanWidth95": 0.623568,
           "byHorizon": [
             {
               "horizon": 1,
@@ -15388,8 +15393,8 @@
               "covered95": 28,
               "total95": 31,
               "coverage95": 0.903226,
-              "meanWidth80": 0.32367,
-              "meanWidth95": 0.495011
+              "meanWidth80": 0.323676,
+              "meanWidth95": 0.49502
             },
             {
               "horizon": 2,
@@ -15399,8 +15404,8 @@
               "covered95": 28,
               "total95": 31,
               "coverage95": 0.903226,
-              "meanWidth80": 0.418841,
-              "meanWidth95": 0.640562
+              "meanWidth80": 0.418848,
+              "meanWidth95": 0.640573
             },
             {
               "horizon": 3,
@@ -15410,8 +15415,8 @@
               "covered95": 27,
               "total95": 31,
               "coverage95": 0.870968,
-              "meanWidth80": 0.480655,
-              "meanWidth95": 0.735099
+              "meanWidth80": 0.480664,
+              "meanWidth95": 0.735112
             }
           ]
         },
@@ -15424,8 +15429,8 @@
           "covered95": 12,
           "total95": 12,
           "coverage95": 1.0,
-          "meanWidth80": 0.628386,
-          "meanWidth95": 0.961033,
+          "meanWidth80": 0.628381,
+          "meanWidth95": 0.961025,
           "byHorizon": [
             {
               "horizon": 1,
@@ -15435,8 +15440,8 @@
               "covered95": 4,
               "total95": 4,
               "coverage95": 1.0,
-              "meanWidth80": 0.470629,
-              "meanWidth95": 0.719765
+              "meanWidth80": 0.470628,
+              "meanWidth95": 0.719763
             },
             {
               "horizon": 2,
@@ -15446,8 +15451,8 @@
               "covered95": 4,
               "total95": 4,
               "coverage95": 1.0,
-              "meanWidth80": 0.661937,
-              "meanWidth95": 1.012345
+              "meanWidth80": 0.661932,
+              "meanWidth95": 1.012337
             },
             {
               "horizon": 3,
@@ -15457,8 +15462,8 @@
               "covered95": 4,
               "total95": 4,
               "coverage95": 1.0,
-              "meanWidth80": 0.752591,
-              "meanWidth95": 1.150989
+              "meanWidth80": 0.752582,
+              "meanWidth95": 1.150975
             }
           ]
         }
@@ -15618,7 +15623,7 @@
             "recalibrated": {
               "count": 19,
               "coverage": 0.631579,
-              "meanWidth": 0.287331
+              "meanWidth": 0.28733
             },
             "unavailableCalibrationPoints": 0
           },
@@ -15630,12 +15635,12 @@
             "uncalibrated": {
               "count": 11,
               "coverage": 0.818182,
-              "meanWidth": 0.490642
+              "meanWidth": 0.490644
             },
             "recalibrated": {
               "count": 11,
               "coverage": 1.0,
-              "meanWidth": 0.929122
+              "meanWidth": 0.930222
             },
             "unavailableCalibrationPoints": 8
           },
@@ -15652,7 +15657,7 @@
             "recalibrated": {
               "count": 19,
               "coverage": 0.842105,
-              "meanWidth": 0.603433
+              "meanWidth": 0.603733
             },
             "unavailableCalibrationPoints": 0
           },
@@ -15664,12 +15669,12 @@
             "uncalibrated": {
               "count": 10,
               "coverage": 0.9,
-              "meanWidth": 0.65087
+              "meanWidth": 0.650871
             },
             "recalibrated": {
               "count": 10,
               "coverage": 1.0,
-              "meanWidth": 1.050684
+              "meanWidth": 1.054396
             },
             "unavailableCalibrationPoints": 9
           },
@@ -15686,7 +15691,7 @@
             "recalibrated": {
               "count": 19,
               "coverage": 0.947368,
-              "meanWidth": 0.87218
+              "meanWidth": 0.872525
             },
             "unavailableCalibrationPoints": 0
           },
@@ -15703,7 +15708,7 @@
             "recalibrated": {
               "count": 9,
               "coverage": 1.0,
-              "meanWidth": 1.152782
+              "meanWidth": 1.15453
             },
             "unavailableCalibrationPoints": 10
           },
@@ -15836,7 +15841,7 @@
     },
     "status": "partial",
     "calculationStatus": "fresh",
-    "calculatedAt": "2026-10-17T09:40:19Z",
+    "calculatedAt": "2026-10-17T14:17:38Z",
     "inputHealth": {
       "status": "partial",
       "staleInputs": [
@@ -15851,17 +15856,17 @@
       "requiredSourceCount": 6,
       "sourceSnapshotCount": 10,
       "revisedSourcePeriodCount": 1,
-      "prospectiveForecastCount": 4,
+      "prospectiveForecastCount": 5,
       "capturedOutcomeCount": 0,
-      "pendingForecastTargetCount": 12,
+      "pendingForecastTargetCount": 15,
       "firstSnapshotAt": "2026-10-06T12:13:36Z",
-      "lastSnapshotAt": "2026-10-17T09:40:19Z",
+      "lastSnapshotAt": "2026-10-17T14:17:38Z",
       "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
     }
   },
   "structuralBreaks": {
-    "status": "partial",
-    "calculatedAt": "2026-10-17T09:40:19Z",
+    "status": "fresh",
+    "calculatedAt": "2026-10-17T14:17:38Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
       "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -16544,7 +16549,7 @@
       "mgs": {
         "indicatorId": "mgs",
         "status": "fresh",
-        "calculatedAt": "2026-10-17T09:40:19Z",
+        "calculatedAt": "2026-10-17T14:17:38Z",
         "sample": {
           "start": "2021-11-01",
           "end": "2026-10-01",
@@ -16593,8 +16598,8 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-10-17T09:40:19Z",
-    "lastAttemptAt": "2026-10-17T09:40:19Z",
+    "retrievedAt": "2026-10-17T14:17:38Z",
+    "lastAttemptAt": "2026-10-17T14:17:38Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -26411,14 +26416,15 @@
     },
     "freshness": {
       "basis": "observation-recency",
+      "reference": "observation-date",
       "observationAgeDays": 1,
       "maximumObservationAgeDays": 10,
-      "note": "Conservative observation-age limit; not a verified official release calendar."
+      "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-10-17T09:40:19Z",
+    "retrievedAt": "2026-10-17T14:17:38Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -27256,14 +27262,14 @@
     ],
     "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
     "message": "Official quarterly observations validated; only complete calendar years are published",
-    "lastAttemptAt": "2026-10-17T09:40:19Z"
+    "lastAttemptAt": "2026-10-17T14:17:38Z"
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-10-17T09:40:19Z",
+    "generatedAt": "2026-10-17T14:17:38Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -28101,11 +28107,11 @@
       ],
       "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
       "message": "Official quarterly observations validated; only complete calendar years are published",
-      "lastAttemptAt": "2026-10-17T09:40:19Z"
+      "lastAttemptAt": "2026-10-17T14:17:38Z"
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -28998,7 +29004,7 @@
       ],
       "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
       "message": "Official quarterly expenditure observations validated; complete years only",
-      "lastAttemptAt": "2026-10-17T09:40:19Z"
+      "lastAttemptAt": "2026-10-17T14:17:38Z"
     },
     "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
     "message": "Production and expenditure GDP views validated",
@@ -29011,7 +29017,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-10-17T09:40:19Z",
+    "retrievedAt": "2026-10-17T14:17:38Z",
     "observationPeriod": "2026-08-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -31277,17 +31283,18 @@
       "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance."
     },
     "message": "Official monthly trade headline data validated",
-    "lastAttemptAt": "2026-10-17T09:40:19Z",
+    "lastAttemptAt": "2026-10-17T14:17:38Z",
     "freshness": {
       "basis": "observation-recency",
+      "reference": "observation-date",
       "observationAgeDays": 77,
       "maximumObservationAgeDays": 100,
-      "note": "Conservative observation-age limit; not a verified official release calendar."
+      "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "balancePayments": {
     "status": "fresh",
-    "retrievedAt": "2026-10-17T09:40:19Z",
+    "retrievedAt": "2026-10-17T14:17:38Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
@@ -33290,19 +33297,20 @@
       "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions."
     },
     "message": "Official quarterly BOP component balances validated",
-    "lastAttemptAt": "2026-10-17T09:40:19Z",
+    "lastAttemptAt": "2026-10-17T14:17:38Z",
     "freshness": {
       "basis": "observation-recency",
+      "reference": "observation-date",
       "observationAgeDays": 199,
       "maximumObservationAgeDays": 200,
-      "note": "Conservative observation-age limit; not a verified official release calendar."
+      "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "regionalLens": {
     "refreshPolicy": "source-local-v1",
     "status": "fresh",
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "lastAttemptAt": "2026-10-17T09:40:19Z",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "lastAttemptAt": "2026-10-17T14:17:38Z",
     "calculationStatus": "fresh",
     "message": "12 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
     "defaultComparison": {
@@ -33323,7 +33331,7 @@
     "sources": {
       "nationalIncome": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "records": [
@@ -33439,11 +33447,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "nationalPoverty": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "records": [
@@ -33533,11 +33541,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "nationalInequality": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "records": [
@@ -33627,11 +33635,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "hiesState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -33827,8 +33835,8 @@
           "value": 5566.0,
           "unit": "RM per household per month",
           "observationPeriod": "2024-01-01",
-          "retrievedAt": "2026-10-17T09:40:19Z",
-          "lastAttemptAt": "2026-10-17T09:40:19Z",
+          "retrievedAt": "2026-10-17T14:17:38Z",
+          "lastAttemptAt": "2026-10-17T14:17:38Z",
           "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
           "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
           "page": 24,
@@ -33836,15 +33844,15 @@
         },
         "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "nationalExpenditure": {
         "status": "fresh",
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
@@ -33852,7 +33860,7 @@
       },
       "hiesDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -35803,11 +35811,11 @@
           }
         ],
         "message": "Latest district HIES data validated",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "incomeGroupState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
@@ -36342,11 +36350,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "incomeGroupNational": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
@@ -36380,11 +36388,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "incomeGroups": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -37000,11 +37008,11 @@
         ],
         "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
         "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "labour": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -38502,11 +38510,11 @@
         ],
         "historicalRateAnomalies": 1,
         "message": "District labour-force data validated and aggregated to state level; 1 historical rate observation(s) above 100% were excluded from latest-period summaries",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "gdpState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -38514,11 +38522,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "gdpDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2020-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -38526,11 +38534,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       },
       "gdp": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -38538,7 +38546,7 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
         "stateRecords": [
@@ -47966,7 +47974,7 @@
         ],
         "stateSource": {
           "status": "fresh",
-          "retrievedAt": "2026-10-17T09:40:19Z",
+          "retrievedAt": "2026-10-17T14:17:38Z",
           "observationPeriod": "2025-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -47974,11 +47982,11 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-10-17T09:40:19Z"
+          "lastAttemptAt": "2026-10-17T14:17:38Z"
         },
         "districtSource": {
           "status": "fresh",
-          "retrievedAt": "2026-10-17T09:40:19Z",
+          "retrievedAt": "2026-10-17T14:17:38Z",
           "observationPeriod": "2020-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -47986,12 +47994,12 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-10-17T09:40:19Z"
+          "lastAttemptAt": "2026-10-17T14:17:38Z"
         }
       },
       "cpi": {
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-08-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
@@ -48078,7 +48086,7 @@
           }
         ],
         "message": "Latest state headline CPI inflation validated",
-        "lastAttemptAt": "2026-10-17T09:40:19Z"
+        "lastAttemptAt": "2026-10-17T14:17:38Z"
       }
     },
     "stateRecords": [
@@ -61092,7 +61100,7 @@
     ],
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-17T09:40:19Z",
+      "retrievedAt": "2026-10-17T14:17:38Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -61708,7 +61716,7 @@
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
       "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-      "lastAttemptAt": "2026-10-17T09:40:19Z"
+      "lastAttemptAt": "2026-10-17T14:17:38Z"
     },
     "summaryCards": [
       {
@@ -61757,8 +61765,8 @@
     }
   },
   "householdPressure": {
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "status": "partial",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "status": "fresh",
     "overallScore": 40.0,
     "overallLevel": "moderate",
     "summary": "Household pressure is moderate, led by debt service in the current rule-based screen.",
@@ -61835,7 +61843,7 @@
     }
   },
   "sectorDeepDive": {
-    "generatedAt": "2026-10-17T09:40:19Z",
+    "generatedAt": "2026-10-17T14:17:38Z",
     "status": "fresh",
     "year": 2025,
     "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
@@ -61924,8 +61932,8 @@
     }
   },
   "macroTimeline": {
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "status": "partial",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "status": "fresh",
     "entries": [
       {
         "date": "2013-08-01",
@@ -62067,8 +62075,8 @@
     }
   },
   "riskHeatmap": {
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "status": "partial",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "status": "fresh",
     "overallScore": 37.2,
     "overallLevel": "low",
     "availableCount": 9,
@@ -62205,8 +62213,8 @@
     }
   },
   "latestBrief": {
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "status": "partial",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "status": "fresh",
     "period": "2026-08-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.7%.",
     "whatChanged": [
@@ -62242,8 +62250,8 @@
     }
   },
   "decisionGuide": {
-    "generatedAt": "2026-10-17T09:40:19Z",
-    "status": "partial",
+    "generatedAt": "2026-10-17T14:17:38Z",
+    "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 2.9% unemployment and a one-year KLCI price return of -0.3%. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
@@ -62483,7 +62491,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-10-17T09:40:19Z",
+    "lastSuccessfulRefresh": "2026-10-17T14:17:38Z",
     "vintageCount": 4,
     "latestVintagePeriod": "2026-08",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -62526,7 +62534,7 @@
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "monthlyReport": {
-    "generatedAt": "2026-10-17T09:40:19Z",
+    "generatedAt": "2026-10-17T14:17:38Z",
     "title": "MacroLens Malaysia monthly research brief",
     "period": "2026-08-01",
     "sections": [
@@ -62578,13 +62586,13 @@
     "status": "partial"
   },
   "dataHealth": {
-    "generatedAt": "2026-10-17T09:40:19Z",
+    "generatedAt": "2026-10-17T14:17:38Z",
     "schemaVersion": 9,
     "overall": "partial",
-    "note": "24 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately.",
+    "note": "25 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately.",
     "overallHealth": "partial",
     "sourceCount": 26,
-    "staleCount": 2,
+    "staleCount": 1,
     "sources": [
       {
         "id": "headline",
@@ -62593,15 +62601,16 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_headline_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 77,
+          "reference": "period-end",
+          "observationAgeDays": 47,
           "maximumObservationAgeDays": 100,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the end of the observation month, not the publication date."
         }
       },
       {
@@ -62611,15 +62620,16 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_core_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 77,
+          "reference": "period-end",
+          "observationAgeDays": 47,
           "maximumObservationAgeDays": 100,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the end of the observation month, not the publication date."
         }
       },
       {
@@ -62629,15 +62639,16 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_month",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 77,
+          "reference": "period-end",
+          "observationAgeDays": 47,
           "maximumObservationAgeDays": 110,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the end of the observation month, not the publication date."
         }
       },
       {
@@ -62647,8 +62658,8 @@
         "sourceUrl": "https://apikijangportal.bnm.gov.my/",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-09-03",
         "message": "Official source validated"
       },
@@ -62658,16 +62669,17 @@
         "source": "Bank Negara Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/exchangerates",
         "unit": "RM",
-        "status": "stale",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "status": "fresh",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-09-01",
         "message": "Response validated but latest observation exceeds the 45-day recency limit; showing last available observation",
         "freshness": {
           "basis": "observation-recency",
-          "observationAgeDays": 46,
+          "reference": "period-end",
+          "observationAgeDays": 17,
           "maximumObservationAgeDays": 45,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the end of the observation month, not the publication date."
         }
       },
       {
@@ -62677,15 +62689,16 @@
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "observationPeriod": "2026-10-16",
         "message": "Latest official close validated. Daily MGS history backfill is in progress; official history is checked through 2023-09-01.",
         "freshness": {
           "basis": "observation-recency",
+          "reference": "observation-date",
           "observationAgeDays": 1,
           "maximumObservationAgeDays": 10,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the observation date, not the publication date."
         },
         "historyCoverage": {
           "status": "partial",
@@ -62694,7 +62707,7 @@
           "completed": false,
           "requests": 480,
           "observations": 439,
-          "retrievedAt": "2026-10-17T09:45:04Z",
+          "retrievedAt": "2026-10-17T14:22:08Z",
           "message": "Daily MGS history backfill is in progress; official history is checked through 2023-09-01."
         }
       },
@@ -62705,15 +62718,16 @@
         "relatedSource": "FTSE Russell / Bursa Malaysia",
         "relatedSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
         "observationPeriod": "2026-10-16",
         "freshness": {
           "basis": "observation-recency",
+          "reference": "observation-date",
           "observationAgeDays": 1,
           "maximumObservationAgeDays": 10,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the observation date, not the publication date."
         },
         "message": "Delayed daily prices validated"
       },
@@ -62724,8 +62738,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -62738,15 +62752,16 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
         "observationPeriod": "2026-08-01",
         "freshness": {
           "basis": "observation-recency",
+          "reference": "observation-date",
           "observationAgeDays": 77,
           "maximumObservationAgeDays": 100,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the observation date, not the publication date."
         },
         "message": "Official monthly trade headline data validated"
       },
@@ -62757,15 +62772,16 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
         "observationPeriod": "2026-04-01",
         "freshness": {
           "basis": "observation-recency",
+          "reference": "observation-date",
           "observationAgeDays": 199,
           "maximumObservationAgeDays": 200,
-          "note": "Conservative observation-age limit; not a verified official release calendar."
+          "note": "Age is measured from the observation date, not the publication date."
         },
         "message": "Official quarterly BOP component balances validated"
       },
@@ -62776,8 +62792,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -62790,8 +62806,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62804,8 +62820,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62818,8 +62834,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62832,8 +62848,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62846,8 +62862,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62860,8 +62876,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62874,8 +62890,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62888,8 +62904,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62902,8 +62918,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62916,8 +62932,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -62930,8 +62946,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -62944,8 +62960,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "observationPeriod": "2020-01-01",
         "freshness": null,
@@ -62958,8 +62974,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -62972,8 +62988,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-17T09:40:19Z",
-        "lastAttemptAt": "2026-10-17T09:40:19Z",
+        "retrievedAt": "2026-10-17T14:17:38Z",
+        "lastAttemptAt": "2026-10-17T14:17:38Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
         "observationPeriod": "2026-08-01",
         "freshness": null,
@@ -62985,14 +63001,14 @@
         "source": "Bank Negara Malaysia (BNM) Financial Markets",
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
         "status": "partial",
-        "retrievedAt": "2026-10-17T09:45:04Z",
+        "retrievedAt": "2026-10-17T14:22:08Z",
         "observationPeriod": "2023-09-01",
         "message": "Daily MGS history backfill is in progress; official history is checked through 2023-09-01."
       }
     ],
     "refresh": {
       "schedule": "Daily at 13:45 Malaysia time",
-      "lastSuccessfulRefresh": "2026-10-17T09:40:19Z",
+      "lastSuccessfulRefresh": "2026-10-17T14:17:38Z",
       "vintageCount": 4,
       "latestVintagePeriod": "2026-08",
       "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -63029,6 +63045,6 @@
         }
       ]
     },
-    "summary": "24 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately."
+    "summary": "25 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately."
   }
 }

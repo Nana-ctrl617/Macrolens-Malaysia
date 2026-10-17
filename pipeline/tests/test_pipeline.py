@@ -492,6 +492,21 @@ def test_old_observation_is_stale_but_old_opr_decision_is_not():
     assert monthly_status["freshness"]["basis"] == "observation-recency"
 
 
+def test_monthly_observation_age_uses_period_end_not_first_day():
+    source = {"status": "fresh", "observationPeriod": "2026-08-01"}
+    result = macrolens.apply_observation_recency(source, "2026-10-16T13:19:21Z", 100, monthly_period=True)
+    assert result["freshness"]["observationAgeDays"] == 46
+    assert result["freshness"]["reference"] == "period-end"
+    assert result["status"] == "fresh"
+
+
+def test_daily_observation_age_uses_exact_observation_date():
+    source = {"status": "fresh", "observationPeriod": "2026-10-15"}
+    result = macrolens.apply_observation_recency(source, "2026-10-16T13:19:21Z", 10)
+    assert result["freshness"]["observationAgeDays"] == 1
+    assert result["freshness"]["reference"] == "observation-date"
+
+
 def test_data_health_exposes_official_source_links_and_age_rules():
     source = {
         "status": "stale", "retrievedAt": "2026-06-01T00:00:00Z",

@@ -1,6 +1,6 @@
 {
-  "status": "partial",
-  "calculatedAt": "2026-10-17T09:40:19Z",
+  "status": "fresh",
+  "calculatedAt": "2026-10-17T14:17:38Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -683,7 +683,7 @@
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-10-17T09:40:19Z",
+      "calculatedAt": "2026-10-17T14:17:38Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",

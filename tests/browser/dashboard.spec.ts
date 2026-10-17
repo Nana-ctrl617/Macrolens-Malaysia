@@ -77,7 +77,7 @@ test("Data Health links the indicator to its source and explains the observation
   const marketRow = page.getByRole("row").filter({ has: page.getByText("FBM KLCI (delayed market prices)", { exact: true }) });
   await expect(marketRow.getByRole("link", { name: "Open delayed price data ↗" })).toHaveAttribute("href", payload.market.benchmark.sourceUrl);
   await expect(marketRow.getByRole("link", { name: "Open index publisher reference ↗" })).toHaveAttribute("href", payload.market.benchmark.benchmarkSourceUrl);
-  await expect(row).toContainText(/\d+ days old \/ 100-day limit/);
+  await expect(row).toContainText(/\d+ days since period end \/ 100-day limit/);
 });
 
 test("Data Health filters source groups without hiding their saved validation status", async ({ page, context }) => {

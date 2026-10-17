@@ -87,12 +87,13 @@ test("legacy MGS snapshots with monthly-spaced observations are never called a d
 test("data health gives partial MGS history an explicit BNM label and source link", () => {
   const payload = JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
   const history = normalizeDashboard(payload).dataHealth.sources.find((source) => source.id === "mgsDailyHistory");
+  const coverage = payload.series.mgs.historyCoverage;
   assert.equal(history.label, "10-year MGS historical coverage");
   assert.equal(history.source, "Bank Negara Malaysia (BNM) Financial Markets");
   assert.equal(history.sourceUrl, "https://financialmarkets.bnm.gov.my/benchmark-yields");
-  assert.equal(history.observationPeriod, "2022-09-30");
+  assert.equal(history.observationPeriod, coverage.throughDate);
   assert.equal(history.retrievedAt, null, "checkpoint time is not mislabelled as a complete history retrieval");
-  assert.equal(history.lastAttemptAt, "2026-10-16T13:24:12Z");
+  assert.equal(history.lastAttemptAt, coverage.retrievedAt);
 });
 
 test("failed analysis stays non-fresh even with successful source inputs", () => {
