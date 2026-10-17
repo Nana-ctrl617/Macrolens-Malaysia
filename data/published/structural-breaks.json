@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-10-17T14:17:38Z",
+  "calculatedAt": "2026-10-17T14:36:42Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -596,7 +596,7 @@
     },
     "fx": {
       "indicatorId": "fx",
-      "status": "stale",
+      "status": "fresh",
       "calculatedAt": "2026-10-01T11:47:49Z",
       "sample": {
         "start": "1997-01-01",
@@ -673,17 +673,15 @@
       "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e",
       "calculationStatus": "fresh",
       "inputHealth": {
-        "status": "partial",
-        "staleInputs": [
-          "fx"
-        ],
-        "note": "Uses retained, stale or unavailable inputs: fx"
+        "status": "fresh",
+        "staleInputs": [],
+        "note": "All required inputs passed source validation; observation periods still differ."
       }
     },
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-10-17T14:17:38Z",
+      "calculatedAt": "2026-10-17T14:36:42Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",
@@ -697,21 +695,21 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 0,
-        "bic": -212.52195
+        "bic": -211.626119
       },
       "diagnostics": {
-        "adfStatistic": -2.925,
-        "adfPValue": 0.04251713,
+        "adfStatistic": -2.945753,
+        "adfPValue": 0.04028041,
         "adfLags": 0,
-        "cusumStatistic": 0.47341,
-        "cusumPValue": 0.97846306
+        "cusumStatistic": 0.481671,
+        "cusumPValue": 0.97447448
       },
       "warnings": [
         "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence."
       ],
       "candidates": [],
       "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-      "seriesFingerprint": "4d8c419c6187962381a5b8f493fb36966d207c5a1395db2d27cb2b0ce7c6ed0d",
+      "seriesFingerprint": "0e5a410212a67a7655874152814b52e1e5f30a886fcb9e10b9bae5f337f69528",
       "calculationStatus": "fresh",
       "inputHealth": {
         "status": "fresh",
@@ -722,11 +720,8 @@
   },
   "calculationStatus": "fresh",
   "inputHealth": {
-    "status": "partial",
-    "staleInputs": [
-      "fx",
-      "structuralBreaks.fx"
-    ],
-    "note": "Uses retained, stale or unavailable inputs: fx, structuralBreaks.fx"
+    "status": "fresh",
+    "staleInputs": [],
+    "note": "All required inputs passed source validation; observation periods still differ."
   }
 }
