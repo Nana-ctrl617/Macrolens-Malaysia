@@ -2591,6 +2591,10 @@ def apply_observation_recency(source: dict, attempted_at: str, maximum_age_days:
         source["message"] = f"Response validated but latest observation exceeds the {maximum_age_days}-day recency limit; showing last available observation"
     elif age < 0:
         raise ValueError("Source contains a future observation")
+    else:
+        source["status"] = "fresh"
+        if "exceeds the" in source.get("message", ""):
+            source["message"] = "Official source validated"
     return source
 
 

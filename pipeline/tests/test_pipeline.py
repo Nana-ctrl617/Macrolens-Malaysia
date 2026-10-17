@@ -493,11 +493,15 @@ def test_old_observation_is_stale_but_old_opr_decision_is_not():
 
 
 def test_monthly_observation_age_uses_period_end_not_first_day():
-    source = {"status": "fresh", "observationPeriod": "2026-08-01"}
+    source = {
+        "status": "stale", "observationPeriod": "2026-09-01",
+        "message": "Response validated but latest observation exceeds the 45-day recency limit; showing last available observation",
+    }
     result = macrolens.apply_observation_recency(source, "2026-10-16T13:19:21Z", 100, monthly_period=True)
-    assert result["freshness"]["observationAgeDays"] == 46
+    assert result["freshness"]["observationAgeDays"] == 16
     assert result["freshness"]["reference"] == "period-end"
     assert result["status"] == "fresh"
+    assert result["message"] == "Official source validated"
 
 
 def test_daily_observation_age_uses_exact_observation_date():
