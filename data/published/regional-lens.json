@@ -1,8 +1,8 @@
 {
   "refreshPolicy": "source-local-v1",
   "status": "fresh",
-  "generatedAt": "2026-10-18T09:53:06Z",
-  "lastAttemptAt": "2026-10-18T09:53:06Z",
+  "generatedAt": "2026-10-19T11:14:46Z",
+  "lastAttemptAt": "2026-10-19T11:14:46Z",
   "calculationStatus": "fresh",
   "message": "12 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
   "defaultComparison": {
@@ -23,7 +23,7 @@
   "sources": {
     "nationalIncome": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
       "records": [
@@ -139,11 +139,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "nationalPoverty": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
       "records": [
@@ -233,11 +233,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "nationalInequality": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
       "records": [
@@ -327,11 +327,11 @@
         }
       ],
       "message": "Official national household benchmark validated; comparisons require the same survey period",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "hiesState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -527,8 +527,8 @@
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
@@ -536,15 +536,15 @@
       },
       "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
       "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "nationalExpenditure": {
       "status": "fresh",
       "value": 5566.0,
       "unit": "RM per household per month",
       "observationPeriod": "2024-01-01",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
       "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
       "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
       "page": 24,
@@ -552,7 +552,7 @@
     },
     "hiesDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -2503,11 +2503,11 @@
         }
       ],
       "message": "Latest district HIES data validated",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "incomeGroupState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
@@ -3042,11 +3042,11 @@
         }
       ],
       "message": "Official income percentiles validated independently",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "incomeGroupNational": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
       "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
@@ -3080,11 +3080,11 @@
         }
       ],
       "message": "Official income percentiles validated independently",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -3700,11 +3700,11 @@
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
       "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "labour": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
       "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -5202,11 +5202,11 @@
       ],
       "historicalRateAnomalies": 1,
       "message": "District labour-force data validated and aggregated to state level; 1 historical rate observation(s) above 100% were excluded from latest-period summaries",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "gdpState": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -5214,11 +5214,11 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "gdpDistrict": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2020-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -5226,11 +5226,11 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "gdp": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2025-01-01",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
       "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -5238,7 +5238,7 @@
       "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
       "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
       "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
       "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
       "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
       "stateRecords": [
@@ -14666,7 +14666,7 @@
       ],
       "stateSource": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -14674,11 +14674,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "districtSource": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2020-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -14686,99 +14686,99 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       }
     },
     "cpi": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "observationPeriod": "2026-08-01",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "observationPeriod": "2026-09-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
       "records": [
         {
           "state": "Johor",
-          "date": "2026-08-01",
-          "headlineInflation": 2.3
+          "date": "2026-09-01",
+          "headlineInflation": 2.2
         },
         {
           "state": "Kedah",
-          "date": "2026-08-01",
-          "headlineInflation": 2.3
+          "date": "2026-09-01",
+          "headlineInflation": 2.2
         },
         {
           "state": "Kelantan",
-          "date": "2026-08-01",
-          "headlineInflation": 1.1
+          "date": "2026-09-01",
+          "headlineInflation": 0.7
         },
         {
           "state": "Melaka",
-          "date": "2026-08-01",
-          "headlineInflation": 2.0
+          "date": "2026-09-01",
+          "headlineInflation": 1.5
         },
         {
           "state": "Negeri Sembilan",
-          "date": "2026-08-01",
-          "headlineInflation": 2.5
+          "date": "2026-09-01",
+          "headlineInflation": 2.4
         },
         {
           "state": "Pahang",
-          "date": "2026-08-01",
-          "headlineInflation": 2.3
+          "date": "2026-09-01",
+          "headlineInflation": 2.1
         },
         {
           "state": "Perak",
-          "date": "2026-08-01",
-          "headlineInflation": 1.2
+          "date": "2026-09-01",
+          "headlineInflation": 1.1
         },
         {
           "state": "Perlis",
-          "date": "2026-08-01",
-          "headlineInflation": 1.2
+          "date": "2026-09-01",
+          "headlineInflation": 0.6
         },
         {
           "state": "Pulau Pinang",
-          "date": "2026-08-01",
-          "headlineInflation": 1.7
+          "date": "2026-09-01",
+          "headlineInflation": 1.5
         },
         {
           "state": "Sabah",
-          "date": "2026-08-01",
-          "headlineInflation": 1.8
+          "date": "2026-09-01",
+          "headlineInflation": 1.9
         },
         {
           "state": "Sarawak",
-          "date": "2026-08-01",
+          "date": "2026-09-01",
           "headlineInflation": 0.5
         },
         {
           "state": "Selangor",
-          "date": "2026-08-01",
-          "headlineInflation": 2.1
+          "date": "2026-09-01",
+          "headlineInflation": 1.9
         },
         {
           "state": "Terengganu",
-          "date": "2026-08-01",
+          "date": "2026-09-01",
           "headlineInflation": 1.2
         },
         {
           "state": "W.P. Kuala Lumpur",
-          "date": "2026-08-01",
-          "headlineInflation": 2.1
+          "date": "2026-09-01",
+          "headlineInflation": 1.8
         },
         {
           "state": "W.P. Labuan",
-          "date": "2026-08-01",
-          "headlineInflation": 2.3
+          "date": "2026-09-01",
+          "headlineInflation": 2.4
         },
         {
           "state": "W.P. Putrajaya",
-          "date": "2026-08-01",
-          "headlineInflation": 2.0
+          "date": "2026-09-01",
+          "headlineInflation": 2.2
         }
       ],
       "message": "Latest state headline CPI inflation validated",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     }
   },
   "stateRecords": [
@@ -14792,8 +14792,8 @@
       "incomeToExpenditureRatio": 1.301,
       "poverty": 2.5,
       "gini": 0.348,
-      "headlineInflation": 2.3,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.2,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 2.34,
       "labourPeriod": "2024-01-01",
       "realGdp": 170.947,
@@ -14862,8 +14862,8 @@
       "incomeToExpenditureRatio": 1.215,
       "poverty": 8.4,
       "gini": 0.334,
-      "headlineInflation": 2.3,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.2,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 2.54,
       "labourPeriod": "2024-01-01",
       "realGdp": 56.303,
@@ -14932,8 +14932,8 @@
       "incomeToExpenditureRatio": 1.067,
       "poverty": 11.5,
       "gini": 0.356,
-      "headlineInflation": 1.1,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 0.7,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 3.58,
       "labourPeriod": "2024-01-01",
       "realGdp": 29.776,
@@ -15002,8 +15002,8 @@
       "incomeToExpenditureRatio": 1.109,
       "poverty": 3.0,
       "gini": 0.337,
-      "headlineInflation": 2.0,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.5,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 1.6,
       "labourPeriod": "2024-01-01",
       "realGdp": 50.286,
@@ -15072,8 +15072,8 @@
       "incomeToExpenditureRatio": 1.093,
       "poverty": 4.0,
       "gini": 0.343,
-      "headlineInflation": 2.5,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.4,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 3.16,
       "labourPeriod": "2024-01-01",
       "realGdp": 55.767,
@@ -15142,8 +15142,8 @@
       "incomeToExpenditureRatio": 1.139,
       "poverty": 5.9,
       "gini": 0.319,
-      "headlineInflation": 2.3,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.1,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 2.02,
       "labourPeriod": "2024-01-01",
       "realGdp": 70.962,
@@ -15212,8 +15212,8 @@
       "incomeToExpenditureRatio": 1.108,
       "poverty": 6.9,
       "gini": 0.298,
-      "headlineInflation": 1.2,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.1,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 3.57,
       "labourPeriod": "2024-01-01",
       "realGdp": 91.529,
@@ -15282,8 +15282,8 @@
       "incomeToExpenditureRatio": 1.212,
       "poverty": 3.6,
       "gini": 0.334,
-      "headlineInflation": 1.2,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 0.6,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 6.676,
@@ -15352,8 +15352,8 @@
       "incomeToExpenditureRatio": 1.263,
       "poverty": 1.9,
       "gini": 0.311,
-      "headlineInflation": 1.7,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.5,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 2.0,
       "labourPeriod": "2024-01-01",
       "realGdp": 130.283,
@@ -15422,8 +15422,8 @@
       "incomeToExpenditureRatio": 1.379,
       "poverty": 17.7,
       "gini": 0.405,
-      "headlineInflation": 1.8,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.9,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 7.56,
       "labourPeriod": "2024-01-01",
       "realGdp": 88.774,
@@ -15493,7 +15493,7 @@
       "poverty": 8.4,
       "gini": 0.361,
       "headlineInflation": 0.5,
-      "inflationPeriod": "2026-08-01",
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 3.34,
       "labourPeriod": "2024-01-01",
       "realGdp": 153.511,
@@ -15562,8 +15562,8 @@
       "incomeToExpenditureRatio": 1.476,
       "poverty": 0.9,
       "gini": 0.332,
-      "headlineInflation": 2.1,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.9,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 2.28,
       "labourPeriod": "2024-01-01",
       "realGdp": 460.114,
@@ -15633,7 +15633,7 @@
       "poverty": 5.8,
       "gini": 0.263,
       "headlineInflation": 1.2,
-      "inflationPeriod": "2026-08-01",
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": 3.09,
       "labourPeriod": "2024-01-01",
       "realGdp": 40.597,
@@ -15702,8 +15702,8 @@
       "incomeToExpenditureRatio": 1.321,
       "poverty": 1.0,
       "gini": 0.375,
-      "headlineInflation": 2.1,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 1.8,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 265.104,
@@ -15772,8 +15772,8 @@
       "incomeToExpenditureRatio": 1.642,
       "poverty": 2.0,
       "gini": 0.327,
-      "headlineInflation": 2.3,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.4,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 8.7,
@@ -15842,8 +15842,8 @@
       "incomeToExpenditureRatio": 1.172,
       "poverty": 0.2,
       "gini": 0.324,
-      "headlineInflation": 2.0,
-      "inflationPeriod": "2026-08-01",
+      "headlineInflation": 2.2,
+      "inflationPeriod": "2026-09-01",
       "unemploymentRate": null,
       "labourPeriod": null,
       "realGdp": 14.366,
@@ -27792,7 +27792,7 @@
   ],
   "incomeGroups": {
     "status": "fresh",
-    "retrievedAt": "2026-10-18T09:53:06Z",
+    "retrievedAt": "2026-10-19T11:14:46Z",
     "observationPeriod": "2024-01-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -28408,7 +28408,7 @@
     ],
     "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
     "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-    "lastAttemptAt": "2026-10-18T09:53:06Z"
+    "lastAttemptAt": "2026-10-19T11:14:46Z"
   },
   "summaryCards": [
     {

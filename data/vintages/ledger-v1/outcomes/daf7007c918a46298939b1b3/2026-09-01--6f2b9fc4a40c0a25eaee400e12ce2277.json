@@ -1,0 +1,13 @@
+{
+  "ledgerVersion": 1,
+  "contentHash": "6f2b9fc4a40c0a25eaee400e12ce22778d01e77b26648bdd8fa1ddcd1c3693e9",
+  "forecastId": "2026-10-17:daf7007c918a46298939b1b3a77f5e93e160e87a8def3299fc56551bb33e4ccf",
+  "targetMonth": "2026-09-01",
+  "actualHeadlineInflation": 1.8,
+  "unit": "%",
+  "sourceUrl": "https://data.gov.my/data-catalogue/cpi_headline_inflation",
+  "firstCapturedAt": "2026-10-19T11:14:46Z",
+  "headlineSnapshotId": "headline:2026-09-01:9fe645ca08923d56382fc3542f52986e803dbf4035fc9af2bd107f8c4f41a077",
+  "firstOfficialReleaseVerified": false,
+  "warning": "First value captured by this ledger, not verified as DOSM's unrevised first release."
+}

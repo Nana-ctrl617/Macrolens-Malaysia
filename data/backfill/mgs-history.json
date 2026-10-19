@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "startDate": "2021-11-01",
-  "nextDate": "2026-06-06",
-  "targetDate": "2026-10-17",
-  "completed": false,
-  "requests": 1200,
-  "observations": 1098,
-  "updatedAt": "2026-10-18T09:57:53Z",
+  "nextDate": "2026-10-19",
+  "targetDate": "2026-10-18",
+  "completed": true,
+  "requests": 1295,
+  "observations": 1188,
+  "updatedAt": "2026-10-19T11:16:56Z",
   "lastError": null,
-  "coverageThrough": "2026-06-05",
-  "coverageStatus": "partial",
-  "message": "Daily MGS history backfill is in progress; official history is checked through 2026-06-05."
+  "coverageThrough": "2026-10-18",
+  "coverageStatus": "fresh",
+  "message": "Daily 10-year MGS history is complete from November 2021."
 }

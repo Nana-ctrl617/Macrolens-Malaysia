@@ -1,93 +1,93 @@
 {
   "schemaVersion": 9,
-  "generatedAt": "2026-10-18T09:53:06Z",
+  "generatedAt": "2026-10-19T11:14:46Z",
   "health": "partial",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
-      "observationPeriod": "2026-08-01",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
+      "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 48,
+        "observationAgeDays": 19,
         "maximumObservationAgeDays": 100,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
-      "observationPeriod": "2026-08-01",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
+      "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 48,
+        "observationAgeDays": 19,
         "maximumObservationAgeDays": 100,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 48,
+        "observationAgeDays": 49,
         "maximumObservationAgeDays": 110,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2026-09-03",
       "message": "Official source validated"
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 18,
+        "observationAgeDays": 19,
         "maximumObservationAgeDays": 45,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "mgs": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
-      "lastAttemptAt": "2026-10-18T09:53:06Z",
-      "observationPeriod": "2026-10-16",
-      "message": "Latest official close validated. Daily MGS history backfill is in progress; official history is checked through 2026-06-05.",
+      "retrievedAt": "2026-10-19T11:14:46Z",
+      "lastAttemptAt": "2026-10-19T11:14:46Z",
+      "observationPeriod": "2026-10-19",
+      "message": "Latest official close validated. Daily 10-year MGS history is complete from November 2021.",
       "freshness": {
         "basis": "observation-recency",
         "reference": "observation-date",
-        "observationAgeDays": 2,
+        "observationAgeDays": 0,
         "maximumObservationAgeDays": 10,
         "note": "Age is measured from the observation date, not the publication date."
       },
       "historyCoverage": {
-        "status": "partial",
+        "status": "fresh",
         "startDate": "2021-11-01",
-        "throughDate": "2026-06-05",
-        "completed": false,
-        "requests": 1200,
-        "observations": 1098,
-        "retrievedAt": "2026-10-18T09:57:53Z",
-        "message": "Daily MGS history backfill is in progress; official history is checked through 2026-06-05."
+        "throughDate": "2026-10-18",
+        "completed": true,
+        "requests": 1295,
+        "observations": 1188,
+        "retrievedAt": "2026-10-19T11:16:56Z",
+        "message": "Daily 10-year MGS history is complete from November 2021."
       }
     }
   },
@@ -2295,6 +2295,10 @@
         {
           "date": "2026-08-01",
           "value": 1.9
+        },
+        {
+          "date": "2026-09-01",
+          "value": 1.8
         }
       ]
     },
@@ -2676,6 +2680,10 @@
         },
         {
           "date": "2026-08-01",
+          "value": 1.7
+        },
+        {
+          "date": "2026-09-01",
           "value": 1.7
         }
       ]
@@ -5355,7 +5363,7 @@
       "title": "10-year MGS yield",
       "unit": "%",
       "decimals": 2,
-      "frequency": "Mixed cadence; daily history backfill in progress",
+      "frequency": "Trading days",
       "source": "Bank Negara Malaysia OpenAPI",
       "source_url": "https://financialmarkets.bnm.gov.my/benchmark-yields",
       "minimum": 0,
@@ -9755,7 +9763,111 @@
           "value": 3.57
         },
         {
+          "date": "2026-06-08",
+          "value": 3.62
+        },
+        {
+          "date": "2026-06-09",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-10",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-11",
+          "value": 3.6
+        },
+        {
+          "date": "2026-06-12",
+          "value": 3.58
+        },
+        {
+          "date": "2026-06-15",
+          "value": 3.58
+        },
+        {
+          "date": "2026-06-16",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-18",
+          "value": 3.6
+        },
+        {
+          "date": "2026-06-19",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-22",
+          "value": 3.62
+        },
+        {
+          "date": "2026-06-23",
+          "value": 3.62
+        },
+        {
+          "date": "2026-06-24",
+          "value": 3.63
+        },
+        {
+          "date": "2026-06-25",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-26",
+          "value": 3.61
+        },
+        {
+          "date": "2026-06-29",
+          "value": 3.6
+        },
+        {
+          "date": "2026-06-30",
+          "value": 3.6
+        },
+        {
           "date": "2026-07-01",
+          "value": 3.61
+        },
+        {
+          "date": "2026-07-02",
+          "value": 3.63
+        },
+        {
+          "date": "2026-07-03",
+          "value": 3.62
+        },
+        {
+          "date": "2026-07-06",
+          "value": 3.61
+        },
+        {
+          "date": "2026-07-07",
+          "value": 3.62
+        },
+        {
+          "date": "2026-07-08",
+          "value": 3.63
+        },
+        {
+          "date": "2026-07-09",
+          "value": 3.63
+        },
+        {
+          "date": "2026-07-10",
+          "value": 3.62
+        },
+        {
+          "date": "2026-07-13",
+          "value": 3.62
+        },
+        {
+          "date": "2026-07-14",
+          "value": 3.64
+        },
+        {
+          "date": "2026-07-15",
           "value": 3.63
         },
         {
@@ -9763,12 +9875,240 @@
           "value": 3.63
         },
         {
+          "date": "2026-07-17",
+          "value": 3.65
+        },
+        {
+          "date": "2026-07-20",
+          "value": 3.65
+        },
+        {
           "date": "2026-07-21",
           "value": 3.66
         },
         {
+          "date": "2026-07-22",
+          "value": 3.67
+        },
+        {
+          "date": "2026-07-23",
+          "value": 3.69
+        },
+        {
+          "date": "2026-07-24",
+          "value": 3.7
+        },
+        {
+          "date": "2026-07-27",
+          "value": 3.69
+        },
+        {
+          "date": "2026-07-28",
+          "value": 3.7
+        },
+        {
+          "date": "2026-07-29",
+          "value": 3.72
+        },
+        {
+          "date": "2026-07-30",
+          "value": 3.72
+        },
+        {
+          "date": "2026-07-31",
+          "value": 3.7
+        },
+        {
+          "date": "2026-08-03",
+          "value": 3.71
+        },
+        {
+          "date": "2026-08-04",
+          "value": 3.73
+        },
+        {
+          "date": "2026-08-05",
+          "value": 3.73
+        },
+        {
+          "date": "2026-08-06",
+          "value": 3.72
+        },
+        {
+          "date": "2026-08-07",
+          "value": 3.72
+        },
+        {
+          "date": "2026-08-10",
+          "value": 3.73
+        },
+        {
+          "date": "2026-08-11",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-12",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-13",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-14",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-17",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-18",
+          "value": 3.74
+        },
+        {
+          "date": "2026-08-19",
+          "value": 3.76
+        },
+        {
+          "date": "2026-08-20",
+          "value": 3.76
+        },
+        {
+          "date": "2026-08-21",
+          "value": 3.77
+        },
+        {
+          "date": "2026-08-24",
+          "value": 3.8
+        },
+        {
+          "date": "2026-08-26",
+          "value": 3.83
+        },
+        {
+          "date": "2026-08-27",
+          "value": 3.86
+        },
+        {
+          "date": "2026-08-28",
+          "value": 3.87
+        },
+        {
+          "date": "2026-09-01",
+          "value": 3.92
+        },
+        {
+          "date": "2026-09-02",
+          "value": 3.93
+        },
+        {
+          "date": "2026-09-03",
+          "value": 3.92
+        },
+        {
+          "date": "2026-09-04",
+          "value": 3.98
+        },
+        {
+          "date": "2026-09-07",
+          "value": 4.04
+        },
+        {
+          "date": "2026-09-08",
+          "value": 4.1
+        },
+        {
+          "date": "2026-09-09",
+          "value": 4.12
+        },
+        {
           "date": "2026-09-10",
           "value": 4.14
+        },
+        {
+          "date": "2026-09-11",
+          "value": 4.18
+        },
+        {
+          "date": "2026-09-14",
+          "value": 4.14
+        },
+        {
+          "date": "2026-09-15",
+          "value": 4.17
+        },
+        {
+          "date": "2026-09-17",
+          "value": 4.13
+        },
+        {
+          "date": "2026-09-18",
+          "value": 3.92
+        },
+        {
+          "date": "2026-09-21",
+          "value": 3.94
+        },
+        {
+          "date": "2026-09-22",
+          "value": 3.9
+        },
+        {
+          "date": "2026-09-23",
+          "value": 3.91
+        },
+        {
+          "date": "2026-09-24",
+          "value": 3.95
+        },
+        {
+          "date": "2026-09-25",
+          "value": 3.94
+        },
+        {
+          "date": "2026-09-28",
+          "value": 4.02
+        },
+        {
+          "date": "2026-09-29",
+          "value": 4.09
+        },
+        {
+          "date": "2026-09-30",
+          "value": 4.02
+        },
+        {
+          "date": "2026-10-01",
+          "value": 4.02
+        },
+        {
+          "date": "2026-10-02",
+          "value": 4.0
+        },
+        {
+          "date": "2026-10-05",
+          "value": 4.0
+        },
+        {
+          "date": "2026-10-07",
+          "value": 3.97
+        },
+        {
+          "date": "2026-10-08",
+          "value": 3.96
+        },
+        {
+          "date": "2026-10-09",
+          "value": 3.94
+        },
+        {
+          "date": "2026-10-12",
+          "value": 3.88
+        },
+        {
+          "date": "2026-10-13",
+          "value": 3.83
         },
         {
           "date": "2026-10-14",
@@ -9781,17 +10121,21 @@
         {
           "date": "2026-10-16",
           "value": 3.83
+        },
+        {
+          "date": "2026-10-19",
+          "value": 3.86
         }
       ],
       "historyCoverage": {
-        "status": "partial",
+        "status": "fresh",
         "startDate": "2021-11-01",
-        "throughDate": "2026-06-05",
-        "completed": false,
-        "requests": 1200,
-        "observations": 1098,
-        "retrievedAt": "2026-10-18T09:57:53Z",
-        "message": "Daily MGS history backfill is in progress; official history is checked through 2026-06-05."
+        "throughDate": "2026-10-18",
+        "completed": true,
+        "requests": 1295,
+        "observations": 1188,
+        "retrievedAt": "2026-10-19T11:16:56Z",
+        "message": "Daily 10-year MGS history is complete from November 2021."
       }
     }
   },
@@ -9799,44 +10143,44 @@
     {
       "code": "01",
       "name": "Food & non-alcoholic beverages",
-      "value": 1.9,
+      "value": 1.8,
       "weight": 29.8,
-      "contribution": 0.566
+      "contribution": 0.536
     },
     {
       "code": "04",
       "name": "Housing, water, electricity & fuels",
-      "value": 2.1,
+      "value": 1.4,
       "weight": 23.2,
-      "contribution": 0.487
+      "contribution": 0.325
     },
     {
       "code": "07",
       "name": "Transport",
-      "value": 2.0,
+      "value": 2.5,
       "weight": 11.3,
-      "contribution": 0.226
+      "contribution": 0.282
     },
     {
       "code": "13",
       "name": "Personal care & miscellaneous",
-      "value": 3.2,
+      "value": 2.8,
       "weight": 5.8,
-      "contribution": 0.186
+      "contribution": 0.162
     },
     {
       "code": "08",
       "name": "Information & communication",
-      "value": 2.6,
+      "value": 1.8,
       "weight": 6.6,
-      "contribution": 0.172
+      "contribution": 0.119
     },
     {
       "code": "11",
       "name": "Restaurants & accommodation services",
-      "value": 2.1,
+      "value": 2.2,
       "weight": 3.4,
-      "contribution": 0.071
+      "contribution": 0.075
     },
     {
       "code": "02",
@@ -9848,55 +10192,55 @@
     {
       "code": "12",
       "name": "Insurance & financial services",
-      "value": 1.0,
+      "value": 1.2,
       "weight": 4.0,
-      "contribution": 0.04
+      "contribution": 0.048
     },
     {
       "code": "06",
       "name": "Health",
-      "value": 1.3,
+      "value": 1.4,
       "weight": 2.7,
-      "contribution": 0.035
+      "contribution": 0.038
     },
     {
       "code": "09",
       "name": "Recreation, sport & culture",
-      "value": 1.1,
+      "value": 1.2,
       "weight": 3.0,
-      "contribution": 0.033
+      "contribution": 0.036
     },
     {
       "code": "10",
       "name": "Education",
-      "value": 1.9,
+      "value": 2.1,
       "weight": 1.3,
-      "contribution": 0.025
+      "contribution": 0.027
     },
     {
       "code": "05",
       "name": "Furnishings & household maintenance",
-      "value": 0.4,
+      "value": 0.3,
       "weight": 4.3,
-      "contribution": 0.017
+      "contribution": 0.013
     },
     {
       "code": "03",
       "name": "Clothing & footwear",
-      "value": 0.1,
+      "value": 0.2,
       "weight": 2.7,
-      "contribution": 0.003
+      "contribution": 0.005
     }
   ],
   "cpiDecomposition": {
-    "observationPeriod": "2026-08-01",
+    "observationPeriod": "2026-09-01",
     "weightReferenceYear": 2022,
     "effectiveFrom": "2024-01",
     "source": "Department of Statistics Malaysia CPI publication",
     "sourceUrl": "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf",
-    "headline": 1.9,
-    "estimatedTotal": 1.914,
-    "reconciliationGap": -0.014,
+    "headline": 1.8,
+    "estimatedTotal": 1.719,
+    "reconciliationGap": 0.081,
     "method": "Official division weight multiplied by the division year-on-year inflation rate",
     "warning": "This is a transparent weighted-pressure estimate. Malaysia uses a chained CPI, so division estimates need not add exactly to headline inflation; the reconciliation gap is shown rather than hidden.",
     "calculationStatus": "fresh",
@@ -9908,38 +10252,38 @@
     "status": "fresh"
   },
   "forecast": {
-    "selectedModel": "SARIMA",
+    "selectedModel": "Seasonal naive",
     "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages",
-    "informationOrigin": "2026-08-01",
-    "backtestWindows": 31,
+    "informationOrigin": "2026-09-01",
+    "backtestWindows": 32,
     "models": [
       {
         "name": "Seasonal naive",
-        "rmse": 0.801,
-        "mae": 0.5882,
-        "selected": false,
+        "rmse": 0.7937,
+        "mae": 0.5854,
+        "selected": true,
         "eligible": true,
-        "successfulWindows": 31,
+        "successfulWindows": 32,
         "failedWindows": 0,
         "fallbackCount": 0,
         "metricsByHorizon": [
           {
             "horizon": 1,
-            "count": 31,
-            "mae": 0.6419,
-            "rmse": 0.8921
+            "count": 32,
+            "mae": 0.6406,
+            "rmse": 0.8844
           },
           {
             "horizon": 2,
-            "count": 31,
-            "mae": 0.5871,
-            "rmse": 0.798
+            "count": 32,
+            "mae": 0.5875,
+            "rmse": 0.7925
           },
           {
             "horizon": 3,
-            "count": 31,
-            "mae": 0.5355,
-            "rmse": 0.7016
+            "count": 32,
+            "mae": 0.5281,
+            "rmse": 0.6926
           }
         ],
         "scoreBasis": "Identical complete three-month windows"
@@ -9948,10 +10292,10 @@
         "name": "SARIMA",
         "rmse": 0.213,
         "mae": 0.165,
-        "selected": true,
-        "eligible": true,
+        "selected": false,
+        "eligible": false,
         "successfulWindows": 31,
-        "failedWindows": 0,
+        "failedWindows": 1,
         "fallbackCount": 0,
         "metricsByHorizon": [
           {
@@ -9973,7 +10317,7 @@
             "rmse": 0.2583
           }
         ],
-        "scoreBasis": "Identical complete three-month windows"
+        "scoreBasis": "Successful fits only; not eligible for selection"
       },
       {
         "name": "ARIMAX",
@@ -9982,7 +10326,7 @@
         "selected": false,
         "eligible": false,
         "successfulWindows": 2,
-        "failedWindows": 29,
+        "failedWindows": 30,
         "fallbackCount": 0,
         "metricsByHorizon": [
           {
@@ -10009,31 +10353,45 @@
     ],
     "points": [
       {
-        "date": "2026-09-01",
-        "value": 1.823,
-        "low80": 1.655,
-        "high80": 1.991,
-        "low95": 1.566,
-        "high95": 2.079
-      },
-      {
         "date": "2026-10-01",
-        "value": 1.859,
-        "low80": 1.636,
-        "high80": 2.082,
-        "low95": 1.518,
-        "high95": 2.2
+        "value": 1.3,
+        "low80": -0.13,
+        "high80": 2.73,
+        "low95": -0.886,
+        "high95": 3.486
       },
       {
         "date": "2026-11-01",
-        "value": 1.816,
-        "low80": 1.558,
-        "high80": 2.074,
-        "low95": 1.421,
-        "high95": 2.211
+        "value": 1.4,
+        "low80": -0.622,
+        "high80": 3.422,
+        "low95": -1.691,
+        "high95": 4.491
+      },
+      {
+        "date": "2026-12-01",
+        "value": 1.6,
+        "low80": -0.876,
+        "high80": 4.076,
+        "low95": -2.185,
+        "high95": 5.385
       }
     ],
-    "scenario": null,
+    "scenario": {
+      "model": "ARIMAX sensitivity model",
+      "lag": "Same-month core CPI; other economic inputs lagged one month",
+      "baseline": {
+        "core": 1.7,
+        "fx": 4.0275,
+        "opr": 2.75
+      },
+      "coefficients": {
+        "core": 0.821353,
+        "fx": -0.303341,
+        "opr": -0.40569
+      },
+      "warning": "A conditional sensitivity overlay based on historical ARIMAX associations. Core CPI is contemporaneous; other inputs lag one month. It is not the selected forecast unless ARIMAX completes all backtest windows and wins, and it does not identify causal effects or include covariate-path uncertainty."
+    },
     "evaluation": {
       "method": "Pseudo-real-time rolling-origin evaluation",
       "horizonMonths": 3,
@@ -10068,7 +10426,8 @@
         "2026-02-01",
         "2026-03-01",
         "2026-04-01",
-        "2026-05-01"
+        "2026-05-01",
+        "2026-06-01"
       ],
       "originPolicy": "All eligible monthly origins in the latest 60 folds; minimum 24 training observations (two full annual cycles) and three consecutive observed target months.",
       "windows": [
@@ -17538,13 +17897,202 @@
             }
           ],
           "evaluationPhase": "held-out-evaluation"
+        },
+        {
+          "origin": "2026-06-01",
+          "trainingStart": "2021-12-01",
+          "trainingEnd": "2026-06-01",
+          "trainingObservations": 55,
+          "targets": [
+            "2026-07-01",
+            "2026-08-01",
+            "2026-09-01"
+          ],
+          "models": [
+            {
+              "name": "Seasonal naive",
+              "status": "success",
+              "failureReason": null,
+              "fallbackModel": null,
+              "points": [
+                {
+                  "horizon": 1,
+                  "date": "2026-07-01",
+                  "actual": 1.8,
+                  "predicted": 1.2,
+                  "error": -0.6,
+                  "low80": -0.241865,
+                  "high80": 2.641865,
+                  "low95": -1.004412,
+                  "high95": 3.404412,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 30,
+                    "calibrationTargets": [
+                      "2023-12-01",
+                      "2024-01-01",
+                      "2024-02-01",
+                      "2024-03-01",
+                      "2024-04-01",
+                      "2024-05-01",
+                      "2024-06-01",
+                      "2024-07-01",
+                      "2024-08-01",
+                      "2024-09-01",
+                      "2024-10-01",
+                      "2024-11-01",
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01",
+                      "2026-05-01"
+                    ],
+                    "low80": 0.3,
+                    "high80": 2.1,
+                    "low95": -1.1,
+                    "high95": 3.5
+                  }
+                },
+                {
+                  "horizon": 2,
+                  "date": "2026-08-01",
+                  "actual": 1.9,
+                  "predicted": 1.3,
+                  "error": -0.6,
+                  "low80": -0.739106,
+                  "high80": 3.339106,
+                  "low95": -1.817509,
+                  "high95": 4.417509,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 29,
+                    "calibrationTargets": [
+                      "2024-01-01",
+                      "2024-02-01",
+                      "2024-03-01",
+                      "2024-04-01",
+                      "2024-05-01",
+                      "2024-06-01",
+                      "2024-07-01",
+                      "2024-08-01",
+                      "2024-09-01",
+                      "2024-10-01",
+                      "2024-11-01",
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01",
+                      "2026-05-01"
+                    ],
+                    "low80": 0.5,
+                    "high80": 2.1,
+                    "low95": -0.9,
+                    "high95": 3.5
+                  }
+                },
+                {
+                  "horizon": 3,
+                  "date": "2026-09-01",
+                  "actual": 1.8,
+                  "predicted": 1.5,
+                  "error": -0.3,
+                  "low80": -0.997384,
+                  "high80": 3.997384,
+                  "low95": -2.318154,
+                  "high95": 5.318154,
+                  "covered80": true,
+                  "covered95": true,
+                  "recalibrated": {
+                    "calibrationCount": 28,
+                    "calibrationTargets": [
+                      "2024-02-01",
+                      "2024-03-01",
+                      "2024-04-01",
+                      "2024-05-01",
+                      "2024-06-01",
+                      "2024-07-01",
+                      "2024-08-01",
+                      "2024-09-01",
+                      "2024-10-01",
+                      "2024-11-01",
+                      "2024-12-01",
+                      "2025-01-01",
+                      "2025-02-01",
+                      "2025-03-01",
+                      "2025-04-01",
+                      "2025-05-01",
+                      "2025-06-01",
+                      "2025-07-01",
+                      "2025-08-01",
+                      "2025-09-01",
+                      "2025-10-01",
+                      "2025-11-01",
+                      "2025-12-01",
+                      "2026-01-01",
+                      "2026-02-01",
+                      "2026-03-01",
+                      "2026-04-01",
+                      "2026-05-01"
+                    ],
+                    "low80": 0.7,
+                    "high80": 2.3,
+                    "low95": -0.4,
+                    "high95": 3.4
+                  }
+                }
+              ]
+            },
+            {
+              "name": "SARIMA",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            },
+            {
+              "name": "ARIMAX",
+              "status": "failed",
+              "failureReason": "ValueError: Model fit did not converge",
+              "fallbackModel": null,
+              "points": []
+            }
+          ],
+          "evaluationPhase": "held-out-evaluation"
         }
       ],
       "candidateEligibility": [
         {
           "name": "Seasonal naive",
           "eligible": true,
-          "successfulWindows": 31,
+          "successfulWindows": 32,
           "failedWindows": 0,
           "origins": [
             "2023-11-01",
@@ -17577,15 +18125,16 @@
             "2026-02-01",
             "2026-03-01",
             "2026-04-01",
-            "2026-05-01"
+            "2026-05-01",
+            "2026-06-01"
           ],
           "failedOrigins": []
         },
         {
           "name": "SARIMA",
-          "eligible": true,
+          "eligible": false,
           "successfulWindows": 31,
-          "failedWindows": 0,
+          "failedWindows": 1,
           "origins": [
             "2023-11-01",
             "2023-12-01",
@@ -17617,15 +18166,18 @@
             "2026-02-01",
             "2026-03-01",
             "2026-04-01",
-            "2026-05-01"
+            "2026-05-01",
+            "2026-06-01"
           ],
-          "failedOrigins": []
+          "failedOrigins": [
+            "2026-06-01"
+          ]
         },
         {
           "name": "ARIMAX",
           "eligible": false,
           "successfulWindows": 2,
-          "failedWindows": 29,
+          "failedWindows": 30,
           "origins": [
             "2023-11-01",
             "2023-12-01",
@@ -17657,7 +18209,8 @@
             "2026-02-01",
             "2026-03-01",
             "2026-04-01",
-            "2026-05-01"
+            "2026-05-01",
+            "2026-06-01"
           ],
           "failedOrigins": [
             "2023-11-01",
@@ -17688,7 +18241,8 @@
             "2026-01-01",
             "2026-02-01",
             "2026-03-01",
-            "2026-05-01"
+            "2026-05-01",
+            "2026-06-01"
           ]
         }
       ],
@@ -17696,53 +18250,53 @@
         {
           "name": "Seasonal naive",
           "eligible": true,
-          "covered80": 92,
-          "total80": 93,
-          "coverage80": 0.989247,
-          "covered95": 93,
-          "total95": 93,
+          "covered80": 95,
+          "total80": 96,
+          "coverage80": 0.989583,
+          "covered95": 96,
+          "total95": 96,
           "coverage95": 1.0,
-          "meanWidth80": 4.821258,
-          "meanWidth95": 7.371033,
+          "meanWidth80": 4.795142,
+          "meanWidth95": 7.331107,
           "byHorizon": [
             {
               "horizon": 1,
-              "covered80": 30,
-              "total80": 31,
-              "coverage80": 0.967742,
-              "covered95": 31,
-              "total95": 31,
+              "covered80": 31,
+              "total80": 32,
+              "coverage80": 0.96875,
+              "covered95": 32,
+              "total95": 32,
               "coverage95": 1.0,
-              "meanWidth80": 3.488387,
-              "meanWidth95": 5.333259
+              "meanWidth80": 3.469491,
+              "meanWidth95": 5.30437
             },
             {
               "horizon": 2,
-              "covered80": 31,
-              "total80": 31,
+              "covered80": 32,
+              "total80": 32,
               "coverage80": 1.0,
-              "covered95": 31,
-              "total95": 31,
+              "covered95": 32,
+              "total95": 32,
               "coverage95": 1.0,
-              "meanWidth80": 4.933323,
-              "meanWidth95": 7.542367
+              "meanWidth80": 4.906601,
+              "meanWidth95": 7.501512
             },
             {
               "horizon": 3,
-              "covered80": 31,
-              "total80": 31,
+              "covered80": 32,
+              "total80": 32,
               "coverage80": 1.0,
-              "covered95": 31,
-              "total95": 31,
+              "covered95": 32,
+              "total95": 32,
               "coverage95": 1.0,
-              "meanWidth80": 6.042063,
-              "meanWidth95": 9.237475
+              "meanWidth80": 6.009335,
+              "meanWidth95": 9.187438
             }
           ]
         },
         {
           "name": "SARIMA",
-          "eligible": true,
+          "eligible": false,
           "covered80": 68,
           "total80": 93,
           "coverage80": 0.731183,
@@ -17871,7 +18425,8 @@
           "2026-02-01",
           "2026-03-01",
           "2026-04-01",
-          "2026-05-01"
+          "2026-05-01",
+          "2026-06-01"
         ],
         "minimumSampleRule": "Finite-sample order statistic at rank ceil((n+1) × nominal coverage); range unavailable when the rank exceeds the number of prior errors. This requires at least 4 prior errors for 80% and 19 for 95%.",
         "byModelHorizon": [
@@ -17879,16 +18434,16 @@
             "model": "Seasonal naive",
             "horizon": 1,
             "nominalCoverage": 80,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 3.141653
+              "meanWidth": 3.128757
             },
             "recalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 3.421053
+              "meanWidth": 3.34
             },
             "unavailableCalibrationPoints": 0
           },
@@ -17896,14 +18451,14 @@
             "model": "Seasonal naive",
             "horizon": 1,
             "nominalCoverage": 95,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 11,
+              "count": 12,
               "coverage": 1.0,
-              "meanWidth": 4.525782
+              "meanWidth": 4.516035
             },
             "recalibrated": {
-              "count": 11,
+              "count": 12,
               "coverage": 1.0,
               "meanWidth": 4.6
             },
@@ -17913,16 +18468,16 @@
             "model": "Seasonal naive",
             "horizon": 2,
             "nominalCoverage": 80,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 4.442968
+              "meanWidth": 4.42473
             },
             "recalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 2.905263
+              "meanWidth": 2.84
             },
             "unavailableCalibrationPoints": 0
           },
@@ -17930,14 +18485,14 @@
             "model": "Seasonal naive",
             "horizon": 2,
             "nominalCoverage": 95,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 10,
+              "count": 11,
               "coverage": 1.0,
-              "meanWidth": 6.360415
+              "meanWidth": 6.349015
             },
             "recalibrated": {
-              "count": 10,
+              "count": 11,
               "coverage": 1.0,
               "meanWidth": 4.4
             },
@@ -17947,16 +18502,16 @@
             "model": "Seasonal naive",
             "horizon": 3,
             "nominalCoverage": 80,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 5.441502
+              "meanWidth": 5.419166
             },
             "recalibrated": {
-              "count": 19,
+              "count": 20,
               "coverage": 1.0,
-              "meanWidth": 2.442105
+              "meanWidth": 2.4
             },
             "unavailableCalibrationPoints": 0
           },
@@ -17964,14 +18519,14 @@
             "model": "Seasonal naive",
             "horizon": 3,
             "nominalCoverage": 95,
-            "evaluationPoints": 19,
+            "evaluationPoints": 20,
             "uncalibrated": {
-              "count": 9,
+              "count": 10,
               "coverage": 1.0,
-              "meanWidth": 7.744529
+              "meanWidth": 7.733707
             },
             "recalibrated": {
-              "count": 9,
+              "count": 10,
               "coverage": 1.0,
               "meanWidth": 3.8
             },
@@ -18196,19 +18751,19 @@
         "Ineligible candidates' error scores and coverage, if present, describe successful fits only and are not comparable selection scores on the complete shared sample."
       ],
       "finalFit": {
-        "requestedModel": "SARIMA",
-        "usedModel": "SARIMA",
+        "requestedModel": "Seasonal naive",
+        "usedModel": "Seasonal naive",
         "fallbackUsed": false,
         "failureReason": null
       },
       "scenarioFit": {
-        "status": "failed",
-        "failureReason": "ValueError: Model fit did not converge"
+        "status": "success",
+        "failureReason": null
       }
     },
     "status": "fresh",
     "calculationStatus": "fresh",
-    "calculatedAt": "2026-10-18T09:53:06Z",
+    "calculatedAt": "2026-10-19T11:14:46Z",
     "inputHealth": {
       "status": "fresh",
       "staleInputs": [],
@@ -18219,19 +18774,19 @@
       "status": "collecting",
       "freshSourceCount": 6,
       "requiredSourceCount": 6,
-      "sourceSnapshotCount": 13,
+      "sourceSnapshotCount": 16,
       "revisedSourcePeriodCount": 1,
-      "prospectiveForecastCount": 8,
-      "capturedOutcomeCount": 0,
-      "pendingForecastTargetCount": 24,
+      "prospectiveForecastCount": 9,
+      "capturedOutcomeCount": 8,
+      "pendingForecastTargetCount": 19,
       "firstSnapshotAt": "2026-10-06T12:13:36Z",
-      "lastSnapshotAt": "2026-10-18T09:53:06Z",
+      "lastSnapshotAt": "2026-10-19T11:14:46Z",
       "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
     }
   },
   "structuralBreaks": {
     "status": "fresh",
-    "calculatedAt": "2026-10-18T09:53:06Z",
+    "calculatedAt": "2026-10-19T11:14:46Z",
     "methodology": {
       "model": "Level on intercept, linear trend, and one-month lag",
       "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -18246,11 +18801,11 @@
       "headline": {
         "indicatorId": "headline",
         "status": "fresh",
-        "calculatedAt": "2026-09-18T10:02:12Z",
+        "calculatedAt": "2026-10-19T11:14:46Z",
         "sample": {
           "start": "1981-01-01",
-          "end": "2026-08-01",
-          "observations": 548,
+          "end": "2026-09-01",
+          "observations": 549,
           "frequency": "Monthly",
           "minimumSegmentMonths": 24,
           "confidence": "standard"
@@ -18260,19 +18815,19 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 0,
-          "bic": -554.229375
+          "bic": -556.250223
         },
         "diagnostics": {
-          "adfStatistic": -4.441296,
-          "adfPValue": 0.00025067,
+          "adfStatistic": -4.442838,
+          "adfPValue": 0.00024909,
           "adfLags": 13,
-          "cusumStatistic": 0.470525,
-          "cusumPValue": 0.97974948
+          "cusumStatistic": 0.469801,
+          "cusumPValue": 0.98006391
         },
         "warnings": [],
         "candidates": [],
         "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-        "seriesFingerprint": "524117f14009f797682ccb80f809fd0cae1acec838c0d7f979908361f1c7db46",
+        "seriesFingerprint": "c973d2e24102e968a6dc701c325e9be5992f55d04df87a4b3bde6f2f9c72825e",
         "calculationStatus": "fresh",
         "inputHealth": {
           "status": "fresh",
@@ -18283,11 +18838,11 @@
       "core": {
         "indicatorId": "core",
         "status": "fresh",
-        "calculatedAt": "2026-09-18T10:02:12Z",
+        "calculatedAt": "2026-10-19T11:14:46Z",
         "sample": {
           "start": "2019-01-01",
-          "end": "2026-08-01",
-          "observations": 92,
+          "end": "2026-09-01",
+          "observations": 93,
           "frequency": "Monthly",
           "minimumSegmentMonths": 24,
           "confidence": "standard"
@@ -18297,14 +18852,14 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 1,
-          "bic": -254.573463
+          "bic": -258.481916
         },
         "diagnostics": {
-          "adfStatistic": -2.16751,
-          "adfPValue": 0.21824797,
+          "adfStatistic": -2.181708,
+          "adfPValue": 0.21295111,
           "adfLags": 5,
-          "cusumStatistic": 0.802062,
-          "cusumPValue": 0.54079128
+          "cusumStatistic": 0.801318,
+          "cusumPValue": 0.54199889
         },
         "warnings": [
           "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
@@ -18316,32 +18871,32 @@
               "preStart": "2019-02-01",
               "preEnd": "2021-10-01",
               "postStart": "2021-11-01",
-              "postEnd": "2026-08-01",
+              "postEnd": "2026-09-01",
               "preObservations": 33,
-              "postObservations": 58
+              "postObservations": 59
             },
             "chow": {
-              "fStatistic": 7.348184,
+              "fStatistic": 7.370763,
               "dfNumerator": 3,
-              "dfDenominator": 85,
-              "pRaw": 0.00019465,
-              "pHolm": 0.00019465
+              "dfDenominator": 86,
+              "pRaw": 0.00018759,
+              "pHolm": 0.00018759
             },
             "hacWald": {
-              "statistic": 10.338166,
+              "statistic": 10.198234,
               "df": 3,
-              "pValue": 7.17e-06,
+              "pValue": 8.16e-06,
               "maxLags": 12
             },
             "regimeComparison": {
               "preMean": 1.012121,
-              "postMean": 2.341379,
-              "absoluteChange": 1.329258,
-              "percentChange": 131.3339,
+              "postMean": 2.330508,
+              "absoluteChange": 1.318387,
+              "percentChange": 130.2598,
               "preAnnualTrend": -0.229011,
-              "postAnnualTrend": -0.233437,
-              "annualTrendChange": -0.004426,
-              "standardisedMeanChange": 1.849973
+              "postAnnualTrend": -0.23481,
+              "annualTrendChange": -0.005799,
+              "standardisedMeanChange": 1.837095
             },
             "nearbyEvents": [
               {
@@ -18357,8 +18912,8 @@
             "statusLabel": "Supported structural shift"
           }
         ],
-        "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.33 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-        "seriesFingerprint": "40694cbb3d6b3807c6d5b17d16c2d37dea38350df1e590c29d006ec4f08bc17e",
+        "narrative": "The latest supported parameter shift is estimated near 2021-11. The adjacent-regime mean was 1.32 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
+        "seriesFingerprint": "8bae3d97446b657e32d0259890c78c1073d641626da5c3d491efc721833a856a",
         "calculationStatus": "fresh",
         "inputHealth": {
           "status": "fresh",
@@ -18912,11 +19467,11 @@
       "mgs": {
         "indicatorId": "mgs",
         "status": "fresh",
-        "calculatedAt": "2026-10-18T09:53:06Z",
+        "calculatedAt": "2026-10-19T11:14:46Z",
         "sample": {
           "start": "2021-11-01",
           "end": "2026-10-01",
-          "observations": 59,
+          "observations": 60,
           "frequency": "Monthly",
           "minimumSegmentMonths": 12,
           "confidence": "limited-history"
@@ -18926,14 +19481,14 @@
           "criterion": "BIC",
           "maximumBreaks": 3,
           "selectedBreaks": 0,
-          "bic": -210.140218
+          "bic": -222.834636
         },
         "diagnostics": {
-          "adfStatistic": -2.824892,
-          "adfPValue": 0.05480522,
+          "adfStatistic": -2.646428,
+          "adfPValue": 0.08377617,
           "adfLags": 0,
-          "cusumStatistic": 0.501919,
-          "cusumPValue": 0.96270462
+          "cusumStatistic": 0.569786,
+          "cusumPValue": 0.90158768
         },
         "warnings": [
           "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -18941,7 +19496,7 @@
         ],
         "candidates": [],
         "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-        "seriesFingerprint": "0852ff89ae99381e7fbde0c9fa1e30319e7ea96b24f8de0a269c938dff2bf851",
+        "seriesFingerprint": "f21c80dd94b66a8078059171a00a61c4af4ba86006c645930078aa1995f441ea",
         "calculationStatus": "fresh",
         "inputHealth": {
           "status": "fresh",
@@ -18959,8 +19514,8 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-10-18T09:53:06Z",
-    "lastAttemptAt": "2026-10-18T09:53:06Z",
+    "retrievedAt": "2026-10-19T11:14:46Z",
+    "lastAttemptAt": "2026-10-19T11:14:46Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -18976,14 +19531,6 @@
       "benchmarkSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
       "delayed": true,
       "points": [
-        {
-          "date": "2016-10-17",
-          "value": 1653.71
-        },
-        {
-          "date": "2016-10-18",
-          "value": 1667.5699
-        },
         {
           "date": "2016-10-19",
           "value": 1668.27
@@ -28755,37 +29302,41 @@
         {
           "date": "2026-10-16",
           "value": 1607.76
+        },
+        {
+          "date": "2026-10-19",
+          "value": 1595.75
         }
       ]
     },
     "summary": {
-      "latest": 1607.76,
-      "latestDate": "2026-10-16",
-      "change1D": -0.98,
-      "return1M": -4.25,
-      "return3M": -6.64,
-      "returnYtd": -4.31,
-      "return1Y": -0.28,
-      "annualizedVolatility1Y": 9.73,
-      "maxDrawdown1Y": -9.61,
+      "latest": 1595.75,
+      "latestDate": "2026-10-19",
+      "change1D": -0.75,
+      "return1M": -4.19,
+      "return3M": -7.84,
+      "returnYtd": -5.02,
+      "return1Y": -0.71,
+      "annualizedVolatility1Y": 9.76,
+      "maxDrawdown1Y": -9.91,
       "high52w": 1771.25,
-      "low52w": 1601.01
+      "low52w": 1595.75
     },
     "narratives": {
-      "performance": "The FBM KLCI declined 0.3% over the latest year, with 9.7% annualised volatility and a 9.6% maximum drawdown during that window.",
+      "performance": "The FBM KLCI declined 0.7% over the latest year, with 9.8% annualised volatility and a 9.9% maximum drawdown during that window.",
       "macro": "The index can respond to earnings, global risk appetite, commodity prices, interest rates and the ringgit. These co-movements are context, not evidence that any one macro variable caused the market move."
     },
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 2,
+      "observationAgeDays": 0,
       "maximumObservationAgeDays": 10,
       "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-10-18T09:53:06Z",
+    "retrievedAt": "2026-10-19T11:14:46Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -29623,14 +30174,14 @@
     ],
     "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
     "message": "Official quarterly observations validated; only complete calendar years are published",
-    "lastAttemptAt": "2026-10-18T09:53:06Z"
+    "lastAttemptAt": "2026-10-19T11:14:46Z"
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -30468,11 +31019,11 @@
       ],
       "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
       "message": "Official quarterly observations validated; only complete calendar years are published",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -31365,7 +31916,7 @@
       ],
       "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
       "message": "Official quarterly expenditure observations validated; complete years only",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
     "message": "Production and expenditure GDP views validated",
@@ -31378,8 +31929,8 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-10-18T09:53:06Z",
-    "observationPeriod": "2026-08-01",
+    "retrievedAt": "2026-10-19T11:14:46Z",
+    "observationPeriod": "2026-09-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
     "datasetUrl": "https://storage.dosm.gov.my/trade/trade_headline.csv",
@@ -33621,41 +34172,48 @@
       },
       {
         "date": "2026-08-01",
-        "exports": 191.049,
-        "imports": 162.96,
-        "total": 354.009,
-        "balance": 28.089
+        "exports": 191.033,
+        "imports": 162.948,
+        "total": 353.981,
+        "balance": 28.085
+      },
+      {
+        "date": "2026-09-01",
+        "exports": 215.113,
+        "imports": 181.389,
+        "total": 396.502,
+        "balance": 33.724
       }
     ],
     "summary": {
-      "latestDate": "2026-08-01",
-      "exports": 191.049,
-      "imports": 162.96,
-      "total": 354.009,
-      "balance": 28.089,
-      "exportsYoY": 45.46,
-      "importsYoY": 41.12,
-      "last12Balance": 268.211,
-      "prior12Balance": 146.172,
+      "latestDate": "2026-09-01",
+      "exports": 215.113,
+      "imports": 181.389,
+      "total": 396.502,
+      "balance": 33.724,
+      "exportsYoY": 54.48,
+      "importsYoY": 52.69,
+      "last12Balance": 281.474,
+      "prior12Balance": 153.789,
       "tradeReading": "exports outpaced imports"
     },
     "narratives": {
-      "performance": "In the latest month, Malaysia recorded RM 191.0 billion of goods exports and RM 163.0 billion of goods imports, leaving a RM 28.1 billion trade balance.",
+      "performance": "In the latest month, Malaysia recorded RM 215.1 billion of goods exports and RM 181.4 billion of goods imports, leaving a RM 33.7 billion trade balance.",
       "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance."
     },
     "message": "Official monthly trade headline data validated",
-    "lastAttemptAt": "2026-10-18T09:53:06Z",
+    "lastAttemptAt": "2026-10-19T11:14:46Z",
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 78,
+      "observationAgeDays": 48,
       "maximumObservationAgeDays": 100,
       "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "balancePayments": {
-    "status": "fresh",
-    "retrievedAt": "2026-10-18T09:53:06Z",
+    "status": "stale",
+    "retrievedAt": "2026-10-19T11:14:46Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
@@ -35657,12 +36215,12 @@
       "externalPosition": "Malaysia's latest current account is a RM 10.8 billion surplus. The financial account balance is RM -27.0 billion and the official reserve account balance is RM -17.0 billion.",
       "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions."
     },
-    "message": "Official quarterly BOP component balances validated",
-    "lastAttemptAt": "2026-10-18T09:53:06Z",
+    "message": "Response validated but latest observation exceeds the 200-day recency limit; showing last available observation",
+    "lastAttemptAt": "2026-10-19T11:14:46Z",
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 200,
+      "observationAgeDays": 201,
       "maximumObservationAgeDays": 200,
       "note": "Age is measured from the observation date, not the publication date."
     }
@@ -35670,8 +36228,8 @@
   "regionalLens": {
     "refreshPolicy": "source-local-v1",
     "status": "fresh",
-    "generatedAt": "2026-10-18T09:53:06Z",
-    "lastAttemptAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
+    "lastAttemptAt": "2026-10-19T11:14:46Z",
     "calculationStatus": "fresh",
     "message": "12 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
     "defaultComparison": {
@@ -35692,7 +36250,7 @@
     "sources": {
       "nationalIncome": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "records": [
@@ -35808,11 +36366,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "nationalPoverty": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "records": [
@@ -35902,11 +36460,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "nationalInequality": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "records": [
@@ -35996,11 +36554,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "hiesState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -36196,8 +36754,8 @@
           "value": 5566.0,
           "unit": "RM per household per month",
           "observationPeriod": "2024-01-01",
-          "retrievedAt": "2026-10-18T09:53:06Z",
-          "lastAttemptAt": "2026-10-18T09:53:06Z",
+          "retrievedAt": "2026-10-19T11:14:46Z",
+          "lastAttemptAt": "2026-10-19T11:14:46Z",
           "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
           "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
           "page": 24,
@@ -36205,15 +36763,15 @@
         },
         "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "nationalExpenditure": {
         "status": "fresh",
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
@@ -36221,7 +36779,7 @@
       },
       "hiesDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -38172,11 +38730,11 @@
           }
         ],
         "message": "Latest district HIES data validated",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "incomeGroupState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
@@ -38711,11 +39269,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "incomeGroupNational": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
@@ -38749,11 +39307,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "incomeGroups": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -39369,11 +39927,11 @@
         ],
         "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
         "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "labour": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -40871,11 +41429,11 @@
         ],
         "historicalRateAnomalies": 1,
         "message": "District labour-force data validated and aggregated to state level; 1 historical rate observation(s) above 100% were excluded from latest-period summaries",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "gdpState": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -40883,11 +41441,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "gdpDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2020-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -40895,11 +41453,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       },
       "gdp": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -40907,7 +41465,7 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
         "stateRecords": [
@@ -50335,7 +50893,7 @@
         ],
         "stateSource": {
           "status": "fresh",
-          "retrievedAt": "2026-10-18T09:53:06Z",
+          "retrievedAt": "2026-10-19T11:14:46Z",
           "observationPeriod": "2025-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -50343,11 +50901,11 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-10-18T09:53:06Z"
+          "lastAttemptAt": "2026-10-19T11:14:46Z"
         },
         "districtSource": {
           "status": "fresh",
-          "retrievedAt": "2026-10-18T09:53:06Z",
+          "retrievedAt": "2026-10-19T11:14:46Z",
           "observationPeriod": "2020-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -50355,99 +50913,99 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-10-18T09:53:06Z"
+          "lastAttemptAt": "2026-10-19T11:14:46Z"
         }
       },
       "cpi": {
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "observationPeriod": "2026-08-01",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "observationPeriod": "2026-09-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
         "records": [
           {
             "state": "Johor",
-            "date": "2026-08-01",
-            "headlineInflation": 2.3
+            "date": "2026-09-01",
+            "headlineInflation": 2.2
           },
           {
             "state": "Kedah",
-            "date": "2026-08-01",
-            "headlineInflation": 2.3
+            "date": "2026-09-01",
+            "headlineInflation": 2.2
           },
           {
             "state": "Kelantan",
-            "date": "2026-08-01",
-            "headlineInflation": 1.1
+            "date": "2026-09-01",
+            "headlineInflation": 0.7
           },
           {
             "state": "Melaka",
-            "date": "2026-08-01",
-            "headlineInflation": 2.0
+            "date": "2026-09-01",
+            "headlineInflation": 1.5
           },
           {
             "state": "Negeri Sembilan",
-            "date": "2026-08-01",
-            "headlineInflation": 2.5
+            "date": "2026-09-01",
+            "headlineInflation": 2.4
           },
           {
             "state": "Pahang",
-            "date": "2026-08-01",
-            "headlineInflation": 2.3
+            "date": "2026-09-01",
+            "headlineInflation": 2.1
           },
           {
             "state": "Perak",
-            "date": "2026-08-01",
-            "headlineInflation": 1.2
+            "date": "2026-09-01",
+            "headlineInflation": 1.1
           },
           {
             "state": "Perlis",
-            "date": "2026-08-01",
-            "headlineInflation": 1.2
+            "date": "2026-09-01",
+            "headlineInflation": 0.6
           },
           {
             "state": "Pulau Pinang",
-            "date": "2026-08-01",
-            "headlineInflation": 1.7
+            "date": "2026-09-01",
+            "headlineInflation": 1.5
           },
           {
             "state": "Sabah",
-            "date": "2026-08-01",
-            "headlineInflation": 1.8
+            "date": "2026-09-01",
+            "headlineInflation": 1.9
           },
           {
             "state": "Sarawak",
-            "date": "2026-08-01",
+            "date": "2026-09-01",
             "headlineInflation": 0.5
           },
           {
             "state": "Selangor",
-            "date": "2026-08-01",
-            "headlineInflation": 2.1
+            "date": "2026-09-01",
+            "headlineInflation": 1.9
           },
           {
             "state": "Terengganu",
-            "date": "2026-08-01",
+            "date": "2026-09-01",
             "headlineInflation": 1.2
           },
           {
             "state": "W.P. Kuala Lumpur",
-            "date": "2026-08-01",
-            "headlineInflation": 2.1
+            "date": "2026-09-01",
+            "headlineInflation": 1.8
           },
           {
             "state": "W.P. Labuan",
-            "date": "2026-08-01",
-            "headlineInflation": 2.3
+            "date": "2026-09-01",
+            "headlineInflation": 2.4
           },
           {
             "state": "W.P. Putrajaya",
-            "date": "2026-08-01",
-            "headlineInflation": 2.0
+            "date": "2026-09-01",
+            "headlineInflation": 2.2
           }
         ],
         "message": "Latest state headline CPI inflation validated",
-        "lastAttemptAt": "2026-10-18T09:53:06Z"
+        "lastAttemptAt": "2026-10-19T11:14:46Z"
       }
     },
     "stateRecords": [
@@ -50461,8 +51019,8 @@
         "incomeToExpenditureRatio": 1.301,
         "poverty": 2.5,
         "gini": 0.348,
-        "headlineInflation": 2.3,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.2,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 2.34,
         "labourPeriod": "2024-01-01",
         "realGdp": 170.947,
@@ -50531,8 +51089,8 @@
         "incomeToExpenditureRatio": 1.215,
         "poverty": 8.4,
         "gini": 0.334,
-        "headlineInflation": 2.3,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.2,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 2.54,
         "labourPeriod": "2024-01-01",
         "realGdp": 56.303,
@@ -50601,8 +51159,8 @@
         "incomeToExpenditureRatio": 1.067,
         "poverty": 11.5,
         "gini": 0.356,
-        "headlineInflation": 1.1,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 0.7,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 3.58,
         "labourPeriod": "2024-01-01",
         "realGdp": 29.776,
@@ -50671,8 +51229,8 @@
         "incomeToExpenditureRatio": 1.109,
         "poverty": 3.0,
         "gini": 0.337,
-        "headlineInflation": 2.0,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.5,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 1.6,
         "labourPeriod": "2024-01-01",
         "realGdp": 50.286,
@@ -50741,8 +51299,8 @@
         "incomeToExpenditureRatio": 1.093,
         "poverty": 4.0,
         "gini": 0.343,
-        "headlineInflation": 2.5,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.4,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 3.16,
         "labourPeriod": "2024-01-01",
         "realGdp": 55.767,
@@ -50811,8 +51369,8 @@
         "incomeToExpenditureRatio": 1.139,
         "poverty": 5.9,
         "gini": 0.319,
-        "headlineInflation": 2.3,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.1,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 2.02,
         "labourPeriod": "2024-01-01",
         "realGdp": 70.962,
@@ -50881,8 +51439,8 @@
         "incomeToExpenditureRatio": 1.108,
         "poverty": 6.9,
         "gini": 0.298,
-        "headlineInflation": 1.2,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.1,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 3.57,
         "labourPeriod": "2024-01-01",
         "realGdp": 91.529,
@@ -50951,8 +51509,8 @@
         "incomeToExpenditureRatio": 1.212,
         "poverty": 3.6,
         "gini": 0.334,
-        "headlineInflation": 1.2,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 0.6,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": null,
         "labourPeriod": null,
         "realGdp": 6.676,
@@ -51021,8 +51579,8 @@
         "incomeToExpenditureRatio": 1.263,
         "poverty": 1.9,
         "gini": 0.311,
-        "headlineInflation": 1.7,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.5,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 2.0,
         "labourPeriod": "2024-01-01",
         "realGdp": 130.283,
@@ -51091,8 +51649,8 @@
         "incomeToExpenditureRatio": 1.379,
         "poverty": 17.7,
         "gini": 0.405,
-        "headlineInflation": 1.8,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.9,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 7.56,
         "labourPeriod": "2024-01-01",
         "realGdp": 88.774,
@@ -51162,7 +51720,7 @@
         "poverty": 8.4,
         "gini": 0.361,
         "headlineInflation": 0.5,
-        "inflationPeriod": "2026-08-01",
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 3.34,
         "labourPeriod": "2024-01-01",
         "realGdp": 153.511,
@@ -51231,8 +51789,8 @@
         "incomeToExpenditureRatio": 1.476,
         "poverty": 0.9,
         "gini": 0.332,
-        "headlineInflation": 2.1,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.9,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 2.28,
         "labourPeriod": "2024-01-01",
         "realGdp": 460.114,
@@ -51302,7 +51860,7 @@
         "poverty": 5.8,
         "gini": 0.263,
         "headlineInflation": 1.2,
-        "inflationPeriod": "2026-08-01",
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": 3.09,
         "labourPeriod": "2024-01-01",
         "realGdp": 40.597,
@@ -51371,8 +51929,8 @@
         "incomeToExpenditureRatio": 1.321,
         "poverty": 1.0,
         "gini": 0.375,
-        "headlineInflation": 2.1,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 1.8,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": null,
         "labourPeriod": null,
         "realGdp": 265.104,
@@ -51441,8 +51999,8 @@
         "incomeToExpenditureRatio": 1.642,
         "poverty": 2.0,
         "gini": 0.327,
-        "headlineInflation": 2.3,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.4,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": null,
         "labourPeriod": null,
         "realGdp": 8.7,
@@ -51511,8 +52069,8 @@
         "incomeToExpenditureRatio": 1.172,
         "poverty": 0.2,
         "gini": 0.324,
-        "headlineInflation": 2.0,
-        "inflationPeriod": "2026-08-01",
+        "headlineInflation": 2.2,
+        "inflationPeriod": "2026-09-01",
         "unemploymentRate": null,
         "labourPeriod": null,
         "realGdp": 14.366,
@@ -63461,7 +64019,7 @@
     ],
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-10-18T09:53:06Z",
+      "retrievedAt": "2026-10-19T11:14:46Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -64077,7 +64635,7 @@
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
       "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-      "lastAttemptAt": "2026-10-18T09:53:06Z"
+      "lastAttemptAt": "2026-10-19T11:14:46Z"
     },
     "summaryCards": [
       {
@@ -64126,7 +64684,7 @@
     }
   },
   "householdPressure": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
     "overallScore": 40.0,
     "overallLevel": "moderate",
@@ -64136,7 +64694,7 @@
         "id": "cost-of-living",
         "label": "Cost of living",
         "score": 30,
-        "evidence": "Headline inflation is 1.9% and core inflation is 1.7%.",
+        "evidence": "Headline inflation is 1.8% and core inflation is 1.7%.",
         "watch": "Track your own food, transport, rent and utilities basket rather than relying only on national CPI."
       },
       {
@@ -64166,7 +64724,7 @@
         "score": 55,
         "level": "moderate",
         "unavailableReason": null,
-        "evidence": "KLCI one-year price return is -0.3%.",
+        "evidence": "KLCI one-year price return is -0.7%.",
         "watch": "Equity performance is not a savings plan; align risk with time horizon and cash needs."
       }
     ],
@@ -64201,7 +64759,7 @@
     }
   },
   "sectorDeepDive": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
     "year": 2025,
     "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
@@ -64290,7 +64848,7 @@
     }
   },
   "macroTimeline": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
     "entries": [
       {
@@ -64411,13 +64969,13 @@
         "evidence": "Version-controlled event catalogue with official source link."
       },
       {
-        "date": "2026-10-16",
+        "date": "2026-10-19",
         "title": "Latest Bursa KLCI observation",
         "category": "Market data",
         "source": "Yahoo Finance delayed market data",
         "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
         "type": "latest-observation",
-        "evidence": "KLCI one-year price return: -0.3%."
+        "evidence": "KLCI one-year price return: -0.7%."
       }
     ],
     "summary": "The timeline combines official Malaysian events, data-selected structural breaks and the latest market observation. Event proximity is context, not causal proof.",
@@ -64430,7 +64988,7 @@
     }
   },
   "riskHeatmap": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
     "overallScore": 37.2,
     "overallLevel": "low",
@@ -64448,9 +65006,9 @@
         "level": "low",
         "dataStatus": "fresh",
         "unavailableReason": null,
-        "evidence": "Latest headline CPI inflation is 1.9%.",
+        "evidence": "Latest headline CPI inflation is 1.8%.",
         "rule": "Low below 2%, moderate from 2% to below 3%, high at 3% or above.",
-        "period": "2026-08-01",
+        "period": "2026-09-01",
         "watch": "Watch food, transport and administered-price categories."
       },
       {
@@ -64461,9 +65019,9 @@
         "level": "low",
         "dataStatus": "fresh",
         "unavailableReason": null,
-        "evidence": "Latest core inflation is 1.7%; 3-month change is -0.3 pp.",
+        "evidence": "Latest core inflation is 1.7%; 3-month change is -0.2 pp.",
         "rule": "Low below 2%, moderate from 2% to below 3%, high at 3% or above. The score uses the level, not the change.",
-        "period": "2026-08-01",
+        "period": "2026-09-01",
         "watch": "Persistent core pressure matters more than one monthly headline move."
       },
       {
@@ -64513,9 +65071,9 @@
         "level": "moderate",
         "dataStatus": "fresh",
         "unavailableReason": null,
-        "evidence": "10-year MGS yield is 3.83%.",
+        "evidence": "10-year MGS yield is 3.86%.",
         "rule": "Low below 3.50%, moderate from 3.50% to below 4.25%, high at 4.25% or above.",
-        "period": "2026-10-16",
+        "period": "2026-10-19",
         "watch": "Bond yields reflect policy expectations, term premium and global rates."
       },
       {
@@ -64526,9 +65084,9 @@
         "level": "moderate",
         "dataStatus": "fresh",
         "unavailableReason": null,
-        "evidence": "KLCI one-year price return is -0.3% with a 9.6% max drawdown.",
+        "evidence": "KLCI one-year price return is -0.7% with a 9.9% max drawdown.",
         "rule": "Low for return at least 5% and drawdown below 10%; moderate otherwise when return is above -5%; high when return is -5% or lower. Both measurements are required.",
-        "period": "2026-10-16",
+        "period": "2026-10-19",
         "watch": "Index performance excludes dividends, fees and taxes."
       },
       {
@@ -64552,9 +65110,9 @@
         "level": "low",
         "dataStatus": "fresh",
         "unavailableReason": null,
-        "evidence": "Latest goods trade balance is RM +28.1 billion; exports YoY +45.5%, imports YoY +41.1%.",
+        "evidence": "Latest goods trade balance is RM +33.7 billion; exports YoY +54.5%, imports YoY +52.7%.",
         "rule": "Low for a positive trade balance with export growth at least import growth; moderate for a positive balance otherwise; high for a zero or negative balance. All three inputs are required.",
-        "period": "2026-08-01",
+        "period": "2026-09-01",
         "watch": "Goods trade excludes services and income flows."
       }
     ],
@@ -64566,14 +65124,14 @@
     }
   },
   "latestBrief": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
-    "period": "2026-08-01",
-    "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.7%.",
+    "period": "2026-09-01",
+    "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.8% and core inflation at 1.7%.",
     "whatChanged": [
-      "Headline inflation moved +0.1 percentage points from the prior monthly release.",
+      "Headline inflation moved -0.1 percentage points from the prior monthly release.",
       "The ringgit moved +0.01 against the US dollar over the latest three-month dashboard window.",
-      "The FBM KLCI one-year price return is -0.3%, while the latest goods trade balance is RM +28.1 billion."
+      "The FBM KLCI one-year price return is -0.7%, while the latest goods trade balance is RM +33.7 billion."
     ],
     "whyItMayHaveHappened": [
       "Inflation changes can reflect category-level CPI pressure, policy effects, administered prices and imported costs.",
@@ -64589,7 +65147,7 @@
     "implications": [
       "Individuals should stress-test savings, debt repayments and job resilience against the highest-pressure signals.",
       "Companies should review pricing, cash flow, FX exposure and hiring plans using their own contracts and margins.",
-      "The three-month inflation forecast ends at 1.82%, but the prediction intervals are more important than the point estimate."
+      "The three-month inflation forecast ends at 1.60%, but the prediction intervals are more important than the point estimate."
     ],
     "disclaimer": "Educational macroeconomic briefing only. It is not personalised financial, investment, property, legal, tax or career advice.",
     "calculationStatus": "fresh",
@@ -64600,21 +65158,21 @@
     }
   },
   "decisionGuide": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
-    "summary": "Malaysia currently combines 1.9% headline inflation, a 2.75% OPR, 2.9% unemployment and a one-year KLCI price return of -0.3%. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
+    "summary": "Malaysia currently combines 1.8% headline inflation, a 2.75% OPR, 2.9% unemployment and a one-year KLCI price return of -0.7%. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
     "signals": [
       {
         "label": "Headline inflation",
-        "value": "1.9%",
-        "period": "2026-08-01",
+        "value": "1.8%",
+        "period": "2026-09-01",
         "reading": "positive but moderate"
       },
       {
         "label": "Core inflation",
         "value": "1.7%",
-        "period": "2026-08-01",
+        "period": "2026-09-01",
         "reading": "underlying price pressure"
       },
       {
@@ -64637,14 +65195,14 @@
       },
       {
         "label": "10-year MGS",
-        "value": "3.83%",
-        "period": "2026-10-16",
+        "value": "3.86%",
+        "period": "2026-10-19",
         "reading": "long-term government benchmark yield"
       },
       {
         "label": "KLCI 1-year",
-        "value": "-0.3%",
-        "period": "2026-10-16",
+        "value": "-0.7%",
+        "period": "2026-10-19",
         "reading": "broadly flat price performance"
       }
     ],
@@ -64655,7 +65213,7 @@
           "theme": "Savings and resilience",
           "stance": "Protect first",
           "title": "Build liquidity before taking more market risk",
-          "evidence": "Headline inflation is 1.9% and core inflation is 1.7%, so cash purchasing power still changes even when inflation is moderate.",
+          "evidence": "Headline inflation is 1.8% and core inflation is 1.7%, so cash purchasing power still changes even when inflation is moderate.",
           "actions": [
             "Estimate essential monthly commitments and work toward an emergency buffer suited to income stability.",
             "Keep emergency money accessible; compare deposit terms, withdrawal limits and PIDM protection before choosing an account.",
@@ -64668,7 +65226,7 @@
           "theme": "Stocks and long-term investing",
           "stance": "Avoid chasing",
           "title": "Use goals and diversification, not the latest index move",
-          "evidence": "The FBM KLCI's latest one-year price return is -0.3% and its measured one-year volatility is 9.7%.",
+          "evidence": "The FBM KLCI's latest one-year price return is -0.7% and its measured one-year volatility is 9.8%.",
           "actions": [
             "Match any equity allocation to the time horizon, loss capacity and need for near-term cash.",
             "Review diversification across companies, sectors and asset types; the KLCI represents large-cap shares, not the whole market.",
@@ -64681,7 +65239,7 @@
           "theme": "Property and borrowing",
           "stance": "Stress-test",
           "title": "Test affordability before relying on property appreciation",
-          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.83%, both relevant reference points for financing conditions.",
+          "evidence": "The OPR is 2.75% and the 10-year MGS yield is 3.86%, both relevant reference points for financing conditions.",
           "actions": [
             "Compare the full ownership cost with renting, including maintenance, assessment, insurance, vacancy and transaction costs.",
             "Recalculate repayments under a higher-rate scenario and a temporary income interruption.",
@@ -64720,7 +65278,7 @@
           "theme": "Daily prices and imported goods",
           "stance": "Compare baskets",
           "title": "Watch imported-cost pressure in your own spending",
-          "evidence": "USD/MYR is RM 4.0795; latest goods imports: RM 163.0 billion.",
+          "evidence": "USD/MYR is RM 4.0795; latest goods imports: RM 181.4 billion.",
           "actions": [
             "Track recurring imported or foreign-currency-linked spending separately.",
             "Compare total cost after shipping, tax, warranties and exchange-rate conversion.",
@@ -64735,7 +65293,7 @@
           "theme": "Cash flow and funding",
           "stance": "Protect liquidity",
           "title": "Review debt sensitivity and idle-cash policy",
-          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.83%. Borrowing still carries a meaningful financing cost.",
+          "evidence": "The OPR is 2.75% while the 10-year MGS yield is 3.86%. Borrowing still carries a meaningful financing cost.",
           "actions": [
             "Run base, higher-rate and revenue-shock cash-flow cases before refinancing or expanding debt.",
             "Match cash maturities to payroll, tax and supplier obligations rather than maximising yield alone.",
@@ -64748,7 +65306,7 @@
           "theme": "Pricing and margins",
           "stance": "Measure precisely",
           "title": "Respond to cost pressure at product level",
-          "evidence": "Headline inflation is 1.9% and core inflation is 1.7% (positive but moderate); category pressures remain uneven.",
+          "evidence": "Headline inflation is 1.8% and core inflation is 1.7% (positive but moderate); category pressures remain uneven.",
           "actions": [
             "Track input, wage, freight and energy costs separately rather than applying a blanket CPI uplift.",
             "Review gross margin by product and customer before changing prices or promotions.",
@@ -64774,7 +65332,7 @@
           "theme": "Hiring and investment",
           "stance": "Stage commitments",
           "title": "Link hiring and capital spending to demand evidence",
-          "evidence": "Unemployment is 2.9% and the KLCI's latest one-year price performance is broadly flat: -0.3%.",
+          "evidence": "Unemployment is 2.9% and the KLCI's latest one-year price performance is broadly flat: -0.7%.",
           "actions": [
             "Prioritise roles tied to bottlenecks, revenue quality or measurable productivity gains.",
             "Stage capital projects with decision gates instead of treating broad market optimism as demand proof.",
@@ -64787,7 +65345,7 @@
           "theme": "Inventory and import exposure",
           "stance": "Stress landed cost",
           "title": "Tie inventory decisions to FX and trade evidence",
-          "evidence": "Goods imports year-on-year change: +41.1%, while USD/MYR is RM 4.0795.",
+          "evidence": "Goods imports year-on-year change: +52.7%, while USD/MYR is RM 4.0795.",
           "actions": [
             "Separate essential stock buffers from speculative over-ordering.",
             "Reprice landed cost assumptions using adverse FX and freight scenarios.",
@@ -64838,11 +65396,16 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-10-18T09:53:06Z",
-    "vintageCount": 4,
-    "latestVintagePeriod": "2026-08",
+    "lastSuccessfulRefresh": "2026-10-19T11:14:46Z",
+    "vintageCount": 5,
+    "latestVintagePeriod": "2026-09",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
     "releaseLog": [
+      {
+        "period": "2026-09-01",
+        "headline": 1.8,
+        "core": 1.7
+      },
       {
         "period": "2026-08-01",
         "headline": 1.9,
@@ -64867,27 +65430,22 @@
         "period": "2026-04-01",
         "headline": 1.9,
         "core": 2.0
-      },
-      {
-        "period": "2026-03-01",
-        "headline": 1.7,
-        "core": 2.1
       }
     ]
   },
   "narratives": {
-    "snapshot": "Headline inflation rose to 1.9% in the latest release, while core inflation was 1.7%.",
-    "forecast": "The selected SARIMA model places the three-month central forecast at 1.82%. Prediction intervals, rather than the point estimate alone, should guide interpretation.",
+    "snapshot": "Headline inflation eased to 1.8% in the latest release, while core inflation was 1.7%.",
+    "forecast": "The selected Seasonal naive model places the three-month central forecast at 1.60%. Prediction intervals, rather than the point estimate alone, should guide interpretation.",
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "monthlyReport": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "title": "MacroLens Malaysia monthly research brief",
-    "period": "2026-08-01",
+    "period": "2026-09-01",
     "sections": [
       {
         "heading": "Main macro reading",
-        "body": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.9% and core inflation at 1.7%."
+        "body": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.8% and core inflation at 1.7%."
       },
       {
         "heading": "Risk heatmap",
@@ -64903,7 +65461,7 @@
       },
       {
         "heading": "Forecast",
-        "body": "The selected SARIMA model places the three-month central forecast at 1.82%. Prediction intervals, rather than the point estimate alone, should guide interpretation."
+        "body": "The selected Seasonal naive model places the three-month central forecast at 1.60%. Prediction intervals, rather than the point estimate alone, should guide interpretation."
       }
     ],
     "downloads": [
@@ -64923,14 +65481,16 @@
     "disclaimer": "This report is generated from validated dashboard data and is educational analysis, not personalised financial advice.",
     "calculationStatus": "fresh",
     "inputHealth": {
-      "status": "fresh",
-      "staleInputs": [],
-      "note": "All required inputs passed source validation; observation periods still differ."
+      "status": "partial",
+      "staleInputs": [
+        "balancePayments"
+      ],
+      "note": "Uses retained, stale or unavailable inputs: balancePayments"
     },
-    "status": "fresh"
+    "status": "partial"
   },
   "dataHealth": {
-    "generatedAt": "2026-10-18T09:53:06Z",
+    "generatedAt": "2026-10-19T11:14:46Z",
     "schemaVersion": 9,
     "overall": "partial",
     "note": "25 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately.",
@@ -64945,14 +65505,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_headline_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
-        "observationPeriod": "2026-08-01",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
+        "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 48,
+          "observationAgeDays": 19,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -64964,14 +65524,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_core_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
-        "observationPeriod": "2026-08-01",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
+        "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 48,
+          "observationAgeDays": 19,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -64983,14 +65543,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_month",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 48,
+          "observationAgeDays": 49,
           "maximumObservationAgeDays": 110,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -65002,8 +65562,8 @@
         "sourceUrl": "https://apikijangportal.bnm.gov.my/",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2026-09-03",
         "message": "Official source validated"
       },
@@ -65014,14 +65574,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/exchangerates",
         "unit": "RM",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 18,
+          "observationAgeDays": 19,
           "maximumObservationAgeDays": 45,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -65033,26 +65593,26 @@
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
-        "observationPeriod": "2026-10-16",
-        "message": "Latest official close validated. Daily MGS history backfill is in progress; official history is checked through 2026-06-05.",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
+        "observationPeriod": "2026-10-19",
+        "message": "Latest official close validated. Daily 10-year MGS history is complete from November 2021.",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 2,
+          "observationAgeDays": 0,
           "maximumObservationAgeDays": 10,
           "note": "Age is measured from the observation date, not the publication date."
         },
         "historyCoverage": {
-          "status": "partial",
+          "status": "fresh",
           "startDate": "2021-11-01",
-          "throughDate": "2026-06-05",
-          "completed": false,
-          "requests": 1200,
-          "observations": 1098,
-          "retrievedAt": "2026-10-18T09:57:53Z",
-          "message": "Daily MGS history backfill is in progress; official history is checked through 2026-06-05."
+          "throughDate": "2026-10-18",
+          "completed": true,
+          "requests": 1295,
+          "observations": 1188,
+          "retrievedAt": "2026-10-19T11:16:56Z",
+          "message": "Daily 10-year MGS history is complete from November 2021."
         }
       },
       {
@@ -65062,14 +65622,14 @@
         "relatedSource": "FTSE Russell / Bursa Malaysia",
         "relatedSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
-        "observationPeriod": "2026-10-16",
+        "observationPeriod": "2026-10-19",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 2,
+          "observationAgeDays": 0,
           "maximumObservationAgeDays": 10,
           "note": "Age is measured from the observation date, not the publication date."
         },
@@ -65082,8 +65642,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -65096,14 +65656,14 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
-        "observationPeriod": "2026-08-01",
+        "observationPeriod": "2026-09-01",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 78,
+          "observationAgeDays": 48,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the observation date, not the publication date."
         },
@@ -65115,19 +65675,19 @@
         "source": "Department of Statistics Malaysia via data.gov.my",
         "relatedSource": null,
         "relatedSourceUrl": null,
-        "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "status": "stale",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
         "observationPeriod": "2026-04-01",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 200,
+          "observationAgeDays": 201,
           "maximumObservationAgeDays": 200,
           "note": "Age is measured from the observation date, not the publication date."
         },
-        "message": "Official quarterly BOP component balances validated"
+        "message": "Response validated but latest observation exceeds the 200-day recency limit; showing last available observation"
       },
       {
         "id": "growthDrivers.demand",
@@ -65136,8 +65696,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -65150,8 +65710,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65164,8 +65724,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65178,8 +65738,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65192,8 +65752,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65206,8 +65766,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65220,8 +65780,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65234,8 +65794,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65248,8 +65808,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65262,8 +65822,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65276,8 +65836,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -65290,8 +65850,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -65304,8 +65864,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "observationPeriod": "2020-01-01",
         "freshness": null,
@@ -65318,8 +65878,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -65332,10 +65892,10 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-10-18T09:53:06Z",
-        "lastAttemptAt": "2026-10-18T09:53:06Z",
+        "retrievedAt": "2026-10-19T11:14:46Z",
+        "lastAttemptAt": "2026-10-19T11:14:46Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
-        "observationPeriod": "2026-08-01",
+        "observationPeriod": "2026-09-01",
         "freshness": null,
         "message": "Latest state headline CPI inflation validated"
       },
@@ -65344,19 +65904,24 @@
         "label": "10-year MGS historical coverage",
         "source": "Bank Negara Malaysia (BNM) Financial Markets",
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
-        "status": "partial",
-        "retrievedAt": "2026-10-18T09:57:53Z",
-        "observationPeriod": "2026-06-05",
-        "message": "Daily MGS history backfill is in progress; official history is checked through 2026-06-05."
+        "status": "fresh",
+        "retrievedAt": "2026-10-19T11:16:56Z",
+        "observationPeriod": "2026-10-18",
+        "message": "Daily 10-year MGS history is complete from November 2021."
       }
     ],
     "refresh": {
       "schedule": "Daily at 13:45 Malaysia time",
-      "lastSuccessfulRefresh": "2026-10-18T09:53:06Z",
-      "vintageCount": 4,
-      "latestVintagePeriod": "2026-08",
+      "lastSuccessfulRefresh": "2026-10-19T11:14:46Z",
+      "vintageCount": 5,
+      "latestVintagePeriod": "2026-09",
       "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
       "releaseLog": [
+        {
+          "period": "2026-09-01",
+          "headline": 1.8,
+          "core": 1.7
+        },
         {
           "period": "2026-08-01",
           "headline": 1.9,
@@ -65381,11 +65946,6 @@
           "period": "2026-04-01",
           "headline": 1.9,
           "core": 2.0
-        },
-        {
-          "period": "2026-03-01",
-          "headline": 1.7,
-          "core": 2.1
         }
       ]
     },
