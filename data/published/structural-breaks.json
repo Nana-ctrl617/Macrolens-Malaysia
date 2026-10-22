@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-10-21T10:34:53Z",
+  "calculatedAt": "2026-10-22T10:37:44Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -681,7 +681,7 @@
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-10-21T10:34:53Z",
+      "calculatedAt": "2026-10-22T10:37:44Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",
@@ -695,14 +695,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 0,
-        "bic": -222.847877
+        "bic": -222.840783
       },
       "diagnostics": {
-        "adfStatistic": -2.634171,
-        "adfPValue": 0.08613839,
+        "adfStatistic": -2.627707,
+        "adfPValue": 0.08740486,
         "adfLags": 0,
-        "cusumStatistic": 0.577253,
-        "cusumPValue": 0.89289392
+        "cusumStatistic": 0.58092,
+        "cusumPValue": 0.88849417
       },
       "warnings": [
         "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -710,7 +710,7 @@
       ],
       "candidates": [],
       "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-      "seriesFingerprint": "15b1e3128675c09ef466ea17c3fb5229716c48c5a64cdfe72d36744d51378886",
+      "seriesFingerprint": "e1c37b035c4515216120fe2bd6512211aefd086bfb5b19590c10df54e2d8fdfd",
       "calculationStatus": "fresh",
       "inputHealth": {
         "status": "fresh",
