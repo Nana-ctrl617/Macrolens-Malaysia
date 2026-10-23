@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-10-22T10:37:44Z",
+  "calculatedAt": "2026-10-23T10:30:02Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -681,7 +681,7 @@
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-10-22T10:37:44Z",
+      "calculatedAt": "2026-10-23T10:30:02Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",
@@ -710,7 +710,7 @@
       ],
       "candidates": [],
       "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-      "seriesFingerprint": "e1c37b035c4515216120fe2bd6512211aefd086bfb5b19590c10df54e2d8fdfd",
+      "seriesFingerprint": "d37a81b7d67330b0095bd9cb44f101e0ca240756c5f6988d07d3f38764c960be",
       "calculationStatus": "fresh",
       "inputHealth": {
         "status": "fresh",
