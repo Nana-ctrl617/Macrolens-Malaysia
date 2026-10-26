@@ -1,6 +1,6 @@
 {
   "status": "fresh",
-  "calculatedAt": "2026-10-23T10:30:02Z",
+  "calculatedAt": "2026-10-26T11:32:03Z",
   "methodology": {
     "model": "Level on intercept, linear trend, and one-month lag",
     "screening": "Bai-Perron-style dynamic programming with BIC",
@@ -597,11 +597,11 @@
     "fx": {
       "indicatorId": "fx",
       "status": "fresh",
-      "calculatedAt": "2026-10-01T11:47:49Z",
+      "calculatedAt": "2026-10-26T11:32:03Z",
       "sample": {
-        "start": "1997-01-01",
-        "end": "2026-09-01",
-        "observations": 357,
+        "start": "2016-06-01",
+        "end": "2026-10-01",
+        "observations": 103,
         "frequency": "Monthly",
         "minimumSegmentMonths": 24,
         "confidence": "standard"
@@ -610,67 +610,22 @@
         "method": "Bai-Perron-style dynamic programming",
         "criterion": "BIC",
         "maximumBreaks": 3,
-        "selectedBreaks": 1,
-        "bic": -1617.250157
+        "selectedBreaks": 0,
+        "bic": -478.960787
       },
       "diagnostics": {
-        "adfStatistic": -2.965328,
-        "adfPValue": 0.03826167,
+        "adfStatistic": -2.180798,
+        "adfPValue": 0.21328816,
         "adfLags": 0,
-        "cusumStatistic": 0.973449,
-        "cusumPValue": 0.29955461
+        "cusumStatistic": 0.672362,
+        "cusumPValue": 0.7566128
       },
-      "warnings": [],
-      "candidates": [
-        {
-          "breakPeriod": "2014-09-01",
-          "adjacentSample": {
-            "preStart": "1997-02-01",
-            "preEnd": "2014-08-01",
-            "postStart": "2014-09-01",
-            "postEnd": "2026-09-01",
-            "preObservations": 211,
-            "postObservations": 145
-          },
-          "chow": {
-            "fStatistic": 9.14747,
-            "dfNumerator": 3,
-            "dfDenominator": 350,
-            "pRaw": 7.65e-06,
-            "pHolm": 7.65e-06
-          },
-          "hacWald": {
-            "statistic": 8.063822,
-            "df": 3,
-            "pValue": 3.293e-05,
-            "maxLags": 12
-          },
-          "regimeComparison": {
-            "preMean": 3.516387,
-            "postMean": 4.205495,
-            "absoluteChange": 0.689108,
-            "percentChange": 19.597,
-            "preAnnualTrend": -0.036844,
-            "postAnnualTrend": 0.039001,
-            "annualTrendChange": 0.075845,
-            "standardisedMeanChange": 2.124018
-          },
-          "nearbyEvents": [
-            {
-              "date": "2014-07-10",
-              "title": "OPR changed to 3.25%",
-              "category": "Monetary policy",
-              "source": "Bank Negara Malaysia",
-              "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-opr",
-              "monthDistance": 2
-            }
-          ],
-          "status": "supported",
-          "statusLabel": "Supported structural shift"
-        }
+      "warnings": [
+        "The level series does not reject a unit root at 5%; level and trend breaks may partly reflect persistence."
       ],
-      "narrative": "The latest supported parameter shift is estimated near 2014-09. The adjacent-regime mean was 0.69 units higher; both the Holm-adjusted Chow and HAC tests are below 5%. This is evidence of parameter instability, not proof that a nearby event caused the change.",
-      "seriesFingerprint": "f98a522aad8abba53a437e5cf561d0967c2fc47d80c1e32e55019c47de8e0c1e",
+      "candidates": [],
+      "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
+      "seriesFingerprint": "3462b6cf0f4f515a5599c6ad3dc567a4ba5fc647e4bdc5271462067c964f34df",
       "calculationStatus": "fresh",
       "inputHealth": {
         "status": "fresh",
@@ -681,7 +636,7 @@
     "mgs": {
       "indicatorId": "mgs",
       "status": "fresh",
-      "calculatedAt": "2026-10-23T10:30:02Z",
+      "calculatedAt": "2026-10-26T11:32:03Z",
       "sample": {
         "start": "2021-11-01",
         "end": "2026-10-01",
@@ -695,14 +650,14 @@
         "criterion": "BIC",
         "maximumBreaks": 3,
         "selectedBreaks": 0,
-        "bic": -222.840783
+        "bic": -222.824548
       },
       "diagnostics": {
-        "adfStatistic": -2.627707,
-        "adfPValue": 0.08740486,
+        "adfStatistic": -2.62102,
+        "adfPValue": 0.08873018,
         "adfLags": 0,
-        "cusumStatistic": 0.58092,
-        "cusumPValue": 0.88849417
+        "cusumStatistic": 0.58454,
+        "cusumPValue": 0.8840669
       },
       "warnings": [
         "A 12-month minimum regime was required because the available history is short; treat break dates as lower-confidence.",
@@ -710,7 +665,7 @@
       ],
       "candidates": [],
       "narrative": "BIC selected a single-regime specification; no discrete break was detected under this specification. This does not prove stability or a causal link to nearby events.",
-      "seriesFingerprint": "d37a81b7d67330b0095bd9cb44f101e0ca240756c5f6988d07d3f38764c960be",
+      "seriesFingerprint": "d20a0c8e6cf53e28adc099f96ef388805e679106c3562843655ebeb2b5598ec2",
       "calculationStatus": "fresh",
       "inputHealth": {
         "status": "fresh",

@@ -1,0 +1,82 @@
+{
+  "ledgerVersion": 1,
+  "forecastId": "2026-10-26:84fb2d7e2785dd0efa6b27877d38aa88a33d2b14859d930c7e2be885c3bf7a2e",
+  "contentHash": "84fb2d7e2785dd0efa6b27877d38aa88a33d2b14859d930c7e2be885c3bf7a2e",
+  "issueDate": "2026-10-26",
+  "informationOrigin": "2026-09-01",
+  "targetMonths": [
+    "2026-10-01",
+    "2026-11-01",
+    "2026-12-01"
+  ],
+  "selectedModel": "Seasonal naive",
+  "modelScore": {
+    "name": "Seasonal naive",
+    "rmse": 0.7937,
+    "mae": 0.5854,
+    "selected": true,
+    "eligible": true,
+    "successfulWindows": 32,
+    "failedWindows": 0,
+    "fallbackCount": 0,
+    "metricsByHorizon": [
+      {
+        "horizon": 1,
+        "count": 32,
+        "mae": 0.6406,
+        "rmse": 0.8844
+      },
+      {
+        "horizon": 2,
+        "count": 32,
+        "mae": 0.5875,
+        "rmse": 0.7925
+      },
+      {
+        "horizon": 3,
+        "count": 32,
+        "mae": 0.5281,
+        "rmse": 0.6926
+      }
+    ],
+    "scoreBasis": "Identical complete three-month windows"
+  },
+  "forecastPoints": [
+    {
+      "date": "2026-10-01",
+      "value": 1.3,
+      "low80": -0.13,
+      "high80": 2.73,
+      "low95": -0.886,
+      "high95": 3.486
+    },
+    {
+      "date": "2026-11-01",
+      "value": 1.4,
+      "low80": -0.622,
+      "high80": 3.422,
+      "low95": -1.691,
+      "high95": 4.491
+    },
+    {
+      "date": "2026-12-01",
+      "value": 1.6,
+      "low80": -0.876,
+      "high80": 4.076,
+      "low95": -2.185,
+      "high95": 5.385
+    }
+  ],
+  "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages",
+  "sourceSnapshots": {
+    "core": "core:2026-09-01:b3c6acc4aaad4faa155715fd02cd748f8a5b380f6409fa2c1aaa6c93591b5df4",
+    "fx": "fx:2026-10-26:47f994eb0adc3a7331223c8369ac41e129d5875700df44a18fff1163ea7c5643",
+    "headline": "headline:2026-09-01:9fe645ca08923d56382fc3542f52986e803dbf4035fc9af2bd107f8c4f41a077",
+    "mgs": "mgs:2026-10-26:6cb63fe0036c2b45db6d24e3b7c2bf10d42e0388d3a2da06e303f47510ba88ca",
+    "opr": "opr:2026-09-03:825cf95487afea7a60e5187131c74400643b694eebb20b071322370edf3a1d99",
+    "unemployment": "unemployment:2026-08-01:e25a2e147d2da736b150caad2f1edca5d8d38c4bbd81a68887bd89ca5fbffa89"
+  },
+  "originPolicy": "All eligible monthly origins in the latest 60 folds; minimum 24 training observations (two full annual cycles) and three consecutive observed target months.",
+  "issuedAt": "2026-10-26T11:32:03Z",
+  "warning": "Prospective model issue captured by this ledger. This is not a historical first-release vintage before its recorded issue time."
+}
