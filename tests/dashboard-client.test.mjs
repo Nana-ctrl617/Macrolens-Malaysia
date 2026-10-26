@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { createDashboardClient, DASHBOARD_CLIENT_CACHE_MS } from "../app/lib/dashboard-client.ts";
+import { DASHBOARD_REFRESH_CACHE_MS } from "../app/lib/dashboard-cache-policy.ts";
 
 const payload = (health = "fresh") => ({
   schemaVersion: 1, generatedAt: "2026-10-05T00:00:00Z", health,
@@ -29,7 +30,9 @@ test("concurrent dashboard requests share one stable cacheable request", async (
   assert.equal(calls[0].options.signal.aborted, false);
 });
 
-test("successful data is reused for five minutes after completion then expires", async () => {
+test("successful data is reused for one minute after completion then expires", async () => {
+  assert.equal(DASHBOARD_REFRESH_CACHE_MS, 60_000, "the shared dashboard policy refreshes within one minute");
+  assert.equal(DASHBOARD_CLIENT_CACHE_MS, DASHBOARD_REFRESH_CACHE_MS, "the browser follows the shared dashboard policy");
   let current = 0;
   let calls = 0;
   const request = deferred();

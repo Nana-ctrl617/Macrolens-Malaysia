@@ -139,7 +139,7 @@ export function SeriesTrendPanel({ series, loadSeries, statuses = {}, title = "E
   };
 
   if (!active) return <section className="series-trend-panel" aria-labelledby={`${id}-heading`}><h2 id={`${id}-heading`}>{title}</h2><p id={`${id}-live`} role="status" aria-live="polite" aria-atomic="true">No indicator series are available in this dashboard.</p></section>;
-  const inspectionDescription = inspected ? `${active.title}. ${pointDate(inspected.date)}: ${pointValue(inspected.value)}. Source: ${active.source}. Data status: ${status ?? "not supplied"}.` : "No valid observations are available for this window.";
+  const inspectionDescription = inspected ? `Selected observation. ${active.title}. ${pointDate(inspected.date)}: ${pointValue(inspected.value)}. Source: ${active.source}. Data status: ${status ?? "not supplied"}.` : "No valid observations are available for this window.";
 
   return <section className={`series-trend-panel${compact ? " is-compact" : ""}`} aria-labelledby={`${id}-heading`}>
     <div className="series-trend-heading">
@@ -189,6 +189,7 @@ export function SeriesTrendPanel({ series, loadSeries, statuses = {}, title = "E
         </svg>
       </div>
       <div id={`${id}-inspection`} className="series-trend-inspection">
+        <span>Selected observation</span>
         <strong>{pointValue(inspected.value)}</strong>
         <time dateTime={inspected.date}>{pointDate(inspected.date)}</time>
         <a href={active.source_url} target="_blank" rel="noreferrer">{active.source}</a>

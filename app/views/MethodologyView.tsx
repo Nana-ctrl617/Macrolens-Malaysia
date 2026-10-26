@@ -22,7 +22,7 @@ export function MethodologyContent({ dashboard }: { dashboard: DashboardViewPayl
           <PictureStrip pictures={["research", "trade", "city"]} />
           <ol className="method-list">
             <li><span>01</span><div><h2>Collect</h2><p>Refresh official DOSM and BNM releases, then preserve the last validated cache.</p></div></li>
-            <li><span>02</span><div><h2>Align</h2><p>Convert every series to monthly frequency and lag external inputs by one month.</p></div></li>
+            <li><span>02</span><div><h2>Align</h2><p>Convert series to monthly frequency and lag external inputs by one month. The USD/MYR card shows BNM’s latest daily reference rate; forecasts use the last observed trading-day close in each month.</p></div></li>
             <li><span>03</span><div><h2>Backtest</h2><p>Compare seasonal naive, SARIMA and ARIMAX on identical expanding windows.</p></div></li>
             <li><span>04</span><div><h2>Communicate</h2><p>Select the lowest-RMSE model and show both 80% and 95% uncertainty bands.</p></div></li>
           </ol>

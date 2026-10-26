@@ -8,10 +8,36 @@ type Point = { date: string; value: number };
 type UntrustedRecord = Record<string, any>;
 const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 const date = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
-const url = (value: unknown) => typeof value === 'string' && /^https:\/\//.test(value);
+const url = (value: unknown) => {
+  if (typeof value !== 'string') return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' && Boolean(parsed.hostname) && !parsed.username && !parsed.password;
+  } catch { return false; }
+};
+const safeDashboardLink = (value: unknown) => {
+  if (typeof value !== 'string') return false;
+  if (!value.startsWith('/')) return url(value);
+  if (value.startsWith('//') || /[\\\u0000-\u001f]/.test(value)) return false;
+  try { return new URL(value, 'https://macrolens-malaysia.vercel.app').origin === 'https://macrolens-malaysia.vercel.app'; }
+  catch { return false; }
+};
+const validDashboardLinks = (value: unknown): boolean => {
+  if (!value || typeof value !== 'object') return true;
+  if (Array.isArray(value)) return value.every(validDashboardLinks);
+  return Object.entries(value).every(([key, child]) => {
+    if (/url$/i.test(key)) {
+      if (child !== undefined && child !== null && child !== '' && !safeDashboardLink(child)) return false;
+    }
+    return validDashboardLinks(child);
+  });
+};
 const between = (value: unknown, min: number, max: number) => finite(value) && value >= min && value <= max;
 const count = (value: unknown, min = 0) => Number.isInteger(value) && (value as number) >= min;
 const instant = (value: unknown): value is string => typeof value === 'string' && Number.isFinite(Date.parse(value)) && /(?:Z|[+-]\d{2}:?\d{2})$/.test(value);
+// A small allowance covers clock skew and a workflow that crosses midnight in
+// Malaysia. Anything beyond this is not a credible publication timestamp.
+const MAX_FUTURE_PUBLICATION_SKEW_MS = 36 * 60 * 60 * 1000;
 
 function validVintageLedger(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -40,7 +66,11 @@ export function validateDashboardIntegrity(raw: unknown): boolean {
     if (!raw || typeof raw !== 'object') return false;
     // Schema shape remains guarded by isDashboard; this unit checks cross-field integrity.
     const p = raw as UntrustedRecord;
-    if (!Number.isFinite(Date.parse(p.generatedAt))) return false;
+    // A generated-at value is an artifact identity used by cache and release
+    // verification. Accept only an explicit, timezone-qualified instant so a
+    // browser or runtime cannot interpret an ambiguous local timestamp.
+    if (!instant(p.generatedAt) || Date.parse(p.generatedAt) > Date.now() + MAX_FUTURE_PUBLICATION_SKEW_MS) return false;
+    if (!validDashboardLinks(p)) return false;
     const bounds: Record<string, [number, number]> = { headline:[-50,100], core:[-50,100], opr:[0,20], unemployment:[0,100], fx:[0.01,100], mgs:[0,30] };
     for (const [key, [min, max]] of Object.entries(bounds)) {
       const s = p.series?.[key];
@@ -52,6 +82,14 @@ export function validateDashboardIntegrity(raw: unknown): boolean {
       }
       if (!date(p.sources?.[key]?.observationPeriod) || !['fresh','stale'].includes(p.sources?.[key]?.status)) return false;
       if (p.sources[key].observationPeriod !== s.points.at(-1).date) return false;
+    }
+    if (p.schemaVersion >= 10) {
+      const fx = p.series.fx;
+      if (!/trading|daily/i.test(fx.frequency) || !String(fx.source_url).startsWith("https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate") || fx.points.length < 60) return false;
+      if (fx.points.some((point: Point) => point.value <= 0)) return false;
+      const recentDates = fx.points.slice(-60).map((point: Point) => Date.parse(`${point.date}T00:00:00Z`));
+      const shortGaps = recentDates.slice(1).filter((value: number, index: number) => value - recentDates[index] <= 7 * 86_400_000).length;
+      if (shortGaps < 45) return false;
     }
     const last = new Date(`${p.series.headline.points.at(-1).date}T00:00:00Z`);
     if (!Array.isArray(p.forecast?.points) || p.forecast.points.length !== 3) return false;

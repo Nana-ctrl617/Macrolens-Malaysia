@@ -3,5 +3,7 @@ import { getDashboard } from "@/app/lib/dashboard";
 
 export async function GET() {
   const dashboard = await getDashboard();
-  return NextResponse.json(dashboard.monthlyReport ?? { generatedAt: dashboard.generatedAt, sections: [], disclaimer: "Report unavailable for this payload." });
+  return NextResponse.json(dashboard.monthlyReport ?? { generatedAt: dashboard.generatedAt, sections: [], disclaimer: "Report unavailable for this payload." }, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }

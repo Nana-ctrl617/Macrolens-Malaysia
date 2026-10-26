@@ -103,7 +103,7 @@ return <section className="section forecast-section page-section compact-forecas
             <div><span className="section-number">04 / Forecast</span><h1>Three-month inflation forecast</h1></div>
             <p>The model is chosen through rolling historical tests. Ranges show uncertainty—not a promise about future inflation.</p>
           </div>
-          <InputHealthNotice health={dashboard?.inputHealth?.forecast} />
+          <InputHealthNotice health={dashboard?.inputHealth?.forecast} dashboardStatus={dashboard?.health} />
           {dashboard?.forecast.informationOrigin && <p className="forecast-origin"><b>Model information origin: {formatDate(dashboard.forecast.informationOrigin)}.</b> Forecast months are counted from the latest aligned data month, not always from today. Because official CPI is released after its reference month, a month on the calendar may have passed before its CPI value is available to the model.</p>}
           <div className="forecast-layout">
             <div className="forecast-card">

@@ -2,6 +2,7 @@ import fallback from "@/data/published/dashboard.json";
 import { normalizeDashboard } from "./dashboard-health";
 import { validateDashboardIntegrity } from "./dashboard-integrity";
 import { createValidatedArtifactCache } from "./validated-artifact-cache";
+import { DASHBOARD_REFRESH_CACHE_MS } from "./dashboard-cache-policy.ts";
 import { validateRegionalShape } from "./regional-integrity";
 
 export type InputHealth = { status: "fresh" | "partial" | "fallback"; staleInputs: string[]; note: string };
@@ -322,7 +323,12 @@ function hasDashboardShape(value: unknown): value is DashboardPayload {
     && (candidate.monthlyReport?.sections?.length ?? 0) >= 5
   );
   const regionalValid = candidate.schemaVersion < 9 || validateRegionalShape(candidate.regionalLens);
-  return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 9)
+  const dailyFxValid = candidate.schemaVersion < 10 || (
+    /trading|daily/i.test(candidate.series?.fx?.frequency ?? "")
+    && candidate.series?.fx?.source_url?.includes("financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate")
+    && Number(candidate.series?.fx?.points?.length) >= 60
+  );
+  return (candidate.schemaVersion >= 1 && candidate.schemaVersion <= 10)
     && structuralValid
     && marketValid
     && decisionValid
@@ -331,6 +337,7 @@ function hasDashboardShape(value: unknown): value is DashboardPayload {
     && completionValid
     && deepValid
     && regionalValid
+    && dailyFxValid
     && typeof candidate.generatedAt === "string"
     && required.every((key) => Array.isArray(candidate.series?.[key]?.points) && candidate.series[key].points.length > 0)
     && Array.isArray(candidate.forecast?.points)
@@ -352,6 +359,7 @@ export async function getDashboard(): Promise<DashboardPayload> {
     artifactUrl = url;
     artifactCache = createValidatedArtifactCache<DashboardPayload>({
       fallback: local,
+      cacheMs: DASHBOARD_REFRESH_CACHE_MS,
       validate: (remote) => isDashboard(remote) && remote.schemaVersion >= local.schemaVersion,
       load: async () => {
         const response = await fetch(url, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json" }, cache: "no-store" });

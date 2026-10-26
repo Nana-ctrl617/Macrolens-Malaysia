@@ -39,8 +39,9 @@ export function routeMetadata(path: string): Metadata {
       url: path,
       siteName: SITE_NAME,
       type: "website",
+      images: [{ url: "/og.png", width: 1729, height: 910, alt: "MacroLens Malaysia economy and markets dashboard" }],
     },
-    twitter: { card: "summary", title: `${details.title} | ${SITE_NAME}`, description: details.description },
+    twitter: { card: "summary_large_image", title: `${details.title} | ${SITE_NAME}`, description: details.description, images: ["/og.png"] },
     metadataBase: new URL(SITE_ORIGIN),
   };
 }

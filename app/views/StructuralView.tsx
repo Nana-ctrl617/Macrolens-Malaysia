@@ -5,7 +5,7 @@ import type { DashboardViewPayload } from "@/app/lib/dashboard-projection";
 import { type MetricId, type IndicatorData, type DataPoint } from "@/app/lib/dashboard-ui-types";
 import { type StructuralCandidate } from "@/app/lib/dashboard";
 import { AccessibleCanvasChart } from "@/app/components/AccessibleCanvasChart";
-import { formatValue, formatDate, formatP } from "@/app/lib/dashboard-format";
+import { formatValue, formatDate, formatMalaysiaTimestamp, formatP } from "@/app/lib/dashboard-format";
 import { useState, useEffect, useMemo } from "react";
 import { InputHealthNotice } from "@/app/components/InputHealthNotice";
 import { useDashboardData, type DashboardHistoryLoader } from "@/app/components/DashboardShell";
@@ -57,7 +57,7 @@ export function StructuralSection({ dashboard, loadHistory }: { dashboard: Dashb
   }, [series, effectiveRange]);
   const candidates = analysis?.candidates ?? [];
   const featured = [...candidates].reverse().find((candidate) => candidate.status === "supported") ?? candidates.at(-1);
-  const calculationTime = structural ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(structural.calculatedAt)) : "pending";
+  const calculationTime = structural ? formatMalaysiaTimestamp(structural.calculatedAt) : "pending";
 
   return (
     <section className="section structural-section" id="structural">
@@ -67,7 +67,7 @@ export function StructuralSection({ dashboard, loadHistory }: { dashboard: Dashb
           <p>Unknown break dates are screened first, then tested with classical and autocorrelation-robust evidence. A nearby event is context—not a causal explanation.</p>
         </div>
         {!structural || !analysis || !series ? <div className="structural-empty">{dashboard ? "No validated data is available for this section in the current dataset." : "Loading validated data…"}</div> : <>
-          {(dashboard?.usingFallback || analysis.status !== "fresh") && <InputHealthNotice health={{ status: dashboard?.usingFallback ? "fallback" : "partial", staleInputs: [selected, "opr"].filter((id) => dashboard?.sources[id]?.status !== "fresh"), note: "Saved structural diagnostics are displayed because an input refresh or analysis calculation could not be verified. Break-test evidence and data freshness are separate checks." }} />}
+          {(dashboard?.usingFallback || analysis.status !== "fresh") && <InputHealthNotice health={{ status: dashboard?.usingFallback ? "fallback" : "partial", staleInputs: [selected, "opr"].filter((id) => dashboard?.sources[id]?.status !== "fresh"), note: "Saved structural diagnostics are displayed because an input refresh or analysis calculation could not be verified. Break-test evidence and data freshness are separate checks." }} dashboardStatus={dashboard?.health} />}
           <div className="structural-toolbar">
             <div className="indicator-tabs" role="tablist" aria-label="Select structural indicator">
               {(Object.keys(structuralLabels) as MetricId[]).map((id) => <button key={id} role="tab" aria-selected={selected === id} disabled={history.loading} className={selected === id ? "active" : ""} onClick={() => { setSelected(id); setRange(dashboard?.series[id].history?.complete === false ? "RECENT" : "ALL"); }}>{structuralLabels[id]}</button>)}

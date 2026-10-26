@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import type {DashboardPayload,ForecastEvaluation,InputHealth} from '../lib/dashboard';
 import type {ForecastPreview} from '../lib/dashboard-projection';
+import {formatMalaysiaTimestamp} from '../lib/dashboard-format';
 import './ForecastAudit.css';
 
 export default function ForecastAudit({forecast,inputHealth,loadWindows}: {forecast:DashboardPayload['forecast']|ForecastPreview;inputHealth?:InputHealth;loadWindows?:()=>Promise<ForecastEvaluation['windows']>}) {
@@ -33,7 +34,7 @@ export default function ForecastAudit({forecast,inputHealth,loadWindows}: {forec
   return <section className="forecast-audit" aria-labelledby="forecast-audit-heading">
     <h2 id="forecast-audit-heading">Historical forecast audit</h2>
     <p>{audit.origins.length} complete forecast origins, each evaluated over {audit.horizonMonths} months. Predictions were made from data ending at each origin; current revised data are used with conservative release lags. This is not a true-vintage backtest.</p>
-    <p>Analysis calculated {forecast.calculatedAt ? new Intl.DateTimeFormat('en-MY',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Kuala_Lumpur'}).format(new Date(forecast.calculatedAt)) : 'at the recorded pipeline calculation time'} · input status: {inputHealth?.status ?? forecast.status}. Calculation time is not a new official-data release.</p>
+    <p>Analysis calculated {forecast.calculatedAt ? formatMalaysiaTimestamp(forecast.calculatedAt) : 'at the recorded pipeline calculation time'} · input status: {inputHealth?.status ?? forecast.status}. Calculation time is not a new official-data release.</p>
     {audit.finalFit.fallbackUsed && <p role="alert">Final fitting failed for {audit.finalFit.requestedModel}. The forecast uses {audit.finalFit.usedModel} instead. Reason: {audit.finalFit.failureReason}.</p>}
     {audit.scenarioFit?.status === 'failed' && <p>The sensitivity overlay is unavailable because its ARIMAX fit did not converge. No coefficients or slider results are invented. The selected model forecast remains available.</p>}
     <h3>How often did the uncertainty ranges cover the actual outcome?</h3>

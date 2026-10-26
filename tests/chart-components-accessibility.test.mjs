@@ -58,6 +58,7 @@ test("Series trend keyboard, mouse and touch use one persistent exact-value desc
   let tree = view.render();
   const statusId = live(tree)?.props.id;
   assert.ok(statusId, "A persistent named status is required");
+  assert.match(content(live(tree)), /^Selected observation\./, "a chart point must not be presented as the latest release");
   assert.match(content(live(tree)), /Official DOSM.*stale/);
   byClass(tree, "series-trend-plot").props.onKeyDown(keyboard("Home"));
   tree = view.render();

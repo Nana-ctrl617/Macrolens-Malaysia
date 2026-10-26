@@ -28,7 +28,7 @@ export function DecisionGuideSection({ dashboard }: { dashboard: DashboardViewPa
     <PictureStrip pictures={["household", "markets", "research"]} />
     {!guide ? <div className="decision-empty">{dashboard ? "No validated data is available for this section in the current dataset." : "Loading validated data…"}</div> : <>
       <div className="decision-summary"><div><span>Current economic frame</span><p>{guide.summary}</p></div><em className={dashboard?.inputHealth?.decisionGuide?.status ?? guide.status}>{healthStatusLabel(dashboard?.usingFallback ? "fallback" : dashboard?.inputHealth?.decisionGuide?.status ?? guide.status)}</em></div>
-      <InputHealthNotice health={dashboard?.inputHealth?.decisionGuide} />
+      <InputHealthNotice health={dashboard?.inputHealth?.decisionGuide} dashboardStatus={dashboard?.health} />
       <div className="decision-signals" aria-label="Economic signals used in the decision guide">{guide.signals.map((signal) => <article key={signal.label}><span>{signal.label}</span><strong>{signal.value}</strong><p>{signal.reading}</p><small>{formatDate(signal.period)}</small></article>)}</div>
       <div className="audience-switch" role="group" aria-label="Choose decision-guide audience"><button className={audience === "individuals" ? "active" : ""} aria-pressed={audience === "individuals"} onClick={() => setAudience("individuals")}>For individuals</button><button className={audience === "companies" ? "active" : ""} aria-pressed={audience === "companies"} onClick={() => setAudience("companies")}>For companies</button></div>
       <div className="decision-grid">{cards.map((card) => <DecisionCardView key={card.id} card={card} />)}</div>

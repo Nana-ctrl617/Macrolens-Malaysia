@@ -7,7 +7,7 @@ import {dirname,join,relative,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {buildFingerprint,payloadFingerprint,sourceFingerprint,releaseFingerprint} from './release-fingerprint.mjs';
 
-export const REQUIRED_STAGES=Object.freeze(['payload','python-unit','node-unit','typecheck','production-build','rendered','playwright','chart-browser','deferred-browser']);
+export const REQUIRED_STAGES=Object.freeze(['payload','python-unit','node-unit','lint','typecheck','production-build','rendered','playwright','chart-browser','deferred-browser']);
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const BASE='http://127.0.0.1:4185';
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -21,6 +21,7 @@ export function createReleaseStages({node=process.execPath,python='python',pnpm=
     {name:'payload',command:node,args:['scripts/validate-published.mjs'],timeoutMs:60000},
     {name:'python-unit',command:python,args:['-m','pytest','pipeline/tests','-q'],timeoutMs:1200000},
     {name:'node-unit',command:pnpm,args:['run','test:unit'],timeoutMs:600000},
+    {name:'lint',command:pnpm,args:['run','lint'],timeoutMs:600000},
     {name:'typecheck',command:pnpm,args:['run','typecheck:app'],timeoutMs:300000},
     {name:'production-build',command:pnpm,args:['run','build'],timeoutMs:600000},
     {name:'rendered',command:pnpm,args:['run','test:web'],timeoutMs:300000},

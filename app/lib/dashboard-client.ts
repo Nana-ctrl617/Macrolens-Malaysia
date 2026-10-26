@@ -1,6 +1,9 @@
 import type { DashboardPayload } from "./dashboard";
+import { DASHBOARD_REFRESH_CACHE_MS } from "./dashboard-cache-policy.ts";
 
-export const DASHBOARD_CLIENT_CACHE_MS = 5 * 60 * 1000;
+// The artifact pipeline publishes at most once a day, but keeping this short
+// ensures a validated release becomes visible promptly after publication.
+export const DASHBOARD_CLIENT_CACHE_MS = DASHBOARD_REFRESH_CACHE_MS;
 export const DASHBOARD_CLIENT_TIMEOUT_MS = 12 * 1000;
 const DASHBOARD_URL = "/api/dashboard-v7";
 
@@ -18,7 +21,7 @@ const record = (value: unknown): value is Record<string, unknown> => Boolean(val
 function hasDashboardShape(value: unknown): value is DashboardPayload {
   if (!record(value) || !record(value.series) || !record(value.sources) || !record(value.forecast) || !record(value.narratives)) return false;
   const required = ["headline", "core", "opr", "unemployment", "fx", "mgs"];
-  return Number.isInteger(value.schemaVersion) && Number(value.schemaVersion) >= 1 && Number(value.schemaVersion) <= 9
+  return Number.isInteger(value.schemaVersion) && Number(value.schemaVersion) >= 1 && Number(value.schemaVersion) <= 10
     && typeof value.generatedAt === "string" && value.generatedAt.length > 0
     && typeof value.health === "string" && ["fresh", "partial", "fallback"].includes(value.health)
     && (value.usingFallback === undefined || typeof value.usingFallback === "boolean")

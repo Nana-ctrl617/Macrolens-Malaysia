@@ -6,6 +6,16 @@ export function formatDate(date: string) {
     .format(new Date(`${date}T00:00:00`));
 }
 
+export function formatRiskPeriod(indicatorId: string, period: string) {
+  if (!period || !/^\d{4}-\d{2}-\d{2}$/.test(period) || !Number.isFinite(Date.parse(`${period}T00:00:00`))) return "Not recorded";
+  if (indicatorId === "growth" && period.endsWith("-12-31")) return `Year ${period.slice(0, 4)} (annual)`;
+  const monthly = ["headline", "core", "unemployment", "fx", "trade"].includes(indicatorId);
+  const options: Intl.DateTimeFormatOptions = monthly
+    ? { month: "short", year: "numeric" }
+    : { day: "numeric", month: "short", year: "numeric" };
+  return new Intl.DateTimeFormat("en-MY", options).format(new Date(`${period}T00:00:00`));
+}
+
 export function formatValue(value: number, data: IndicatorData) {
   return data.unit === "RM"
     ? `RM ${value.toFixed(data.decimals)}`
@@ -39,6 +49,11 @@ export function healthStatusLabel(status?: string) {
 }
 
 export function retrievalTime(value?: string | null) {
+  return formatMalaysiaTimestamp(value);
+}
+
+/** A timestamp is only unambiguous when the dashboard shows its time zone. */
+export function formatMalaysiaTimestamp(value?: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return "Not recorded";
-  return new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(value));
+  return `${new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(value))} MYT`;
 }

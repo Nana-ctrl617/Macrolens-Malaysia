@@ -18,13 +18,25 @@ The 19 routes share one versioned dashboard payload so a figure and its source n
 
 The GitHub Actions workflow `.github/workflows/update-dashboard.yml` runs daily at 13:45 Malaysia time (05:45 UTC) and can also be started manually. It validates official-source data, preserves the last valid series when a source fails, regenerates the dashboard, and commits only changed validated data. GitHub may start a scheduled run later than its requested time.
 
-The website reads the public artifact at `data/published/dashboard.json` through `/api/dashboard`. Successful responses are cached for up to five minutes per warm serverless function instance. If the upstream artifact is unavailable or fails validation, the site serves the last valid or bundled snapshot with a fallback label; fallback data are not described as live. `DASHBOARD_DATA_URL` can override the default raw-GitHub artifact URL.
+The website reads the public artifact at `data/published/dashboard.json` through `/api/dashboard`. Successful dashboard responses are cached for up to one minute per warm serverless function instance, browser client and shared response cache; official dashboard responses do not use `stale-while-revalidate`. Indicator explorers use the same bounded policy, while detailed exports use `no-store`. If the upstream artifact is unavailable or fails validation, the site serves the last valid or bundled snapshot with a fallback label; fallback data are not described as live. `DASHBOARD_DATA_URL` can override the default raw-GitHub artifact URL.
+
+For automated checks, `/api/health` returns a small uncached status document: `ok` only means the artifact is validated, fresh and not a fallback; `degraded` means partial or fallback data. It includes the schema version, generation timestamp and source-count summary, but not the full dashboard payload.
 
 Vercel's Git ignore-build check skips deployments only when a commit changes files exclusively under `data/published/`, `data/vintages/` or `data/backfill/`. The runtime API reads the published artifact directly, so data-only refreshes appear without a website rebuild. If the previous commit cannot be compared, or any code/configuration or unexpected file changed, the guard fails open and Vercel builds as usual.
 
-After each scheduled refresh validates and pushes its artifact, the workflow polls the public Vercel `/api/dashboard` endpoint for up to 13 attempts, allowing its five-minute cache to expire. It succeeds only when the public response has the same schema version and `generatedAt` as the artifact and explicitly reports `usingFallback: false`. If propagation is not confirmed, the workflow fails and its summary says not to treat that refresh as live; inspect the Vercel/API response before retiring the previous host.
+Vercel may label an intentionally skipped data-only deployment as **Canceled**. That label alone is not a failed data refresh: the workflow's public-artifact verification is the authoritative check. A refresh is live only after `/api/dashboard` reports the validated schema and `generatedAt` with `usingFallback: false`.
 
-The news page fetches public RSS/search feeds separately at request time. News items can change between visits and are not part of the official statistical dashboard payload.
+After each scheduled refresh validates and pushes its artifact, the workflow polls the public Vercel `/api/dashboard` endpoint for up to 13 attempts, allowing the bounded cache window to expire. It succeeds only when the public response has the same schema version and `generatedAt` as the artifact and explicitly reports `usingFallback: false`. If propagation is not confirmed, the workflow fails and its summary says not to treat that refresh as live; inspect the Vercel/API response before retiring the previous host.
+
+The news page retrieves public RSS/search feeds separately from the official statistical payload. Successful upstream responses are coalesced for simultaneous visitors and kept for up to five minutes on a warm server instance; failed requests are never cached as if they were news. The response exposes its original check time and a short HTTP cache policy, so a cached response is not presented as a fresh fetch. News items can change between visits and are contextual coverage, not official statistics or statistical evidence.
+
+## Reliability and security baseline
+
+The public application sends restrictive browser security headers: a content-security policy, HTTPS transport persistence, frame-embedding protection, MIME-type sniffing protection, a strict cross-origin referrer policy, and permissions that disable unused hardware features. These controls reduce unnecessary browser exposure; they do not validate third-party publisher content or make an economic claim more reliable.
+
+Official-series reliability is handled separately. The pipeline rejects malformed, duplicate, implausible or structurally changed responses before publication, retains the previous valid series during a partial source outage, and marks the affected source stale. The dashboard never treats a fallback snapshot, unavailable input or retained series as a new live observation. The **Data Health** page is the source of truth for each source's release period, retrieval time, freshness and any error.
+
+Every remote official CSV, API and market response uses a bounded timeout, source-identifying request header and retry policy for transient failures. A failed or malformed refresh cannot overwrite the last validated artifact.
 
 ## Main sources
 
@@ -32,7 +44,7 @@ The news page fetches public RSS/search feeds separately at request time. News i
 | --- | --- | --- |
 | Headline/core CPI, CPI divisions, unemployment | Monthly | DOSM via [data.gov.my](https://data.gov.my/) |
 | OPR decisions | Dated policy decisions | [BNM OpenAPI](https://apikijangportal.bnm.gov.my/faq) |
-| USD/MYR | Monthly reference rate | BNM via [data.gov.my](https://data.gov.my/) |
+| USD/MYR | Daily KL reference rate for the snapshot and explorer; monthly last-trading-day closes for macro analysis | [BNM Financial Markets daily history](https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date) |
 | 10-year MGS yield | Daily trading observations | [BNM Financial Markets](https://financialmarkets.bnm.gov.my/benchmark-yields) |
 | GDP by state, district and sector; trade; balance of payments | Official published periods | DOSM / [data.gov.my](https://data.gov.my/) |
 | Household income, expenditure, poverty, inequality and labour | State/district coverage varies by release | DOSM / [OpenDOSM](https://open.dosm.gov.my/) |
@@ -83,7 +95,7 @@ pnpm run release:check
 pnpm run release:ready
 ```
 
-`release:check` validates the published payload, runs pipeline and application tests, type-checks and builds the production app, tests rendered routes and downloads, then runs the real-browser accessibility/responsiveness matrix and chart checks. It writes `outputs/release-gate.json` only after the required stages pass. `release:ready` verifies the exact source, build and payload fingerprint has not changed since that run.
+`release:check` validates the published payload, runs pipeline and application tests (including data parsers, cache behavior and security-header assertions), type-checks and builds the production app, tests rendered routes and downloads, then runs the real-browser accessibility/responsiveness matrix and chart checks. It writes `outputs/release-gate.json` only after the required stages pass. `release:ready` verifies the exact source, build and payload fingerprint has not changed since that run.
 
 ## Repository map
 

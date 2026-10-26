@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
+import { createServer } from "node:http";
 import test from "node:test";
 import { viewSource } from './source-owners.mjs';
 
@@ -15,6 +16,28 @@ async function render(path = "/") {
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+}
+
+async function withValidatedDashboard(callback) {
+  const artifact = readFileSync(new URL("../data/published/dashboard.json", import.meta.url));
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end(artifact);
+  });
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
+  const previous = process.env.DASHBOARD_DATA_URL;
+  process.env.DASHBOARD_DATA_URL = `http://127.0.0.1:${address.port}/dashboard.json`;
+  try {
+    return await callback();
+  } finally {
+    process.env.DASHBOARD_DATA_URL = previous;
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
 }
 
 function builtViewScripts(name) {
@@ -60,7 +83,7 @@ test("renders the MacroLens public dashboard", async () => {
   assert.match(html, /favicon-32\.png/);
   assert.match(html, /Malaysia(?:'|&#x27;|’|&rsquo;)s economy at a glance/);
   assert.match(html, /prices, interest rates, jobs, the ringgit and government bonds/);
-  assert.match(html, /Last successful refresh/);
+  assert.match(html, /Loading refresh status/);
   assert.match(html, /Educational analysis, not investment advice\./);
   assert.doesNotMatch(html, /Applied statistics × financial economics/);
   assert.match(html, /Latest brief/);
@@ -85,7 +108,10 @@ test("publishes canonical metadata, a crawl policy and a complete public-page si
   const html = await page.text();
   assert.match(html, /<link rel="canonical" href="https:\/\/macrolens-malaysia\.vercel\.app\/"/);
   assert.match(html, /property="og:url" content="https:\/\/macrolens-malaysia\.vercel\.app\/"/);
-  assert.match(html, /name="twitter:card" content="summary"/);
+  assert.match(html, /property="og:image" content="https:\/\/macrolens-malaysia\.vercel\.app\/og\.png"/);
+  assert.match(html, /property="og:image:width" content="1729"/);
+  assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /name="twitter:image" content="https:\/\/macrolens-malaysia\.vercel\.app\/og\.png"/);
   assert.match(html, /Track Malaysia’s latest prices, jobs, policy rates/);
 
   const robots = await render("/robots.txt");
@@ -103,6 +129,37 @@ test("publishes canonical metadata, a crawl policy and a complete public-page si
   for (const path of ["/", "/brief", "/news", "/risk", "/forecast", "/drivers", "/structure", "/external", "/bop", "/household", "/regional", "/decisions", "/sectors", "/bursa", "/timeline", "/structural", "/report", "/health", "/methodology"]) {
     assert.ok(sitemapText.includes(`https://macrolens-malaysia.vercel.app${path}`), `Missing public route ${path} from sitemap`);
   }
+});
+
+test("serves a small, uncached monitoring contract without exposing dashboard histories", async () => {
+  await withValidatedDashboard(async () => {
+    const response = await render("/api/health");
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("x-macrolens-data"), "fresh");
+    const health = await response.json();
+    assert.equal(health.status, "ok");
+    assert.equal(health.health, "fresh");
+    assert.equal(health.usingFallback, false);
+    assert.equal(health.schemaVersion, 10);
+    const published = JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
+    assert.equal(health.generatedAt, published.generatedAt);
+    assert.deepEqual(Object.keys(health).sort(), ["generatedAt", "health", "schemaVersion", "sources", "status", "usingFallback"]);
+    assert.equal(health.sources.total, 6);
+    assert.equal(health.sources.fresh, 6);
+    assert.equal(health.sources.stale, 0);
+  });
+});
+
+test("monitoring contract fails closed when only the bundled fallback is available", async () => {
+  const response = await render("/api/health");
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("x-macrolens-data"), "fallback");
+  const health = await response.json();
+  assert.equal(health.status, "degraded");
+  assert.equal(health.health, "fallback");
+  assert.equal(health.usingFallback, true);
 });
 
 test("renders each dashboard section on its own route", async () => {
@@ -199,6 +256,7 @@ test("regional presentation preserves data-first order and contained rank lists"
 test("serves the embedded MGS history without an external request", async () => {
   const response = await render("/api/indicator?id=mgs");
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'),'public, max-age=30, s-maxage=30');
   const body = await response.json();
   assert.equal(body.id, "mgs");
   assert.ok(body.points.length > 50);
@@ -206,13 +264,25 @@ test("serves the embedded MGS history without an external request", async () => 
   assert.ok(body.points.at(-1).value > 0 && body.points.at(-1).value < 20);
 });
 
+test("indicator explorer cache aligns with the validated dashboard refresh window", async () => {
+  await withValidatedDashboard(async () => {
+    const response = await render("/api/indicator?id=mgs");
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=60, s-maxage=60");
+    const body = await response.json();
+    const published = JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
+    assert.equal(body.generatedAt, published.generatedAt);
+    assert.equal(body.status, "fresh");
+  });
+});
+
 test("serves a validated consolidated fallback dashboard", async () => {
   const response = await render("/api/dashboard");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 9);
+  assert.equal(body.schemaVersion, 10);
   assert.equal(body.usingFallback, true);
-  assert.equal(response.headers.get('cache-control'),'public, max-age=30, s-maxage=30, stale-while-revalidate=30');
+  assert.equal(response.headers.get('cache-control'),'public, max-age=30, s-maxage=30');
   assert.equal(body.forecast.points.length, 3);
   assert.ok(body.series.headline.points.length > 500);
   assert.ok(body.sources.headline.observationPeriod);
@@ -254,6 +324,7 @@ test("forecast audit downloads expose the same actuals, models and fitting failu
   const dashboard = await (await render('/api/dashboard')).json();
   const response = await render('/api/forecast-evaluation?format=json');
   assert.equal(response.status,200);
+  assert.equal(response.headers.get('cache-control'),'no-store');
   const audit = await response.json();
   assert.deepEqual(audit.evaluation,dashboard.forecast.evaluation);
   assert.equal(audit.usingFallback,true);
@@ -275,7 +346,7 @@ test("serves the versioned dashboard endpoint used by the browser app", async ()
   const response = await render("/api/dashboard-v7");
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.schemaVersion, 9);
+  assert.equal(body.schemaVersion, 10);
   assert.ok(body.latestBrief.headline);
   assert.ok(body.riskHeatmap.items.length >= 9);
   assert.ok(body.householdPressure.components.length >= 5);
@@ -298,12 +369,14 @@ test("serves regional comparisons as CSV and JSON", async () => {
   assert.match(pageJs, /Source CSV/);
   const csvResponse = await render("/api/regional-lens?format=csv");
   assert.equal(csvResponse.status, 200);
+  assert.equal(csvResponse.headers.get("cache-control"), "no-store");
   assert.match(csvResponse.headers.get("content-disposition"), /regional-lens\.csv/);
   const csvBody = await csvResponse.text();
   assert.match(csvBody, /level,state,district,metric,value,unit,observation_period,source_url,data_status,retrieved_at/);
   assert.match(csvBody, /incomeGroup\.b40\.meanIncome/);
   const jsonResponse = await render("/api/regional-lens?format=json");
   assert.equal(jsonResponse.status, 200);
+  assert.equal(jsonResponse.headers.get("cache-control"), "no-store");
   const body = await jsonResponse.json();
   assert.ok(body.stateRecords.some((item) => item.state === "Sarawak"));
   assert.ok(body.incomeGroups.nationalGroups.some((item) => item.label === "B40"));
@@ -314,6 +387,7 @@ test("serves regional comparisons as CSV and JSON", async () => {
 test("serves the generated monthly report endpoint", async () => {
   const response = await render("/api/report");
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get("cache-control"), "no-store");
   const body = await response.json();
   assert.ok(body.title);
   assert.ok(body.sections.length >= 5);
@@ -370,10 +444,12 @@ test("serves structural diagnostics from the indicator payload", async () => {
 test("downloads structural diagnostics as CSV and JSON", async () => {
   const csvResponse = await render("/api/structural-breaks?format=csv");
   assert.equal(csvResponse.status, 200);
+  assert.equal(csvResponse.headers.get("cache-control"), "no-store");
   assert.match(csvResponse.headers.get("content-disposition"), /structural-breaks\.csv/);
   assert.match(await csvResponse.text(), /indicator,break_period,status,chow_f/);
   const jsonResponse = await render("/api/structural-breaks?format=json");
   assert.equal(jsonResponse.status, 200);
+  assert.equal(jsonResponse.headers.get("cache-control"), "no-store");
   const body = await jsonResponse.json();
   assert.equal(body.indicators.unemployment.indicatorId, "unemployment");
 });

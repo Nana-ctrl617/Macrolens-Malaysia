@@ -18,7 +18,7 @@ export function BriefSection({ dashboard, loadSeries }: { dashboard: DashboardVi
     <PictureStrip pictures={["city", "prices", "markets"]} />
     {!brief ? <div className="brief-empty">{dashboard ? "No validated data is available for this section in the current dataset." : "Loading validated data…"}</div> : <>
       <div className="brief-hero"><div><span className="brief-label">MacroLens-generated briefing</span><h2>{brief.headline}</h2><p>Calculated {formatDate(brief.generatedAt.slice(0, 10))} · CPI period {formatDate(brief.period)}</p></div><em className={`brief-status ${inputHealth?.status ?? brief.status}`}>{healthStatusLabel(dashboard?.usingFallback ? "fallback" : inputHealth?.status ?? brief.status)}</em></div>
-      <InputHealthNotice health={inputHealth} />
+      <InputHealthNotice health={inputHealth} dashboardStatus={dashboard?.health} />
       {dashboard && <SeriesTrendPanel series={Object.values(dashboard.series)} statuses={Object.fromEntries(Object.entries(dashboard.sources).map(([id, source]) => [id, dashboard.usingFallback ? "fallback" : source.status]))} title="The latest readings in context" defaultKey="headline" loadSeries={loadSeries} />}
       <details className="dashboard-details visual-reading"><summary>Read the economic brief — changes, possible reasons and implications</summary><div className="brief-grid">
         <article><span>What changed recently</span><ul>{brief.whatChanged.map((item) => <li key={item}>{item}</li>)}</ul></article>

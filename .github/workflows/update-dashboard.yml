@@ -37,6 +37,12 @@ jobs:
       - run: pip install -r pipeline/requirements.txt
       - run: pytest -q pipeline/tests
       - run: python pipeline/macrolens.py
+      # The Python generator and JSON validator protect source structure. Run
+      # the dashboard application's contract suite as well, so the freshly
+      # generated artifact cannot be committed if the UI would reject or
+      # misinterpret a cross-field relationship.
+      - name: Verify generated dashboard against application contracts
+        run: pnpm run test:unit
       # Validate the newly generated artifact here: GITHUB_TOKEN pushes do not
       # trigger the separate push verification workflow.
       - name: Validate generated dashboard before committing
@@ -78,4 +84,18 @@ jobs:
           DASHBOARD_VALIDATED: ${{ steps.validation.outputs.validated }}
           DASHBOARD_LIVE_VERIFIED: ${{ steps.live.outputs.verified }}
         run: node scripts/refresh-summary.mjs data/published/dashboard.json
+      - name: Preserve refresh evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: macrolens-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            data/published/dashboard.json
+            data/published/regional-lens.csv
+            data/published/regional-lens.json
+            data/published/structural-breaks.csv
+            data/published/structural-breaks.json
+            data/backfill/mgs-history.json
+          if-no-files-found: warn
+          retention-days: 14
 

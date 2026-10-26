@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { groupRelatedNewsStories } from "@/app/lib/news";
 import type { NewsItem, NewsStoryGroup } from "@/app/lib/news";
+import { formatMalaysiaTimestamp } from "@/app/lib/dashboard-format";
 
 export type { NewsItem } from "@/app/lib/news";
 
@@ -69,7 +70,7 @@ export function NewsSection() {
   const stories = useMemo(() => groupRelatedNewsStories(filtered), [filtered]);
   const featured = stories[0];
   const featuredArticle = featured?.items[0];
-  const generated = news ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(news.generatedAt)) : "Loading";
+  const generated = news ? formatMalaysiaTimestamp(news.generatedAt) : "Loading";
   const storyStatus = stories.length === 1 ? "1 matching story" : `${stories.length} matching stories`;
 
   return <section className="section news-section page-section" id="news"><div className="shell">

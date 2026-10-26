@@ -24,8 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     },
     manifest: "/site.webmanifest",
-    openGraph: { title, description, siteName: "MacroLens Malaysia", type: "website" },
-    twitter: { card: "summary", title, description },
+    openGraph: {
+      title,
+      description,
+      siteName: "MacroLens Malaysia",
+      type: "website",
+      images: [{ url: "/og.png", width: 1729, height: 910, alt: "MacroLens Malaysia economy and markets dashboard" }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: ["/og.png"] },
   };
 }
 

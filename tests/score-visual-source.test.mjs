@@ -16,7 +16,7 @@ test("heatmap and score comparison buttons expose selection and exact observatio
   assert.match(component, /aria-label="Interactive pressure heatmap"/);
   assert.match(component, /aria-label="Score comparison"/);
   assert.equal((component.match(/aria-pressed=/g) ?? []).length, 4);
-  assert.match(component, /Observation period: \$\{item\.period\}/);
+  assert.match(component, /Observation period: \$\{formatRiskPeriod\(item\.id, item\.period\)\}/);
   assert.match(component, /Data status: \$\{statusLabel\(item\.dataStatus\)\}/);
   assert.match(component, /aria-live="polite"/);
   assert.match(component, /\[0,\s*25,\s*50,\s*75,\s*100\]/);

@@ -6,18 +6,37 @@ import { type Metric, type DataPoint, type MetricId } from "@/app/lib/dashboard-
 import { useCallback, useId, useRef, useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { formatObservationDate } from "@/app/lib/visual-data";
 import { isChartInspectionKey, nextChartIndex } from "@/app/lib/chart-inspection";
-import { formatDate, levelLabel } from "@/app/lib/dashboard-format";
+import { formatDate, formatMalaysiaTimestamp, levelLabel } from "@/app/lib/dashboard-format";
+import { formatMetricPeriod, metricPeriodLabel } from "@/app/lib/metric-period";
 import { inflationDefinitions } from "@/app/lib/inflation-definitions";
 import { useDashboardData, type DashboardHistoryLoader } from "@/app/components/DashboardShell";
 
-export const metrics = [
+export const metrics: Pick<Metric, "id" | "label" | "detail" | "tone">[] = [
   { id: "headline", label: "Headline inflation", detail: "Full CPI basket, year on year", tone: "rust" },
   { id: "core", label: "Core inflation", detail: "Underlying price pressure", tone: "teal" },
   { id: "opr", label: "Overnight Policy Rate", detail: "BNM policy setting", tone: "navy" },
   { id: "unemployment", label: "Unemployment", detail: "Share of labour force", tone: "teal" },
-  { id: "fx", label: "USD / MYR", detail: "Monthly average", tone: "navy" },
+  { id: "fx", label: "USD / MYR", detail: "Daily BNM KL reference rate", tone: "navy" },
   { id: "mgs", label: "10-year government bond yield", detail: "Malaysian Government Securities (MGS)", tone: "rust" },
 ];
+
+const sourceNames: Record<MetricId, string> = {
+  headline: "Headline inflation",
+  core: "Core inflation",
+  opr: "Overnight Policy Rate",
+  unemployment: "Unemployment",
+  fx: "USD/MYR",
+  mgs: "10-year MGS yield",
+};
+
+export function snapshotHealthExplanation(dashboard: DashboardViewPayload<"snapshot"> | null) {
+  if (!dashboard) return null;
+  if (dashboard.usingFallback) return "Live retrieval is unavailable, so this page is using the bundled last-validated dashboard snapshot.";
+  const delayed = (Object.keys(sourceNames) as MetricId[]).filter((id) => dashboard.sources[id]?.status !== "fresh");
+  if (!delayed.length) return null;
+  const names = delayed.map((id) => sourceNames[id]).join(", ");
+  return `${names} ${delayed.length === 1 ? "is" : "are"} not fresh. The last validated observation remains visible and each affected card is labelled.`;
+}
 
 export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (metric: Metric) => void }) {
   const sourceStatus = metric.status === "stale" ? "Stale" : metric.status === "fallback" ? "Fallback" : metric.status === "fresh" ? "Validated" : "Status unavailable";
@@ -26,13 +45,13 @@ export function MetricCard({ metric, onSelect }: { metric: Metric; onSelect: (me
       <button
         className="metric-card-action"
         onClick={() => onSelect(metric)}
-        aria-label={`Open history for ${metric.label}. ${metric.value}. Release period: ${metric.period}. Data status: ${sourceStatus}.`}
+        aria-label={`Open history for ${metric.label}. ${metric.value}. ${metric.periodLabel ?? "Reference month"}: ${metric.period}. Data status: ${sourceStatus}.`}
       >
         <div className="metric-topline"><span>{metric.label}</span><i /></div>
         <strong>{metric.value}</strong>
         <p>{metric.detail}</p>
         <div className="metric-footer">
-          <small>Release period · {metric.period}</small>
+          <small>{metric.periodLabel ?? "Reference month"} · {metric.period}</small>
           {metric.validationLabel && <small className="metric-validation-time">{metric.validationLabel}</small>}
           <span className={`metric-status ${metric.status ?? "unavailable"}`}>{sourceStatus}</span>
           <span className="metric-open">Open history</span>
@@ -116,7 +135,7 @@ export function SnapshotPricePressures({ dashboard }: { dashboard: DashboardView
     <p className="snapshot-pressure-caveat">Division inflation comes from DOSM’s monthly CPI data. Contributions are estimates using DOSM’s {decomposition?.weightReferenceYear ?? "published"} basket weights (effective {decomposition?.effectiveFrom ?? "period unavailable"}); they show where measured inflation is concentrated, not why prices changed. Chained CPI means estimates may not sum exactly to headline inflation.</p>
     <a className="snapshot-pressure-source" href="https://open.dosm.gov.my/data-catalogue/cpi_headline_inflation" target="_blank" rel="noreferrer">OpenDOSM division inflation data ↗</a>
     {decomposition?.sourceUrl && <a className="snapshot-pressure-source" href={decomposition.sourceUrl} target="_blank" rel="noreferrer">DOSM weight reference & method ({decomposition?.weightReferenceYear ?? "CPI"} weights) ↗</a>}
-    <a className="snapshot-pressure-more" href="/drivers">Explore all CPI divisions and the calculation ↗</a>
+    <a className="snapshot-pressure-more" href="/drivers">Explore all CPI divisions and the calculation →</a>
   </section>;
 }
 
@@ -139,7 +158,7 @@ useEffect(() => {
     if (target) window.location.replace(target);
   }, []);
 const liveMetrics: Metric[] = useMemo(() => {
-    if (!dashboard) return metrics.map((metric) => ({ ...metric, value: "—", period: "Loading" })) as Metric[];
+    if (!dashboard) return metrics.map((metric) => ({ ...metric, value: "—", period: "Loading", periodLabel: metricPeriodLabel(metric.id) })) as Metric[];
     const details: Record<MetricId, string> = {
       headline: "Full CPI basket, year on year", core: "Underlying price pressure", opr: "BNM policy setting",
       unemployment: "Share of labour force", fx: "Monthly end rate", mgs: "Malaysian Government Securities (MGS)",
@@ -148,9 +167,10 @@ const liveMetrics: Metric[] = useMemo(() => {
     return (["headline", "core", "opr", "unemployment", "fx", "mgs"] as MetricId[]).map((id) => {
       const series = dashboard.series[id];
       const last = series.points[series.points.length - 1];
+      const isDailyFx = id === "fx" && /trading|daily/i.test(series.frequency);
+      const detail = id === "fx" ? isDailyFx ? "Daily BNM KL reference rate" : "Monthly end rate · saved series" : details[id];
       const value = series.unit === "RM" ? `RM ${last.value.toFixed(series.decimals)}` : `${last.value.toFixed(series.decimals)}${series.unit}`;
-      const daily = /day|trading/i.test(series.frequency);
-      const period = new Intl.DateTimeFormat("en-MY", daily ? { day: "numeric", month: "short", year: "numeric" } : { month: "short", year: "numeric" }).format(new Date(`${last.date}T00:00:00`));
+      const period = formatMetricPeriod(id, last.date, series.frequency);
       const status = dashboard.usingFallback ? "fallback" : dashboard.sources[id]?.status;
       const retrievedAt = dashboard.sources[id]?.retrievedAt;
       const parsedRetrievedAt = retrievedAt ? new Date(retrievedAt) : null;
@@ -158,18 +178,20 @@ const liveMetrics: Metric[] = useMemo(() => {
         day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur",
       }).format(parsedRetrievedAt) : null;
       const validationLabel = validationDate
-        ? `${status === "stale" || status === "fallback" ? "Last validated" : "Retrieved"} · ${validationDate}`
+        ? `${status === "stale" || status === "fallback" ? "Last validated" : "Retrieved"} · ${validationDate} MYT`
         : "Validation time unavailable";
       const sourceNote = status === "fallback"
         ? "Live data unavailable; showing the bundled, last-validated dashboard snapshot."
         : status === "stale"
           ? "The latest refresh did not pass; showing the last validated observation."
           : undefined;
-      return { id, label: id === "mgs" ? "10-year government bond yield" : series.title, value, detail: details[id], period, tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote, validationLabel };
+      return { id, label: id === "mgs" ? "10-year government bond yield" : series.title, value, detail, period, periodLabel: metricPeriodLabel(id, series.frequency), tone: tones[id], status, source: series.source, sourceUrl: series.source_url, sourceNote, validationLabel };
     });
   }, [dashboard]);
 const headlinePoints = dashboard?.series.headline.points.slice(-22) ?? [];
-const updatedAt = dashboard ? new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(dashboard.dataOperations?.lastSuccessfulRefresh ?? dashboard.generatedAt)) : "loading";
+const updatedAt = dashboard ? formatMalaysiaTimestamp(dashboard.dataOperations?.lastSuccessfulRefresh ?? dashboard.generatedAt) : "loading";
+const refreshLabel = dashboard?.usingFallback ? "Last validated snapshot" : "Last successful refresh";
+const healthExplanation = snapshotHealthExplanation(dashboard);
 return <><>
       <section className="section snapshot-section shell" id="snapshot">
         <div className="section-heading">
@@ -177,9 +199,11 @@ return <><>
           <p>Track the latest signals across prices, interest rates, jobs, the ringgit and government bonds—with official data and clear explanations.</p>
         </div>
         <div className="snapshot-meta">
-          <span>Last successful refresh · {updatedAt}</span>
+          <div className="snapshot-refresh-copy"><span>{dashboard ? `${refreshLabel} · ${updatedAt}` : "Loading refresh status…"}</span>{dashboard?.dataOperations?.schedule && <small>Automatic check · {dashboard.dataOperations.schedule}. GitHub may start later.</small>}</div>
           <div className={`data-status ${dashboard?.usingFallback ? "fallback" : dashboard?.health || "loading"}`}><span /> {dashboard?.usingFallback ? "Last validated snapshot · live source temporarily unavailable" : dashboard ? `Dashboard sources · ${dashboard.health}` : "Loading validated data"}</div>
+          {dashboard?.dataOperations?.schedule && <a className="snapshot-run-history" href="https://github.com/Nana-ctrl617/Macrolens-Malaysia/actions/workflows/update-dashboard.yml" target="_blank" rel="noreferrer" aria-label="View MacroLens data update runs on GitHub">View run history ↗</a>}
         </div>
+        {healthExplanation && <aside className="snapshot-health-note" aria-label="Dashboard data health explanation"><strong>Data coverage note</strong><span>{healthExplanation}</span><a href="/health">Review source health</a></aside>}
         <div className="metrics-grid">{liveMetrics.map((metric) => <MetricCard key={metric.label} metric={metric} onSelect={setSelectedMetric} />)}</div>
         <div className="trend-card">
           <div className="card-heading"><div><span>Headline inflation</span><h2>The recent path</h2></div><div className="legend"><i /> Year-on-year change</div></div>
@@ -188,10 +212,10 @@ return <><>
           <small className="source-note">Source: DOSM via data.gov.my · Monthly data through {dashboard ? formatDate(dashboard.sources.headline.observationPeriod) : "the latest release"}</small>
         </div>
         <div className="snapshot-completion" aria-label="Explore related analysis">
-          <a href="/brief"><span>Latest brief ↗</span><strong>What changed recently</strong><small>Possible reasons, what to watch and decision context.</small></a>
-          <a href="/news"><span>Latest headlines ↗</span><strong>Malaysia economy news</strong><small>Recent coverage of prices, policy, markets, trade and jobs.</small></a>
-          <a href="/risk"><span>Risk heatmap ↗</span><strong>{dashboard?.riskHeatmap ? dashboard.riskHeatmap.overallScore === null ? "Unavailable" : `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Inspect the evidence behind the rule-based pressure scores.</small></a>
-          <a href="/regional"><span>Regional Lens ↗</span><strong>Compare Malaysia’s states</strong><small>Income, spending, poverty, jobs, CPI and sector mix by place.</small></a>
+          <a href="/brief"><span>Latest brief →</span><strong>What changed recently</strong><small>Possible reasons, what to watch and decision context.</small></a>
+          <a href="/news"><span>Latest headlines →</span><strong>Malaysia economy news</strong><small>Recent coverage of prices, policy, markets, trade and jobs.</small></a>
+          <a href="/risk"><span>Risk heatmap →</span><strong>{dashboard?.riskHeatmap ? dashboard.riskHeatmap.overallScore === null ? "Unavailable" : `${levelLabel(dashboard.riskHeatmap.overallLevel)} pressure · ${dashboard.riskHeatmap.overallScore.toFixed(1)}` : "Risk screen loading"}</strong><small>Inspect the evidence behind the rule-based pressure scores.</small></a>
+          <a href="/regional"><span>Regional Lens →</span><strong>Compare Malaysia’s states</strong><small>Income, spending, poverty, jobs, CPI and sector mix by place.</small></a>
         </div>
         <details className="dashboard-details snapshot-definitions">
           <summary>Headline versus core inflation — definitions and reading guide</summary>

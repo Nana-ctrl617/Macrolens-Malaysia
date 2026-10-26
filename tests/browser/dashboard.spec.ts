@@ -51,7 +51,58 @@ test("partial dashboard health is clearly announced with a direct route to sourc
   await expect(status).toContainText("Some data coverage is partial");
   await expect(status).toContainText("Values shown passed validation");
   await expect(status.getByRole("link", { name: "Review data health" })).toHaveAttribute("href", "/health");
+  await expect(page.locator(".snapshot-refresh-copy")).toContainText("Last successful refresh");
+  await expect(page.locator(".snapshot-refresh-copy")).toContainText(`Automatic check · ${payload.dataOperations?.schedule}. GitHub may start later.`);
+  await expect(page.getByRole("link", { name: "View MacroLens data update runs on GitHub" })).toHaveAttribute("href", "https://github.com/Nana-ctrl617/Macrolens-Malaysia/actions/workflows/update-dashboard.yml");
   await noOverflow(page);
+});
+
+test("Snapshot describes fallback time as the last validated snapshot", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  payload.usingFallback = true;
+  payload.health = "fallback";
+  await installFixture(context, payload);
+  await ready(page, "/");
+  await expect(page.locator(".snapshot-refresh-copy")).toContainText("Last validated snapshot");
+  await expect(page.locator(".snapshot-refresh-copy")).not.toContainText("Last successful refresh");
+  await expect(page.getByRole("link", { name: "View MacroLens data update runs on GitHub" })).toBeVisible();
+});
+
+test("Snapshot distinguishes monthly reference periods from policy decisions and market closes", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  await installFixture(context, payload);
+  await ready(page, "/");
+  await expect(page.getByRole("button", { name: /Open history for Headline inflation/ })).toContainText("Reference month");
+  await expect(page.getByRole("button", { name: /Open history for Overnight Policy Rate/ })).toContainText("Decision date");
+  await expect(page.getByRole("button", { name: /Open history for 10-year government bond yield/ })).toContainText("Trading date");
+  await expect(page.getByRole("button", { name: /Open history for USD \/ MYR/ })).toContainText("Trading date");
+});
+
+test("Risk audit reflows to labelled fields on narrow screens without hiding sources", async ({ page, context }, info) => {
+  await installFixture(context, await dashboardFixture());
+  await ready(page, "/risk");
+  await page.getByText("All signals, scoring rules and observation periods", { exact: true }).click();
+  const table = page.locator(".risk-table-wrap table");
+  await expect(table).toBeVisible();
+  await expect(table.getByRole("columnheader")).toHaveCount(6);
+  await expect(table.locator("tbody tr")).toHaveCount(9);
+  await expect(table.locator('td[data-label="Source"] a').first()).toHaveAttribute("href", /https:\/\//);
+  await expect(table.locator('td[data-label="Source"] small')).toHaveCount(9);
+  const sourceCoverage = await table.locator("tbody tr").evaluateAll(rows => rows.every(row => row.querySelector('td[data-label="Source"] a[href^="https://"]')));
+  expect(sourceCoverage).toBe(true);
+  await expect(table.locator('td[data-label="Analysis"] summary')).toHaveCount(9);
+  await table.locator('td[data-label="Analysis"] summary').first().click();
+  await expect(table.locator('td[data-label="Analysis"] dl').first()).toBeVisible();
+  if (info.project.name === "phone-390" || info.project.name === "viewport-reflow-400-equivalent") {
+    const dimensions = await page.locator(".risk-table-wrap").evaluate(element => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      tableDisplay: getComputedStyle(element.querySelector("table")!).display,
+    }));
+    expect(dimensions.tableDisplay).toBe("block");
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+    await expect(table.locator('td[data-label="Analysis"] details')).toHaveCount(9);
+  }
 });
 
 test("release gate browser negative control", async ({ page, context }) => {
@@ -71,6 +122,7 @@ test("the global footer is exposed as a separate contentinfo landmark", async ({
 
 test("Data Health links the indicator to its source and explains the observation-age limit", async ({ page, context }) => {
   const payload = await dashboardFixture();
+  if (payload.series.mgs.historyCoverage) payload.series.mgs.historyCoverage.retrievedAt = "2026-10-18T09:57:53Z";
   await installFixture(context, payload);
   await ready(page, "/health");
   const row = page.getByRole("row").filter({ has: page.getByText("Headline inflation", { exact: true }) });
@@ -80,11 +132,55 @@ test("Data Health links the indicator to its source and explains the observation
   await expect(marketRow.getByRole("link", { name: "Open index publisher reference ↗" })).toHaveAttribute("href", payload.market.benchmark.benchmarkSourceUrl);
   await expect(row).toContainText(/\d+ days since period end \/ 100-day limit/);
   const mgsCoverage = page.getByRole("region", { name: "10-year MGS daily-history coverage" });
+  await expect(page.locator(".health-validation-time")).toContainText("Last dashboard validation:");
+  await expect(page.locator(".health-validation-time")).toContainText("MYT");
   await expect(mgsCoverage).toContainText("Daily dates verified through");
   await expect(mgsCoverage).toContainText("Latest close in dashboard");
   await expect(mgsCoverage).toContainText(formatDate(payload.series.mgs.historyCoverage.throughDate));
   await expect(mgsCoverage).toContainText(formatDate(payload.series.mgs.points.at(-1).date));
   await expect(mgsCoverage).toContainText(`${payload.series.mgs.historyCoverage.requests.toLocaleString("en-MY")} weekday dates checked`);
+  if (payload.series.mgs.historyCoverage.completed) {
+    await expect(mgsCoverage).toContainText("Complete history retrieval:");
+    await expect(mgsCoverage).toContainText("successful validation of the completed historical download");
+  } else {
+    await expect(mgsCoverage).toContainText("Coverage checkpoint:");
+    await expect(mgsCoverage).toContainText("not evidence that the full historical download completed");
+  }
+  const mgsRow = page.getByRole("row").filter({ has: page.getByText("10-year MGS historical coverage", { exact: true }) });
+  await expect(mgsRow.locator("th, td").nth(5)).toContainText("Not recorded");
+  await expect(page.getByRole("columnheader", { name: "Last refresh / checkpoint" })).toBeVisible();
+});
+
+test("Data Health marks an unrecorded MGS history retrieval honestly", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  if (payload.series.mgs.historyCoverage) payload.series.mgs.historyCoverage.retrievedAt = null;
+  await installFixture(context, payload);
+  await ready(page, "/health");
+  const coverage = page.getByRole("region", { name: "10-year MGS daily-history coverage" });
+  await expect(coverage).toContainText("Complete history retrieval: Not recorded");
+  await expect(coverage).toContainText("successful validation of the completed historical download");
+});
+
+test("Regional Lens explains that retrieval freshness and observation periods are different", async ({ page, context }) => {
+  await installFixture(context, await dashboardFixture());
+  await ready(page, "/regional");
+  await expect(page.locator(".regional-meta")).toContainText("Fresh” means the source was successfully retrieved and validated");
+  await expect(page.locator(".regional-meta")).toContainText("observation period");
+});
+
+test("analysis freshness clarifies when the whole dashboard has partial coverage", async ({ page, context }) => {
+  const payload = await dashboardFixture();
+  // Make this a controlled partial-input fixture. The production artifact may
+  // legitimately be fully fresh after a successful scheduled refresh.
+  payload.health = "partial";
+  payload.sources.fx.status = "stale";
+  await installFixture(context, payload);
+  await ready(page, "/brief");
+  await expect(page.locator(".dashboard-load-status.shell").first()).toContainText("Some data coverage is partial");
+  const notice = page.getByRole("complementary", { name: "Analysis input freshness" });
+  await expect(notice).toContainText("Some inputs not fresh");
+  await expect(notice).toContainText("Calculation time does not mean every input is fresh");
+  await expect(notice.getByRole("link", { name: "Inspect source freshness →" })).toBeVisible();
 });
 
 test("Data Health filters source groups without hiding their saved validation status", async ({ page, context }) => {
@@ -116,7 +212,10 @@ test("navigation search finds pages by label or topic and explains no matches", 
   await installFixture(context, await dashboardFixture());
   await ready(page, "/regional");
   const toggle = page.getByRole("button", { name: /^Sections\. Current page:/ });
-  if (await toggle.isVisible()) await toggle.click();
+  if (await toggle.isVisible()) {
+    await toggle.click();
+    await expect(page.getByRole("searchbox", { name: "Find a page" })).toBeFocused();
+  }
   const nav = page.getByRole("navigation", { name: "Primary navigation" });
   const search = nav.getByRole("searchbox", { name: "Find a page" });
   await search.fill("jobs");
@@ -163,16 +262,17 @@ test("Snapshot cards link each indicator to its official source and explain stal
   const cards = page.locator(".metric-card");
   await expect(cards).toHaveCount(6);
   const ids = ["headline", "core", "opr", "unemployment", "fx", "mgs"] as const;
+  const periodLabels = ["Reference month", "Reference month", "Decision date", "Reference month", "Trading date", "Trading date"];
   for (let index = 0; index < ids.length; index++) {
     const card = cards.nth(index), series = payload.series[ids[index]];
     const source = card.getByRole("link", { name: `Source: ${series.source}` });
     await expect(source).toHaveAttribute("href", series.source_url);
-    await expect(card.getByRole("button")).toContainText("Release period");
+    await expect(card.getByRole("button")).toContainText(periodLabels[index]);
     const validationLabel = payload.sources[ids[index]].status === "stale" ? "Last validated" : "Retrieved";
     const retrievedAt = payload.sources[ids[index]].retrievedAt;
     if (retrievedAt) {
       const retrievedDate = new Intl.DateTimeFormat("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" }).format(new Date(retrievedAt));
-      await expect(card.locator(".metric-validation-time")).toHaveText(`${validationLabel} · ${retrievedDate}`);
+      await expect(card.locator(".metric-validation-time")).toHaveText(`${validationLabel} · ${retrievedDate} MYT`);
     } else await expect(card.locator(".metric-validation-time")).toHaveText("Validation time unavailable");
   }
   const staleCard = cards.nth(ids.indexOf("mgs"));

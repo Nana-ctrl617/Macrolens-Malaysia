@@ -1,5 +1,6 @@
 /* Compact research dashboard: data first, stable alignment, contained widths. */
 body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
+.dashboard-app .risk-table-wrap td[data-label="Source"] small { display:block; margin-top:6px; color:var(--text-secondary-on-dark); font-size:14px; line-height:1.45; }
 .dashboard-app .visual-page-summary { margin:16px 0; max-width:75ch; }
 .dashboard-app .visual-reading { margin:24px 0; }
 .dashboard-app .visual-reading .brief-grid { padding:16px; }
@@ -52,7 +53,14 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 
 /* Six KPI cards, with footer content in normal flow, including stale MGS. */
 .dashboard-app .snapshot-meta { margin:0 0 16px; padding:0 0 16px; flex-wrap:wrap; font-size:14px; }
+.dashboard-app .snapshot-refresh-copy { display:grid; gap:3px; min-width:0; }
+.dashboard-app .snapshot-refresh-copy small { color:var(--text-secondary); font-size:14px; font-weight:500; line-height:1.4; }
+.dashboard-app .snapshot-run-history { display:inline-flex; align-items:center; min-height:44px; padding:0 8px; color:var(--accent-interactive); font-size:14px; font-weight:700; text-underline-offset:3px; }
+.dashboard-app .snapshot-run-history:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 .dashboard-app .data-status { border-radius:4px; font-size:13px; line-height:1.45; white-space:normal; }
+.dashboard-app .snapshot-health-note { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:baseline; gap:8px 14px; margin:-4px 0 16px; padding:12px 14px; border:1px solid var(--source-unavailable-border); border-radius:6px; background:var(--surface-subtle); color:var(--text-label); font-size:14px; line-height:1.5; }
+.dashboard-app .snapshot-health-note strong { color:var(--text-primary); font-size:14px; }
+.dashboard-app .snapshot-health-note a { color:var(--accent-interactive); font-weight:700; text-underline-offset:3px; white-space:nowrap; }
 .dashboard-app .metrics-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 .dashboard-app .metric-card { display:flex; flex-direction:column; padding:0; min-height:210px; transform:none; }
 .dashboard-app .metric-card:hover { transform:none; border-color:var(--border-strong); background:var(--surface-card); box-shadow:none; }
@@ -120,6 +128,7 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 /* Regional grids never let content widen the document. */
 .dashboard-app .regional-meta { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; font-size:14px; }
 .dashboard-app .regional-meta>div { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.dashboard-app .regional-meta small { flex-basis:100%; color:var(--text-secondary); font-size:13px; line-height:1.45; }
 .dashboard-app .regional-meta a { color:var(--teal); text-decoration:underline; text-underline-offset:3px; }
 .dashboard-app .regional-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 16px; padding:16px; border-radius:8px; margin:0 0 16px; }
 .dashboard-app .regional-controls label { min-width:0; gap:4px; }
@@ -179,6 +188,8 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
 .dashboard-app .section-heading.light h1 { color:var(--text-on-dark); }
 .dashboard-app .input-health-notice { margin:0 0 16px; padding:12px 16px; border:1px solid var(--border-control); border-radius:4px; color:var(--text-primary); background:var(--surface-card); }
 .dashboard-app .input-health-notice p { margin:0 0 6px; font-size:14px; }
+.dashboard-app .input-health-notice .input-health-scope { color:var(--text-secondary); line-height:1.45; }
+.dashboard-app :is(.risk-section,.forecast-section) .input-health-notice .input-health-scope { color:var(--text-secondary-on-dark); }
 .dashboard-app .input-health-notice a { font-size:14px; color:var(--accent-interactive); text-decoration:underline; }
 .dashboard-app :is(.risk-section,.forecast-section) .input-health-notice { background:var(--surface-dark-control); border-color:var(--border-control-on-dark); color:var(--text-on-dark); }
 .dashboard-app :is(.risk-section,.forecast-section) .input-health-notice a { color:var(--text-link-on-dark); }
@@ -255,6 +266,7 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
   .dashboard-app .metric-footer { grid-column:1/-1; margin:6px 0 0; padding-top:8px; }
   .dashboard-app .metric-provenance { margin:0 16px; padding:8px 0 14px; }
   .dashboard-app .snapshot-meta { gap:8px; }
+  .dashboard-app .snapshot-health-note { grid-template-columns:1fr; gap:4px; }
   .dashboard-app .snapshot-completion { grid-template-columns:minmax(0,1fr); gap:12px; }
   .dashboard-app .snapshot-completion>a { padding:20px; }
   .dashboard-app .trend-card { padding:20px 16px; }
@@ -278,4 +290,25 @@ body { font-family:var(--font-sans); font-size:16px; line-height:1.55; }
   .dashboard-app .decision-signals { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .dashboard-app .dashboard-details>summary { padding:16px; }
   .dashboard-app footer.shell { flex-wrap:wrap; }
+}
+
+/* Keep the expanded Risk audit readable without a side-scrolling table on phones. */
+@media(max-width:699px) {
+  .dashboard-app .risk-table-wrap { overflow:visible; }
+  .dashboard-app .risk-table-wrap table { display:block; width:100%; min-width:0; }
+  .dashboard-app .risk-table-wrap thead { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+  .dashboard-app .risk-table-wrap tbody { display:grid; gap:10px; }
+  .dashboard-app .risk-table-wrap tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; padding:10px 0; border-top:1px solid var(--border-on-dark); }
+  .dashboard-app .risk-table-wrap td { display:grid; grid-template-rows:auto 1fr; align-content:start; gap:4px; min-width:0; padding:9px 2px; border:0; overflow-wrap:anywhere; font-size:15px; line-height:1.5; }
+  .dashboard-app .risk-table-wrap td::before { content:attr(data-label); color:#9bdccb; font-size:12px; line-height:1.35; font-weight:800; letter-spacing:.035em; text-transform:uppercase; }
+  .dashboard-app .risk-table-wrap td[data-label="Signal"],
+  .dashboard-app .risk-table-wrap td[data-label="Analysis"],
+  .dashboard-app .risk-table-wrap td[data-label="Source"] { grid-column:1/-1; }
+  .dashboard-app .risk-table-wrap td[data-label="Signal"] { font-weight:800; }
+  .dashboard-app .risk-table-wrap td[data-label="Analysis"] summary { display:flex; align-items:center; min-height:44px; cursor:pointer; font-weight:700; }
+  .dashboard-app .risk-table-wrap td[data-label="Analysis"] dl { display:grid; gap:10px; margin:0 0 8px; }
+  .dashboard-app .risk-table-wrap td[data-label="Analysis"] dt { font-weight:800; }
+  .dashboard-app .risk-table-wrap td[data-label="Analysis"] dd { margin:0; }
+  .dashboard-app .risk-table-wrap td[data-label="Level"] .risk-pill { justify-self:start; width:max-content; max-width:100%; }
+  .dashboard-app .risk-table-wrap td[data-label="Source"] a { overflow-wrap:anywhere; text-underline-offset:3px; }
 }

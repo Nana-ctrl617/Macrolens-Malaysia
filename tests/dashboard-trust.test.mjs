@@ -84,6 +84,19 @@ test("legacy MGS snapshots with monthly-spaced observations are never called a d
   assert.equal(payload.series.mgs.frequency, "Trading days", "normalization does not mutate the original artifact");
 });
 
+test("a completed MGS history remains a fresh daily series in the current artifact", () => {
+  const payload = fixture();
+  const result = normalizeDashboard(payload);
+  const coverage = result.series.mgs.historyCoverage;
+
+  assert.equal(coverage?.completed, true);
+  assert.equal(coverage?.status, "fresh");
+  assert.equal(result.series.mgs.frequency, "Trading days");
+  assert.equal(result.dataHealth.sources.find((source) => source.id === "mgsDailyHistory")?.status, "fresh");
+  assert.equal(result.dataHealth.overall, "fresh");
+  assert.match(coverage?.message ?? "", /complete from November 2021/i);
+});
+
 test("data health gives partial MGS history an explicit BNM label and source link", () => {
   const payload = JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
   const health = normalizeDashboard(payload).dataHealth;
@@ -93,8 +106,13 @@ test("data health gives partial MGS history an explicit BNM label and source lin
   assert.equal(history.source, "Bank Negara Malaysia (BNM) Financial Markets");
   assert.equal(history.sourceUrl, "https://financialmarkets.bnm.gov.my/benchmark-yields");
   assert.equal(history.observationPeriod, coverage.throughDate);
-  assert.equal(history.retrievedAt, null, "checkpoint time is not mislabelled as a complete history retrieval");
-  assert.equal(history.lastAttemptAt, coverage.retrievedAt);
+  if (coverage.completed) {
+    assert.equal(history.retrievedAt, coverage.retrievedAt, "a completed backfill records its successful retrieval");
+    assert.equal(history.lastAttemptAt, undefined, "a completed backfill is not described as a partial checkpoint");
+  } else {
+    assert.equal(history.retrievedAt, null, "checkpoint time is not mislabelled as a complete history retrieval");
+    assert.equal(history.lastAttemptAt, coverage.retrievedAt);
+  }
   assert.equal(health.mgsDailyHistory.status, coverage.status);
   assert.equal(health.mgsDailyHistory.startDate, coverage.startDate);
   assert.equal(health.mgsDailyHistory.throughDate, coverage.throughDate);

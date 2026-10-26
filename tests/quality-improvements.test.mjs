@@ -5,6 +5,7 @@ import { validateDashboardIntegrity } from '../app/lib/dashboard-integrity.ts';
 import { createValidatedArtifactCache } from '../app/lib/validated-artifact-cache.ts';
 import { consecutiveMonthlyChanges } from '../app/lib/monthly-evidence.ts';
 import { weightedPressure } from '../app/lib/score-method.ts';
+import { formatMetricPeriod, metricPeriodLabel } from '../app/lib/metric-period.ts';
 import { appSource, viewSource } from './source-owners.mjs';
 
 const fixture = () => JSON.parse(readFileSync(new URL('../data/published/dashboard.json', import.meta.url), 'utf8'));
@@ -20,14 +21,65 @@ test('observation-change volatility never claims daily or decision changes are m
 test('saved dashboard passes numerical and temporal integrity checks', () => {
   assert.equal(validateDashboardIntegrity(fixture()), true);
 });
+test('snapshot labels and formats each indicator date according to its real observation cadence', () => {
+  assert.equal(metricPeriodLabel('headline'), 'Reference month');
+  assert.equal(formatMetricPeriod('headline', '2026-08-01'), 'Aug 2026');
+  assert.equal(metricPeriodLabel('opr'), 'Decision date');
+  assert.equal(formatMetricPeriod('opr', '2026-09-03'), '3 Sept 2026');
+  assert.equal(metricPeriodLabel('mgs'), 'Trading date');
+  assert.equal(formatMetricPeriod('mgs', '2026-10-16'), '16 Oct 2026');
+  assert.equal(metricPeriodLabel('fx', 'Trading days · BNM KL reference rate'), 'Trading date');
+  assert.equal(formatMetricPeriod('fx', '2026-10-16', 'Trading days · BNM KL reference rate'), '16 Oct 2026');
+  assert.equal(metricPeriodLabel('fx', 'Monthly end rate'), 'Reference month');
+  assert.equal(formatMetricPeriod('fx', 'invalid'), 'Not recorded');
+  assert.equal(formatMetricPeriod('opr', '2026-02-30'), 'Not recorded');
+});
 test('rejects malformed dates, duplicated observations and impossible values', () => {
   for (const mutate of [
+    p => p.generatedAt = '2026-10-19 08:28:45',
+    p => p.generatedAt = 'not-a-timestamp',
+    p => p.generatedAt = '2099-01-01T00:00:00Z',
     p => p.series.headline.points[0].date = '2020-02-30',
     p => p.series.headline.points[1].date = p.series.headline.points[0].date,
     p => p.series.fx.points[0].value = -2,
     p => p.regionalLens.stateRecords[0].poverty = 101,
     p => p.regionalLens.districtGdpRecords[0].sectors[0].value = -1,
     p => p.regionalLens.districtGdpRecords[0].sectors[0].share = 101,
+  ]) { const p = fixture(); mutate(p); assert.equal(validateDashboardIntegrity(p), false); }
+});
+test('schema 10 rejects a monthly FX series mislabeled as daily BNM reference data', () => {
+  const p = fixture();
+  p.schemaVersion = 10;
+  p.series.fx.frequency = 'Trading days · BNM KL reference rate';
+  p.series.fx.source = 'Bank Negara Malaysia Financial Markets';
+  p.series.fx.source_url = 'https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date';
+  p.series.fx.points = Array.from({ length: 60 }, (_, index) => ({
+    date: new Date(Date.UTC(2021, index, 1)).toISOString().slice(0, 10), value: 4.0795,
+  }));
+  p.sources.fx.observationPeriod = p.series.fx.points.at(-1).date;
+  assert.equal(validateDashboardIntegrity(p), false);
+});
+test('schema 10 accepts a properly dated daily BNM series while preserving the forecast payload', () => {
+  const p = fixture();
+  const dates = [];
+  for (let day = new Date('2026-07-01T00:00:00Z'); dates.length < 60; day.setUTCDate(day.getUTCDate() + 1)) {
+    if (day.getUTCDay() !== 0 && day.getUTCDay() !== 6) dates.push(day.toISOString().slice(0, 10));
+  }
+  p.schemaVersion = 10;
+  p.series.fx.frequency = 'Trading days · BNM KL reference rate';
+  p.series.fx.source = 'Bank Negara Malaysia Financial Markets';
+  p.series.fx.source_url = 'https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date';
+  p.series.fx.points = dates.map(date => ({ date, value: 4.0795 }));
+  p.sources.fx.observationPeriod = dates.at(-1);
+  assert.equal(validateDashboardIntegrity(p), true);
+});
+test('rejects unsafe or malformed dashboard source links', () => {
+  for (const mutate of [
+    p => p.dataHealth.sources.find(source => source.id === 'headline').sourceUrl = 'javascript:alert(1)',
+    p => p.dataHealth.sources.find(source => source.id === 'market').relatedSourceUrl = 'https://user:secret@example.com/index',
+    p => p.dataHealth.sources.find(source => source.id === 'headline').sourceUrl = 'https://',
+    p => p.series.headline.source_url = 'http://data.gov.my/dataset',
+    p => p.macroTimeline.entries[0].sourceUrl = '//attacker.example/story',
   ]) { const p = fixture(); mutate(p); assert.equal(validateDashboardIntegrity(p), false); }
 });
 test('rejects non-future forecasts, reversed intervals and contradictory risk summaries', () => {

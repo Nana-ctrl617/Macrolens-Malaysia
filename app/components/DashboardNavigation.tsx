@@ -67,6 +67,7 @@ export function DashboardNavigation({ active }: { active: DashboardSection }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const panelId = useId();
   const currentGroup = dashboardNavigationGroups.find((group) => group.items.some((item) => item.id === active)) ?? dashboardNavigationGroups[0];
   const currentPage = currentGroup.items.find((item) => item.id === active) ?? currentGroup.items[0];
@@ -79,13 +80,14 @@ export function DashboardNavigation({ active }: { active: DashboardSection }) {
 
   useEffect(() => {
     if (!open) return;
+    const focusFrame = requestAnimationFrame(() => searchRef.current?.focus());
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       setOpen(false);
       toggleRef.current?.focus();
     };
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => { cancelAnimationFrame(focusFrame); document.removeEventListener("keydown", handleKeyDown); };
   }, [open]);
 
   return <div className="dashboard-navigation">
@@ -117,7 +119,7 @@ export function DashboardNavigation({ active }: { active: DashboardSection }) {
     </button>
     <nav id={panelId} className="dashboard-navigation-panel" aria-label="Primary navigation" data-open={open}>
       <label className="dashboard-navigation-search-label" htmlFor={`${panelId}-search`}>Find a page</label>
-      <input id={`${panelId}-search`} className="dashboard-navigation-search" type="search" aria-label="Find a page" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Inflation, jobs, trade…" autoComplete="off" />
+      <input ref={searchRef} id={`${panelId}-search`} className="dashboard-navigation-search" type="search" aria-label="Find a page" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Inflation, jobs, trade…" autoComplete="off" />
       {normalizedQuery && <p className="dashboard-navigation-search-count" role="status" aria-live="polite">{visibleCount ? `${visibleCount} ${visibleCount === 1 ? "page" : "pages"} found` : "No pages match that search. Try a page name or topic such as inflation, jobs, trade or markets."}</p>}
       {visibleGroups.map((group) => <details className="dashboard-navigation-group" key={group.label} open={Boolean(normalizedQuery) || group.label === currentGroup.label}>
         <summary><span>{group.label}</span><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>

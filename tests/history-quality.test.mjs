@@ -132,9 +132,15 @@ test("closing history unmounts rows and changing the observation window resets t
 
 test("MGS daily-history coverage travels through the indicator API and is visible in its explorer", async () => {
   const api = readFileSync(fileURLToPath(new URL("../app/api/indicator/route.ts", import.meta.url)), "utf8");
+  const cachePolicy = readFileSync(fileURLToPath(new URL("../app/lib/dashboard-cache-policy.ts", import.meta.url)), "utf8");
   const explorer = readFileSync(fileURLToPath(new URL("../app/components/IndicatorDetail.tsx", import.meta.url)), "utf8");
   const styles = readFileSync(fileURLToPath(new URL("../app/globals.css", import.meta.url)), "utf8");
   assert.match(api, /historyCoverage:\s*series\.historyCoverage/);
+  assert.match(api, /payload\.usingFallback[\s\S]*DASHBOARD_FALLBACK_CACHE_CONTROL[\s\S]*DASHBOARD_FRESH_CACHE_CONTROL/);
+  assert.match(cachePolicy, /DASHBOARD_FALLBACK_CACHE_CONTROL\s*=\s*"public, max-age=30, s-maxage=30"/);
+  assert.match(cachePolicy, /DASHBOARD_FRESH_CACHE_CONTROL\s*=\s*"public, max-age=60, s-maxage=60"/);
+  assert.doesNotMatch(api, /stale-while-revalidate/);
+  assert.doesNotMatch(api, /s-maxage=21600|stale-while-revalidate=86400/);
   assert.match(explorer, /Daily history backfill in progress/);
   assert.match(explorer, /data\.historyCoverage\.message/);
   assert.match(styles, /\.indicator-history-coverage\.partial/);

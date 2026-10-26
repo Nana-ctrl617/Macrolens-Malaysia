@@ -22,6 +22,155 @@ def forecast_fixture(count=60):
     return {key: sample(count, value=2.0) for key in macrolens.SPECS}
 
 
+def fx_table(rows):
+    body = "".join(f"<tr><td id='trd_date'>{date}</td><td id='high_rate'>{value}</td></tr>" for date, value in rows)
+    return f"<table id='tblUser'><thead><tr><th id='trd_date_head'>Date</th><th id='high_rate_head'>Reference Rate</th></tr></thead><tbody>{body}</tbody></table>"
+
+
+def test_bnm_daily_fx_parser_validates_official_table_and_ignores_unpublished_placeholder():
+    dates = __import__("pandas").date_range("2025-01-01", periods=65, freq="B")
+    rows = [(date.strftime("%d/%m/%Y"), "4.1000") for date in dates]
+    rows += [(dates[-1].strftime("%d/%m/%Y"), "4.1000"), ("19/10/2026", "0.0000")]
+    points = macrolens.parse_bnm_daily_fx_html(fx_table(rows))
+    assert len(points) == 65
+    assert points[0] == {"date": "2025-01-01", "value": 4.1}
+    assert points[-1]["date"] == dates[-1].strftime("%Y-%m-%d")
+
+
+@pytest.mark.parametrize("html", [
+    "<html><body>changed layout</body></html>",
+    "<table id='tblUser'><thead><tr><th id='trd_date_head'>Date</th></tr></thead><tbody><tr><td id='trd_date'>01/01/2025</td></tr></tbody></table>",
+    fx_table([]),
+    fx_table([("not-a-date", "4.1000")]),
+    fx_table([("01/01/2025", "99.0000")]),
+    fx_table([("01/01/2025", "4.1000"), ("01/01/2025", "4.2000")]),
+])
+def test_bnm_daily_fx_parser_fails_closed_on_bad_or_changed_responses(html):
+    with pytest.raises(ValueError):
+        macrolens.parse_bnm_daily_fx_html(html)
+
+
+def test_daily_fx_is_monthly_close_for_models_but_daily_for_published_series():
+    raw = {"fx": {"frequency": "Trading days", "points": [
+        {"date": "2026-01-02", "value": 4.0}, {"date": "2026-01-30", "value": 4.2},
+        {"date": "2026-02-02", "value": 4.3},
+    ]}}
+    model_inputs = macrolens.modelling_series(raw)
+    assert raw["fx"]["frequency"] == "Trading days"
+    assert len(raw["fx"]["points"]) == 3
+    assert model_inputs["fx"]["frequency"].startswith("Monthly close")
+    assert model_inputs["fx"]["points"] == [
+        {"date": "2026-01-01", "value": 4.2}, {"date": "2026-02-01", "value": 4.3},
+    ]
+
+
+def test_daily_fx_retries_only_the_observed_transient_bnm_403(monkeypatch):
+    from types import SimpleNamespace
+
+    calls, sleeps = [], []
+    error = macrolens.requests.HTTPError("temporary BNM block", response=SimpleNamespace(status_code=403))
+    dates = __import__("pandas").date_range("2025-01-01", periods=65, freq="B")
+    page = SimpleNamespace(text=fx_table([(date.strftime("%d/%m/%Y"), "4.1000") for date in dates]))
+    def source(url):
+        calls.append(url)
+        if len(calls) == 1:
+            raise error
+        return page
+
+    monkeypatch.setattr(macrolens, "get", source)
+    monkeypatch.setattr(macrolens.time, "sleep", sleeps.append)
+    points = macrolens.fetch_daily_fx()
+    assert len(calls) == 2
+    assert sleeps == [macrolens.FX_TRANSIENT_403_RETRY_SECONDS]
+    assert points[-1]["date"] == dates[-1].strftime("%Y-%m-%d")
+
+
+def test_http_get_retries_only_transient_official_source_failures(monkeypatch):
+    from types import SimpleNamespace
+
+    attempts, sleeps = [], []
+    transient = macrolens.requests.HTTPError("temporary publisher failure", response=SimpleNamespace(status_code=503))
+    successful_response = SimpleNamespace(raise_for_status=lambda: None)
+
+    def fake_request(*args, **kwargs):
+        attempts.append((args, kwargs))
+        if len(attempts) == 1:
+            raise transient
+        return successful_response
+
+    monkeypatch.setattr(macrolens.requests, "get", fake_request)
+    monkeypatch.setattr(macrolens.time, "sleep", sleeps.append)
+    assert macrolens.get("https://official.example/data") is successful_response
+    assert len(attempts) == 2
+    assert sleeps == [0.75]
+
+
+def test_http_get_respects_a_bounded_retry_after_hint(monkeypatch):
+    from types import SimpleNamespace
+
+    attempts, sleeps = [], []
+    throttled = macrolens.requests.HTTPError(
+        "too many requests",
+        response=SimpleNamespace(status_code=429, headers={"Retry-After": "4"}),
+    )
+    successful_response = SimpleNamespace(raise_for_status=lambda: None)
+
+    def fake_request(*args, **kwargs):
+        attempts.append((args, kwargs))
+        if len(attempts) == 1:
+            raise throttled
+        return successful_response
+
+    monkeypatch.setattr(macrolens.requests, "get", fake_request)
+    monkeypatch.setattr(macrolens.time, "sleep", sleeps.append)
+    assert macrolens.get("https://official.example/rate-limited") is successful_response
+    assert sleeps == [4.0]
+    assert macrolens.retry_delay_seconds(SimpleNamespace(headers={"Retry-After": "999"}), 0) == 30.0
+    assert macrolens.retry_delay_seconds(SimpleNamespace(headers={"Retry-After": "not-a-number"}), 1) == 1.5
+
+
+def test_retry_after_accepts_an_http_date_without_waiting_unboundedly():
+    from types import SimpleNamespace
+
+    now = datetime(2026, 10, 19, 8, 0, tzinfo=macrolens.timezone.utc)
+    response = SimpleNamespace(headers={"Retry-After": "Sun, 19 Oct 2026 08:00:12 GMT"})
+    assert macrolens.retry_delay_seconds(response, 0, now=now) == 12.0
+    assert macrolens.retry_delay_seconds(SimpleNamespace(headers={"Retry-After": "Sun, 19 Oct 2026 09:00:00 GMT"}), 0, now=now) == 30.0
+    assert macrolens.retry_delay_seconds(SimpleNamespace(headers={"Retry-After": "Sun, 19 Oct 2026 07:59:00 GMT"}), 0, now=now) == 0.0
+
+
+def test_http_get_does_not_retry_a_non_transient_source_contract_error(monkeypatch):
+    from types import SimpleNamespace
+
+    attempts, sleeps = [], []
+    error = macrolens.requests.HTTPError("not found", response=SimpleNamespace(status_code=404))
+
+    def fake_request(*args, **kwargs):
+        attempts.append((args, kwargs))
+        raise error
+
+    monkeypatch.setattr(macrolens.requests, "get", fake_request)
+    monkeypatch.setattr(macrolens.time, "sleep", sleeps.append)
+    with pytest.raises(macrolens.requests.HTTPError):
+        macrolens.get("https://official.example/moved")
+    assert len(attempts) == 1
+    assert sleeps == []
+
+
+def test_remote_csvs_use_the_guarded_official_source_downloader(monkeypatch):
+    from types import SimpleNamespace
+
+    requests = []
+    def response(url, **kwargs):
+        requests.append((url, kwargs))
+        return SimpleNamespace(content=b"date,value\n2026-01-01,2.1\n")
+
+    monkeypatch.setattr(macrolens, "get", response)
+    frame = macrolens.read_csv("https://official.example/release.csv")
+    assert requests == [("https://official.example/release.csv", {"headers": {"Accept": "text/csv, application/csv, text/plain;q=0.9, */*;q=0.1"}})]
+    assert frame.to_dict(orient="records") == [{"date": "2026-01-01", "value": 2.1}]
+
+
 class FakeForecastFit:
     mle_retvals = {"converged": True}
     params = {"core": 0.1, "fx": 0.2, "opr": 0.3}
@@ -77,7 +226,7 @@ def test_failed_fit_is_disclosed_and_not_scored_as_candidate(monkeypatch):
     assert failed["failedWindows"] == 33 and failed["fallbackCount"] == 0
     assert selected != "SARIMA"
     assert all(next(row for row in fold["models"] if row["name"] == "SARIMA")["points"] == [] for fold in evaluation["windows"])
-    assert all("RuntimeError" in next(row for row in fold["models"] if row["name"] == "SARIMA")["failureReason"] for fold in evaluation["windows"])
+    assert all(next(row for row in fold["models"] if row["name"] == "SARIMA")["failureReason"] == "model calculation failed" for fold in evaluation["windows"])
     coverage = next(row for row in evaluation["coverage"] if row["name"] == "SARIMA")
     assert coverage["total80"] == 0 and coverage["coverage80"] is None
 
@@ -215,7 +364,7 @@ def test_final_fit_failure_has_explicit_correctly_named_fallback(monkeypatch):
     assert result["evaluation"]["finalFit"]["requestedModel"] == "SARIMA"
     assert result["evaluation"]["finalFit"]["fallbackUsed"] is True
     assert result["scenario"] is None
-    assert "RuntimeError" in result["evaluation"]["scenarioFit"]["failureReason"]
+    assert result["evaluation"]["scenarioFit"]["failureReason"] == "model calculation failed"
 
 
 def regional_export_fixture():
@@ -473,6 +622,36 @@ def test_partial_failure_preserves_last_valid_series():
     result, status = macrolens.merge_or_stale("headline", lambda: (_ for _ in ()).throw(RuntimeError()), old, "2026-01-01T00:00:00Z")
     assert result["points"] == old["series"]["headline"]["points"]
     assert status["status"] == "stale"
+    assert status["message"] == "Using last valid data: official source refresh failed"
+
+
+def test_retained_data_message_explains_source_failures_without_exposing_exception_text():
+    from types import SimpleNamespace
+
+    http_error = macrolens.requests.HTTPError("secret https://example.invalid/?token=no", response=SimpleNamespace(status_code=503))
+    assert macrolens.source_failure_message(http_error) == "official source returned HTTP 503"
+    assert macrolens.source_failure_message(macrolens.requests.Timeout("internal request text")) == "official source request timed out"
+    assert macrolens.source_failure_message(ValueError("raw parser details")) == "official response did not pass validation"
+
+
+def test_model_failure_messages_are_honest_without_exposing_implementation_text():
+    assert macrolens.model_failure_message(ValueError("raw design matrix detail")) == "model input or fit did not pass validation"
+    assert macrolens.model_failure_message(__import__("numpy").linalg.LinAlgError("raw matrix detail")) == "model fit was numerically unstable"
+    assert macrolens.model_failure_message(RuntimeError("internal model library detail")) == "model calculation failed"
+
+
+def test_regional_refresh_retains_data_with_a_plain_language_failure_reason():
+    previous = {"status": "fresh", "records": [{"state": "Selangor", "value": 1.0}], "retrievedAt": "2026-09-01T00:00:00Z"}
+    result = macrolens._refresh_regional_source(
+        previous,
+        "2026-10-05T00:00:00Z",
+        lambda: (_ for _ in ()).throw(ValueError("internal parser contract detail")),
+        {"records": []},
+    )
+    assert result["status"] == "stale"
+    assert result["records"] == previous["records"]
+    assert result["failureReason"] == "official response did not pass validation"
+    assert "ValueError" not in result["message"]
 
 
 def test_failed_refresh_preserves_last_success_and_records_attempt():
@@ -509,6 +688,20 @@ def test_daily_observation_age_uses_exact_observation_date():
     result = macrolens.apply_observation_recency(source, "2026-10-16T13:19:21Z", 10)
     assert result["freshness"]["observationAgeDays"] == 1
     assert result["freshness"]["reference"] == "observation-date"
+
+
+def test_quarterly_bop_recency_allows_its_publication_window_but_not_a_missing_following_release(monkeypatch):
+    periods = __import__("pandas").date_range("2021-07-01", periods=20, freq="QS")
+    frame = __import__("pandas").DataFrame([
+        {"date": period, "account": account, "balance": 1_000}
+        for period in periods for account in ["ca", "ka", "fa", "reserves", "neo"]
+    ])
+    monkeypatch.setattr(macrolens, "read_csv", lambda _: frame)
+    current = macrolens.build_balance_payments(None, "2026-10-19T00:00:00Z")
+    assert current["status"] == "fresh"
+    assert current["freshness"]["maximumObservationAgeDays"] == 230
+    stale = macrolens.apply_observation_recency({"status": "fresh", "observationPeriod": "2026-04-01"}, "2026-11-18T00:00:00Z", macrolens.BOP_MAX_OBSERVATION_AGE_DAYS)
+    assert stale["status"] == "stale"
 
 
 def test_data_health_exposes_official_source_links_and_age_rules():
@@ -767,6 +960,7 @@ def test_market_failure_preserves_last_valid_prices(monkeypatch):
     result = macrolens.build_market(previous, "2026-01-01T00:00:00Z")
     assert result["status"] == "stale"
     assert result["benchmark"]["points"] == old
+    assert result["message"] == "Using last valid market data: official source refresh failed"
 
 
 def test_future_market_observation_retains_last_valid_prices(monkeypatch):
@@ -829,6 +1023,7 @@ def test_economic_structure_failure_preserves_last_valid_result(monkeypatch):
     result = macrolens.build_economic_structure(previous, "2026-01-01T00:00:00Z")
     assert result["status"] == "stale"
     assert result["years"] == previous["economicStructure"]["years"]
+    assert result["message"] == "Using last valid GDP sector data: official source refresh failed"
 
 
 def gdp_demand_fixture(years=5):

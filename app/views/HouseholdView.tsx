@@ -24,7 +24,7 @@ export function HouseholdPressureSection({ dashboard }: { dashboard: DashboardVi
     <div className="section-heading"><div><span className="section-number">10 / Households</span><h1>Household pressure monitor</h1></div><p>Turns the macro dashboard into household-relevant pressure checks: cost of living, debt service, jobs, imported spending and market wealth.</p></div>
     <PictureStrip pictures={["household", "prices", "markets"]} />
     {!household ? <div className="deep-empty">{dashboard ? "No validated data is available for this section in the current dataset." : "Loading validated data…"}</div> : <>
-      <InputHealthNotice health={dashboard?.inputHealth?.householdPressure} />
+      <InputHealthNotice health={dashboard?.inputHealth?.householdPressure} dashboardStatus={dashboard?.health} />
       <p className="visual-page-summary">{household.summary}</p>
       <RiskScoreVisual title="Household pressure comparison" overallScore={household.overallScore} overallLevel={household.overallLevel} items={householdSignals} />
       <details className="dashboard-details visual-reading"><summary>Household scenario checks and important limits</summary><div className="scenario-grid">{household.scenarios.map((item) => <article key={item.id ?? item.title}><span>Scenario check</span><h2>{item.title}</h2><p>{item.prompt}</p><p>{item.limit}</p></article>)}</div></details>

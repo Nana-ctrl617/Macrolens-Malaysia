@@ -8,14 +8,14 @@ function escapeCsv(value: unknown) {
 export async function GET(request: Request) {
   const payload = await getDashboard();
   const structural = payload.structuralBreaks;
-  if (!structural) return Response.json({ error: "Structural analysis is not available in this data version." }, { status: 404 });
+  if (!structural) return Response.json({ error: "Structural analysis is not available in this data version." }, { status: 404, headers: { "Cache-Control": "no-store" } });
   const format = new URL(request.url).searchParams.get("format") || "json";
   if (format === "json") {
     return new Response(JSON.stringify(structural, null, 2), {
-      headers: { "Content-Type": "application/json; charset=utf-8", "Content-Disposition": "attachment; filename=structural-breaks.json" },
+      headers: { "Content-Type": "application/json; charset=utf-8", "Content-Disposition": "attachment; filename=structural-breaks.json", "Cache-Control": "no-store" },
     });
   }
-  if (format !== "csv") return Response.json({ error: "Use format=csv or format=json" }, { status: 400 });
+  if (format !== "csv") return Response.json({ error: "Use format=csv or format=json" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   const headings = ["indicator", "break_period", "status", "chow_f", "chow_df_numerator", "chow_df_denominator", "chow_p_raw", "chow_p_holm", "hac_wald", "hac_p", "pre_mean", "post_mean", "absolute_change", "pre_annual_trend", "post_annual_trend", "standardised_mean_change", "nearby_events"];
   const rows: unknown[][] = [];
   for (const [indicator, analysis] of Object.entries(structural.indicators)) {
@@ -25,5 +25,5 @@ export async function GET(request: Request) {
     }
   }
   const csv = [headings, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\n") + "\n";
-  return new Response(csv, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": "attachment; filename=structural-breaks.csv" } });
+  return new Response(csv, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": "attachment; filename=structural-breaks.csv", "Cache-Control": "no-store" } });
 }

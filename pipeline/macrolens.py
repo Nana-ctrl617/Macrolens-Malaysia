@@ -13,6 +13,7 @@ import re
 import time
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Callable
 
@@ -43,6 +44,8 @@ MIN_TRAINING_OBSERVATIONS = 24
 CALIBRATION_WARMUP_ORIGINS = 12
 USER_AGENT = "MacroLens-Malaysia/2.0 (public economics portfolio)"
 BNM_ACCEPT = "application/vnd.BNM.API.v1+json"
+RETRYABLE_HTTP_STATUS = {408, 425, 429, 500, 502, 503, 504}
+FX_TRANSIENT_403_RETRY_SECONDS = 5.0
 KLCI_URL = "https://query1.finance.yahoo.com/v8/finance/chart/%5EKLSE?range=10y&interval=1d&events=history"
 KLCI_SOURCE_URL = "https://finance.yahoo.com/quote/%5EKLSE/history/"
 KLCI_BENCHMARK_URL = "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open"
@@ -54,6 +57,10 @@ TRADE_HEADLINE_URL = "https://storage.dosm.gov.my/trade/trade_headline.csv"
 TRADE_HEADLINE_SOURCE_URL = "https://data.gov.my/data-catalogue/trade_headline"
 BOP_BALANCE_URL = "https://storage.dosm.gov.my/bop/bop_balance.csv"
 BOP_BALANCE_SOURCE_URL = "https://data.gov.my/data-catalogue/bop_balance"
+# A quarterly BOP observation is dated at the start of its reference quarter.
+# Allow roughly one full quarter plus a normal publication/revision window; this
+# turns stale before a missing following-quarter release is treated as current.
+BOP_MAX_OBSERVATION_AGE_DAYS = 230
 CPI_WEIGHTS_SOURCE_URL = "https://storage.dosm.gov.my/cpi/cpi_2025-07.pdf"
 REGIONAL_JSON = ROOT / "data" / "published" / "regional-lens.json"
 REGIONAL_CSV = ROOT / "data" / "published" / "regional-lens.csv"
@@ -117,7 +124,7 @@ SPECS = {
     "core": SeriesSpec("core", "Core inflation", "%", 1, "Monthly", "Department of Statistics Malaysia via data.gov.my", "https://data.gov.my/data-catalogue/cpi_core_inflation", -10, 20, 60),
     "unemployment": SeriesSpec("unemployment", "Unemployment rate", "%", 1, "Monthly", "Department of Statistics Malaysia via data.gov.my", "https://data.gov.my/data-catalogue/lfs_month", 0, 30, 60),
     "opr": SeriesSpec("opr", "Overnight Policy Rate", "%", 2, "Policy decisions", "Bank Negara Malaysia OpenAPI", "https://apikijangportal.bnm.gov.my/", 0, 20, 20),
-    "fx": SeriesSpec("fx", "USD / MYR", "RM", 4, "Monthly end rate", "Bank Negara Malaysia via data.gov.my", "https://data.gov.my/data-catalogue/exchangerates", 1, 10, 60),
+    "fx": SeriesSpec("fx", "USD / MYR", "RM", 4, "Trading days · BNM KL reference rate", "Bank Negara Malaysia Financial Markets", "https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date", 1, 10, 60),
     "mgs": SeriesSpec("mgs", "10-year MGS yield", "%", 2, "Trading days", "Bank Negara Malaysia OpenAPI", "https://financialmarkets.bnm.gov.my/benchmark-yields", 0, 20, 1),
 }
 
@@ -135,15 +142,58 @@ CPI_WEIGHTS_2022 = {
 }
 
 
+def retry_delay_seconds(response: object | None, attempt: int, now: datetime | None = None) -> float:
+    """Use a bounded provider retry hint when available; never sleep unboundedly."""
+    fallback = 0.75 * (attempt + 1)
+    headers = getattr(response, "headers", None)
+    retry_after = headers.get("Retry-After") if hasattr(headers, "get") else None
+    if retry_after is None:
+        return fallback
+    text = str(retry_after).strip()
+    try:
+        seconds = float(text)
+    except (TypeError, ValueError):
+        try:
+            retry_at = parsedate_to_datetime(text)
+            if retry_at.tzinfo is None:
+                retry_at = retry_at.replace(tzinfo=timezone.utc)
+            reference = now or datetime.now(timezone.utc)
+            if reference.tzinfo is None:
+                reference = reference.replace(tzinfo=timezone.utc)
+            seconds = (retry_at.astimezone(timezone.utc) - reference.astimezone(timezone.utc)).total_seconds()
+        except (TypeError, ValueError, IndexError, OverflowError):
+            return fallback
+    return min(30.0, max(0.0, seconds)) if math.isfinite(seconds) else fallback
+
+
 def get(url: str, **kwargs) -> requests.Response:
     headers = {"User-Agent": USER_AGENT, **kwargs.pop("headers", {})}
-    response = requests.get(url, headers=headers, timeout=45, **kwargs)
-    response.raise_for_status()
-    return response
+    # An official publisher can briefly reject a legitimate scheduled request
+    # while updating or rate-limiting. Retry only transient failures; a 4xx
+    # source-contract error still fails immediately and the last valid series
+    # remains visible with its stale badge.
+    for attempt in range(3):
+        try:
+            response = requests.get(url, headers=headers, timeout=45, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as error:
+            response = getattr(error, "response", None)
+            status_code = getattr(response, "status_code", None)
+            retryable = status_code is None or status_code in RETRYABLE_HTTP_STATUS
+            if not retryable or attempt == 2:
+                raise
+            time.sleep(retry_delay_seconds(response, attempt))
+    raise RuntimeError("HTTP retry loop ended unexpectedly")
 
 
 def read_csv(url: str) -> pd.DataFrame:
-    return pd.read_csv(url)
+    # Keep every remote CSV behind the same timeout, retry and User-Agent
+    # policy as API and HTML sources. Passing a URL directly to pandas would
+    # otherwise bypass `get()` and make a transient official-source outage
+    # behave differently from the rest of the refresh pipeline.
+    response = get(url, headers={"Accept": "text/csv, application/csv, text/plain;q=0.9, */*;q=0.1"})
+    return pd.read_csv(io.BytesIO(response.content))
 
 
 def frame_to_points(frame: pd.DataFrame, date: str, value: str) -> list[dict]:
@@ -203,11 +253,76 @@ def fetch_opr() -> list[dict]:
     return [deduplicated[date] for date in sorted(deduplicated)]
 
 
+def parse_bnm_daily_fx_html(content: str) -> list[dict]:
+    """Parse BNM's published daily KL reference-rate table, rejecting markup drift."""
+    soup = BeautifulSoup(content, "html.parser")
+    table = soup.find("table", id="tblUser")
+    if table is None:
+        raise ValueError("BNM FX page is missing its expected observation table")
+    headers = {str(cell.get("id", "")) for cell in table.find_all("th")}
+    if not {"trd_date_head", "high_rate_head"}.issubset(headers):
+        raise ValueError("BNM FX table columns changed")
+    body = table.find("tbody")
+    cells = body.find_all("td") if body else []
+    if not cells:
+        raise ValueError("BNM FX table contains no observation rows")
+    if len(cells) % 2 or any(
+        cells[index].get("id") != "trd_date" or cells[index + 1].get("id") != "high_rate"
+        for index in range(0, len(cells), 2)
+    ):
+        raise ValueError("BNM FX table cell structure changed")
+    observations: dict[str, float] = {}
+    for index in range(0, len(cells), 2):
+        date_cell, rate_cell = cells[index], cells[index + 1]
+        try:
+            observation_date = datetime.strptime(date_cell.get_text(strip=True), "%d/%m/%Y").date().isoformat()
+            value = float(rate_cell.get_text(strip=True))
+        except (TypeError, ValueError) as error:
+            raise ValueError("BNM FX row has a malformed date or reference rate") from error
+        if not math.isfinite(value) or value < 0 or value > 10:
+            raise ValueError(f"BNM FX reference rate is implausible: {value}")
+        # BNM may render today's not-yet-published row as 0.0000. Do not treat it as an observation.
+        if value == 0:
+            continue
+        if observation_date in observations and observations[observation_date] != value:
+            raise ValueError(f"BNM FX table has conflicting duplicate observations for {observation_date}")
+        observations[observation_date] = value
+    points = [{"date": date, "value": round(value, 6)} for date, value in sorted(observations.items())]
+    if len(points) < SPECS["fx"].min_points:
+        raise ValueError(f"BNM FX table has only {len(points)} usable observations")
+    return points
+
+
 def fetch_daily_fx() -> list[dict]:
-    payload = get("https://api.data.gov.my/data-catalogue?id=exchangerates&limit=10000").json()
-    rows = payload if isinstance(payload, list) else payload.get("data", [])
-    selected = [row for row in rows if row.get("indicator") == "end"]
-    return [{"date": str(row["date"]), "value": float(row["usd"])} for row in selected]
+    url = "https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date"
+    try:
+        page = get(url)
+    except requests.HTTPError as error:
+        # The public Financial Markets table occasionally sends a brief 403
+        # after a successful request, then accepts the same normal request a
+        # few seconds later. Keep this exception deliberately local: a 403
+        # from another official source remains a contract failure, and a
+        # repeated FX 403 still preserves the last valid series as stale.
+        if getattr(getattr(error, "response", None), "status_code", None) != 403:
+            raise
+        time.sleep(FX_TRANSIENT_403_RETRY_SECONDS)
+        page = get(url)
+    return parse_bnm_daily_fx_html(page.text)
+
+
+def monthly_fx_close_points(points: list[dict]) -> list[dict]:
+    """Aggregate daily official reference rates to each month's last observed trading date."""
+    values = pd.Series({pd.Timestamp(point["date"]): float(point["value"]) for point in points}, dtype=float).sort_index()
+    closes = values.resample("MS").last().dropna()
+    return [{"date": date.strftime("%Y-%m-%d"), "value": round(float(value), 6)} for date, value in closes.items()]
+
+
+def modelling_series(series: dict[str, dict]) -> dict[str, dict]:
+    """Keep display series untouched while supplying monthly-close FX to macro analyses."""
+    output = copy.deepcopy(series)
+    output["fx"]["points"] = monthly_fx_close_points(series["fx"]["points"])
+    output["fx"]["frequency"] = "Monthly close · last BNM trading-day reference rate"
+    return output
 
 
 def fetch_mgs_for_date(date: str | None = None) -> dict | None:
@@ -526,7 +641,7 @@ def build_economic_structure(previous: dict | None, retrieved: str) -> dict:
             **copy.deepcopy(old),
             "status": "stale",
             "lastAttemptAt": retrieved,
-            "message": f"Using last valid GDP sector data: {type(error).__name__}",
+            "message": f"Using last valid GDP sector data: {source_failure_message(error)}",
         }
 
 
@@ -638,7 +753,7 @@ def build_growth_drivers(previous: dict | None, retrieved: str, production: dict
             demand = copy.deepcopy(old["demand"])
             demand["status"] = "stale"
             demand["lastAttemptAt"] = retrieved
-            demand["message"] = f"Using last valid GDP demand data: {type(error).__name__}"
+            demand["message"] = f"Using last valid GDP demand data: {source_failure_message(error)}"
             status = "partial"
             message = "Production view refreshed; expenditure view retained from last validation"
         else:
@@ -656,7 +771,7 @@ def build_growth_drivers(previous: dict | None, retrieved: str, production: dict
                 "latestYear": None,
                 "years": [],
                 "note": "Expenditure-side GDP could not be validated in this run.",
-                "message": f"Expenditure view unavailable: {type(error).__name__}",
+                "message": f"Expenditure view unavailable: {source_failure_message(error)}",
             }
             status = "partial"
             message = "Production view available; expenditure view unavailable"
@@ -745,8 +860,8 @@ def fetch_national_expenditure(year: int, retrieved: str, previous: dict | None 
     except Exception as error:
         prior_value = _safe_float(previous.get("value")) if previous else None
         if previous and previous.get("observationPeriod") == f"{year}-01-01" and previous.get("sourceUrl") == HIES_EXPENDITURE_REPORT_URL.format(year=year) and prior_value is not None and 100 <= prior_value <= 100000:
-            return {**copy.deepcopy(previous), "status": "stale", "lastAttemptAt": retrieved, "message": f"Last verified same-year national expenditure retained: {type(error).__name__}"}
-        return {"status": "unavailable", "value": None, "unit": "RM per household per month", "observationPeriod": f"{year}-01-01", "retrievedAt": None, "lastAttemptAt": retrieved, "sourceUrl": HIES_EXPENDITURE_REPORT_URL.format(year=year), "message": f"National expenditure benchmark unavailable: {type(error).__name__}; no state-average substitute used"}
+            return {**copy.deepcopy(previous), "status": "stale", "lastAttemptAt": retrieved, "message": f"Last verified same-year national expenditure retained: {source_failure_message(error)}"}
+        return {"status": "unavailable", "value": None, "unit": "RM per household per month", "observationPeriod": f"{year}-01-01", "retrievedAt": None, "lastAttemptAt": retrieved, "sourceUrl": HIES_EXPENDITURE_REPORT_URL.format(year=year), "message": f"National expenditure benchmark unavailable: {source_failure_message(error)}; no state-average substitute used"}
 
 
 def _national_survey_value(frame: pd.DataFrame, column: str, period: pd.Timestamp) -> float | None:
@@ -1139,7 +1254,7 @@ def _refresh_regional_source(previous: dict | None, retrieved: str, loader: Call
             source = {**source, "retrievedAt": None, "observationPeriod": None}
         return {**source, "lastAttemptAt": retrieved}
     except Exception as error:
-        reason = f"{type(error).__name__}: source retrieval or validation failed"
+        reason = source_failure_message(error)
         if _regional_has_data(previous) and previous.get("status") in {"fresh", "stale", "partial"}:
             return {**copy.deepcopy(previous), "status": "stale", "lastAttemptAt": retrieved,
                     "failureReason": reason, "message": f"Last valid observations retained; {reason}"}
@@ -1480,7 +1595,7 @@ def build_external_sector(previous: dict | None, retrieved: str) -> dict:
             **copy.deepcopy(old),
             "status": "stale",
             "lastAttemptAt": retrieved,
-            "message": f"Using last valid trade data: {type(error).__name__}",
+            "message": f"Using last valid trade data: {source_failure_message(error)}",
         }
 
 
@@ -1554,7 +1669,7 @@ def parse_bop_balance(frame: pd.DataFrame, retrieved: str) -> dict:
 def build_balance_payments(previous: dict | None, retrieved: str) -> dict:
     try:
         result = parse_bop_balance(read_csv(BOP_BALANCE_URL), retrieved)
-        return apply_observation_recency(result, retrieved, 200)
+        return apply_observation_recency(result, retrieved, BOP_MAX_OBSERVATION_AGE_DAYS)
     except Exception as error:
         old = (previous or {}).get("balancePayments")
         if not old or not old.get("quarters"):
@@ -1563,7 +1678,7 @@ def build_balance_payments(previous: dict | None, retrieved: str) -> dict:
             **copy.deepcopy(old),
             "status": "stale",
             "lastAttemptAt": retrieved,
-            "message": f"Using last valid BOP data: {type(error).__name__}",
+            "message": f"Using last valid BOP data: {source_failure_message(error)}",
         }
 
 
@@ -1868,7 +1983,7 @@ def build_market(previous: dict | None, retrieved: str) -> dict:
         if not old:
             raise
         points = old
-        status, message = "stale", f"Using last valid market data: {type(error).__name__}"
+        status, message = "stale", f"Using last valid market data: {source_failure_message(error)}"
     summary = market_statistics(points)
     one_year = summary["return1Y"]
     direction = "gained" if one_year is not None and one_year > 0 else "declined" if one_year is not None and one_year < 0 else "was broadly unchanged"
@@ -2387,7 +2502,7 @@ def backtest(series: dict[str, list[dict]]) -> tuple[list[dict], str, dict]:
                     row["points"].append(point)
                 audited_points[name].extend(row["points"])
             except Exception as error:
-                row.update({"status": "failed", "failureReason": f"{type(error).__name__}: {str(error)[:240]}", "points": []})
+                row.update({"status": "failed", "failureReason": model_failure_message(error), "points": []})
                 failures[name].append(origin_date)
             fold["models"].append(row)
         windows.append(fold)
@@ -2468,7 +2583,7 @@ def forecast(series: dict[str, list[dict]]) -> dict:
     except Exception as error:
         if selected == "Seasonal naive":
             raise
-        failure_reason = f"{type(error).__name__}: {str(error)[:240]}"
+        failure_reason = model_failure_message(error)
         selected = "Seasonal naive"
         central, intervals, final_model = _forecast_arrays(selected, y, exog, future_dates)
     evaluation["finalFit"] = {"requestedModel": requested, "usedModel": selected, "fallbackUsed": failure_reason is not None, "failureReason": failure_reason}
@@ -2493,7 +2608,7 @@ def forecast(series: dict[str, list[dict]]) -> dict:
         evaluation["scenarioFit"] = {"status": "success", "failureReason": None}
     except Exception as error:
         scenario = None
-        evaluation["scenarioFit"] = {"status": "failed", "failureReason": f"{type(error).__name__}: {str(error)[:240]}"}
+        evaluation["scenarioFit"] = {"status": "failed", "failureReason": model_failure_message(error)}
     return {"selectedModel": selected, "methodLabel": "Pseudo-real-time backtest using conservative assumed release lags; not historical vintages", "informationOrigin": y.index[-1].strftime("%Y-%m-%d"), "backtestWindows": len(evaluation["windows"]), "models": scores, "points": points, "scenario": scenario, "evaluation": evaluation,
             "status": "fallback" if failure_reason else "fresh", "calculationStatus": "fallback" if failure_reason else "fresh"}
 
@@ -2538,6 +2653,31 @@ def build_data_operations(series: dict[str, dict], generated_at: str) -> dict:
     }
 
 
+def source_failure_message(error: Exception) -> str:
+    """Give users a useful, non-sensitive retained-data explanation."""
+    if isinstance(error, requests.Timeout):
+        return "official source request timed out"
+    if isinstance(error, requests.ConnectionError):
+        return "official source connection failed"
+    if isinstance(error, requests.HTTPError):
+        status_code = getattr(getattr(error, "response", None), "status_code", None)
+        if isinstance(status_code, int) and 100 <= status_code <= 599:
+            return f"official source returned HTTP {status_code}"
+        return "official source returned an HTTP error"
+    if isinstance(error, (ValueError, KeyError, TypeError, pd.errors.ParserError)):
+        return "official response did not pass validation"
+    return "official source refresh failed"
+
+
+def model_failure_message(error: Exception) -> str:
+    """Disclose a model failure without exposing implementation details publicly."""
+    if isinstance(error, (np.linalg.LinAlgError, FloatingPointError)):
+        return "model fit was numerically unstable"
+    if isinstance(error, (ValueError, KeyError, TypeError, pd.errors.ParserError)):
+        return "model input or fit did not pass validation"
+    return "model calculation failed"
+
+
 def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | None, retrieved: str) -> tuple[dict, dict]:
     spec = SPECS[key]
     try:
@@ -2545,7 +2685,7 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
         status = {"status": "fresh", "retrievedAt": retrieved, "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": "Official source validated"}
         # OPR is an applicable policy setting, not a daily/monthly observation:
         # a successful response with an older last decision is not itself stale.
-        max_age = {"headline": 100, "core": 100, "unemployment": 110, "fx": 45, "mgs": 10}.get(key)
+        max_age = {"headline": 100, "core": 100, "unemployment": 110, "fx": 10, "mgs": 10}.get(key)
         if max_age is not None:
             status = apply_observation_recency(status, retrieved, max_age, monthly_period=SPECS[key].frequency.lower().startswith("monthly"))
         if key == "mgs":
@@ -2558,8 +2698,14 @@ def merge_or_stale(key: str, loader: Callable[[], list[dict]], previous: dict | 
             raise
         points = old["points"]
         previous_source = (previous or {}).get("sources", {}).get(key, {})
-        status = {**copy.deepcopy(previous_source), "status": "stale", "retrievedAt": previous_source.get("retrievedAt"), "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": f"Using last valid data: {type(error).__name__}"}
+        status = {**copy.deepcopy(previous_source), "status": "stale", "retrievedAt": previous_source.get("retrievedAt"), "lastAttemptAt": retrieved, "observationPeriod": points[-1]["date"], "message": f"Using last valid data: {source_failure_message(error)}"}
     series = {**spec.__dict__, "points": points}
+    if key == "fx" and status["status"] == "stale" and old:
+        # A failed migration must not relabel the retained monthly data.gov.my
+        # observations as daily BNM reference rates.
+        for field in ("frequency", "source", "source_url"):
+            if old.get(field):
+                series[field] = old[field]
     if key == "mgs":
         coverage = status.get("historyCoverage") or mgs_history_coverage()
         series["historyCoverage"] = coverage
@@ -3064,15 +3210,19 @@ def build(previous_path: Path = PUBLISHED) -> dict:
     loaders: dict[str, Callable[[], list[dict]]] = {
         **cpi_loaders,
         "unemployment": fetch_unemployment,
-        "opr": fetch_opr,
+        # Fetch the one-page Financial Markets reference rate before the
+        # multi-year OpenAPI history requests. This reduces avoidable BNM
+        # throttling while leaving validation and fallback semantics unchanged.
         "fx": fetch_daily_fx,
+        "opr": fetch_opr,
         "mgs": lambda: fetch_mgs(previous),
     }
     series, sources = {}, {}
     for key, loader in loaders.items():
         series[key], sources[key] = merge_or_stale(key, loader, previous, retrieved)
+    analytical_series = modelling_series(series)
     try:
-        forecast_data = forecast({key: value["points"] for key, value in series.items()})
+        forecast_data = forecast({key: value["points"] for key, value in analytical_series.items()})
         forecast_data["calculatedAt"] = retrieved
     except Exception as error:
         if not previous:
@@ -3080,20 +3230,20 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         forecast_data = previous["forecast"]
         forecast_data = {**forecast_data, "status": "stale", "calculationStatus": "stale", "message": f"Forecast retained after {type(error).__name__}"}
     forecast_data.setdefault("status", "fresh")
-    structural_data = build_structural_analysis(series, previous, retrieved)
+    structural_data = build_structural_analysis(analytical_series, previous, retrieved)
     market_data = build_market(previous, retrieved)
     economic_structure = build_economic_structure(previous, retrieved)
     growth_drivers = build_growth_drivers(previous, retrieved, economic_structure)
     external_sector = build_external_sector(previous, retrieved)
     balance_payments = build_balance_payments(previous, retrieved)
     regional_lens = build_regional_lens(previous, retrieved)
-    risk_heatmap = build_risk_heatmap(series, market_data, growth_drivers, external_sector, retrieved)
-    latest_brief = build_latest_brief(series, forecast_data, market_data, growth_drivers, external_sector, risk_heatmap, retrieved)
-    household_pressure = build_household_pressure(series, market_data, risk_heatmap, retrieved)
+    risk_heatmap = build_risk_heatmap(analytical_series, market_data, growth_drivers, external_sector, retrieved)
+    latest_brief = build_latest_brief(analytical_series, forecast_data, market_data, growth_drivers, external_sector, risk_heatmap, retrieved)
+    household_pressure = build_household_pressure(analytical_series, market_data, risk_heatmap, retrieved)
     sector_deep_dive = build_sector_deep_dive(growth_drivers, market_data, external_sector, retrieved)
-    macro_timeline = build_macro_timeline(series, structural_data, market_data, retrieved)
+    macro_timeline = build_macro_timeline(analytical_series, structural_data, market_data, retrieved)
     payload = {
-        "schemaVersion": 9,
+        "schemaVersion": 10,
         "generatedAt": retrieved,
         "health": "fresh" if all(source["status"] == "fresh" for source in sources.values()) and market_data["status"] == "fresh" and economic_structure["status"] == "fresh" and external_sector["status"] == "fresh" and growth_drivers["status"] == "fresh" and balance_payments["status"] == "fresh" and regional_lens["status"] == "fresh" else "partial",
         "sources": sources,
@@ -3113,9 +3263,9 @@ def build(previous_path: Path = PUBLISHED) -> dict:
         "macroTimeline": macro_timeline,
         "riskHeatmap": risk_heatmap,
         "latestBrief": latest_brief,
-        "decisionGuide": build_decision_guide(series, market_data, retrieved, risk_heatmap, external_sector),
+        "decisionGuide": build_decision_guide(analytical_series, market_data, retrieved, risk_heatmap, external_sector),
         "dataOperations": build_data_operations(series, retrieved),
-        "narratives": narrative(series, forecast_data),
+        "narratives": narrative(analytical_series, forecast_data),
     }
     payload["monthlyReport"] = build_monthly_report(payload, retrieved)
     finalize_data_trust(payload)
@@ -3263,8 +3413,9 @@ def write_regional_exports(regional: dict) -> None:
 def recompute_risk_offline(previous: dict, calculated_at: str) -> dict:
     """Correct risk-derived calculations without claiming a new official retrieval."""
     payload = copy.deepcopy(previous)
-    payload["riskHeatmap"] = build_risk_heatmap(payload["series"], payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), calculated_at)
-    payload["latestBrief"] = build_latest_brief(payload["series"], payload["forecast"], payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), payload["riskHeatmap"], calculated_at)
+    analytical_series = modelling_series(payload["series"])
+    payload["riskHeatmap"] = build_risk_heatmap(analytical_series, payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), calculated_at)
+    payload["latestBrief"] = build_latest_brief(analytical_series, payload["forecast"], payload.get("market", {}), payload.get("growthDrivers", {}), payload.get("externalSector", {}), payload["riskHeatmap"], calculated_at)
     payload["recomputation"] = {"mode": "offline-risk-recompute", "sourceRefresh": False, "calculatedAt": calculated_at,
         "note": "Risk scores and brief recalculated from saved validated observations; official periods and retrieval clocks are unchanged."}
     return finalize_data_trust(payload)
@@ -3275,7 +3426,8 @@ def recompute_forecast_offline(previous: dict, calculated_at: str) -> dict:
     payload = copy.deepcopy(previous)
     for key in SPECS:
         validate_points(key, payload["series"][key]["points"])
-    calculated = forecast({key: payload["series"][key]["points"] for key in SPECS})
+    analytical_series = modelling_series(payload["series"])
+    calculated = forecast({key: analytical_series[key]["points"] for key in SPECS})
     calculated["calculatedAt"] = calculated_at
     if previous.get("forecast", {}).get("vintageLedger"):
         calculated["vintageLedger"] = copy.deepcopy(previous["forecast"]["vintageLedger"])
@@ -3293,7 +3445,7 @@ def recompute_forecast_offline(previous: dict, calculated_at: str) -> dict:
     calculated["recomputation"] = {"mode": "offline", "sourceRefresh": False, "note": "Forecast and affected text recalculated from the saved validated series; official observations, source status and retrieval timestamps are unchanged."}
     finalize_data_trust({"sources": payload.get("sources", {}), "forecast": calculated})
     payload["forecast"] = calculated
-    payload.setdefault("narratives", {})["forecast"] = narrative(payload["series"], calculated)["forecast"]
+    payload.setdefault("narratives", {})["forecast"] = narrative(analytical_series, calculated)["forecast"]
     for section in payload.get("monthlyReport", {}).get("sections", []):
         if section.get("heading") == "Forecast":
             section["body"] = payload["narratives"]["forecast"]
@@ -3567,12 +3719,12 @@ def write_payload(payload: dict, output: Path = PUBLISHED) -> bool:
                 "hac_p": candidate["hacWald"]["pValue"], "pre_mean": comparison["preMean"], "post_mean": comparison["postMean"],
                 "absolute_change": comparison["absoluteChange"], "pre_annual_trend": comparison["preAnnualTrend"],
                 "post_annual_trend": comparison["postAnnualTrend"], "standardised_mean_change": comparison["standardisedMeanChange"],
-                "nearby_events": " | ".join(event["title"] for event in candidate.get("nearbyEvents", [])),
+                "nearby_events": " | ".join(str(event["title"]).strip() for event in candidate.get("nearbyEvents", [])).strip(),
             })
     fieldnames = ["indicator", "break_period", "status", "chow_f", "chow_df_numerator", "chow_df_denominator", "chow_p_raw", "chow_p_holm", "hac_wald", "hac_p", "pre_mean", "post_mean", "absolute_change", "pre_annual_trend", "post_annual_trend", "standardised_mean_change", "nearby_events"]
     STRUCTURAL_CSV.parent.mkdir(parents=True, exist_ok=True)
     with STRUCTURAL_CSV.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     write_regional_exports(payload.get("regionalLens", {}))

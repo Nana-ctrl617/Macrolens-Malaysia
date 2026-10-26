@@ -27,6 +27,7 @@ export function renderRefreshSummary({ jobStatus, dashboardChanged, dashboardVal
       '',
       '## Validated dashboard artifact inspected in this run',
       '',
+      `- **Schema version:** ${cell(dashboard.schemaVersion)}`,
       `- **Artifact timestamp (UTC):** ${cell(dashboard.generatedAt)}`,
       `- **Overall data status:** ${cell(dashboard.health)}`,
       '',

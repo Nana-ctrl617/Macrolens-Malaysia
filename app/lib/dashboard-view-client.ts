@@ -1,5 +1,6 @@
 import {dashboardViewFields,isDashboardView,isHistoryId,type DashboardView,type DashboardViewPayload,type DashboardHistoryPayload,type DeferredHistory,type HistoryId,type HistoryRange} from "./dashboard-projection.ts";
 import {pressureSummary} from "./score-method.ts";
+import { DASHBOARD_REFRESH_CACHE_MS } from "./dashboard-cache-policy.ts";
 type Options={fetch?:typeof globalThis.fetch;now?:()=>number;cacheMs?:number;timeoutMs?:number};
 type HistoryOptions={range?:HistoryRange;start?:string;end?:string};
 type Entry<T>={data:T;expires:number};
@@ -50,7 +51,7 @@ function validExternal(raw:unknown):boolean {
 }
 /** The server validates the complete artifact. This boundary validates the projected DTO and prevents accidental full downloads. */
 export function isDashboardViewPayload(raw:unknown,view:DashboardView):raw is DashboardViewPayload {
-  if(!record(raw)||raw.projectionVersion!==1||raw.view!==view||!hash(raw.artifactId)||!Number.isInteger(raw.schemaVersion)||Number(raw.schemaVersion)<1||Number(raw.schemaVersion)>9||typeof raw.generatedAt!=="string"||!Number.isFinite(Date.parse(raw.generatedAt))||!["fresh","partial","fallback"].includes(String(raw.health))||!record(raw.sources)||!record(raw.deferred))return false;
+  if(!record(raw)||raw.projectionVersion!==1||raw.view!==view||!hash(raw.artifactId)||!Number.isInteger(raw.schemaVersion)||Number(raw.schemaVersion)<1||Number(raw.schemaVersion)>10||typeof raw.generatedAt!=="string"||!Number.isFinite(Date.parse(raw.generatedAt))||!["fresh","partial","fallback"].includes(String(raw.health))||!record(raw.sources)||!record(raw.deferred))return false;
   if(raw.usingFallback!==undefined&&typeof raw.usingFallback!=="boolean")return false;
   const allowed=["projectionVersion","view","artifactId","schemaVersion","generatedAt","health","usingFallback","sources","inputHealth","deferred",...dashboardViewFields(view)];
   if(Object.keys(raw).some(key=>!allowed.includes(key)))return false;
@@ -83,7 +84,7 @@ function validHistory(raw:unknown,ref:DeferredHistory,range:HistoryRange):raw is
   return Array.isArray(raw.data.entries)&&raw.data.entries.length===scope.returnedRows;
 }
 export function createDashboardViewClient(options:Options={}){
-  const fetcher=options.fetch??((url,init)=>globalThis.fetch(url,init)),now=options.now??Date.now,cacheMs=options.cacheMs??300000,timeoutMs=options.timeoutMs??12000;
+  const fetcher=options.fetch??((url,init)=>globalThis.fetch(url,init)),now=options.now??Date.now,cacheMs=options.cacheMs??DASHBOARD_REFRESH_CACHE_MS,timeoutMs=options.timeoutMs??12000;
   const cached=new Map<string,Entry<unknown>>(),pending=new Map<string,Pending<unknown>>(),generations=new Map<string,number>();
   const invalidateKey=(key:string)=>{generations.set(key,(generations.get(key)??0)+1);cached.delete(key);const old=pending.get(key);pending.delete(key);old?.controller.abort();};
   function request<T>(key:string,url:string,validate:(v:unknown)=>v is T,revalidate=false):Promise<T>{

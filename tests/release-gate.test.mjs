@@ -58,6 +58,7 @@ test('required stage order includes every data, build and browser gate',()=>{
   const stages=createReleaseStages({node:process.execPath,python:'python',pnpm:'pnpm'});
   assert.deepEqual(stages.map(s=>s.name),REQUIRED_STAGES);
   assert.ok(stages.find(s=>s.name==='python-unit').args.includes('pipeline/tests'));
+  assert.deepEqual(stages.find(s=>s.name==='lint').args,['run','lint']);
   assert.ok(stages.find(s=>s.name==='playwright').args.includes('playwright'));
 });
 test('release gate prefers the project virtual environment and respects an explicit Python override',()=>{

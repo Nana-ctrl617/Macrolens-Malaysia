@@ -86,13 +86,15 @@ test('invalid JSON, missing file and CLI validation failures exit nonzero', asyn
   assert.match(excess.stderr, /Usage/);
 });
 
-test('daily source workflow keeps its schedule and validates before staging data', async () => {
+test('daily source workflow keeps its schedule and verifies the generated artifact before staging data', async () => {
   const yaml = await source('.github/workflows/update-dashboard.yml');
   assert.match(yaml, /cron:\s*["']45 5 \* \* \*["']/);
   assert.match(yaml, /workflow_dispatch:/);
   assert.match(yaml, /cancel-in-progress:\s*false/);
   assert.ok(yaml.indexOf('pytest -q pipeline/tests') < yaml.indexOf('python pipeline/macrolens.py'));
-  assert.ok(yaml.indexOf('python pipeline/macrolens.py') < yaml.indexOf('node scripts/validate-published.mjs'));
+  assert.match(yaml, /name:\s*Verify generated dashboard against application contracts\s*\n\s*run:\s*pnpm run test:unit/);
+  assert.ok(yaml.indexOf('python pipeline/macrolens.py') < yaml.indexOf('pnpm run test:unit'));
+  assert.ok(yaml.indexOf('pnpm run test:unit') < yaml.indexOf('node scripts/validate-published.mjs'));
   assert.ok(yaml.indexOf('node scripts/validate-published.mjs') < yaml.indexOf('git add -- data/published data/vintages data/backfill'));
   assert.match(yaml, /pnpm install --frozen-lockfile/);
   assert.match(yaml, /git status --porcelain --untracked-files=all -- data\/published data\/vintages data\/backfill/);
@@ -110,6 +112,10 @@ test('daily source workflow keeps its schedule and validates before staging data
   assert.match(yaml, /DASHBOARD_VALIDATED:\s*\$\{\{ steps\.validation\.outputs\.validated \}\}/);
   assert.match(yaml, /DASHBOARD_LIVE_VERIFIED:\s*\$\{\{ steps\.live\.outputs\.verified \}\}/);
   assert.match(yaml, /node scripts\/refresh-summary\.mjs data\/published\/dashboard\.json/);
+  assert.match(yaml, /name:\s*Preserve refresh evidence[\s\S]*if:\s*always\(\)[\s\S]*actions\/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6\.0\.0/);
+  assert.match(yaml, /name:\s*macrolens-refresh-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
+  assert.match(yaml, /data\/published\/dashboard\.json[\s\S]*data\/backfill\/mgs-history\.json/);
+  assert.match(yaml, /retention-days:\s*14/);
 });
 
 test('Vercel skips only validated data-only commits and builds on uncertainty or code changes', async () => {
@@ -248,6 +254,7 @@ test('live dashboard verification fails closed on HTTP, malformed, missing, mism
 test('refresh summary distinguishes changed, unchanged, unvalidated, and failed runs', async () => {
   const { renderRefreshSummary } = await import(new URL('../scripts/refresh-summary.mjs', import.meta.url));
   const dashboard = {
+    schemaVersion: 10,
     generatedAt: '2026-10-16T03:14:33Z',
     health: 'stale',
     sources: {
@@ -258,6 +265,7 @@ test('refresh summary distinguishes changed, unchanged, unvalidated, and failed 
   const changed = renderRefreshSummary({ jobStatus: 'success', dashboardChanged: 'true', dashboardValidated: 'true', dashboardLiveVerified: 'true', dashboard });
   assert.match(changed, /Succeeded/);
   assert.match(changed, /validated changes were pushed/);
+  assert.match(changed, /Schema version:\*\* 10/);
   assert.match(changed, /2026-08-01/);
   assert.match(changed, /stale/);
   assert.match(changed, /does not mean the scheduled job was skipped/);

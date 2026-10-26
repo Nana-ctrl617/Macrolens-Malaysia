@@ -36,6 +36,40 @@ async function component(name) {
 }
 const payload = () => JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
 
+test("snapshot renders daily BNM USD/MYR as a trading-date observation with the matching source", async () => {
+  const { SnapshotContent } = await import(await sourceModule(fileURLToPath(new URL("../app/views/SnapshotView.tsx", import.meta.url))));
+  const dashboard = payload();
+  const dates = [];
+  for (let day = new Date("2026-07-01T00:00:00Z"); dates.length < 60; day.setUTCDate(day.getUTCDate() + 1)) {
+    if (day.getUTCDay() !== 0 && day.getUTCDay() !== 6) dates.push(day.toISOString().slice(0, 10));
+  }
+  dashboard.schemaVersion = 10;
+  dashboard.series.fx.frequency = "Trading days · BNM KL reference rate";
+  dashboard.series.fx.source = "Bank Negara Malaysia Financial Markets";
+  dashboard.series.fx.source_url = "https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date";
+  dashboard.series.fx.points = dates.map(date => ({ date, value: 4.0795 }));
+  dashboard.sources.fx.observationPeriod = dates.at(-1);
+  const html = renderToStaticMarkup(createElement(SnapshotContent, { dashboard }));
+  assert.match(html, /Daily BNM KL reference rate/);
+  const displayedDate = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" })
+    .format(new Date(`${dates.at(-1)}T00:00:00Z`));
+  assert.match(html, new RegExp(`Trading date · ${displayedDate}`));
+  assert.match(html, /Source: Bank Negara Malaysia Financial Markets/);
+  assert.match(html, /data-download-kl-usd-myr-reference-rate/);
+});
+
+test("snapshot names an affected source when validated coverage is partial", async () => {
+  const { SnapshotContent } = await import(await sourceModule(fileURLToPath(new URL("../app/views/SnapshotView.tsx", import.meta.url))));
+  const dashboard = payload();
+  dashboard.health = "partial";
+  dashboard.sources.mgs.status = "stale";
+  const html = renderToStaticMarkup(createElement(SnapshotContent, { dashboard }));
+  assert.match(html, /Data coverage note/);
+  assert.match(html, /10-year MGS yield is not fresh/);
+  assert.match(html, /The last validated observation remains visible/);
+  assert.match(html, /Review source health/);
+});
+
 test("risk visual renders actual scores, input status and selected evidence", async () => {
   const Risk = await component("RiskScoreVisual");
   const data = payload().riskHeatmap;

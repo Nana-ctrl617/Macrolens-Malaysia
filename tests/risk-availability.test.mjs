@@ -12,6 +12,7 @@ import { normalizeDashboard } from "../app/lib/dashboard-health.ts";
 import { viewSource, functionSource } from './source-owners.mjs';
 
 const fixture = () => JSON.parse(readFileSync(new URL("../data/published/dashboard.json", import.meta.url), "utf8"));
+const compactCss = readFileSync(new URL("../app/compact-dashboard.css", import.meta.url), "utf8");
 const level = (value) => value == null ? "unavailable" : value >= 70 ? "high" : value >= 40 ? "moderate" : "low";
 const unavailable = (item) => ({ ...item, score: null, level: "unavailable", dataStatus: "unavailable", unavailableReason: "Required score input not supplied.", evidence: "Unavailable: required score input not supplied." });
 function withMissing(indices) {
@@ -81,7 +82,7 @@ async function pageRiskRendering(dashboard, snapshot = false) {
   const source = viewSource('Snapshot');
   const declaration = (name) => functionSource('lib/dashboard-format.ts', name);
   let body;
-  const link = source.match(/<a href="\/risk"><span>Risk heatmap ↗<\/span><strong>[^\n]+?<\/a>/)?.[0];
+  const link = source.match(/<a href="\/risk"><span>Risk heatmap →<\/span><strong>[^\n]+?<\/a>/)?.[0];
   assert.ok(link, "Missing Snapshot Risk link");
   body = `${declaration("levelLabel")} export default function SnapshotRisk({dashboard}) { return ${link}; }`;
   let output = ts.transpileModule(body, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
@@ -197,7 +198,8 @@ test("all-missing Risk rendering is literal Unavailable, not a zero pressure scr
   const risk = withMissing([0, 1, 2, 3, 4, 5, 6, 7, 8]).riskHeatmap;
   const html = await renderRisk(risk);
   assert.match(html, /0 of 9/);
-  assert.match(html, /Overall <strong>Unavailable<\/strong>/);
+  assert.match(html, /Overall rule-based index <strong>Unavailable<\/strong>/);
+  assert.match(html, /index-point score, not a percentage chance of crisis or loss/);
   assert.doesNotMatch(html, /class="score-visual-fill"/);
   assert.doesNotMatch(html, /width:0%/);
   assert.doesNotMatch(html, /0\.0 \/ 100|Unavailable \/ 100|0\.00 points/);
@@ -212,8 +214,21 @@ test("genuine zero rendering stays numeric and contributes a valid zero", async 
   assert.match(html, /0\.0 \/ 100/);
   assert.match(html, /9 of 9/);
   assert.match(html, /0\.00 points/);
+  assert.match(html, /index-point score, not a percentage chance of crisis or loss/);
   assert.equal((html.match(/class="score-visual-fill"/g) ?? []).length, 9);
   assert.match(html, /Headline inflation: 0\.0 out of 100/);
+});
+
+test("Risk periods identify monthly, exact-date and annual reference periods", async () => {
+  const risk = structuredClone(fixture().riskHeatmap);
+  risk.items.find((item) => item.id === "mgs").period = "2026-10-01";
+  risk.items.find((item) => item.id === "bursa").period = "2026-10-01";
+  const html = await renderRisk(risk);
+  assert.match(html, /Observation period: Aug 2026/);
+  assert.match(html, /Observation period: 3 Sept 2026/);
+  assert.match(html, /Observation period: 1 Oct 2026/);
+  assert.match(html, /Observation period: Year 2025 \(annual\)/);
+  assert.doesNotMatch(html, /Observation period: 2026-08-01/);
 });
 
 test("heatmap availability uses the same literal labels and exclusions as ranked bars", async () => {
@@ -233,7 +248,7 @@ test("Risk audit table and Snapshot preserve unavailable scores during fallback"
     data.usingFallback = true;
     const html = await pageRiskRendering(data);
     const table = html.slice(html.indexOf('<div class="risk-table-wrap">'));
-    assert.equal((table.match(/<td>Unavailable<\/td>/g) ?? []).length, indices.length);
+  assert.equal((table.match(/<td data-label="Score">Unavailable<\/td>/g) ?? []).length, indices.length);
     assert.equal((table.match(/Input unavailable<\/td>/g) ?? []).length, indices.length);
     assert.match(table, /risk-pill unavailable">Unavailable/);
     assert.match(html, /Headline inflation: Unavailable\./);
@@ -243,6 +258,47 @@ test("Risk audit table and Snapshot preserve unavailable scores during fallback"
       assert.doesNotMatch(snapshot, /0\.0|Unavailable pressure/);
     }
   }
+  const completeTable = await pageRiskRendering(fixture());
+  assert.match(completeTable, /<td data-label="Period \/ status">Aug 2026<br\/>Fresh inputs<\/td>/);
+  assert.match(completeTable, /<td data-label="Period \/ status">Year 2025 \(annual\)<br\/>Fresh inputs<\/td>/);
+  assert.doesNotMatch(completeTable, /<td data-label="Period \/ status">2026-08-01<\/td>/);
+});
+
+test("Risk signals link to the validated source metadata for each input", async () => {
+  const dashboard = fixture();
+  const sourceIds = {
+    headline: ["headline"], core: ["core"], unemployment: ["unemployment"], opr: ["opr"], fx: ["fx"], mgs: ["mgs"],
+    bursa: ["market"], growth: ["demand", "growthDrivers.demand"], trade: ["externalSector"],
+  };
+  for (const candidate of [dashboard, normalizeDashboard(dashboard)]) {
+    const html = await pageRiskRendering(candidate);
+    assert.match(html, /<th scope="col">Source<\/th>/);
+    for (const item of dashboard.riskHeatmap.items) {
+      const source = candidate.dataHealth.sources.find((row) => sourceIds[item.id].includes(row.id));
+      assert.ok(source?.sourceUrl, `Missing validated source URL for ${item.id} in ${candidate === dashboard ? "raw" : "normalized"} metadata`);
+      assert.ok(html.includes(`href="${source.sourceUrl}"`), `Risk page does not render the source for ${item.id}`);
+      assert.ok(source?.retrievedAt, `Missing retrieval time for ${item.id}`);
+    }
+    assert.equal((html.match(/Last successful retrieval:/g) ?? []).length, 9);
+    assert.match(html, /Last successful retrieval: [^<]+ MYT/);
+  }
+  assert.match(await pageRiskRendering(normalizeDashboard(dashboard)), /href="https:\/\/data\.gov\.my\/data-catalogue\/gdp_qtr_nominal_demand"/);
+});
+
+test("Risk audit table keeps a compact scan and progressively reveals analysis on mobile", async () => {
+  const html = await pageRiskRendering(fixture());
+  for (const label of ["Signal", "Period / status", "Score", "Level", "Analysis", "Source"]) {
+    assert.equal((html.match(new RegExp(`data-label="${label}"`, "g")) ?? []).length, 9, `Every signal row needs a ${label} label`);
+  }
+  const table = html.slice(html.indexOf('<div class="risk-table-wrap">'));
+  assert.equal((table.match(/<th scope="col">/g) ?? []).length, 6);
+  assert.equal((table.match(/<summary>Evidence and scoring<\/summary>/g) ?? []).length, 9);
+  for (const label of ["Evidence", "Scoring rule", "What to watch"]) assert.equal((table.match(new RegExp(`<dt>${label}<\\/dt>`, "g")) ?? []).length, 9);
+  const mobileRules = compactCss.slice(compactCss.indexOf("/* Keep the expanded Risk audit"));
+  assert.match(mobileRules, /\.risk-table-wrap table \{ display:block;[^}]*min-width:0/);
+  assert.match(mobileRules, /\.risk-table-wrap td::before \{ content:attr\(data-label\)/);
+  assert.match(mobileRules, /td\[data-label="Analysis"\] summary \{[^}]*min-height:44px/);
+  assert.match(mobileRules, /td\[data-label="Source"\] \{ grid-column:1\/-1; \}/);
 });
 
 test("malformed or inconsistent Risk summaries fail closed in direct component rendering", async () => {

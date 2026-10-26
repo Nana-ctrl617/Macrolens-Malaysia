@@ -25,7 +25,7 @@ type ProjectedData = Omit<DashboardPayload,"series"|"forecast"|"regionalLens"|"m
 };
 const VIEW_FIELDS = {
   snapshot:["series","narratives","riskHeatmap","dataOperations","regionalLens","structuralBreaks","categories","cpiDecomposition"],
-  brief:["latestBrief","riskHeatmap","series"],news:[],risk:["riskHeatmap"],
+  brief:["latestBrief","riskHeatmap","series"],news:[],risk:["riskHeatmap","dataHealth"],
   forecast:["forecast","narratives","series"],drivers:["series","categories","cpiDecomposition","forecast","narratives"],
   structure:["economicStructure","growthDrivers","sectorDeepDive","regionalLens"],external:["externalSector"],bop:["balancePayments"],
   household:["householdPressure","market","regionalLens"],regional:["regionalLens"],sectors:["sectorDeepDive","regionalLens"],
