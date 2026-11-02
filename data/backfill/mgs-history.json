@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "startDate": "2021-11-01",
-  "nextDate": "2026-11-01",
-  "targetDate": "2026-10-31",
+  "nextDate": "2026-11-02",
+  "targetDate": "2026-11-01",
   "completed": true,
   "requests": 1305,
   "observations": 1198,
-  "updatedAt": "2026-11-01T12:01:39Z",
+  "updatedAt": "2026-11-02T13:50:12Z",
   "lastError": null,
-  "coverageThrough": "2026-10-31",
+  "coverageThrough": "2026-11-01",
   "coverageStatus": "fresh",
   "message": "Daily 10-year MGS history is complete from November 2021."
 }
