@@ -1,92 +1,92 @@
 {
   "schemaVersion": 10,
-  "generatedAt": "2026-11-06T13:13:14Z",
+  "generatedAt": "2026-11-07T11:55:44Z",
   "health": "fresh",
   "sources": {
     "headline": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 37,
+        "observationAgeDays": 38,
         "maximumObservationAgeDays": 100,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "core": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-09-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 37,
+        "observationAgeDays": 38,
         "maximumObservationAgeDays": 100,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "unemployment": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-08-01",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "period-end",
-        "observationAgeDays": 67,
+        "observationAgeDays": 68,
         "maximumObservationAgeDays": 110,
         "note": "Age is measured from the end of the observation month, not the publication date."
       }
     },
     "fx": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-11-06",
       "message": "Official source validated",
       "freshness": {
         "basis": "observation-recency",
         "reference": "observation-date",
-        "observationAgeDays": 0,
+        "observationAgeDays": 1,
         "maximumObservationAgeDays": 10,
         "note": "Age is measured from the observation date, not the publication date."
       }
     },
     "opr": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-09-03",
       "message": "Official source validated"
     },
     "mgs": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
-      "lastAttemptAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
+      "lastAttemptAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2026-11-06",
       "message": "Latest official close validated. Daily 10-year MGS history is complete from November 2021.",
       "freshness": {
         "basis": "observation-recency",
         "reference": "observation-date",
-        "observationAgeDays": 0,
+        "observationAgeDays": 1,
         "maximumObservationAgeDays": 10,
         "note": "Age is measured from the observation date, not the publication date."
       },
       "historyCoverage": {
         "status": "fresh",
         "startDate": "2021-11-01",
-        "throughDate": "2026-11-05",
+        "throughDate": "2026-11-06",
         "completed": true,
-        "requests": 1309,
-        "observations": 1202,
-        "retrievedAt": "2026-11-06T13:13:40Z",
+        "requests": 1310,
+        "observations": 1203,
+        "retrievedAt": "2026-11-07T11:56:11Z",
         "message": "Daily 10-year MGS history is complete from November 2021."
       }
     }
@@ -16910,11 +16910,11 @@
       "historyCoverage": {
         "status": "fresh",
         "startDate": "2021-11-01",
-        "throughDate": "2026-11-05",
+        "throughDate": "2026-11-06",
         "completed": true,
-        "requests": 1309,
-        "observations": 1202,
-        "retrievedAt": "2026-11-06T13:13:40Z",
+        "requests": 1310,
+        "observations": 1203,
+        "retrievedAt": "2026-11-07T11:56:11Z",
         "message": "Daily 10-year MGS history is complete from November 2021."
       }
     }
@@ -25411,7 +25411,7 @@
     },
     "status": "fresh",
     "calculationStatus": "fresh",
-    "calculatedAt": "2026-11-06T13:13:14Z",
+    "calculatedAt": "2026-11-07T11:55:44Z",
     "inputHealth": {
       "status": "fresh",
       "staleInputs": [],
@@ -25424,9 +25424,9 @@
       "requiredSourceCount": 6,
       "sourceSnapshotCount": 42,
       "revisedSourcePeriodCount": 1,
-      "prospectiveForecastCount": 29,
+      "prospectiveForecastCount": 30,
       "capturedOutcomeCount": 8,
-      "pendingForecastTargetCount": 79,
+      "pendingForecastTargetCount": 82,
       "firstSnapshotAt": "2026-10-06T12:13:36Z",
       "lastSnapshotAt": "2026-11-06T13:13:14Z",
       "note": "Append-only source and forecast records start with validated live retrievals after this ledger was introduced. Legacy CPI files are retained but are not represented as release vintages. Outcome capture records the first value seen by this ledger; official first-release status is unverified."
@@ -26117,8 +26117,8 @@
   },
   "market": {
     "status": "fresh",
-    "retrievedAt": "2026-11-06T13:13:14Z",
-    "lastAttemptAt": "2026-11-06T13:13:14Z",
+    "retrievedAt": "2026-11-07T11:55:44Z",
+    "lastAttemptAt": "2026-11-07T11:55:44Z",
     "message": "Delayed daily prices validated",
     "benchmark": {
       "id": "fbmklci",
@@ -35936,14 +35936,14 @@
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 0,
+      "observationAgeDays": 1,
       "maximumObservationAgeDays": 10,
       "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "economicStructure": {
     "status": "fresh",
-    "retrievedAt": "2026-11-06T13:13:14Z",
+    "retrievedAt": "2026-11-07T11:55:44Z",
     "observationPeriod": "2025-12-31",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -36781,14 +36781,14 @@
     ],
     "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
     "message": "Official quarterly observations validated; only complete calendar years are published",
-    "lastAttemptAt": "2026-11-06T13:13:14Z"
+    "lastAttemptAt": "2026-11-07T11:55:44Z"
   },
   "growthDrivers": {
     "status": "fresh",
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "production": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
@@ -37626,11 +37626,11 @@
       ],
       "note": "Sector shares describe where value added is produced. They are not government revenue, company profit or household income. Current-price changes combine real output and price effects.",
       "message": "Official quarterly observations validated; only complete calendar years are published",
-      "lastAttemptAt": "2026-11-06T13:13:14Z"
+      "lastAttemptAt": "2026-11-07T11:55:44Z"
     },
     "demand": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2025-12-31",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
@@ -38523,7 +38523,7 @@
       ],
       "note": "Imports are shown as a positive ringgit flow but subtract from GDP in the expenditure identity. Inventories are volatile and should not be read as a stable demand engine.",
       "message": "Official quarterly expenditure observations validated; complete years only",
-      "lastAttemptAt": "2026-11-06T13:13:14Z"
+      "lastAttemptAt": "2026-11-07T11:55:44Z"
     },
     "summary": "Production-side GDP is still anchored by Services. The latest expenditure-side screen points to Exports of goods and services as the main annual demand-side driver where data are available.",
     "message": "Production and expenditure GDP views validated",
@@ -38536,7 +38536,7 @@
   },
   "externalSector": {
     "status": "fresh",
-    "retrievedAt": "2026-11-06T13:13:14Z",
+    "retrievedAt": "2026-11-07T11:55:44Z",
     "observationPeriod": "2026-09-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
@@ -41649,18 +41649,18 @@
       "macro": "Goods trade matters for the ringgit, manufacturing demand and imported-cost pressure, but it excludes services trade and does not by itself explain GDP or market performance."
     },
     "message": "Official monthly trade headline data validated",
-    "lastAttemptAt": "2026-11-06T13:13:14Z",
+    "lastAttemptAt": "2026-11-07T11:55:44Z",
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 66,
+      "observationAgeDays": 67,
       "maximumObservationAgeDays": 100,
       "note": "Age is measured from the observation date, not the publication date."
     }
   },
   "balancePayments": {
     "status": "fresh",
-    "retrievedAt": "2026-11-06T13:13:14Z",
+    "retrievedAt": "2026-11-07T11:55:44Z",
     "observationPeriod": "2026-04-01",
     "source": "Department of Statistics Malaysia via data.gov.my",
     "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
@@ -43663,11 +43663,11 @@
       "ringgitContext": "The balance of payments helps explain external funding pressure, but exchange rates also respond to interest-rate expectations, risk appetite and global US dollar conditions."
     },
     "message": "Official quarterly BOP component balances validated",
-    "lastAttemptAt": "2026-11-06T13:13:14Z",
+    "lastAttemptAt": "2026-11-07T11:55:44Z",
     "freshness": {
       "basis": "observation-recency",
       "reference": "observation-date",
-      "observationAgeDays": 219,
+      "observationAgeDays": 220,
       "maximumObservationAgeDays": 230,
       "note": "Age is measured from the observation date, not the publication date."
     }
@@ -43675,8 +43675,8 @@
   "regionalLens": {
     "refreshPolicy": "source-local-v1",
     "status": "fresh",
-    "generatedAt": "2026-11-06T13:13:14Z",
-    "lastAttemptAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
+    "lastAttemptAt": "2026-11-07T11:55:44Z",
     "calculationStatus": "fresh",
     "message": "12 of 12 independent regional sources refreshed; unsuccessful sources retain only their own last-valid data",
     "defaultComparison": {
@@ -43697,7 +43697,7 @@
     "sources": {
       "nationalIncome": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "records": [
@@ -43813,11 +43813,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "nationalPoverty": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "records": [
@@ -43907,11 +43907,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "nationalInequality": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "records": [
@@ -44001,11 +44001,11 @@
           }
         ],
         "message": "Official national household benchmark validated; comparisons require the same survey period",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "hiesState": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
@@ -44201,8 +44201,8 @@
           "value": 5566.0,
           "unit": "RM per household per month",
           "observationPeriod": "2024-01-01",
-          "retrievedAt": "2026-11-06T13:13:14Z",
-          "lastAttemptAt": "2026-11-06T13:13:14Z",
+          "retrievedAt": "2026-11-07T11:55:44Z",
+          "lastAttemptAt": "2026-11-07T11:55:44Z",
           "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
           "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
           "page": 24,
@@ -44210,15 +44210,15 @@
         },
         "narrative": "Latest HIES ranks W.P. Kuala Lumpur highest for median income and W.P. Putrajaya highest for mean expenditure.",
         "message": "Latest state HIES income, expenditure, poverty and inequality data validated",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "nationalExpenditure": {
         "status": "fresh",
         "value": 5566.0,
         "unit": "RM per household per month",
         "observationPeriod": "2024-01-01",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "source": "Department of Statistics Malaysia, Household Expenditure Survey Report",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "page": 24,
@@ -44226,7 +44226,7 @@
       },
       "hiesDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_district.csv",
@@ -46177,11 +46177,11 @@
           }
         ],
         "message": "Latest district HIES data validated",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "incomeGroupState": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
@@ -46716,11 +46716,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "incomeGroupNational": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "datasetUrl": "https://storage.dosm.gov.my/hies/hies_malaysia_percentile.csv",
@@ -46754,11 +46754,11 @@
           }
         ],
         "message": "Official income percentiles validated independently",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "incomeGroups": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -47374,11 +47374,11 @@
         ],
         "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
         "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "labour": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2024-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "datasetUrl": "https://storage.dosm.gov.my/labour/lfs_district.csv",
@@ -48876,11 +48876,11 @@
         ],
         "historicalRateAnomalies": 1,
         "message": "District labour-force data validated and aggregated to state level; 1 historical rate observation(s) above 100% were excluded from latest-period summaries",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "gdpState": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -48888,11 +48888,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "gdpDistrict": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2020-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -48900,11 +48900,11 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       },
       "gdp": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2025-01-01",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -48912,7 +48912,7 @@
         "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
         "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
         "message": "State and district GDP sources are independently validated; consult each source's status, period and retrieval time",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "districtSourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "districtDatasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
         "stateRecords": [
@@ -58340,7 +58340,7 @@
         ],
         "stateSource": {
           "status": "fresh",
-          "retrievedAt": "2026-11-06T13:13:14Z",
+          "retrievedAt": "2026-11-07T11:55:44Z",
           "observationPeriod": "2025-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_state_real_supply.csv",
@@ -58348,11 +58348,11 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-11-06T13:13:14Z"
+          "lastAttemptAt": "2026-11-07T11:55:44Z"
         },
         "districtSource": {
           "status": "fresh",
-          "retrievedAt": "2026-11-06T13:13:14Z",
+          "retrievedAt": "2026-11-07T11:55:44Z",
           "observationPeriod": "2020-01-01",
           "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
           "datasetUrl": "https://storage.dosm.gov.my/gdp/gdp_district_real_supply.csv",
@@ -58360,12 +58360,12 @@
           "sectorNullPolicy": "Official null values remain unavailable, not zero; absent sector codes remain not published. Genuine numeric zeros are retained. Shares use the official p0 total, not a sum of available sectors.",
           "residualPolicy": "Supra/Supranational records describe unattributed GDP, not administrative geographies; retained as residuals and excluded from district comparison coverage.",
           "message": "Latest annual real GDP levels validated without converting unavailable sectors to zero",
-          "lastAttemptAt": "2026-11-06T13:13:14Z"
+          "lastAttemptAt": "2026-11-07T11:55:44Z"
         }
       },
       "cpi": {
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-09-01",
         "source": "Department of Statistics Malaysia via data.gov.my",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
@@ -58452,7 +58452,7 @@
           }
         ],
         "message": "Latest state headline CPI inflation validated",
-        "lastAttemptAt": "2026-11-06T13:13:14Z"
+        "lastAttemptAt": "2026-11-07T11:55:44Z"
       }
     },
     "stateRecords": [
@@ -71466,7 +71466,7 @@
     ],
     "incomeGroups": {
       "status": "fresh",
-      "retrievedAt": "2026-11-06T13:13:14Z",
+      "retrievedAt": "2026-11-07T11:55:44Z",
       "observationPeriod": "2024-01-01",
       "source": "Department of Statistics Malaysia via data.gov.my",
       "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
@@ -72082,7 +72082,7 @@
       ],
       "note": "B40, M40 and T20 are calculated from official percentile mean incomes: bottom 40 percentiles, middle 40 percentiles and top 20 percentiles. They describe household income distribution, not individual wages.",
       "message": "State and national income groups refreshed from independently validated, same-period percentile data",
-      "lastAttemptAt": "2026-11-06T13:13:14Z"
+      "lastAttemptAt": "2026-11-07T11:55:44Z"
     },
     "summaryCards": [
       {
@@ -72131,7 +72131,7 @@
     }
   },
   "householdPressure": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "overallScore": 40.0,
     "overallLevel": "moderate",
@@ -72206,7 +72206,7 @@
     }
   },
   "sectorDeepDive": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "year": 2025,
     "summary": "The sector deep-dive maps production GDP shares to export exposure, Bursa context and recent current-price growth for 2025.",
@@ -72295,7 +72295,7 @@
     }
   },
   "macroTimeline": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "entries": [
       {
@@ -72426,7 +72426,7 @@
     }
   },
   "riskHeatmap": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "overallScore": 37.2,
     "overallLevel": "low",
@@ -72562,7 +72562,7 @@
     }
   },
   "latestBrief": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "period": "2026-09-01",
     "headline": "Malaysia's latest macro reading is low pressure, with headline inflation at 1.8% and core inflation at 1.7%.",
@@ -72596,7 +72596,7 @@
     }
   },
   "decisionGuide": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "status": "fresh",
     "title": "Decision guide for the current Malaysian economy",
     "summary": "Malaysia currently combines 1.8% headline inflation, a 2.75% OPR, 2.9% unemployment and a one-year KLCI price return of -0.1%. The useful response is disciplined scenario planning—not a single buy, sell or career instruction.",
@@ -72834,7 +72834,7 @@
   },
   "dataOperations": {
     "schedule": "Daily at 13:45 Malaysia time",
-    "lastSuccessfulRefresh": "2026-11-06T13:13:14Z",
+    "lastSuccessfulRefresh": "2026-11-07T11:55:44Z",
     "vintageCount": 5,
     "latestVintagePeriod": "2026-09",
     "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
@@ -72877,7 +72877,7 @@
     "financial": "Inflation, policy rates, the ringgit and bond yields move together through several channels, but these descriptive relationships are not causal estimates or trading recommendations."
   },
   "monthlyReport": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "title": "MacroLens Malaysia monthly research brief",
     "period": "2026-09-01",
     "sections": [
@@ -72926,7 +72926,7 @@
     "status": "fresh"
   },
   "dataHealth": {
-    "generatedAt": "2026-11-06T13:13:14Z",
+    "generatedAt": "2026-11-07T11:55:44Z",
     "schemaVersion": 10,
     "overall": "fresh",
     "note": "26 of 26 source groups are fully current under their available checks. Observation periods differ; fresh does not mean real-time, and history coverage is tracked separately.",
@@ -72941,14 +72941,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_headline_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 37,
+          "observationAgeDays": 38,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -72960,14 +72960,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_core_inflation",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-09-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 37,
+          "observationAgeDays": 38,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -72979,14 +72979,14 @@
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_month",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-08-01",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "period-end",
-          "observationAgeDays": 67,
+          "observationAgeDays": 68,
           "maximumObservationAgeDays": 110,
           "note": "Age is measured from the end of the observation month, not the publication date."
         }
@@ -72998,14 +72998,14 @@
         "sourceUrl": "https://financialmarkets.bnm.gov.my/data-download-kl-usd-myr-reference-rate?date_range=all_date",
         "unit": "RM",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-11-06",
         "message": "Official source validated",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 0,
+          "observationAgeDays": 1,
           "maximumObservationAgeDays": 10,
           "note": "Age is measured from the observation date, not the publication date."
         }
@@ -73017,8 +73017,8 @@
         "sourceUrl": "https://apikijangportal.bnm.gov.my/",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-09-03",
         "message": "Official source validated"
       },
@@ -73029,25 +73029,25 @@
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
         "unit": "%",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "observationPeriod": "2026-11-06",
         "message": "Latest official close validated. Daily 10-year MGS history is complete from November 2021.",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 0,
+          "observationAgeDays": 1,
           "maximumObservationAgeDays": 10,
           "note": "Age is measured from the observation date, not the publication date."
         },
         "historyCoverage": {
           "status": "fresh",
           "startDate": "2021-11-01",
-          "throughDate": "2026-11-05",
+          "throughDate": "2026-11-06",
           "completed": true,
-          "requests": 1309,
-          "observations": 1202,
-          "retrievedAt": "2026-11-06T13:13:40Z",
+          "requests": 1310,
+          "observations": 1203,
+          "retrievedAt": "2026-11-07T11:56:11Z",
           "message": "Daily 10-year MGS history is complete from November 2021."
         }
       },
@@ -73058,14 +73058,14 @@
         "relatedSource": "FTSE Russell / Bursa Malaysia",
         "relatedSourceUrl": "https://research.ftserussell.com/Analytics/FactSheets/Home/DownloadSingleIssue?isManual=False&issueName=FBMKLCI&openfile=open",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://finance.yahoo.com/quote/%5EKLSE/history/",
         "observationPeriod": "2026-11-06",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 0,
+          "observationAgeDays": 1,
           "maximumObservationAgeDays": 10,
           "note": "Age is measured from the observation date, not the publication date."
         },
@@ -73078,8 +73078,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_supply",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -73092,14 +73092,14 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/trade_headline",
         "observationPeriod": "2026-09-01",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 66,
+          "observationAgeDays": 67,
           "maximumObservationAgeDays": 100,
           "note": "Age is measured from the observation date, not the publication date."
         },
@@ -73112,14 +73112,14 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/bop_balance",
         "observationPeriod": "2026-04-01",
         "freshness": {
           "basis": "observation-recency",
           "reference": "observation-date",
-          "observationAgeDays": 219,
+          "observationAgeDays": 220,
           "maximumObservationAgeDays": 230,
           "note": "Age is measured from the observation date, not the publication date."
         },
@@ -73132,8 +73132,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_qtr_nominal_demand",
         "observationPeriod": "2025-12-31",
         "freshness": null,
@@ -73146,8 +73146,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_income",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73160,8 +73160,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_poverty",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73174,8 +73174,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hh_inequality",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73188,8 +73188,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73202,8 +73202,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://storage.dosm.gov.my/hies/household_expenditure_2024.pdf",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73216,8 +73216,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73230,8 +73230,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73244,8 +73244,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_malaysia_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73258,8 +73258,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/hies_state_percentile",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73272,8 +73272,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/lfs_district",
         "observationPeriod": "2024-01-01",
         "freshness": null,
@@ -73286,8 +73286,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -73300,8 +73300,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_district_real_supply",
         "observationPeriod": "2020-01-01",
         "freshness": null,
@@ -73314,8 +73314,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/gdp_state_real_supply",
         "observationPeriod": "2025-01-01",
         "freshness": null,
@@ -73328,8 +73328,8 @@
         "relatedSource": null,
         "relatedSourceUrl": null,
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:14Z",
-        "lastAttemptAt": "2026-11-06T13:13:14Z",
+        "retrievedAt": "2026-11-07T11:55:44Z",
+        "lastAttemptAt": "2026-11-07T11:55:44Z",
         "sourceUrl": "https://data.gov.my/data-catalogue/cpi_state_inflation",
         "observationPeriod": "2026-09-01",
         "freshness": null,
@@ -73341,14 +73341,14 @@
         "source": "Bank Negara Malaysia (BNM) Financial Markets",
         "sourceUrl": "https://financialmarkets.bnm.gov.my/benchmark-yields",
         "status": "fresh",
-        "retrievedAt": "2026-11-06T13:13:40Z",
-        "observationPeriod": "2026-11-05",
+        "retrievedAt": "2026-11-07T11:56:11Z",
+        "observationPeriod": "2026-11-06",
         "message": "Daily 10-year MGS history is complete from November 2021."
       }
     ],
     "refresh": {
       "schedule": "Daily at 13:45 Malaysia time",
-      "lastSuccessfulRefresh": "2026-11-06T13:13:14Z",
+      "lastSuccessfulRefresh": "2026-11-07T11:55:44Z",
       "vintageCount": 5,
       "latestVintagePeriod": "2026-09",
       "vintagePolicy": "A new immutable CPI snapshot is stored whenever the published CPI period changes.",
